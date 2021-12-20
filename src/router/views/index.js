@@ -36,6 +36,16 @@ export default [{
       import( /* webpackChunkName: "views" */ '@/views/util/test')
   }]
 }, {
+  path: '/keyword',
+  component: Layout,
+  redirect: '/keyword/index',
+  children: [{
+    path: 'index',
+    name: '关键词分析',
+    component: () =>
+      import( /* webpackChunkName: "views" */ '@/views/keyword/keyword')
+  }]
+},{
   path: '/dict-horizontal',
   component: Layout,
   redirect: '/dict-horizontal/index',

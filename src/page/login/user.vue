@@ -1,10 +1,12 @@
 <template>
-  <el-form class="login-form"
-           status-icon
-           :rules="loginRules"
-           ref="loginForm"
-           :model="loginForm"
-           label-width="0">
+  <div class="user-container">
+  <el-form 
+    class="login-form"
+    status-icon
+    :rules="loginRules"
+    ref="loginForm"
+    :model="loginForm"
+    label-width="0">
     <!--第一期租户id固定传000000
     <el-form-item v-if="tenantMode" prop="tenantId">
       <el-input size="small"
@@ -17,61 +19,38 @@
     </el-form-item>
     -->
     <el-form-item prop="username">
-      <el-input size="small"
-                @keyup.enter.native="handleLogin"
-                v-model="loginForm.username"
-                auto-complete="off"
-                :placeholder="$t('login.username')">
-        <i slot="prefix" class="icon-yonghu"/>
+      <el-input 
+        @keyup.enter.native="handleLogin"
+        v-model="loginForm.username"
+        :placeholder="$t('login.username')">
       </el-input>
     </el-form-item>
     <el-form-item prop="password">
-      <el-input size="small"
-                @keyup.enter.native="handleLogin"
-                :type="passwordType"
-                v-model="loginForm.password"
-                auto-complete="off"
-                :placeholder="$t('login.password')">
-        <i class="el-icon-view el-input__icon" slot="suffix" @click="showPassword"/>
-        <i slot="prefix" class="icon-mima"/>
+      <el-input 
+        @keyup.enter.native="handleLogin"
+        :type="passwordType"
+        v-model="loginForm.password"
+        :placeholder="$t('login.password')"
+      >
       </el-input>
     </el-form-item>
-    <el-form-item v-if="this.website.captchaMode" prop="code">
-      <el-row :span="24">
-        <el-col :span="16">
-          <el-input size="small"
-                    @keyup.enter.native="handleLogin"
-                    v-model="loginForm.code"
-                    auto-complete="off"
-                    :placeholder="$t('login.code')">
-            <i slot="prefix" class="icon-yanzhengma"/>
-          </el-input>
-        </el-col>
-        <el-col :span="8">
-          <div class="login-code">
-            <img :src="loginForm.image" class="login-code-img" @click="refreshCode"/>
-          </div>
-        </el-col>
-      </el-row>
+    <el-form-item props="freelogin" class="freelogin">
+      <el-checkbox v-model="loginForm.freelogin">七天自动登录</el-checkbox>
+      <a href="#" @click="clickforgetpsw">忘记密码</a>
     </el-form-item>
     <el-form-item>
-      <el-button type="primary"
-                 size="small"
-                 @click.native.prevent="handleLogin"
-                 class="login-submit">{{$t('login.submit')}}
+      <el-button 
+        type="primary"
+
+        @click.native.prevent="handleLogin"
+        class="login-submit">登录/注册
       </el-button>
     </el-form-item>
-    <el-dialog title="用户信息选择"
-               append-to-body
-               :visible.sync="userBox"
-               width="350px">
-      <avue-form :option="userOption" v-model="userForm" @submit="submitLogin"/>
-    </el-dialog>
   </el-form>
+  </div>
 </template>
-
 <script>
-  import {mapGetters} from "vuex";
+import {mapGetters} from "vuex";
   import {info} from "@/api/system/tenant";
   import {getCaptcha} from "@/api/user";
   import {getTopUrl} from "@/util/util";
@@ -80,7 +59,8 @@
     name: "userlogin",
     data() {
       return {
-        tenantMode: this.website.tenantMode,
+        tenantMode: this.website.tenantMode,//是否开启租户模式
+        forgetpaw:false,//忘记密码
         loginForm: {
           //租户ID
           tenantId: "000000",
@@ -98,6 +78,8 @@
           code: "",
           //验证码的索引
           key: "",
+          //七天免登录
+          freelogin: false,
           //预加载白色背景
           image: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
         },
@@ -109,7 +91,8 @@
           ],
 
           username: [
-            {required: true, message: "请输入用户名", trigger: "blur"}
+            {required: true, message: "请输入用户名", trigger: "blur"},
+            //{pattern:/^\s*([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+\s*/,message: '邮箱格式不正确'}
           ],
           password: [
             {required: true, message: "请输入密码", trigger: "blur"},
@@ -197,6 +180,14 @@
     },
     props: [],
     methods: {
+      //点忘记密码单击事件
+      clickforgetpsw(){
+        this.$emit('forgetpswFn', true);
+      },
+      //注册成功返回值
+      regsuccess(){
+        this.$emit('regsuccessFn', true);
+      },
       refreshCode() {
         if (this.website.captchaMode) {
           getCaptcha().then(res => {
@@ -230,6 +221,8 @@
               spinner: "el-icon-loading"
             });
             this.$store.dispatch("LoginByUsername", this.loginForm).then(() => {
+              //按业务逻辑是如果返回注册成功的字段，就返回
+              
               if (this.website.switchMode) {
                 const deptId = this.userInfo.dept_id;
                 const roleId = this.userInfo.role_id;
@@ -266,6 +259,3 @@
     }
   };
 </script>
-
-<style>
-</style>

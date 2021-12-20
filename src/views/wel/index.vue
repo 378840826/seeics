@@ -1,5 +1,7 @@
 <template>
   <div>
+    功能暂未开放
+    <!-- 
     <el-row>
       <el-col :span="24">
         <third-register></third-register>
@@ -656,7 +658,9 @@
 
       </el-col>
     </el-row>
+    -->
   </div>
+  
 </template>
 
 <script>
