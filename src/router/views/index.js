@@ -42,6 +42,9 @@ export default [{
   children: [{
     path: 'index',
     name: '关键词分析',
+    meta: {
+      i18n: 'keyword'
+    },
     component: () =>
       import( /* webpackChunkName: "views" */ '@/views/keyword/keyword')
   }]

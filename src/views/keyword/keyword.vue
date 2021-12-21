@@ -138,12 +138,11 @@ export default {
         desc: false,//排序值
         timer: null,//定时器名称
         restnum: 10,//今日剩余数据
-
         derivedresult: true,//导出分析结果按钮，
         failanalysis: false,//分析失败按钮，
         analysisproccess:false,//正在分析按钮，还要考虑过程，应该是对象
         page:{
-          total: 0,
+          total: 2,
           //pagerCount: 5,
           currentPage: 1,
           layout: "total, sizes, prev, pager, next, jumper",
@@ -188,7 +187,8 @@ export default {
             {
               label:'操作',
               prop:'menu',
-              align: 'left'
+              align: 'left',
+              width: 230,
             },
           ]
         },
@@ -232,16 +232,16 @@ export default {
         this.formInline.keyword = ''; 
 
         //判断是否有进程
-        const isresult = this.data.every(item => !item.progress);
+        //const isresult = this.data.some(item => item.status === "ANALYZING");
         //没有进程有定时器就关了定时器
-        isresult && this.timer && this.clearTimer();
+        //isresult && this.timer && this.clearTimer();
         }
       });
     },
     //清除定时器
     clearTimer() {
-				clearInterval(this.timer);
-				this.timer = null;
+			clearInterval(this.timer);
+			this.timer = null;
 		},
     //发起关键词分析
     analysiskeywords(id){
@@ -273,24 +273,28 @@ export default {
           //有定时器先请定时器
           this.timer && this.clearTimer();
           //设置定时器刷新数据，
-          this.timer=setInterval("this.getkeywordLists();",60000);
+          this.timer=setInterval(()=>{
+            this.getkeywordLists();
+          },60000);
         }
       })
     },
+
   },
+  
   watch:{
-    'formInline.page'(){
-      if(this.formInline.page > 2){
+    'formInline.searchTopPage'(){
+      if(this.formInline.searchTopPage  > 2){
         this.$alert('付费用户专享，暂未开放', '提示', {
           confirmButtonText: '取消',
           callback: () => {
-            this.formInline.page = 2;           
+            this.formInline.searchTopPage = 2;           
           }
         });
       }
     }
   },
-  destroyed(){
+  beforeDestroy(){
     this.timer && this.clearTimer();
   }
 }

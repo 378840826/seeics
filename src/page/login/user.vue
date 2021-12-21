@@ -1,52 +1,54 @@
 <template>
   <div class="user-container">
-  <el-form 
-    class="login-form"
-    status-icon
-    :rules="loginRules"
-    ref="loginForm"
-    :model="loginForm"
-    label-width="0">
-    <!--第一期租户id固定传000000
-    <el-form-item v-if="tenantMode" prop="tenantId">
-      <el-input size="small"
-                @keyup.enter.native="handleLogin"
-                v-model="loginForm.tenantId"
-                auto-complete="off"
-                :placeholder="$t('login.tenantId')">
-        <i slot="prefix" class="icon-quanxian"/>
-      </el-input>
-    </el-form-item>
-    -->
-    <el-form-item prop="username">
-      <el-input 
-        @keyup.enter.native="handleLogin"
-        v-model="loginForm.username"
-        :placeholder="$t('login.username')">
-      </el-input>
-    </el-form-item>
-    <el-form-item prop="password">
-      <el-input 
-        @keyup.enter.native="handleLogin"
-        :type="passwordType"
-        v-model="loginForm.password"
-        :placeholder="$t('login.password')"
-      >
-      </el-input>
-    </el-form-item>
-    <el-form-item props="freelogin" class="freelogin">
-      <el-checkbox v-model="loginForm.freelogin">七天自动登录</el-checkbox>
-      <a href="#" @click="clickforgetpsw">忘记密码</a>
-    </el-form-item>
-    <el-form-item>
-      <el-button 
-        type="primary"
-
-        @click.native.prevent="handleLogin"
-        class="login-submit">登录/注册
-      </el-button>
-    </el-form-item>
-  </el-form>
+    <el-form 
+      class="login-form"
+      status-icon
+      :rules="loginRules"
+      ref="loginForm"
+      :model="loginForm"
+      label-width="0">
+      <!--第一期租户id固定传000000
+      <el-form-item v-if="tenantMode" prop="tenantId">
+        <el-input size="small"
+                  @keyup.enter.native="handleLogin"
+                  v-model="loginForm.tenantId"
+                  auto-complete="off"
+                  :placeholder="$t('login.tenantId')">
+          <i slot="prefix" class="icon-quanxian"/>
+        </el-input>
+      </el-form-item>
+      -->
+      <el-form-item prop="username">
+        <el-input 
+          @keyup.enter.native="handleLogin"
+          v-model="loginForm.username"
+          :placeholder="$t('login.username')">
+        </el-input>
+      </el-form-item>
+      <el-form-item prop="password">
+        <el-input 
+          @keyup.enter.native="handleLogin"
+          :type="passwordType"
+          v-model="loginForm.password"
+          :placeholder="$t('login.password')"
+        >
+        </el-input>
+      </el-form-item>
+      <el-form-item props="freelogin" class="freelogin">
+        <el-checkbox v-model="loginForm.freelogin">七天自动登录</el-checkbox>
+        <span @click="clickforgetpsw" class="aspan">忘记密码</span>
+      </el-form-item>
+      <el-form-item>
+        <el-button 
+          type="primary"
+          @click.native.prevent="handleLogin"
+          class="login-submit">登录/注册
+        </el-button>
+      </el-form-item>
+    </el-form>
+  <div class="inactivespan" v-if="activatedAccount">
+    账号未激活，请<a href="//mail.qq.com/" target="aaa">前往邮箱</a>激活
+  </div>
   </div>
 </template>
 <script>
@@ -59,6 +61,8 @@ import {mapGetters} from "vuex";
     name: "userlogin",
     data() {
       return {
+        //账号未激活
+        activatedAccount: false,
         tenantMode: this.website.tenantMode,//是否开启租户模式
         forgetpaw:false,//忘记密码
         loginForm: {

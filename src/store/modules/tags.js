@@ -27,19 +27,10 @@ function setFistTag(list) {
     })
   }
 }
-//给一个默认关键词分析用于一期
-const defaulttaglist = [{
-  label: '关键词分析', //标题名称
-  value: '/keyword/index', //标题的路径
-  params: '', //标题的路径参数
-  query: '', //标题的参数
-  meta: {},//额外参数
-  group: [], //分组
-}]
 
 const navs = {
   state: {
-    tagList: getStore({name: 'tagList'}) || defaulttaglist,
+    tagList: getStore({name: 'tagList'}) || [],
     tag: getStore({name: 'tag'}) || tagObj,
     tagWel: tagWel
   },

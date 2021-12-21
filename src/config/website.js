@@ -20,12 +20,12 @@ export default {
   //配置首页不可关闭
   isFirstPage: false,
   fistPage: {
-    label: "首页",
-    value: "/wel/index",
+    label: "关键词分析",
+    value: "/keyword/index",
     params: {},
     query: {},
     meta: {
-      i18n: 'dashboard'
+      i18n: 'keyword'
     },
     group: [],
     close: false
