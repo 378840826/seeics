@@ -39,7 +39,7 @@
       <el-button 
         type="primary"
         size="small"
-        @click.native.prevent="testbtn"
+        @click.native.prevent="forgetpswTolink"
         class="login-submit">发送链接
       </el-button>
     </el-form-item>
@@ -47,34 +47,43 @@
   </div>
 </template>
 <script>
-import {getCaptcha} from "@/api/user";
+import { getCaptcha, isEmail, sendresetpswEmail} from "@/api/user";
 
-
- export default {
+export default {
    name: 'forgetpsw',
    data(){
      const validateUseremail=(rule, value, callback) => {
       if (!value) {
         callback(new Error("注册邮箱不能为空"));
+        return;
       }
       const reg = /^\s*([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+\s*/;
       if(!reg.test(value)){
         callback(new Error("注册邮箱格式不正确"));
+        return;
       }
-      callback();
-      
+      //发送请求判断邮箱是否存在
+      isEmail(this.forgetpswForm.useremail).then((res)=>{
+        if(res.code===200){
+          if(!res.data){
+            callback(new Error("邮箱不存在"));
+            return;
+          }
+        }
+      })
+      callback();    
     };
      return {
-       forgetpswForm: {
-         useremail: "",
-         type: "account",
-          //验证码的值
-          code: "",
-          //验证码的索引
-          key: "",
-          //预加载白色背景
-          image: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
-       },
+      forgetpswForm: {
+        useremail: "",
+        type: "account",
+        //验证码的值
+        code: "",
+        //验证码的索引
+        key: "",
+        //预加载白色背景
+        image: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+      },
        forgetpswRules:{
          useremail: [
            {required: true, trigger: "blur", validator: validateUseremail},
@@ -88,15 +97,21 @@ import {getCaptcha} from "@/api/user";
      this.refreshCode();   
    },
    methods: {
-     //试一下自定义校验规则有没有用
-     testbtn(){
-       //先验证
-       this.$refs.forgetpswForm.validate(valid => {
-         if(valid){
-           console.log(this.forgetpswForm,`forgetpswForm`);
-         }
-       });
-       this.$message.error('请正确填写信息');
+    //发送链接按钮
+    forgetpswTolink(){
+      //先验证
+      this.$refs.forgetpswForm.validate(valid => {
+        if(valid){
+          //发请求
+          sendresetpswEmail(this.forgetpswForm.useremail,this.forgetpswForm.code, this.forgetpswForm.key).then((res)=>{
+            //成功就提示邮件已发送，请查收
+            if(res.code === 200){
+              this.$message.success('重置密码邮件已发送至您的邮箱，请查收')
+            }
+          });
+        }
+      });
+      this.$message.error('请正确填写信息');
      },
      //刷新验证码
      refreshCode() {

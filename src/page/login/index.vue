@@ -17,7 +17,6 @@
           </div>
           <div class="main-right">
             <forgetPsw v-if="forgetpsw"></forgetPsw>
-            <regSuccess v-else-if="regsuccess"></regSuccess>
             <el-tabs  v-else v-model="activeName" @tab-click="handleClick">
               <el-tab-pane label="微信登录" name="wechat">
                 <weChat></weChat>
@@ -39,7 +38,6 @@
 import userLogin from "./user";
 import weChat from "./wechat";
 import forgetPsw from "./forgetpsw";
-import regSuccess from "./regsuccess";
 
 export default {
   name: "login",
@@ -47,12 +45,11 @@ export default {
     userLogin,
     weChat,
     forgetPsw,
-    regSuccess
+    
   },
   data(){
     return {
       activeName: 'user',
-      regsuccess: false,//注册成功
       forgetpsw: false,//忘记密码
     }  
   },
@@ -61,11 +58,6 @@ export default {
     forgetpswFn(val){
       this.forgetpsw=val;
     },
-    //注册成功
-    regsuccessFn(val){
-      this.regsuccess=val;
-    },
-    
   },
 }
 </script>

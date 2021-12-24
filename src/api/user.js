@@ -20,7 +20,52 @@ export const loginByUsername = (tenantId, deptId, roleId, username, password, ty
     type
   }
 });
-
+//重新发送邮箱激活
+export const sendEmailAgain = (email) => request({
+  url: '/blade-user/re-send-activate',
+  method: 'get',
+  params: {
+    tenantId: "000000",
+    email,
+  }
+});
+//判断邮件是否存在
+export const isEmail = (email) => request({
+  url: '/blade-user/exist-email',
+  method: 'get',
+  params: {
+    tenantId: "000000",
+    email,
+  }
+});
+//忘记密码(发送重置邮件)
+export const sendresetpswEmail = (email,captchaKey,captchaCode) => request({
+  url: '/blade-user/forgot-password',
+  method: 'get',
+  params: {
+    tenantId: "000000",
+    email,
+    captchaKey,
+    captchaCode,
+  }
+});
+//重置密码
+export const resetPassword = (markId,password) => request({
+  url: '/blade-user/forgot-password',
+  method: 'get',
+  params: {
+    markId,
+    password,   
+  }
+});
+//激活
+export const activateAccount = (activateId) => request({
+  url: '/blade-user/activate',
+  method: 'get',
+  params: {
+    activateId   
+  }
+});
 export const loginBySocial = (tenantId, source, code, state) => request({
   url: '/api/blade-auth/oauth/token',
   method: 'post',

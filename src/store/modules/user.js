@@ -43,12 +43,17 @@ const user = {
     menuAll: getStore({name: 'menuAll'}) || [],
     token: getStore({name: 'token'}) || '',
     refreshToken: getStore({name: 'refreshToken'}) || '',
+    registeredsuccess: getStore({name: 'registeredsuccess'}) || false,
   },
   actions: {
     //根据用户名登录
     LoginByUsername({commit}, userInfo) {
       return new Promise((resolve, reject) => {
         loginByUsername(userInfo.tenantId, userInfo.deptId, userInfo.roleId, userInfo.username, md5(userInfo.password), userInfo.type, userInfo.key, userInfo.code).then(res => {
+          if(res.data === 'registering'){
+            //修改状态值为true
+            commit('SET_REGISTEREDSUCCESS', true);
+          }
           const data = res.data;
           if (data.error_description) {
             Message({
@@ -233,6 +238,10 @@ const user = {
     SET_TENANT_ID: (state, tenantId) => {
       state.tenantId = tenantId;
       setStore({name: 'tenantId', content: state.tenantId})
+    },
+    SET_REGISTEREDSUCCESS: (state, registeredsuccess) => {
+      state.registeredsuccess = registeredsuccess;
+      setStore({name: 'registeredsuccess', content: state.registeredsuccess})
     },
     SET_USER_INFO: (state, userInfo) => {
       if (validatenull(userInfo.avatar)) {

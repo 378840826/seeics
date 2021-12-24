@@ -1,8 +1,8 @@
 <template>
-  <div class="user-container">
+<div>
+  <div class="user-container" v-if="!registeredsuccess">
     <el-form 
       class="login-form"
-      status-icon
       :rules="loginRules"
       ref="loginForm"
       :model="loginForm"
@@ -26,7 +26,8 @@
         </el-input>
       </el-form-item>
       <el-form-item prop="password">
-        <el-input 
+        <el-input
+          show-password 
           @keyup.enter.native="handleLogin"
           :type="passwordType"
           v-model="loginForm.password"
@@ -34,7 +35,24 @@
         >
         </el-input>
       </el-form-item>
-      <el-form-item props="freelogin" class="freelogin">
+      <el-form-item v-if="this.website.captchaMode" prop="code">
+      <el-row :span="24">
+        <el-col :span="16">
+          <el-input size="small"
+                    @keyup.enter.native="handleLogin"
+                    v-model="loginForm.code"
+                    auto-complete="off"
+                    :placeholder="$t('login.code')">
+          </el-input>
+        </el-col>
+        <el-col :span="8">
+          <div>
+            <img :src="loginForm.image" @click="refreshCode" class="chaptchaclass">
+          </div>
+        </el-col>
+      </el-row>
+    </el-form-item>
+      <el-form-item props="freelogin">
         <el-checkbox v-model="loginForm.freelogin">七天自动登录</el-checkbox>
         <span @click="clickforgetpsw" class="aspan">忘记密码</span>
       </el-form-item>
@@ -46,15 +64,25 @@
         </el-button>
       </el-form-item>
     </el-form>
-  <div class="inactivespan" v-if="activatedAccount">
-    账号未激活，请<a href="//mail.qq.com/" target="aaa">前往邮箱</a>激活
+    <div class="inactivespan" v-if="activatedAccount">
+      账号未激活，请<a href="//mail.qq.com/" target="aaa">前往邮箱</a>激活
+    </div>
   </div>
+
+  <div class="regsuccess-container" v-else>
+    <div></div>
+    <img src="/img/activeEmail.png">
+    <div>
+      注册成功，请<a href="#" target="_blank"> 前往邮箱 </a>激活
+    </div>  
   </div>
+  
+</div>
 </template>
 <script>
-import {mapGetters} from "vuex";
+  import {mapGetters} from "vuex";
   import {info} from "@/api/system/tenant";
-  import {getCaptcha} from "@/api/user";
+  import {getCaptcha, sendEmailAgain} from "@/api/user";
   import {getTopUrl} from "@/util/util";
 
   export default {
@@ -73,9 +101,9 @@ import {mapGetters} from "vuex";
           //角色ID
           roleId: "",
           //用户名
-          username: "admin",
+          username: "admin@qq.com",
           //密码
-          password: "admin",
+          password: "admin0",
           //账号类型
           type: "account",
           //验证码的值
@@ -89,26 +117,29 @@ import {mapGetters} from "vuex";
         },
         loginRules: {
           //第一期租户id固定000000，不显示
-          
+          /**         
           tenantId: [
             {required: false, message: "请输入租户ID", trigger: "blur"}
           ],
-
+          */
           username: [
             {required: true, message: "请输入用户名", trigger: "blur"},
-            //{pattern:/^\s*([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+\s*/,message: '邮箱格式不正确'}
+            //验证邮箱格式
+            {pattern:/^\s*([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+\s*/,message: '邮箱格式不正确', trigger: "blur"}
           ],
           password: [
             {required: true, message: "请输入密码", trigger: "blur"},
-            {min: 1, message: "密码长度最少为6位", trigger: "blur"}
+            {min: 6, message: "密码长度最少为6位", trigger: "blur"}
           ]
         },
         passwordType: "password",
         userBox: false,
+        
         userForm: {
           deptId: '',
           roleId: ''
         },
+        
         userOption: {
           labelWidth: 70,
           submitBtn: true,
@@ -179,8 +210,9 @@ import {mapGetters} from "vuex";
         }
       }
     },
+    
     computed: {
-      ...mapGetters(["tagWel", "userInfo"])
+      ...mapGetters(["tagWel", "userInfo", "registeredsuccess"])
     },
     props: [],
     methods: {
@@ -188,10 +220,16 @@ import {mapGetters} from "vuex";
       clickforgetpsw(){
         this.$emit('forgetpswFn', true);
       },
-      //注册成功返回值
-      regsuccess(){
-        this.$emit('regsuccessFn', true);
+      //重新发送邮件激活
+      resetsendEmail(){
+      //发送请求
+        sendEmailAgain(this.loginForm.username).then((res) => {
+          if(res.code === 200){
+            this.$message.success('激活邮件已发送至您的邮箱，请查收')
+          }
+        })
       },
+      
       refreshCode() {
         if (this.website.captchaMode) {
           getCaptcha().then(res => {
@@ -201,6 +239,7 @@ import {mapGetters} from "vuex";
           })
         }
       },
+      
       showPassword() {
         this.passwordType === ""
           ? (this.passwordType = "password")
@@ -225,8 +264,6 @@ import {mapGetters} from "vuex";
               spinner: "el-icon-loading"
             });
             this.$store.dispatch("LoginByUsername", this.loginForm).then(() => {
-              //按业务逻辑是如果返回注册成功的字段，就返回
-              
               if (this.website.switchMode) {
                 const deptId = this.userInfo.dept_id;
                 const roleId = this.userInfo.role_id;

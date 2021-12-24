@@ -218,23 +218,27 @@ export default {
     },
     //获取表格数据
     getkeywordLists(){
-      getkeywordList(this.page.currentPage, this.page.pageSize).then(res => {
-        if(res.code === 200){
-        //分页数据
-        this.page.currentPage = res.data.page.current;
-        this.page.pageSize = res.data.page.size;
-        this.page.total = res.data.page.total;
-        //表格数据
-        this.data = res.data.page.records;
-        //剩余次数数据
-        this.restnum = res.data.todayFeeSearchCount;
-        //添加成功，清空关键词
-        this.formInline.keyword = ''; 
+        getkeywordList(this.page.currentPage, this.page.pageSize).then(res => {
+          if(res.code === 200){
+          //分页数据
+          this.page.currentPage = res.data.page.current;
+          this.page.pageSize = res.data.page.size;
+          this.page.total = res.data.page.total;
+          //表格数据
+          this.data = res.data.page.records;
+          //剩余次数数据
+          this.restnum = res.data.todayFeeSearchCount;
+          //添加成功，清空关键词
+          this.formInline.keyword = ''; 
 
-        //判断是否有进程
-        //const isresult = this.data.some(item => item.status === "ANALYZING");
-        //没有进程有定时器就关了定时器
-        //isresult && this.timer && this.clearTimer();
+          //判断是否要加定时器
+          const result = this.data.some((item)=>item.status === "ANALYZING");
+          //加定时器
+          if(result){
+            setTimeout(()=>{
+              this.getkeywordLists();
+            },60000);
+          }
         }
       });
     },
@@ -266,22 +270,13 @@ export default {
             this.dialogVisible = true;
             return;          
           }
-          //每隔2分钟刷新页面 判断没有进程process了关闭这个定时器 或者status没有分析中关闭这个定时器
-          //先关闭定时器，再打开定时器
           //先刷新页面
           this.getkeywordLists();
-          //有定时器先请定时器
-          this.timer && this.clearTimer();
-          //设置定时器刷新数据，
-          this.timer=setInterval(()=>{
-            this.getkeywordLists();
-          },60000);
         }
       })
     },
 
   },
-  
   watch:{
     'formInline.searchTopPage'(){
       if(this.formInline.searchTopPage  > 2){

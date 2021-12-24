@@ -9,16 +9,20 @@
       <span @click="resetsendEmail">重新发送</span>
     </div>  
   </div>
-  
 </template>
 
 <script>
+import {sendEmailAgain} from "@/api/user";
 export default {
   name: 'regsuccess',
   data() {
   },
   methods: {
-    resetsendEmail(){},
+    resetsendEmail(){
+      //发送请求
+      sendEmailAgain()
+
+    },
   },
 }
 

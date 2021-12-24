@@ -5,11 +5,33 @@ export default [{
   name: '登录页',
   component: () =>
     import( /* webpackChunkName: "page" */ '@/page/login/index'),
-  meta: {
-    keepAlive: true,
-    isTab: false,
-    isAuth: false
-  }
+    meta: {
+      keepAlive: true,
+      isTab: false,
+      isAuth: false
+    }
+},
+{
+  path: '/activate',
+  name: '激活页',
+  component: () =>
+    import( /* webpackChunkName: "page" */ '@/page/login/activatesuccess'),
+    meta: {
+      keepAlive: true,
+      isTab: false,
+      isAuth: false
+    }
+},
+{
+  path: '/setupnewpsw',
+  name: '重置密码页',
+  component: () =>
+    import( /* webpackChunkName: "page" */ '@/page/login/setupnewpsw'),
+    meta: {
+      keepAlive: true,
+      isTab: false,
+      isAuth: false
+    }
 },
 {
   path: '/',
@@ -22,8 +44,7 @@ export default [{
     isTab: false,
     isAuth: false
   }
-},
-  {
+},{
     path: '/lock',
     name: '锁屏页',
     component: () =>
@@ -84,5 +105,5 @@ export default [{
   {
     path: '*',
     redirect: '/404'
-  }
+  },
 ]
