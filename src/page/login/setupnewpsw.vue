@@ -51,6 +51,7 @@
 <script>
 //import {getQueryString} from "@/util/util";
 import {resetPassword} from "@/api/user";
+import md5 from 'js-md5';
 
 export default {
   name: 'activatesuccess',
@@ -78,7 +79,8 @@ export default {
       },
       setupnewpswRules: {
         password:[
-          {required: true, message: "请输入新密码", trigger: ["blur","change"]}
+          {required: true, message: "请输入新密码", trigger: ["blur","change"]}, // eslint-disable-next-line
+          {pattern:/(?!^[0-9]+$)(?!^[A-Za-z]+$)(?!^[^A-Za-z0-9]+$)^[`~!@#$%\^&*\(\)\-=_+\[\]\\\{\}:";'',./<>?|A-z0-9]{6,16}$/,message: '长度6~16，至少包含字母、数字和英文符号中的两种', trigger: "blur"},
         ],
         confirmpassword:[
           {required: true, trigger: ["blur","change"],validator: validaconfirmpassword}
@@ -92,11 +94,11 @@ export default {
       //从url切出markId
       //const topUrl = getTopUrl();
       const dd = this.$route.query.markId;
-      console.log(dd,`dd`);
+      
       //先验证
       this.$refs.setupnewpswForm.validate(valid => {
         if(valid){
-          resetPassword(dd,this.setupnewpswForm.password).then((res) => {
+          resetPassword(dd,md5(this.setupnewpswForm.password)).then((res) => {
           if(res.code === 200){
             this.$router.push({path: '/login'});
             }       

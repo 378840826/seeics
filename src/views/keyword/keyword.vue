@@ -263,14 +263,14 @@ export default {
       }
 
       analysiskeyword(this.formInline,id).then(res => {
+        if(res.msg === '您已搜索过该关键词，请在搜索结果中操作'){
+          //弹框提箱
+          this.dialogVisible = true;
+          return;          
+        }
+
         if(res.code === 200 ){
-          //如果两周内搜索过该关键词，则弹框提醒
-          if(res.msg === '您已搜索过该关键词，请在搜索结果中操作'){
-            //弹框提箱
-            this.dialogVisible = true;
-            return;          
-          }
-          //先刷新页面
+          //刷新页面
           this.getkeywordLists();
         }
       })

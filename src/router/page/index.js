@@ -10,41 +10,51 @@ export default [{
       isTab: false,
       isAuth: false
     }
-},
-{
-  path: '/activate',
-  name: '激活页',
-  component: () =>
-    import( /* webpackChunkName: "page" */ '@/page/login/activatesuccess'),
+  },
+  {
+    path: '/activate',
+    name: '激活页',
+    component: () =>
+      import( /* webpackChunkName: "page" */ '@/page/login/activatesuccess'),
+      meta: {
+        keepAlive: true,
+        isTab: false,
+        isAuth: false
+      }
+  },
+  {
+    path: '/setupnewpsw',
+    name: '重置密码页',
+    component: () =>
+      import( /* webpackChunkName: "page" */ '@/page/login/setupnewpsw'),
+      meta: {
+        keepAlive: true,
+        isTab: false,
+        isAuth: false
+      }
+  },{
+    path: '/wechatreg',
+    name: '微信登录注册页',
+    component: () =>
+      import( /* webpackChunkName: "page" */ '@/page/login/wechatreg'),
+      meta: {
+        keepAlive: true,
+        isTab: false,
+        isAuth: false
+      }
+  },
+  {
+    path: '/',
+    name: '主页',
+    //redirect: '/wel'
+    component: () =>
+      import( /* webpackChunkName: "page" */ '@/views/index/index'),
     meta: {
       keepAlive: true,
       isTab: false,
       isAuth: false
     }
-},
-{
-  path: '/setupnewpsw',
-  name: '重置密码页',
-  component: () =>
-    import( /* webpackChunkName: "page" */ '@/page/login/setupnewpsw'),
-    meta: {
-      keepAlive: true,
-      isTab: false,
-      isAuth: false
-    }
-},
-{
-  path: '/',
-  name: '主页',
-  //redirect: '/wel'
-  component: () =>
-    import( /* webpackChunkName: "page" */ '@/views/index/index'),
-  meta: {
-    keepAlive: true,
-    isTab: false,
-    isAuth: false
-  }
-},{
+  },{
     path: '/lock',
     name: '锁屏页',
     component: () =>

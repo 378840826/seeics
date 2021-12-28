@@ -100,19 +100,28 @@
     color: #419EFF;
   }
 
-  .chaptchaclass {
-    height: 40px;
+  img {
+    border: 1px solid #DCDFE5;
+    height: 33px;
+    /* margin: 0 auto; */
+    /* margin: 4px 10px; */
+    float: right;
+    margin: 2px 0;
+    border-radius: 4px;
   }
 }
 
 .forgetpsw-container {
+  .el-form{
+    margin-top: 90px;
+  }
   img {
     border: 1px solid #DCDFE5;
-    height: 30px;
+    height: 38px;
     /* margin: 0 auto; */
     /* margin: 4px 10px; */
     float: right;
-    margin: 4px 0;
+    //margin: 4px 0;
     border-radius: 4px;
   }
   .el-button {
@@ -122,6 +131,7 @@
     font-size: 14px;
     line-height: 40px;
   }
+
 }
 
 .regsuccess-container {
@@ -129,10 +139,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 200px;
+  height: 100%;
   font-size: 20px;
   font-weight: 400;
-
   img{
     width: 30px;
     margin-right: 16px;
@@ -142,10 +151,9 @@
   } 
   .bottomtext {
     position: absolute;
-    bottom: -100px;
+    bottom: 0px;
     font-size: 14px;
     font-weight: 400;
-    color: black;
   }
   .sendagin{
     color: #419EFF;
@@ -204,6 +212,31 @@
       border-radius: 2px;
       text-align: center;
     }
+
+    .wechatres-boder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;     
+    }
+
+    .flexdiv {
+      display: flex;
+      line-height: 30px;
+      font-size: 14px;
+
+      img{
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+      }
+
+      a {
+        color: #419EFF;
+      }
+    }
+
     .setupnewpsw-header {
       height: 80px;
       text-align: center;
@@ -298,5 +331,7 @@
       }
     }
   }
+
+
 }
 

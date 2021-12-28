@@ -44,6 +44,7 @@ const user = {
     token: getStore({name: 'token'}) || '',
     refreshToken: getStore({name: 'refreshToken'}) || '',
     registeredsuccess: getStore({name: 'registeredsuccess'}) || false,
+    isPhone: getStore({name: 'isPhone'}) || false,
   },
   actions: {
     //根据用户名登录
@@ -53,7 +54,12 @@ const user = {
           if(res.data === 'registering'){
             //修改状态值为true
             commit('SET_REGISTEREDSUCCESS', true);
+            return;
           }
+          //判断是否有电话号码
+          if(!res.phone){
+            commit('SET_ISPHONE', true);
+          }        
           const data = res.data;
           if (data.error_description) {
             Message({
@@ -67,6 +73,11 @@ const user = {
             commit('SET_USER_INFO', data);
             commit('DEL_ALL_TAG');
             commit('CLEAR_LOCK');
+            //提示登录成功
+            Message({
+              message: '登录成功',
+              type: 'success'
+            })
           }
           resolve();
         }).catch(error => {
@@ -242,6 +253,10 @@ const user = {
     SET_REGISTEREDSUCCESS: (state, registeredsuccess) => {
       state.registeredsuccess = registeredsuccess;
       setStore({name: 'registeredsuccess', content: state.registeredsuccess})
+    },
+    SET_ISPHONE: (state, isPhone) => {
+      state.isPhone = isPhone;
+      setStore({name: 'isPhone', content: state.isPhone})
     },
     SET_USER_INFO: (state, userInfo) => {
       if (validatenull(userInfo.avatar)) {

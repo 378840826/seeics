@@ -1,19 +1,15 @@
 <template>
   <div class="forgetpsw-container">
-  <el-form
-    class="login-form"
-    status-icon
+    <el-form 
     :rules="forgetpswRules"
     ref="forgetpswForm"
     :model="forgetpswForm"
     label-width="0"
   >
     <el-form-item prop="useremail">
-      <el-input
-        
+      <el-input  
         placeholder="请输入注册邮箱"
-        v-model="forgetpswForm.useremail"
-        @keyup.enter.native="testbtn"       
+        v-model="forgetpswForm.useremail"       
       ></el-input>
     </el-form-item>
 
@@ -21,29 +17,28 @@
     <el-row :span="24">
         <el-col :span="16">
           <el-input           
-            @keyup.enter.native="handleLogin"
+            @keyup.enter.native="forgetpswTolink"
             v-model="forgetpswForm.code"
             auto-complete="off"
             :placeholder="$t('login.code')">
           </el-input>
         </el-col>
         <el-col :span="8">
-          <div class="login-code">
-            <img :src="forgetpswForm.image" class="login-code-img" @click="refreshCode"/>
+          <div>
+            <img :src="forgetpswForm.image" @click="refreshCode"/>
           </div>
         </el-col>
       </el-row>
     </el-form-item>
-
     <el-form-item>
       <el-button 
         type="primary"
         size="small"
         @click.native.prevent="forgetpswTolink"
-        class="login-submit">发送链接
+        >发送链接
       </el-button>
     </el-form-item>
-  </el-form>
+  </el-form> 
   </div>
 </template>
 <script>

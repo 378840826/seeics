@@ -17,12 +17,13 @@
           </div>
           <div class="main-right">
             <forgetPsw v-if="forgetpsw"></forgetPsw>
+            <regSuccess v-else-if="registeredsuccess" :userEmail="userEmail"></regSuccess>
             <el-tabs  v-else v-model="activeName" @tab-click="handleClick">
               <el-tab-pane label="微信登录" name="wechat">
                 <weChat></weChat>
               </el-tab-pane>
               <el-tab-pane label="账号密码登录" name="user">
-                <userLogin @forgetpswFn="forgetpswFn" @regsuccessFn="regsuccessFn"></userLogin>             
+                <userLogin @forgetpswFn="forgetpswFn" @regsuccessFn="regsuccessFn" @useremailchange="useremailchangeFn"></userLogin>             
               </el-tab-pane>       
             </el-tabs>           
           </div>
@@ -38,6 +39,8 @@
 import userLogin from "./user";
 import weChat from "./wechat";
 import forgetPsw from "./forgetpsw";
+import regSuccess from "./regsuccess";
+import {mapGetters} from "vuex";
 
 export default {
   name: "login",
@@ -45,11 +48,12 @@ export default {
     userLogin,
     weChat,
     forgetPsw,
-    
+    regSuccess
   },
   data(){
     return {
       activeName: 'user',
+      userEmail:'',
       forgetpsw: false,//忘记密码
     }  
   },
@@ -58,6 +62,14 @@ export default {
     forgetpswFn(val){
       this.forgetpsw=val;
     },
+
+    //将邮箱传回来
+    useremailchangeFn(val){
+      this.userEmail=val;
+    }
+  },
+  computed: {
+    ...mapGetters(["registeredsuccess"])
   },
 }
 </script>

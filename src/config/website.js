@@ -16,6 +16,7 @@ export default {
   tokenTime: 3000,
   tokenHeader: 'Blade-Auth',
   registeredsuccess: false,//账号注册成功
+  isPhone: false, //是否有售价号码
   //http的status默认放行列表
   statusWhiteList: [],
   //配置首页不可关闭

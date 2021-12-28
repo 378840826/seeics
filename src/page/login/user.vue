@@ -1,6 +1,6 @@
 <template>
 <div>
-  <div class="user-container" v-if="!registeredsuccess">
+  <div class="user-container">
     <el-form 
       class="login-form"
       :rules="loginRules"
@@ -47,7 +47,7 @@
         </el-col>
         <el-col :span="8">
           <div>
-            <img :src="loginForm.image" @click="refreshCode" class="chaptchaclass">
+            <img :src="loginForm.image" @click="refreshCode">
           </div>
         </el-col>
       </el-row>
@@ -68,21 +68,12 @@
       账号未激活，请<a href="//mail.qq.com/" target="aaa">前往邮箱</a>激活
     </div>
   </div>
-
-  <div class="regsuccess-container" v-else>
-    <div></div>
-    <img src="/img/activeEmail.png">
-    <div>
-      注册成功，请<a href="#" target="_blank"> 前往邮箱 </a>激活
-    </div>  
-  </div>
-  
 </div>
 </template>
 <script>
   import {mapGetters} from "vuex";
   import {info} from "@/api/system/tenant";
-  import {getCaptcha, sendEmailAgain} from "@/api/user";
+  import {getCaptcha} from "@/api/user";
   import {getTopUrl} from "@/util/util";
 
   export default {
@@ -128,8 +119,11 @@
             {pattern:/^\s*([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+\s*/,message: '邮箱格式不正确', trigger: "blur"}
           ],
           password: [
-            {required: true, message: "请输入密码", trigger: "blur"},
-            {min: 6, message: "密码长度最少为6位", trigger: "blur"}
+            {required: true, message: "请输入密码", trigger: "blur"},// eslint-disable-next-line
+            {pattern: /(?!^[0-9]+$)(?!^[A-Za-z]+$)(?!^[^A-Za-z0-9]+$)^[`~!@#$%\^&*\(\)\-=_+\[\]\\\{\}:";'',./<>?|A-z0-9]{6,16}$/,message: '长度6~16，至少包含字母、数字和英文符号中的两种', trigger: "blur"},
+          ],
+          code: [
+            {required: true, message: "请输入验证码", trigger: "blur"}
           ]
         },
         passwordType: "password",
@@ -212,7 +206,7 @@
     },
     
     computed: {
-      ...mapGetters(["tagWel", "userInfo", "registeredsuccess"])
+      ...mapGetters(["tagWel", "userInfo", "isPhone"])
     },
     props: [],
     methods: {
@@ -220,14 +214,9 @@
       clickforgetpsw(){
         this.$emit('forgetpswFn', true);
       },
-      //重新发送邮件激活
-      resetsendEmail(){
-      //发送请求
-        sendEmailAgain(this.loginForm.username).then((res) => {
-          if(res.code === 200){
-            this.$message.success('激活邮件已发送至您的邮箱，请查收')
-          }
-        })
+      //将邮箱的值传回去
+      emailCallback(){
+        this.$emit('regsuccessFn', this.loginForm.username);  
       },
       
       refreshCode() {
@@ -263,6 +252,8 @@
               text: '登录中,请稍后。。。',
               spinner: "el-icon-loading"
             });
+            //将邮箱传回去
+            this.emailCallback();
             this.$store.dispatch("LoginByUsername", this.loginForm).then(() => {
               if (this.website.switchMode) {
                 const deptId = this.userInfo.dept_id;
@@ -275,7 +266,8 @@
                   return false;
                 }
               }
-              this.$router.push({path: this.tagWel.value});
+              //判断是否有电话，有就去关键词分析，没有去个人信息
+              this.isPhone ? this.$router.push({path: this.tagWel.value}) : this.$router.push({path: 'info/index'});      
               loading.close();
             }).catch(() => {
               loading.close();

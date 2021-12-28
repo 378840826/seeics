@@ -1,0 +1,128 @@
+<template>
+  <div class="setupnewpsw-container">
+    <div class="setupnewpsw-center">
+      <div class="logo">
+        <img src="/img/bg/bluelogo.png">
+      </div>
+      <div class="centerdiv">
+        <div class="setupnewpsw-form">
+          <div v-if="registeredsuccess" class="wechatres-boder">
+            <div class="flexdiv">
+              <img src="/img/activeEmail.png">
+              <div>
+                注册成功，请<a :href="emailsite" target="_blank"> 前往邮箱 </a>激活
+              </div>
+            </div>
+
+          </div> 
+          <div v-else> 
+          <div class="setupnewpsw-header" >填 写 账 号 信 息</div>
+          <div class="form-main">
+            <el-form
+            :rules="wechatregRules"
+            ref="wechatregForm"
+            :model="wechatregForm"
+            label-width="0"
+            >
+            <el-form-item prop="useremail">
+              <el-input 
+                v-model="wechatregForm.useremail"
+                placeholder="请输入账号"
+                :type="passwordType">
+              </el-input>
+            </el-form-item>
+            <el-form-item prop="password">
+              <el-input 
+                show-password
+                v-model="wechatregForm.password"
+                placeholder="请确认密码"
+                :type="passwordType">
+              </el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button 
+                type="primary"
+                @click.native.prevent="handlewechatres"
+                class="login-submit">登录注册
+              </el-button>
+            </el-form-item>
+            </el-form>
+          </div>
+          </div>               
+        </div>
+
+      </div>
+      <div class="setupnewpsw-tips">
+        建议使用Chrome，Firefox，360等浏览器    
+      </div>
+    </div>
+    <footer class="footer">Copyright 2017 - 2021 All Rights Reserved | Powered by amzics.com</footer>
+  </div>
+</template>
+<script>
+import { isEmail} from "@/api/user";
+import {mapGetters} from "vuex";
+
+export default {
+  name: 'wechatreg',
+  data(){
+    const validateUseremail=(rule, value, callback) => {
+      if (!value) {
+        callback(new Error("注册邮箱不能为空"));
+        return;
+      }
+      const reg = /^\s*([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+\s*/;
+      if(!reg.test(value)){
+        callback(new Error("注册邮箱格式不正确"));
+        return;
+      }
+      //发送请求判断邮箱是否存在
+      isEmail(this.wechatregForm.useremail).then((res)=>{
+        if(res.code===200){
+          if(!res.data){
+            callback(new Error("该用户不存在"));
+            return;
+          }
+        }
+      })
+      callback();    
+    };
+    return {
+      emailsite: 'http://www.mail.qq.com',
+      wechatregForm: {
+        useremail: 'ad',
+        password: ''
+      },
+      wechatregRules: {
+        useremail: [
+          {required: true, trigger: "blur", validator: validateUseremail},
+        ],
+        password: [
+          {required: true, message: "请输入密码", trigger: "blur"},// eslint-disable-next-line
+          {pattern: /(?!^[0-9]+$)(?!^[A-Za-z]+$)(?!^[^A-Za-z0-9]+$)^[`~!@#$%\^&*\(\)\-=_+\[\]\\\{\}:";'',./<>?|A-z0-9]{6,16}$/,message: '长度6~16，至少包含字母、数字和英文符号中的两种', trigger: "blur"},
+        ],
+      }
+    }
+  },
+  methods: {
+    handlewechat(){
+      console.log(this.wechatregForm)
+    }
+  },
+  computed: {
+    //判断是否是注册
+    ...mapGetters(["registeredsuccess"])
+  },
+  watch: {
+    'wechatregForm.useremail'(){
+      const regEmail = /@(\w)+((\.\w+)+)$/;
+      const m = this.wechatregForm.useremail.match(regEmail);
+      if (m.length){
+        this.emailsite = `http://www.mail.${ m[0].substr(1)}`;
+        console.log(this.emailsite, `this.emailsite`);
+      }
+    }
+  }
+}
+
+</script>
