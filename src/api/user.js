@@ -2,7 +2,7 @@ import request from '@/router/axios';
 import website from "@/config/website";
 //
 export const loginByUsername = (tenantId, deptId, roleId, username, password, type, key, code) => request({
-  url: '/api/blade-auth/oauth/token',
+  url: '/blade-auth/oauth/token',
   method: 'post',
   headers: {
     'Tenant-Id': tenantId,
