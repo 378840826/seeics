@@ -52,7 +52,7 @@ const user = {
       return new Promise((resolve, reject) => {
         loginByUsername(userInfo.tenantId, userInfo.deptId, userInfo.roleId, userInfo.username, md5(userInfo.password), userInfo.type, userInfo.key, userInfo.code).then(res => {
           //如果是注册，则
-          if(res.data === 'registering'){
+          if(res.error === "registering"){
             //修改状态值为true
             commit('SET_REGISTEREDSUCCESS', true);
           } else {
