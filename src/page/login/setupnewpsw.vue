@@ -92,7 +92,6 @@ export default {
     //提交密码
     submitpsw() {
       //从url切出markId
-      //const topUrl = getTopUrl();
       const dd = this.$route.query.markId;
       
       //先验证

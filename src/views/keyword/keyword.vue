@@ -102,6 +102,8 @@ export default {
           searchTopPage: "2"
         },
         user:{},
+        data: [],
+        /** 
         data: [
           {
             id: '01',
@@ -134,6 +136,7 @@ export default {
             excelUrl: ''
           },
         ],
+        */
         dialogVisible: false,//两周内是否搜索过弹框
         desc: false,//排序值
         timer: null,//定时器名称

@@ -2,7 +2,7 @@ import request from '@/router/axios';
 import website from "@/config/website";
 //
 export const loginByUsername = (tenantId, deptId, roleId, username, password, type, key, code) => request({
-  url: '/blade-auth/oauth/token',
+  url: '/api/blade-auth/oauth/token',
   method: 'post',
   headers: {
     'Tenant-Id': tenantId,
@@ -22,7 +22,7 @@ export const loginByUsername = (tenantId, deptId, roleId, username, password, ty
 });
 //重新发送邮箱激活
 export const sendEmailAgain = (email) => request({
-  url: '/blade-user/re-send-activate',
+  url: '/api/blade-user/re-send-activate',
   method: 'get',
   params: {
     tenantId: "000000",
@@ -31,7 +31,7 @@ export const sendEmailAgain = (email) => request({
 });
 //判断邮件是否存在
 export const isEmail = (email) => request({
-  url: '/blade-user/exist-email',
+  url: '/api/blade-user/exist-email',
   method: 'get',
   params: {
     tenantId: "000000",
@@ -40,7 +40,7 @@ export const isEmail = (email) => request({
 });
 //忘记密码(发送重置邮件)
 export const sendresetpswEmail = (email,captchaKey,captchaCode) => request({
-  url: '/blade-user/forgot-password',
+  url: '/api/blade-user/forgot-password',
   method: 'get',
   params: {
     tenantId: "000000",
@@ -51,7 +51,7 @@ export const sendresetpswEmail = (email,captchaKey,captchaCode) => request({
 });
 //重置密码
 export const resetPassword = (markId,password) => request({
-  url: '/blade-user/forgot-password',
+  url: '/api/blade-user/forgot-password',
   method: 'get',
   params: {
     markId,
@@ -60,7 +60,7 @@ export const resetPassword = (markId,password) => request({
 });
 //激活
 export const activateAccount = (activateId) => request({
-  url: '/blade-user/activate',
+  url: '/api/blade-user/activate',
   method: 'get',
   params: {
     activateId   

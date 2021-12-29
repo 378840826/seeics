@@ -62,7 +62,6 @@ export default {
     forgetpswFn(val){
       this.forgetpsw=val;
     },
-
     //将邮箱传回来
     useremailchangeFn(val){
       this.userEmail=val;

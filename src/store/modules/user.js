@@ -51,15 +51,20 @@ const user = {
     LoginByUsername({commit}, userInfo) {
       return new Promise((resolve, reject) => {
         loginByUsername(userInfo.tenantId, userInfo.deptId, userInfo.roleId, userInfo.username, md5(userInfo.password), userInfo.type, userInfo.key, userInfo.code).then(res => {
+          //如果是注册，则
           if(res.data === 'registering'){
             //修改状态值为true
             commit('SET_REGISTEREDSUCCESS', true);
-            return;
-          }
+          } else {
+            commit('SET_REGISTEREDSUCCESS', false);
+          }      
+
           //判断是否有电话号码
           if(!res.phone){
             commit('SET_ISPHONE', true);
-          }        
+          } else {
+            commit('SET_ISPHONE', false);
+          }   
           const data = res.data;
           if (data.error_description) {
             Message({

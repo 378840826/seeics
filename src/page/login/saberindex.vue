@@ -23,7 +23,7 @@
               <div class="bottomtext">
                 亚马逊创业者的数据神器
               </div>    
-            </div>         
+            </div>
             <div class="login-border">
               <div class="login-main">
               <el-tabs v-model="activeName" @tab-click="handleClick">
