@@ -16,11 +16,11 @@
           <el-input v-model="formInline.searchKeyword" placeholder="请输入需要分析的关键词"></el-input>
         </el-form-item>       
         <el-form-item>
-          <el-button type="primary" @click="analysiskeywords(id)">分析</el-button>
+          <el-button type="primary" @click="analysiskeywords()">分析</el-button>
         </el-form-item>
         <el-form-item label="亚马逊搜索结果前: ">
           <el-select v-model="formInline.searchTopPage" class="pageselectclass">
-            <el-option label="2" value=2></el-option>
+            <el-option label="2" value="2"></el-option>
             <el-option label="4" value=4 ></el-option>
             <el-option label="6" value=6 ></el-option>
             <el-option label="8" value=8 ></el-option>
@@ -28,7 +28,7 @@
           </el-select>
         </el-form-item>
       </el-form>
-      <div class="warningtext">今日还剩8次免费搜索机会</div>
+      <div class="warningtext">今日还剩{{restnum}}次免费搜索机会</div>
       <div class="avuecrudclass">
       <avue-crud 
         :data="data" 
@@ -38,6 +38,7 @@
         @size-change="sizeChange"
         @current-change="currentChange"
         @sort-change="sortChange"
+        @on-load="getkeywordLists"
         >
         <template slot="name" slot-scope="scope" >
           <div>{{scope}}</div>
@@ -97,7 +98,7 @@ export default {
   data() {
       return {
         formInline:{
-          searchCountry: "美国",
+          searchCountry: "US",
           searchKeyword: "",
           searchTopPage: "2"
         },
@@ -145,7 +146,7 @@ export default {
         failanalysis: false,//分析失败按钮，
         analysisproccess:false,//正在分析按钮，还要考虑过程，应该是对象
         page:{
-          total: 2,
+          total: 0,
           //pagerCount: 5,
           currentPage: 1,
           layout: "total, sizes, prev, pager, next, jumper",
@@ -171,19 +172,19 @@ export default {
           column:[
              {
               label:'更新时间',
-              prop:'freshtime',
+              prop:'recordTime',
               sortable:true,//排序
               width: 200,
               //slot:true
             },
             {
               label:'站点',
-              prop:'site',
+              prop:'searchCountry',
               //width:283,
             },
             {
               label:'关键词',
-              prop:'keyword',
+              prop:'searchKeyword',
               width:700,
               slot:true,            
             },
@@ -221,18 +222,18 @@ export default {
     },
     //获取表格数据
     getkeywordLists(){
-        getkeywordList(this.page.currentPage, this.page.pageSize).then(res => {
-          if(res.code === 200){
+      getkeywordList(this.page.currentPage, this.page.pageSize).then(res => {
+          if(res.data.code === 200){
           //分页数据
-          this.page.currentPage = res.data.page.current;
-          this.page.pageSize = res.data.page.size;
-          this.page.total = res.data.page.total;
+          this.page.currentPage = res.data.data.page.current;
+          this.page.pageSize = res.data.data.page.size;
+          this.page.total = res.data.data.page.total;
           //表格数据
-          this.data = res.data.page.records;
+          this.data = res.data.data.page.records;
           //剩余次数数据
-          this.restnum = res.data.todayFeeSearchCount;
+          this.restnum = res.data.data.todayFeeSearchCount;
           //添加成功，清空关键词
-          this.formInline.keyword = ''; 
+          this.formInline.searchKeyword = ''; 
 
           //判断是否要加定时器
           const result = this.data.some((item)=>item.status === "ANALYZING");
@@ -264,21 +265,23 @@ export default {
           return;
         }
       }
-
       analysiskeyword(this.formInline,id).then(res => {
-        if(res.msg === '您已搜索过该关键词，请在搜索结果中操作'){
+        if(res.data.code === 400 ){
+          //刷新页面
+          if(res.data.msg === '您已搜索过该关键词，请在搜索结果中操作'){
           //弹框提箱
           this.dialogVisible = true;
           return;          
+          }
         }
-
-        if(res.code === 200 ){
+        if(res.data.code === 200 ){
           //刷新页面
           this.getkeywordLists();
         }
       })
+      //清空关键词
+      this.formInline.searchKeyword = '';
     },
-
   },
   watch:{
     'formInline.searchTopPage'(){
