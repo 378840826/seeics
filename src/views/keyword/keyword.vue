@@ -266,13 +266,10 @@ export default {
         }
       }
       analysiskeyword(this.formInline,id).then(res => {
-        if(res.data.code === 400 ){
-          //刷新页面
-          if(res.data.msg === '您已搜索过该关键词，请在搜索结果中操作'){
+        if(res.data.msg === "您已经搜索过该关键词，请在搜索结果中操作"){       
           //弹框提箱
           this.dialogVisible = true;
-          return;          
-          }
+          return;           
         }
         if(res.data.code === 200 ){
           //刷新页面

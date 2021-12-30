@@ -92,9 +92,9 @@
           //角色ID
           roleId: "",
           //用户名
-          username: "admin@qq.com",
+          username: "",
           //密码
-          password: "admin0",
+          password: "",
           //账号类型
           type: "account",
           //验证码的值
