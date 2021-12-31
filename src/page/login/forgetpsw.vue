@@ -59,14 +59,12 @@ export default {
       }
       //发送请求判断邮箱是否存在
       isEmail(this.forgetpswForm.useremail).then((res)=>{
-        if(res.code===200){
-          if(!res.data){
-            callback(new Error("邮箱不存在"));
-            return;
-          }
+        if(!res.data.data){
+          callback(new Error("邮箱不存在"));
+          return;    
         }
       })
-      callback();    
+      //callback();    
     };
      return {
       forgetpswForm: {

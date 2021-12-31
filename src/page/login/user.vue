@@ -29,7 +29,7 @@
         <el-input
           show-password 
           @keyup.enter.native="handleLogin"
-          :type="passwordType"
+          
           v-model="loginForm.password"
           :placeholder="$t('login.password')"
         >
@@ -114,7 +114,7 @@
           ],
           */
           username: [
-            {required: true, message: "请输入用户名", trigger: "blur"},
+            {required: true, message: "请输入邮箱", trigger: "blur"},
             //验证邮箱格式
             {pattern:/^\s*([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+\s*/,message: '邮箱格式不正确', trigger: "blur"}
           ],

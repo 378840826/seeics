@@ -54,7 +54,7 @@
         <template  slot="menu" slot-scope="scope">
           <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn">
             <a :href="scope.row.excelUrl" download>导出分析结果</a>
-            <span class="analysisaginspan" @click="analysiskeywords(scope.row.id)">重新分析</span>            
+            <span class="analysisaginspan" @click="analysiskeywords(scope.row.id, scope.row.crawlingCompleteTime)">重新分析</span>            
           </div>
           <div v-else-if="scope.row.status === 'ANALYZE_FAILED'" class="derivedresultbtn">
             <el-button type="info">分析失败</el-button>
@@ -252,7 +252,7 @@ export default {
 			this.timer = null;
 		},
     //发起关键词分析
-    analysiskeywords(id){
+    analysiskeywords(id,time){
       //判断次数
       if(this.restnum <=0 ){
          this.$message.error('今日免费次数已用完');
@@ -265,20 +265,52 @@ export default {
           return;
         }
       }
-      analysiskeyword(this.formInline,id).then(res => {
-        if(res.data.msg === "您已经搜索过该关键词，请在搜索结果中操作"){       
-          //弹框提箱
-          this.dialogVisible = true;
-          return;           
-        }
-        if(res.data.code === 200 ){
-          //刷新页面
-          this.getkeywordLists();
-        }
-      })
-      //清空关键词
-      this.formInline.searchKeyword = '';
-    },
+      //前端判断时间是否为两周内
+
+      if(Date.parse(time) >= Date.now() + 14* 24 * 60 * 60 * 1000){
+        analysiskeyword(this.formInline,id).then(res => {
+          if(res.data.msg === "您已经搜索过该关键词，请在搜索结果中操作"){       
+            //弹框提箱
+            this.dialogVisible = true;
+            return;           
+          }
+          if(res.data.code === 200 ){
+            //刷新页面
+            this.getkeywordLists();
+          }
+        })
+          //清空关键词
+          this.formInline.searchKeyword = '';
+      } else {
+        //弹确认框
+        this.$confirm(`距上次分析时间${time}间隔较短，确认重新分析？`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          //依旧发请求
+          analysiskeyword(this.formInline,id).then(res => {
+          if(res.data.msg === "您已经搜索过该关键词，请在搜索结果中操作"){       
+            //弹框提箱
+            this.dialogVisible = true;
+            return;           
+          }
+          if(res.data.code === 200 ){
+            //刷新页面
+            this.getkeywordLists();
+          }
+        })
+          //清空关键词
+          this.formInline.searchKeyword = '';
+          
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消分析'
+          });          
+        });
+      }
+    }   
   },
   watch:{
     'formInline.searchTopPage'(){

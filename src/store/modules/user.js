@@ -52,13 +52,12 @@ const user = {
       return new Promise((resolve, reject) => {
         loginByUsername(userInfo.tenantId, userInfo.deptId, userInfo.roleId, userInfo.username, md5(userInfo.password), userInfo.type, userInfo.key, userInfo.code).then(res => {
           //如果是注册，则
-          if(res.error === "registering"){
+          if(res.data.error === "registering"){
             //修改状态值为true
             commit('SET_REGISTEREDSUCCESS', true);
           } else {
             commit('SET_REGISTEREDSUCCESS', false);
-          }      
-
+          }   
           //判断是否有电话号码
           if(!res.phone){
             commit('SET_ISPHONE', true);
@@ -166,6 +165,13 @@ const user = {
         }).catch(error => {
           reject(error)
         })
+      })
+    },
+    //修改注册成功的值
+    ModifyRegistrationcode({commit}){
+      return new Promise(resolve => {
+        commit('SET_REGISTEREDSUCCESS', true);
+        resolve();
       })
     },
     //注销session

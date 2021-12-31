@@ -108,7 +108,7 @@ export default {
   },
   methods: {
     handlewechat(){
-      console.log(this.wechatregForm)
+      //console.log(this.wechatregForm)
     },
     //重新发送邮件
     handlesendemailagain(){

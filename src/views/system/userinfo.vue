@@ -4,7 +4,8 @@
       <avue-form :option="option"
                  v-model="form"
                  @tab-click="handleTabClick"
-                 @submit="handleSubmit"></avue-form>
+                 @submit="handleSubmit"
+                 ></avue-form>
     </basic-container>
   </div>
 </template>
@@ -21,7 +22,7 @@
       return {
         index: 0,
         option: option,
-        form: {}
+        form: {},
       };
     },
     created() {

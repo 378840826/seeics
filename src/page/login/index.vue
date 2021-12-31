@@ -11,7 +11,7 @@
       <div class="main-container">
         <div class="login-border">
           <div class="main-left">
-            <div class="title">祝你大卖</div>
+            <div class="title">助你大卖</div>
             <div class="subtitle">亚马逊创业者的数据神器</div>
             <img src="/img/bg/loginleftimg.png">
           </div>
