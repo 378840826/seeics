@@ -55,6 +55,8 @@ const user = {
           if(res.data.error === "registering"){
             //修改状态值为true
             commit('SET_REGISTEREDSUCCESS', true);
+            //跳转到注册成功
+            this.$router.push({path: '/login'});
           } else {
             commit('SET_REGISTEREDSUCCESS', false);
           }
@@ -85,7 +87,7 @@ const user = {
             })
           }
           resolve();
-        }).catch(error => {         
+        }).catch(error => {
           reject(error);
         })
       })
@@ -264,6 +266,7 @@ const user = {
     },
     SET_REGISTEREDSUCCESS: (state, registeredsuccess) => {
       state.registeredsuccess = registeredsuccess;
+      console.log(state.registeredsuccess, `state.registeredsuccess`)
       setStore({name: 'registeredsuccess', content: state.registeredsuccess})
     },
     SET_ISPHONE: (state, isPhone) => {

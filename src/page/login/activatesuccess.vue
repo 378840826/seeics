@@ -41,8 +41,9 @@ export default {
       const dd = this.$route.query.activateId
       
       activateAccount(dd).then((res) => {
+        console.log(res);
         //激活成功执行倒计时
-        if(res.code === 200){
+        if(res.data.code === 200){
           this.isSuccess=true;
           this.countdown();
         }

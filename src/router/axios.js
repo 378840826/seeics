@@ -65,7 +65,7 @@ axios.interceptors.response.use(res => {
   if (status === 401) store.dispatch('FedLogOut').then(() => router.push({path: '/login'}));
   // 如果请求为非200否者默认统一处理
   if (status !== 200) {
-    if(res.data.msg !== "您已经搜索过该关键词，请在搜索结果中操作") {
+    if(res.data.msg !== "您已经搜索过该关键词，请在搜索结果中操作" && res.data.error !== "registering") {
       Message({
       message: message,
       type: 'error'
@@ -74,7 +74,7 @@ axios.interceptors.response.use(res => {
     }
   }
   return res;
-}, error => { 
+}, error => {
   NProgress.done();
   return Promise.reject(new Error(error)); 
 });
