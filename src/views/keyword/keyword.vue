@@ -203,7 +203,7 @@ export default {
   },
   methods: {
     format(percentage) {
-        return percentage === 100 ? '导出分析报告' : `正在分析${percentage}%`;
+        return percentage === 100 ? '导出分析报告' : `正在分析${parseInt(percentage)}%`;
     },
     //关闭两星期弹框
     refeshList(){

@@ -57,7 +57,8 @@ const user = {
             commit('SET_REGISTEREDSUCCESS', true);
           } else {
             commit('SET_REGISTEREDSUCCESS', false);
-          }   
+          }
+
           //判断是否有电话号码
           if(!res.phone){
             commit('SET_ISPHONE', true);
@@ -84,7 +85,7 @@ const user = {
             })
           }
           resolve();
-        }).catch(error => {
+        }).catch(error => {         
           reject(error);
         })
       })

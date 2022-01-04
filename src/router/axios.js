@@ -74,9 +74,9 @@ axios.interceptors.response.use(res => {
     }
   }
   return res;
-}, error => {
+}, error => { 
   NProgress.done();
-  return Promise.reject(new Error(error));
+  return Promise.reject(new Error(error)); 
 });
 
 export default axios;

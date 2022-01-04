@@ -246,6 +246,10 @@
       },
       handleLogin() {
         this.$refs.loginForm.validate(valid => {
+
+          //发送请求，验证一下邮箱是否存在，存在就登陆，不存在就注册
+          //isEmail(this.loginForm.username).then(res => {})
+
           if (valid) {
             const loading = this.$loading({
               lock: true,
