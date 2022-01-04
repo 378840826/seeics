@@ -42,16 +42,6 @@ export default [{
         isTab: false,
         isAuth: false
       }
-  },{
-    path: '/regsuccess',
-    name: '注册成功页',
-    component: () =>
-      import( /* webpackChunkName: "page" */ '@/page/login/regsuccess'),
-      meta: {
-        keepAlive: true,
-        isTab: false,
-        isAuth: false
-      }
   },
   {
     path: '/',

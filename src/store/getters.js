@@ -25,5 +25,8 @@ const getters = {
   logsLen: state => state.logs.logsList.length || 0,
   logsFlag: (state, getters) => getters.logsLen === 0,
   flowRoutes: state => state.dict.flowRoutes,
+  registeredsuccess: state => state.user.registeredsuccess,
+  isPhone: state => state.user.isPhone,
+  cacheemail: state => state.user.cacheemail //邮件
 }
 export default getters

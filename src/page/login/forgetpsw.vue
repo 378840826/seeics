@@ -61,10 +61,10 @@ export default {
       isEmail(this.forgetpswForm.useremail).then((res)=>{
         if(!res.data.data){
           callback(new Error("邮箱不存在"));
-          return;    
-        }
+          return;   
+        } 
       })
-      //callback();    
+      callback();  
     };
      return {
       forgetpswForm: {
@@ -87,7 +87,7 @@ export default {
      }
    },
    created() {
-     this.refreshCode();   
+    this.refreshCode();   
    },
    methods: {
     //发送链接按钮
@@ -104,6 +104,7 @@ export default {
           });
         }
       });
+      this.refreshCode();
       this.$message.error('请正确填写信息');
      },
      //刷新验证码

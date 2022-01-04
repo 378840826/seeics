@@ -214,10 +214,6 @@
       clickforgetpsw(){
         this.$emit('forgetpswFn', true);
       },
-      //将邮箱的值传回去
-      emailCallback(){
-        this.$emit('regsuccessFn', this.loginForm.username);  
-      },
       
       refreshCode() {
         if (this.website.captchaMode) {
@@ -247,17 +243,12 @@
       handleLogin() {
         this.$refs.loginForm.validate(valid => {
 
-          //发送请求，验证一下邮箱是否存在，存在就登陆，不存在就注册
-          //isEmail(this.loginForm.username).then(res => {})
-
           if (valid) {
             const loading = this.$loading({
               lock: true,
               text: '登录中,请稍后。。。',
               spinner: "el-icon-loading"
             });
-            //将邮箱传回去
-            this.emailCallback();
             this.$store.dispatch("LoginByUsername", this.loginForm).then(() => {
               if (this.website.switchMode) {
                 const deptId = this.userInfo.dept_id;

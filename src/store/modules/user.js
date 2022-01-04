@@ -43,8 +43,9 @@ const user = {
     menuAll: getStore({name: 'menuAll'}) || [],
     token: getStore({name: 'token'}) || '',
     refreshToken: getStore({name: 'refreshToken'}) || '',
-    registeredsuccess: getStore({name: 'registeredsuccess'}) || false,
-    isPhone: getStore({name: 'isPhone'}) || false,
+    registeredsuccess: false,
+    isPhone: false,
+    cacheemail: ''
   },
   actions: {
     //根据用户名登录
@@ -56,17 +57,20 @@ const user = {
             //修改状态值为true
             commit('SET_REGISTEREDSUCCESS', true);
             //跳转到注册成功
-            this.$router.push({path: '/login'});
           } else {
             commit('SET_REGISTEREDSUCCESS', false);
           }
 
           //判断是否有电话号码
-          if(!res.phone){
+          if(!res.data.phone){
             commit('SET_ISPHONE', true);
           } else {
             commit('SET_ISPHONE', false);
-          }   
+          } 
+          
+          //将邮箱保存到缓存，发邮件时使用
+          commit('SET_CACHEEMAIL', userInfo.username);
+
           const data = res.data;
           if (data.error_description) {
             Message({
@@ -266,8 +270,11 @@ const user = {
     },
     SET_REGISTEREDSUCCESS: (state, registeredsuccess) => {
       state.registeredsuccess = registeredsuccess;
-      console.log(state.registeredsuccess, `state.registeredsuccess`)
       setStore({name: 'registeredsuccess', content: state.registeredsuccess})
+    },
+    SET_CACHEEMAIL: (state, cacheemail) => {
+      state.cacheemail = cacheemail;
+      setStore({name: 'cacheemail', content: state.cacheemail})
     },
     SET_ISPHONE: (state, isPhone) => {
       state.isPhone = isPhone;
