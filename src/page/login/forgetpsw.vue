@@ -42,7 +42,7 @@
   </div>
 </template>
 <script>
-import { getCaptcha, sendresetpswEmail} from "@/api/user";
+import { getCaptcha, sendresetpswEmail, isEmail} from "@/api/user";
 
 export default {
    name: 'forgetpsw',
@@ -58,12 +58,12 @@ export default {
         return;
       }
       //发送请求判断邮箱是否存在
-      //isEmail(this.forgetpswForm.useremail).then(res => {
-        //if(!res.data.data){
-          //callback(new Error("邮箱不存在"));
-          //return;
-        //}
-      //})
+      isEmail(this.forgetpswForm.useremail).then(res => {
+        if(!res.data.data){
+          callback(new Error("用户不存在"));
+          return;
+        }
+      })
       callback();  
     };
      return {

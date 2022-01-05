@@ -43,7 +43,7 @@ export const sendresetpswEmail = (email,captchaCode,captchaKey) => request({
   url: '/api/blade-user/forgot-password',
   method: 'get',
   params: {
-    tenantId: '0000000',
+    tenantId: '000000',
     email,
     captchaKey,
     captchaCode,
