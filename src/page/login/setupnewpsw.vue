@@ -98,7 +98,8 @@ export default {
       this.$refs.setupnewpswForm.validate(valid => {
         if(valid){
           resetPassword(dd,md5(this.setupnewpswForm.password)).then((res) => {
-          if(res.code === 200){
+          if(res.data.code === 200){
+            this.$message.success(res.data.msg);
             this.$router.push({path: '/login'});
             }       
           });

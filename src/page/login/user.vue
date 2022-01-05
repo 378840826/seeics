@@ -65,7 +65,7 @@
       </el-form-item>
     </el-form>
     <div class="inactivespan" v-if="isactivatedAccount">
-      账号未激活，请<a :href="emailsite" target="aaa">前往邮箱</a>激活
+      账号未激活，请<a :href="emailsite" target="aaa">前往邮箱</a>激活<span class="sendagainspan" @click="sendagainemail">重新发送</span>
     </div>
   </div>
 </div>
@@ -73,7 +73,7 @@
 <script>
   import {mapGetters} from "vuex";
   import {info} from "@/api/system/tenant";
-  import {getCaptcha} from "@/api/user";
+  import {getCaptcha, sendEmailAgain} from "@/api/user";
   import {getTopUrl} from "@/util/util";
 
   export default {
@@ -218,6 +218,14 @@
     },
     props: [],
     methods: {
+      //重发邮件
+      sendagainemail(){
+        sendEmailAgain(this.cacheemail).then((res) => {
+        if(res.data.code === 200){
+          this.$message.success('激活邮件已发送至您的邮箱，请查收')
+          }
+        })
+      },
       //点忘记密码单击事件
       clickforgetpsw(){
         this.$emit('forgetpswFn', true);

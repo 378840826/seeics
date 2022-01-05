@@ -83,6 +83,9 @@ export default {
            //发送请求验证邮箱是否存在提供对应提示语
            //{pattern:/^\s*([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+\s*/,message: '邮箱格式不正确',trigger: "blur"}
          ],
+         code:[
+           {required: true, message: "验证码不能为空", trigger: "blur"}
+         ]
        }
      }
    },
@@ -95,6 +98,10 @@ export default {
       //先验证
       this.$refs.forgetpswForm.validate(valid => {
         if(valid){
+          if(!this.forgetpswForm.code){
+            this.$message.error('验证码不能为空')
+            return;
+          }
           //发请求
           sendresetpswEmail(this.forgetpswForm.useremail,this.forgetpswForm.code, this.forgetpswForm.key).then((res)=>{
             //成功就提示邮件已发送，请查收
