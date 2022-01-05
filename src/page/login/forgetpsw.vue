@@ -62,9 +62,10 @@ export default {
         if(!res.data.data){
           callback(new Error("用户不存在"));
           return;
+        } else {
+          callback();
         }
-      })
-      callback();  
+      })  
     };
      return {
       forgetpswForm: {

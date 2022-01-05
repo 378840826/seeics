@@ -51,7 +51,7 @@ export const sendresetpswEmail = (email,captchaCode,captchaKey) => request({
 });
 //重置密码
 export const resetPassword = (markId,password) => request({
-  url: '/api/blade-user/forgot-password',
+  url: '/api/blade-user/reset-password',
   method: 'get',
   params: {
     markId,
