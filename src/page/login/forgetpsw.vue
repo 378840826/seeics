@@ -47,7 +47,7 @@ import { getCaptcha, sendresetpswEmail, isEmail} from "@/api/user";
 export default {
    name: 'forgetpsw',
    data(){
-     const validateUseremail=(rule, value, callback) => {
+     const validateUseremail= async (rule, value, callback) => {
       if (!value) {
         callback(new Error("注册邮箱不能为空"));
         return;
@@ -58,13 +58,12 @@ export default {
         return;
       }
       //发送请求判断邮箱是否存在
-      isEmail(this.forgetpswForm.useremail).then(res => {
+      await isEmail(this.forgetpswForm.useremail).then(res => {
         if(!res.data.data){
           callback(new Error("用户不存在"));
           return;
-        } else {
-          callback();
         }
+        callback();
       })  
     };
      return {

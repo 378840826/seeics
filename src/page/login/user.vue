@@ -64,8 +64,8 @@
         </el-button>
       </el-form-item>
     </el-form>
-    <div class="inactivespan" v-if="activatedAccount">
-      账号未激活，请<a href="//mail.qq.com/" target="aaa">前往邮箱</a>激活
+    <div class="inactivespan" v-if="isactivatedAccount">
+      账号未激活，请<a :href="emailsite" target="aaa">前往邮箱</a>激活
     </div>
   </div>
 </div>
@@ -81,7 +81,8 @@
     data() {
       return {
         //账号未激活
-        activatedAccount: false,
+        //activatedAccount: true,
+        emailsite:'',//前往邮箱地址
         tenantMode: this.website.tenantMode,//是否开启租户模式
         forgetpaw:false,//忘记密码
         loginForm: {
@@ -202,11 +203,18 @@
         } else {
           column.dicUrl = '';
         }
-      }
+      },
+      'cacheemail'(){
+        const regEmail = /@(\w)+((\.\w+)+)$/;
+        const m = this.cacheemail.match(regEmail);
+        if (m.length){
+          this.emailsite = `http://www.mail.${ m[0].substr(1)}`;
+        }
+      },  
     },
     
     computed: {
-      ...mapGetters(["tagWel", "userInfo", "isPhone"])
+      ...mapGetters(["tagWel", "userInfo", "isPhone", "isactivatedAccount","cacheemail"])
     },
     props: [],
     methods: {

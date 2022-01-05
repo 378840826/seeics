@@ -43,7 +43,7 @@
         </el-form> 
       </div>
     </div>
-    <footer class="footer">Copyright 2017 - 2021 All Rights Reserved | Powered by amzics.com</footer>
+    <footer class="footer">Copyright 2017 - 2021 All Rights Reserved | Powered by seecis.com</footer>
   </div>
 </template>
 <script>

@@ -6,7 +6,7 @@
       </div>
       <div class="centerdiv">
         <div class="setupnewpsw-form">
-          <div v-if="!registeredsuccess" class="wechatres-boder">
+          <div v-if="registeredsuccess" class="wechatres-boder">
             <div class="flexdiv">
               <img src="/img/activeEmail.png">
               <div>
@@ -57,7 +57,7 @@
         建议使用Chrome，Firefox，360等浏览器    
       </div>
     </div>
-    <footer class="footer">Copyright 2017 - 2021 All Rights Reserved | Powered by amzics.com</footer>
+    <footer class="footer">Copyright 2017 - 2021 All Rights Reserved | Powered by seecis.com</footer>
   </div>
 </template>
 <script>
@@ -67,7 +67,7 @@ import {mapGetters} from "vuex";
 export default {
   name: 'wechatreg',
   data(){
-    const validateUseremail=(rule, value, callback) => {
+    const validateUseremail=async(rule, value, callback) => {
       if (!value) {
         callback(new Error("注册邮箱不能为空"));
         return;
@@ -77,9 +77,8 @@ export default {
         callback(new Error("注册邮箱格式不正确"));
         return;
       }
-      //发送请求判断邮箱是否存在，似乎不用判断
-      /** */
-      isEmail(this.wechatregForm.useremail).then((res)=>{
+      
+      await isEmail(this.wechatregForm.useremail).then((res)=>{
         if(res.code===200){
           if(!res.data){
             callback(new Error("该用户已存在"));

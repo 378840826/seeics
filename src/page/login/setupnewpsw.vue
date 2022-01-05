@@ -45,7 +45,7 @@
         建议使用Chrome，Firefox，360等浏览器    
       </div>
     </div>
-    <footer class="footer">Copyright 2017 - 2021 All Rights Reserved | Powered by amzics.com</footer>
+    <footer class="footer">Copyright 2017 - 2021 All Rights Reserved | Powered seecis.com</footer>
   </div>
 </template>
 <script>

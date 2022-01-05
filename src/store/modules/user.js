@@ -45,7 +45,8 @@ const user = {
     refreshToken: getStore({name: 'refreshToken'}) || '',
     registeredsuccess: false,
     isPhone: false,
-    cacheemail: ''
+    cacheemail: '',
+    isactivatedAccount: false,
   },
   actions: {
     //根据用户名登录
@@ -60,6 +61,18 @@ const user = {
           } else {
             commit('SET_REGISTEREDSUCCESS', false);
           }
+
+          //判断是否激活
+
+          if(res.data.error === "invalid_grant"){
+            //修改状态值为true
+            commit('SET_ISACTIVATEDACCOUNT', true);
+            //跳转到注册成功
+          } else {
+            commit('SET_ISACTIVATEDACCOUNT', false);
+          }
+
+
 
           //判断是否有电话号码
           if(!res.data.phone){
@@ -271,6 +284,10 @@ const user = {
     SET_REGISTEREDSUCCESS: (state, registeredsuccess) => {
       state.registeredsuccess = registeredsuccess;
       setStore({name: 'registeredsuccess', content: state.registeredsuccess})
+    },
+    SET_ISACTIVATEDACCOUNT: (state, isactivatedAccount) => {
+      state.isactivatedAccount = isactivatedAccount;
+      setStore({name: 'isactivatedAccount', content: state.isactivatedAccount})
     },
     SET_CACHEEMAIL: (state, cacheemail) => {
       state.cacheemail = cacheemail;

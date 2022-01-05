@@ -54,7 +54,7 @@
         </div>        
       </div>
       <div class="footer">
-        Copyright 2017 - 2021 All Rights Reserved | Powered by amzics.com
+        Copyright 2017 - 2021 All Rights Reserved | Powered by seecis.com
       </div>
     </div>    
   </div>
