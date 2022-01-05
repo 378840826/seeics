@@ -265,23 +265,10 @@ export default {
           return;
         }
       }
-      //前端判断时间是否为两周内
+      //前端判断时间是否为两周内  
 
-      if(Date.parse(time) >= Date.now() + 14* 24 * 60 * 60 * 1000){
-        analysiskeyword(this.formInline,id).then(res => {
-          if(res.data.msg === "您已经搜索过该关键词，请在搜索结果中操作"){       
-            //弹框提箱
-            this.dialogVisible = true;
-            return;           
-          }
-          if(res.data.code === 200 ){
-            //刷新页面
-            this.getkeywordLists();
-          }
-        })
-          //清空关键词
-          this.formInline.searchKeyword = '';
-      } else {
+      if(Date.parse(time) <= Date.now() + 14 * 24 * 60 * 60 * 1000){
+
         //弹确认框
         this.$confirm(`距上次分析时间${time}间隔较短，确认重新分析？`, '提示', {
           confirmButtonText: '确定',
@@ -308,7 +295,23 @@ export default {
             type: 'info',
             message: '已取消分析'
           });          
-        });
+        })
+
+        
+      } else {
+        analysiskeyword(this.formInline,id).then(res => {
+          if(res.data.msg === "您已经搜索过该关键词，请在搜索结果中操作"){       
+            //弹框提箱
+            this.dialogVisible = true;
+            return;           
+          }
+          if(res.data.code === 200 ){
+            //刷新页面
+            this.getkeywordLists();
+          }
+        })
+          //清空关键词
+          this.formInline.searchKeyword = '';
       }
     }   
   },

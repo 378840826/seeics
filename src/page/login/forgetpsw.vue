@@ -42,7 +42,7 @@
   </div>
 </template>
 <script>
-import { getCaptcha, isEmail, sendresetpswEmail} from "@/api/user";
+import { getCaptcha, sendresetpswEmail} from "@/api/user";
 
 export default {
    name: 'forgetpsw',
@@ -58,12 +58,12 @@ export default {
         return;
       }
       //发送请求判断邮箱是否存在
-      isEmail(this.forgetpswForm.useremail).then((res)=>{
-        if(!res.data.data){
-          callback(new Error("邮箱不存在"));
-          return;   
-        } 
-      })
+      //isEmail(this.forgetpswForm.useremail).then(res => {
+        //if(!res.data.data){
+          //callback(new Error("邮箱不存在"));
+          //return;
+        //}
+      //})
       callback();  
     };
      return {
@@ -98,14 +98,14 @@ export default {
           //发请求
           sendresetpswEmail(this.forgetpswForm.useremail,this.forgetpswForm.code, this.forgetpswForm.key).then((res)=>{
             //成功就提示邮件已发送，请查收
-            if(res.code === 200){
+            if(res.data.code === 200){
               this.$message.success('重置密码邮件已发送至您的邮箱，请查收')
+              return;
             }
-          });
+          });     
         }
-      });
-      this.refreshCode();
-      this.$message.error('请正确填写信息');
+        //this.refreshCode(); 
+      });   
      },
      //刷新验证码
      refreshCode() {

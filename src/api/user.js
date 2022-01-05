@@ -39,11 +39,11 @@ export const isEmail = (email) => request({
   }
 });
 //忘记密码(发送重置邮件)
-export const sendresetpswEmail = (email,captchaKey,captchaCode) => request({
+export const sendresetpswEmail = (email,captchaCode,captchaKey) => request({
   url: '/api/blade-user/forgot-password',
   method: 'get',
   params: {
-    tenantId: "000000",
+    tenantId: '0000000',
     email,
     captchaKey,
     captchaCode,
