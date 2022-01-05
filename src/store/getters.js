@@ -26,7 +26,7 @@ const getters = {
   logsFlag: (state, getters) => getters.logsLen === 0,
   flowRoutes: state => state.dict.flowRoutes,
   registeredsuccess: state => state.user.registeredsuccess,
-  isPhone: state => state.user.isPhone,
+  isPhone: state => state.user.isPhone,//是否有电话
   cacheemail: state => state.user.cacheemail, //邮件
   isactivatedAccount: state => state.user.isactivatedAccount //未激活状态
 }

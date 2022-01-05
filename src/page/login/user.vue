@@ -28,8 +28,7 @@
       <el-form-item prop="password">
         <el-input
           show-password 
-          @keyup.enter.native="handleLogin"
-          
+          @keyup.enter.native="handleLogin"        
           v-model="loginForm.password"
           :placeholder="$t('login.password')"
         >

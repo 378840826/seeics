@@ -76,9 +76,9 @@ const user = {
 
           //判断是否有电话号码
           if(!res.data.phone){
-            commit('SET_ISPHONE', true);
-          } else {
             commit('SET_ISPHONE', false);
+          } else {
+            commit('SET_ISPHONE', true);
           } 
           
           //将邮箱保存到缓存，发邮件时使用
