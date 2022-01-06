@@ -254,7 +254,7 @@ export default {
           const result = this.data.some((item)=>item.status === "ANALYZING");
           //加定时器
           if(result){
-            setTimeout(()=>{
+            this.timer = setTimeout(()=>{
               this.getkeywordLists();
             },60000);
           }
@@ -263,7 +263,7 @@ export default {
     },
     //清除定时器
     clearTimer() {
-			clearInterval(this.timer);
+			clearTimeout(this.timer);
 			this.timer = null;
 		},
     //发起关键词分析
@@ -344,7 +344,10 @@ export default {
   },
   beforeDestroy(){
     this.timer && this.clearTimer();
-  }
+  },
+  destroyed() {
+    this.timer && this.clearTimer();
+  },
 }
 </script>
 

@@ -28,6 +28,7 @@ const getters = {
   registeredsuccess: state => state.user.registeredsuccess,
   isPhone: state => state.user.isPhone,//是否有电话
   cacheemail: state => state.user.cacheemail, //邮件
-  isactivatedAccount: state => state.user.isactivatedAccount //未激活状态
+  isactivatedAccount: state => state.user.isactivatedAccount, //未激活状态
+  isactivatedAccountspan: state => state.user.isactivatedAccountspan,
 }
 export default getters

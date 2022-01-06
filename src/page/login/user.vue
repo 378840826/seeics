@@ -213,7 +213,7 @@
     },
     
     computed: {
-      ...mapGetters(["tagWel", "userInfo", "isPhone", "isactivatedAccount","cacheemail"])
+      ...mapGetters(["tagWel", "userInfo", "isPhone", "isactivatedAccount","cacheemail","isactivatedAccountspan"])
     },
     props: [],
     methods: {
@@ -279,8 +279,10 @@
               loading.close();
               //前提条件是有invalid_grant就要拦截
               if(!this.isactivatedAccount){
+                //后端要求初始化数据
+                activationData();
                 //有电话去关键词分析，没有去信息页
-                this.isPhone ? this.activationdata() : this.$router.push({path: 'info/index'});
+                this.isPhone ? this.$router.push({path: this.tagWel.value}) : this.$router.push({path: 'info/index'});
               }              
             }).catch(() => {
               loading.close();
@@ -289,13 +291,6 @@
           }
         });
       },
-
-      activationdata(){
-        //后端要求初始化数据
-        activationData();
-        //跳转到关键词分析
-        this.$router.push({path: this.tagWel.value});
-    },
       getTenant() {
         let domain = getTopUrl();
         // 临时指定域名，方便测试

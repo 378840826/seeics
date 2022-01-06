@@ -47,6 +47,7 @@ const user = {
     isPhone: false,
     cacheemail: '',
     isactivatedAccount: false,
+    isactivatedAccountspan: false,
   },
   actions: {
     //根据用户名登录
@@ -56,21 +57,27 @@ const user = {
           //如果是注册，则
           if(res.data.error === "registering"){
             //修改状态值为true
-            commit('SET_REGISTEREDSUCCESS', true);
-            
+            commit('SET_REGISTEREDSUCCESS', true);        
             //跳转到注册成功
           } else {
             commit('SET_REGISTEREDSUCCESS', false);
           }
 
-          //判断是否激活
+          //判断error=invalid_grant，用于前端拦截
           if(res.data.error === "invalid_grant"){
             //修改状态值为true
             commit('SET_ISACTIVATEDACCOUNT', true);
-                       
-            //跳转到注册成功
           } else {
             commit('SET_ISACTIVATEDACCOUNT', false);
+          }
+
+          //判断是否是未激活发邮件字样
+          if(res.data.error_description === "用户未激活,请到邮箱进行激活"){
+            //修改状态值为true
+            commit('SET_ISACTIVATEDACCOUNTSPAN', true);
+            //跳转到注册成功
+          } else {
+            commit('SET_ISACTIVATEDACCOUNTSPAN', false);
           }
 
           //判断是否有电话号码

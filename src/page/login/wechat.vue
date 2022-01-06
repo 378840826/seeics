@@ -30,13 +30,21 @@
           appid: 'wxea22122e145d648c', 
           scope: 'snsapi_login', 
           // eslint-disable-next-line @typescript-eslint/camelcase
-          redirect_uri: `https://seeics.com/wechatreg`,//授权成功之后到的回调url
+          redirect_uri: `https://seeics.com/api/oauth/redirect/wechat`,//授权成功之后到的回调url
           // redirect_uri: `http://dev.workics.cn/api/system/user/wechat-login`,
           state: `${ (new Date()).getTime()}`,
           style: 'black',
           href: hrefStyle,
         });
+
+        const qrcodeBox = document.getElementById('wxContainer');
+        const iframes = qrcodeBox.getElementsByTagName('iframe');
+        if (iframes.length){
+          const ifr = iframes[0];
+          ifr.setAttribute('sandbox', 'allow-scripts allow-top-navigation allow-same-origin');
+        }
       }, 1000);
+
     },  
   },
  }
