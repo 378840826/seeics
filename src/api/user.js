@@ -66,6 +66,13 @@ export const activateAccount = (activateId) => request({
     activateId   
   }
 });
+
+//后端要求激活一下数据
+export const activationData = () => request({
+  url: '/seeics-analysis/seeics-analysis/keyword-analyze/initialization',
+  method: 'post',
+});
+
 export const loginBySocial = (tenantId, source, code, state) => request({
   url: '/api/blade-auth/oauth/token',
   method: 'post',

@@ -54,23 +54,35 @@
         <template  slot="menu" slot-scope="scope">
           <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn">
             <a :href="scope.row.excelUrl" download>导出分析结果</a>
-            <span class="analysisaginspan" @click="analysiskeywords(scope.row.id, scope.row.crawlingCompleteTime)">重新分析</span>            
+            <span class="analysisaginspan" @click="analysiskeywords(scope.row.id, scope.row.crawlingCompleteTime)">重新分析</span>
+            <div>
+              <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
+            </div>
           </div>
           <div v-else-if="scope.row.status === 'ANALYZE_FAILED'" class="derivedresultbtn">
             <el-button type="info">分析失败</el-button>
-            <span class="analysisaginspan" @click="analysiskeywords(scope.row.id)">重试</span>            
+            <span class="analysisaginspan" @click="analysiskeywords(scope.row.id)">重试</span>
+            <div>
+              <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
+            </div>
           </div>
           <div v-else-if="scope.row.status === 'COMPLETED' && !scope.row.excelUrl" class="derivedresultbtn">
             <el-button type="info">分析失败</el-button>
             <div>
               <span class="erroecolor">该关键词没有找到相关商品</span>
             </div>
+            <div>
+              <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
+            </div>
                          
           </div>
           <div v-else class="derivedresultbtn">
-            <el-progress :percentage="scope.row.progress*100" :format="format" :text-inside="true" :stroke-width="30"></el-progress>                       
+            <el-progress :percentage="scope.row.progress*100" :format="format" :text-inside="true" :stroke-width="30"></el-progress>
+            <div>
+              <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
+            </div>
           </div> 
-        </template>       
+        </template>
       </avue-crud>
     </div>
   </el-card>
@@ -92,6 +104,7 @@
 
 <script>
 import { getkeywordList, analysiskeyword } from "@/api/keyword/keyword";
+
 
 export default {
  
@@ -199,9 +212,11 @@ export default {
       };
   },
   mounted(){
-     this.getkeywordLists();
+    
+    this.getkeywordLists();
   },
-  methods: {
+  
+  methods: {   
     format(percentage) {
         return percentage === 100 ? '导出分析报告' : `正在分析${parseInt(percentage)}%`;
     },

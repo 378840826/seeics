@@ -72,7 +72,7 @@
 <script>
   import {mapGetters} from "vuex";
   import {info} from "@/api/system/tenant";
-  import {getCaptcha, sendEmailAgain} from "@/api/user";
+  import {getCaptcha, sendEmailAgain, activationData} from "@/api/user";
   import {getTopUrl} from "@/util/util";
 
   export default {
@@ -277,7 +277,8 @@
                 }
               }
               //判断是否有电话，有就去关键词分析，没有去个人信息
-              this.isPhone ? this.$router.push({path: this.tagWel.value}) : this.$router.push({path: 'info/index'});      
+              this.isPhone ? this.activationdata() : this.$router.push({path: 'info/index'});
+              
               loading.close();
             }).catch(() => {
               loading.close();
@@ -286,6 +287,13 @@
           }
         });
       },
+
+      activationdata(){
+        //后端要求初始化数据
+        activationData();
+        //跳转到关键词分析
+        this.$router.push({path: this.tagWel.value});
+    },
       getTenant() {
         let domain = getTopUrl();
         // 临时指定域名，方便测试
