@@ -57,28 +57,27 @@ const user = {
           if(res.data.error === "registering"){
             //修改状态值为true
             commit('SET_REGISTEREDSUCCESS', true);
+            
             //跳转到注册成功
           } else {
             commit('SET_REGISTEREDSUCCESS', false);
           }
 
           //判断是否激活
-
           if(res.data.error === "invalid_grant"){
             //修改状态值为true
             commit('SET_ISACTIVATEDACCOUNT', true);
+            
             //跳转到注册成功
           } else {
             commit('SET_ISACTIVATEDACCOUNT', false);
           }
 
-
-
           //判断是否有电话号码
-          if(!res.data.phone){
-            commit('SET_ISPHONE', false);
-          } else {
+          if(res.data.phone){
             commit('SET_ISPHONE', true);
+          } else {
+            commit('SET_ISPHONE', false);
           } 
           
           //将邮箱保存到缓存，发邮件时使用
