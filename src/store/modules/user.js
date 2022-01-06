@@ -67,7 +67,7 @@ const user = {
           if(res.data.error === "invalid_grant"){
             //修改状态值为true
             commit('SET_ISACTIVATEDACCOUNT', true);
-            
+                       
             //跳转到注册成功
           } else {
             commit('SET_ISACTIVATEDACCOUNT', false);

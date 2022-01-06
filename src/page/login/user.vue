@@ -276,10 +276,12 @@
                   return false;
                 }
               }
-              //判断是否有电话，有就去关键词分析，没有去个人信息
-              this.isPhone ? this.activationdata() : this.$router.push({path: 'info/index'});
-              
               loading.close();
+              //前提条件是有invalid_grant就要拦截
+              if(!this.isactivatedAccount){
+                //有电话去关键词分析，没有去信息页
+                this.isPhone ? this.activationdata() : this.$router.push({path: 'info/index'});
+              }              
             }).catch(() => {
               loading.close();
               this.refreshCode();

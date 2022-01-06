@@ -69,7 +69,7 @@ export const activateAccount = (activateId) => request({
 
 //后端要求激活一下数据
 export const activationData = () => request({
-  url: '/api/seeics-analysis/seeics-analysis/keyword-analyze/initialization',
+  url: '/api/seeics-analysis/keyword-analyze/initialization',
   method: 'post',
 });
 
