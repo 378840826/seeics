@@ -74,8 +74,7 @@
         this.form.name = this.userInfo.user_name;
         this.form.account = this.userInfo.user_name;
         this.accountBox = true;
-      }
-      
+      }    
     },
     watch: {
       $route() {
@@ -105,7 +104,6 @@
             text: '第三方系统登录中,请稍后。。。',
             spinner: "el-icon-loading"
           });
-          console.log(`123`);
           this.$store.dispatch("LoginBySocial", this.socialForm).then(() => {
             window.location.href = topUrl.split(redirectUrl)[0];
             this.$router.push({path: this.tagWel.value});

@@ -62,11 +62,11 @@ export default {
       }
     },
     resetsendEmail(){
+      this.iscountdown = true;
       //发送请求
       sendEmailAgain(this.cacheemail).then((res) => {
         if(res.data.code === 200){
           this.$message.success('激活邮件已发送至您的邮箱，请查收')
-          this.iscountdown = true;
           //开启倒计时
           this.startcountdown();
         }

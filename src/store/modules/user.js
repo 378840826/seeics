@@ -130,6 +130,7 @@ const user = {
     //根据第三方信息登录
     LoginBySocial({commit}, userInfo) {
       return new Promise((resolve) => {
+        
         loginBySocial(userInfo.tenantId, userInfo.source, userInfo.code, userInfo.state).then(res => {
           const data = res.data;
           if (data.error_description) {
