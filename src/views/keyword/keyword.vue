@@ -212,7 +212,7 @@ export default {
       };
   },
   mounted(){
-    
+  
     this.getkeywordLists();
   },
   
@@ -255,7 +255,7 @@ export default {
           //加定时器
           if(result){
             this.timer = setTimeout(()=>{
-              this.getkeywordLists();
+              getkeywordList(this.page.currentPage, this.page.pageSize);
             },60000);
           }
         }
