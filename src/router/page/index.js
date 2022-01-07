@@ -33,7 +33,7 @@ export default [{
         isAuth: false
       }
   },{
-    path: '/wechatreg',
+    path: '/oauth/redirect/wechat',
     name: '微信登录注册页',
     component: () =>
       import( /* webpackChunkName: "page" */ '@/page/login/wechatreg'),

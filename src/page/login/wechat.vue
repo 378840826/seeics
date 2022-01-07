@@ -30,11 +30,9 @@
           appid: 'wxf5fcd79ce8d427b5', 
           scope: 'snsapi_login', 
           // eslint-disable-next-line @typescript-eslint/camelcase
-          redirect_uri: `https%3A%2F%2Fwww.seeics.com%2Foauth%2Fredirect%2Fwechat`,//授权成功之后到的回调url
+          redirect_uri: `https://www.seeics.com/oauth/redirect/wechat`,//授权成功之后到的回调url
           // redirect_uri: `http://dev.workics.cn/api/system/user/wechat-login`,
-          //https%3A%2F%2Fwww.seeics.com%2Foauth%2Fredirect%2Fwechat
-          //state: `${ (new Date()).getTime()}`,
-          state: `STATE#wechat_redirect`,
+          state: `${ (new Date()).getTime()}`,         
           style: 'black',
           href: hrefStyle,
         });
@@ -51,7 +49,7 @@
  }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 
 .impowerBox .qrcode {
   width: 180px;

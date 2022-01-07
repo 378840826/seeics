@@ -255,7 +255,7 @@ export default {
           //加定时器
           if(result){
             this.timer = setTimeout(()=>{
-              getkeywordList(this.page.currentPage, this.page.pageSize);
+              this.getkeywordLists();
             },60000);
           }
         }
