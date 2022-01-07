@@ -58,7 +58,7 @@ export default {
         this.iscountdown = false;
         //给值回到120
         this.countdown = 120;
-
+        return;
       }
     },
     resetsendEmail(){
