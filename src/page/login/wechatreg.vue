@@ -1,137 +1,124 @@
 <template>
-  <div class="setupnewpsw-container">
-    <div class="setupnewpsw-center">
-      <div class="logo">
-        <img src="/img/bg/bluelogo.png">
-      </div>
-      <div class="centerdiv">
-        <div class="setupnewpsw-form">
-          <div v-if="registeredsuccess" class="wechatres-boder">
-            <div class="flexdiv">
-              <img src="/img/activeEmail.png">
-              <div>
-                注册成功，请<a :href="emailsite" target="_blank"> 前往邮箱 </a>激活
-              </div>
-            </div>
-            <div class="tipstext">没有收到验证码，<span class="bluetext" @click="handlesendemailagain">重新发送</span></div>
-
-          </div> 
-          <div v-else> 
-          <div class="setupnewpsw-header" >填 写 账 号 信 息</div>
-          <div class="form-main">
-            <el-form
-            :rules="wechatregRules"
-            ref="wechatregForm"
-            :model="wechatregForm"
-            label-width="0"
-            >
-            <el-form-item prop="useremail">
-              <el-input 
-                v-model="wechatregForm.useremail"
-                placeholder="请输入账号"
-                :type="passwordType">
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="password">
-              <el-input 
-                show-password
-                v-model="wechatregForm.password"
-                placeholder="请输入密码"
-                :type="passwordType">
-              </el-input>
-            </el-form-item>
-            <el-form-item>
-              <el-button 
-                type="primary"
-                @click.native.prevent="handlewechatres"
-                class="login-submit">登录注册
-              </el-button>
-            </el-form-item>
-            </el-form>
-          </div>
-          </div>               
-        </div>
-
-      </div>
-      <div class="setupnewpsw-tips">
-        建议使用Chrome，Firefox，360等浏览器    
-      </div>
-    </div>
-    <footer class="footer">Copyright 2017 - 2021 All Rights Reserved | Powered by seecis.com</footer>
-  </div>
+  <el-dialog title="账号注册"
+             append-to-body
+             :visible.sync="accountBox"
+             :close-on-click-modal="false"
+             :close-on-press-escape="false"
+             :show-close="false"
+             width="20%">
+    <el-form :model="form" ref="form" label-width="80px">
+      <el-form-item v-if="tenantMode" label="租户编号">
+        <el-input v-model="form.tenantId" placeholder="请输入租户编号"></el-input>
+      </el-form-item>
+      <el-form-item label="用户姓名">
+        <el-input v-model="form.name" placeholder="请输入用户姓名"></el-input>
+      </el-form-item>
+      <el-form-item label="账号名称">
+        <el-input v-model="form.account" placeholder="请输入账号名称"></el-input>
+      </el-form-item>
+      <el-form-item label="账号密码">
+        <el-input v-model="form.password" placeholder="请输入账号密码"></el-input>
+      </el-form-item>
+      <el-form-item label="确认密码">
+        <el-input v-model="form.password2" placeholder="请输入确认密码"></el-input>
+      </el-form-item>
+    </el-form>
+    <span slot="footer" class="dialog-footer">
+      <el-button type="primary" :loading="loading" @click="handleRegister">确 定</el-button>
+      <el-button type="primary"  @click="closeregistered">取消</el-button>
+    </span>
+  </el-dialog>
 </template>
-<script>
-import { isEmail, sendEmailAgain} from "@/api/user";
-import {mapGetters} from "vuex";
 
-export default {
-  name: 'wechatreg',
-  data(){
-    const validateUseremail=async(rule, value, callback) => {
-      if (!value) {
-        callback(new Error("注册邮箱不能为空"));
-        return;
-      }
-      const reg = /^\s*([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+\s*/;
-      if(!reg.test(value)){
-        callback(new Error("注册邮箱格式不正确"));
-        return;
+<script>
+  import {mapGetters} from "vuex";
+  import {validatenull} from "@/util/validate";
+  import {registerGuest} from "@/api/user";
+  import {getTopUrl} from "@/util/util";
+  import {info} from "@/api/system/tenant";
+  import {resetRouter} from "@/router/router";
+
+  export default {
+    name: "thirdRegister",
+    data() {
+      return {
+        form: {
+          tenantId: '',
+          name: '',
+          account: '',
+          password: '',
+          password2: '',
+        },
+        loading: false,
+        tenantMode: true,
+        accountBox: true,
+      };
+    },
+    computed: {
+      ...mapGetters(["userInfo"]),
+    },
+    created() {
+      this.getTenant();
+    },
+    mounted() {
+       
+      if (validatenull(this.userInfo.user_id) || this.userInfo.user_id < 0) {
+        this.form.name = this.userInfo.user_name;
+        this.form.account = this.userInfo.user_name;
+        this.accountBox = true;
       }
       
-      await isEmail(this.wechatregForm.useremail).then((res)=>{
-        if(res.code===200){
-          if(!res.data){
-            callback(new Error("该用户已存在"));
-            return;
-          }
-        }
-      })
-      callback();    
-    };
-    return {
-      emailsite: 'http://www.mail.qq.com',
-      wechatregForm: {
-        useremail: '',
-        password: ''
-      },
-      wechatregRules: {
-        useremail: [
-          {required: true, trigger: "blur", validator: validateUseremail},
-        ],
-        password: [
-          {required: true, message: "请输入密码", trigger: "blur"},// eslint-disable-next-line
-          {pattern: /(?!^[0-9]+$)(?!^[A-Za-z]+$)(?!^[^A-Za-z0-9]+$)^[`~!@#$%\^&*\(\)\-=_+\[\]\\\{\}:";'',./<>?|A-z0-9]{6,16}$/,message: '长度6~16，至少包含字母、数字和英文符号中的两种', trigger: "blur"},
-        ],
-      }
-    }
-  },
-  methods: {
-    handlewechat(){
-      //console.log(this.wechatregForm)
     },
-    //重新发送邮件
-    handlesendemailagain(){
-      sendEmailAgain(this.wechatregForm.useremail).then((res) => {
-        if(res.code === 200){
-          this.$message.success('激活邮件已发送至您的邮箱，请查收')
+    methods: {
+      handleRegister() {
+        if (this.form.tenantId === '') {
+          this.$message.warning("请先输入租户编号");
+          return;
         }
-      })
-
-    }
-  },
-  computed: {
-    //判断是否是注册
-    ...mapGetters(["registeredsuccess"])
-  },
-  watch: {
-    'wechatregForm.useremail'(){
-      const regEmail = /@(\w)+((\.\w+)+)$/;
-      const m = this.wechatregForm.useremail.match(regEmail);
-      if (m.length){
-        this.emailsite = `http://www.mail.${ m[0].substr(1)}`;
-      }
-    }
-  }
-}
-
+        if (this.form.account === '') {
+          this.$message.warning("请先输入账号名称");
+          return;
+        }
+        if (this.form.password === '' || this.form.password2 === '') {
+          this.$message.warning("请先输入密码");
+          return;
+        }
+        if (this.form.password !== this.form.password2) {
+          this.$message.warning("两次密码输入不一致");
+          return;
+        }
+        this.loading = true;
+        registerGuest(this.form, this.userInfo.oauth_id).then(res => {
+          this.loading = false;
+          const data = res.data;
+          if (data.success) {
+            this.accountBox = false;
+            this.$alert("注册申请已提交,请耐心等待管理员通过!", '注册提示').then(() => {
+              this.$store.dispatch("LogOut").then(() => {
+                resetRouter();
+                this.$router.push({path: "/login"});
+              });
+            })
+          } else {
+            this.$message.error(data.msg || '提交失败');
+          }
+        }, error => {
+          window.console.log(error);
+          this.loading = false;
+        });
+      },
+      getTenant() {
+        let domain = getTopUrl();
+        // 临时指定域名，方便测试
+        //domain = "https://bladex.vip";
+        info(domain).then(res => {
+          const data = res.data;
+          if (data.success && data.data.tenantId) {
+            this.form.tenantId = data.data.tenantId;
+            this.tenantMode = false;
+          }
+        })
+      },
+    },
+  };
 </script>

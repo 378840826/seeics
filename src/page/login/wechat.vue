@@ -10,11 +10,7 @@
   },
   methods: {
     setWxerwma () {
-      const hrefStyle = `data:text/css;base64,aWZyYW1le2hlaWdodDogMjYwcHg7fQ0KLmxvZ2
-        luUGFuZWwgLnRpdGxle2Rpc3BsYXk6bm9uZTt9DQouaW1wb3dlckJveCAucXJjb2Rle3dpZHRoOjIwMHB4O21hcmdpbi1
-        0b3A6MDt9DQouaW1wb3dlckJveCAuaW5mb3tjb2xvcjojODg4O30NC
-        i5pbXBvd2VyQm94IC5zdGF0dXNfaWNvbiB7ZGlzcGxheTpub25lO30N
-        Ci5pbXBvd2VyQm94IC5zdGF0dXMge3RleHQtYWxpZ246Y2VudGVyO30=`;
+      const hrefStyle = `data:text/css;base64,LmltcG93ZXJCb3ggLnFyY29kZSB7d2lkdGg6IDE4MHB4O30KLmltcG93ZXJCb3ggLnRpdGxlIHtkaXNwbGF5OiBub25lO30KLmltcG93ZXJCb3ggLmluZm8ge3dpZHRoOiAyMDBweDt9Ci5zdGF0dXNfaWNvbiB7ZGlzcGxheTogbm9uZX0KLmltcG93ZXJCb3ggLnN0YXR1cyB7dGV4dC1hbGlnbjogY2VudGVyO30=`;
     const script = document.createElement('script');
     script.type = 'text/javascript';
     script.async = false;
