@@ -18,6 +18,7 @@
           <div class="main-right">
             <forgetPsw v-if="forgetpsw"></forgetPsw>
             <regSuccess v-else-if="registeredsuccess" :userEmail="userEmail"></regSuccess>
+            <thirdLogin v-else-if="skips"/>
             <el-tabs  v-else v-model="activeName" @tab-click="handleClick">
               <el-tab-pane label="微信登录" name="wechat">
                 
@@ -25,8 +26,9 @@
               </el-tab-pane>
               <el-tab-pane label="账号密码登录" name="user">
                 <userLogin @forgetpswFn="forgetpswFn" @regsuccessFn="regsuccessFn" @useremailchange="useremailchangeFn"></userLogin>             
-              </el-tab-pane>       
-            </el-tabs>           
+              </el-tab-pane>      
+            </el-tabs>  
+            <p><span @click="userlogin" href="">账号密码登录</span><span @click="skip">第三方模块</span></p>         
           </div>
         </div>
       </div>
@@ -38,6 +40,7 @@
 </template>
 <script>
 import userLogin from "./user";
+import thirdLogin from "./thirdlogin";
 import weChat from "./wechat";
 import forgetPsw from "./forgetpsw";
 import regSuccess from "./regsuccess";
@@ -51,13 +54,15 @@ export default {
     weChat,
     forgetPsw,
     regSuccess,
-    noSupport
+    noSupport,
+    thirdLogin,
   },
   data(){
     return {
       activeName: 'user',
       userEmail:'',
       forgetpsw: false,//忘记密码
+      skips: false,
     }  
   },
   methods: {
@@ -65,6 +70,14 @@ export default {
     forgetpswFn(val){
       this.forgetpsw=val;
     },
+
+    skip() {
+      this.skips = true;
+    },
+
+    userlogin() {
+      this.skips = false;
+    }
   },
   computed: {
     ...mapGetters(["registeredsuccess"])
