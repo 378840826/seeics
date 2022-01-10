@@ -46,7 +46,11 @@
         <template slot="keyword" slot-scope="scope">
           <div>{{scope.row.keyword}}</div>
           <div>
+<<<<<<< HEAD
             <span v-if="scope.row.searchResultOverCount > (2 * scope.row.searchResultOverCount)" class="erroecolor">
+=======
+            <span v-if="scope.row.searchResultOverCount > 2 " class="erroecolor">
+>>>>>>> feature/AM-007
               关键词搜索数量超过{{scope.row.searchResultOverCount}}个，免费显示搜索结果前2页(每页显示{{scope.row.searchResultPageSize}}个)
             </span>            
           </div>

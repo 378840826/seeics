@@ -20,8 +20,8 @@
             <regSuccess v-else-if="registeredsuccess" :userEmail="userEmail"></regSuccess>
             <el-tabs  v-else v-model="activeName" @tab-click="handleClick">
               <el-tab-pane label="微信登录" name="wechat">
-                <noSupport></noSupport>
                 
+                <weChat></weChat>
               </el-tab-pane>
               <el-tab-pane label="账号密码登录" name="user">
                 <userLogin @forgetpswFn="forgetpswFn" @regsuccessFn="regsuccessFn" @useremailchange="useremailchangeFn"></userLogin>             
