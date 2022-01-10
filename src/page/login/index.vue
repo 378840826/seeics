@@ -28,7 +28,7 @@
                 <userLogin @forgetpswFn="forgetpswFn" @regsuccessFn="regsuccessFn" @useremailchange="useremailchangeFn"></userLogin>             
               </el-tab-pane>      
             </el-tabs>  
-            <p><span @click="userlogin" href="">账号密码登录</span><span @click="skip">跳转第三方模块</span></p>         
+            <p><span @click="userlogin" href="">账号密码登录</span><span @click="skip">第三方模块</span></p>         
           </div>
         </div>
       </div>
