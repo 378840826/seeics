@@ -43,11 +43,14 @@
         <template slot="name" slot-scope="scope" >
           <div>{{scope}}</div>
         </template>
-        <template slot="keyword" slot-scope="scope">
-          <div>{{scope.row.keyword}}</div>
+        <template slot="searchKeyword" slot-scope="scope">
+        
           <div>
-            <span v-if="scope.row.searchResultOverCount > 2 " class="erroecolor">
-              关键词搜索数量超过{{scope.row.searchResultOverCount}}个，免费显示搜索结果前2页(每页显示{{scope.row.searchResultPageSize}}个)
+            {{scope.row.searchKeyword}}
+          </div>
+          <div v-if="scope.row.crawlingSearchResultCount && scope.row.crawlingSearchResultPageSize && scope.row.crawlingSearchResultCount*1 >= scope.row.crawlingSearchResultPageSize*2">
+            <span class="erroecolor">
+              关键词搜索数量超过{{scope.row.crawlingSearchResultCount}}个，免费显示搜索结果前2页(每页显示{{scope.row.crawlingSearchResultPageSize}}个)
             </span>            
           </div>
         </template>
@@ -117,40 +120,6 @@ export default {
         },
         user:{},
         data: [],
-        /** 
-        data: [
-          {
-            id: '01',
-            freshtime:'2021-11-03',
-            site:'美国',
-            keyword:'关键词1',
-            status: 'ANALYZE_FAILED',
-            searchResultOverCount: 3,
-            searchResultPageSize: 16,    
-          }, {
-            id: '02',
-            freshtime:'2021-11-05',
-            site:'美国',
-            keyword:'关键词2',
-            status: 'COMPLETED',
-            excelUrl: 'https://az-file-2021.oss-cn-shenzhen.aliyuncs.com/Outerbox/1a4fee82-a8f7-4ca7-9d21-5411e58fb173.pdf'
-          },{
-            id: '03',
-            freshtime:'2021-11-02',
-            site:'美国',
-            keyword:'关键词2',
-            status: 'COMPLED',
-            progress: 0.3,
-          },{
-            id: '04',
-            freshtime:'2021-11-05',
-            site:'美国',
-            keyword:'关键词2',
-            status: 'COMPLETED',
-            excelUrl: ''
-          },
-        ],
-        */
         dialogVisible: false,//两周内是否搜索过弹框
         desc: false,//排序值
         timer: null,//定时器名称
@@ -211,12 +180,11 @@ export default {
         },
       };
   },
-  mounted(){
-  
+  mounted(){  
     this.getkeywordLists();
   },
   
-  methods: {   
+  methods: {
     format(percentage) {
         return percentage === 100 ? '导出分析报告' : `正在分析${parseInt(percentage)}%`;
     },
@@ -249,15 +217,16 @@ export default {
           this.restnum = res.data.data.todayFeeSearchCount;
           //添加成功，清空关键词
           this.formInline.searchKeyword = ''; 
-
-          //判断是否要加定时器
-          const result = this.data.some((item)=>item.status === "ANALYZING");
-          //加定时器
-          if(result){
-            this.timer = setTimeout(()=>{
-              this.getkeywordLists();
-            },60000);
-          }
+        }
+        //有定时器先关掉定时器
+        this.timer && this.clearTimer();
+        //判断是否要加定时器
+        const result = this.data.some((item)=>item.status === "ANALYZING");
+        //加定时器
+        if(result){
+          this.timer = setTimeout(()=>{
+            this.getkeywordLists();
+          },60000);
         }
       });
     },

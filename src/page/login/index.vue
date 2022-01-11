@@ -20,15 +20,15 @@
             <regSuccess v-else-if="registeredsuccess" :userEmail="userEmail"></regSuccess>
             <thirdLogin v-else-if="skips"/>
             <el-tabs  v-else v-model="activeName" @tab-click="handleClick">
-              <el-tab-pane label="微信登录" name="wechat">
+              <!-- <el-tab-pane label="微信登录" name="wechat">
                 
                 <weChat></weChat>
-              </el-tab-pane>
+              </el-tab-pane> -->
               <el-tab-pane label="账号密码登录" name="user">
                 <userLogin @forgetpswFn="forgetpswFn" @regsuccessFn="regsuccessFn" @useremailchange="useremailchangeFn"></userLogin>             
               </el-tab-pane>      
             </el-tabs>  
-            <p><span @click="userlogin" href="">账号密码登录</span><span @click="skip">跳转第三方模块</span></p>         
+            <div><span @click="userlogin">账号密码登录</span><span @click="skip">第三方模块</span></div>         
           </div>
         </div>
       </div>

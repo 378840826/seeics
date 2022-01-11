@@ -213,7 +213,7 @@
     },
     
     computed: {
-      ...mapGetters(["tagWel", "userInfo", "isPhone", "isactivatedAccount","cacheemail","isactivatedAccountspan"])
+      ...mapGetters(["tagWel", "userInfo", "isPhone", "isactivatedAccount","cacheemail","isactivatedAccountspan","registeredsuccess"])
     },
     props: [],
     methods: {
@@ -277,8 +277,8 @@
                 }
               }
               loading.close();
-              //前提条件是有invalid_grant就要拦截
-              if(!this.isactivatedAccount){
+              //前提条件是有invalid_grant就要拦截 注册要拦截
+              if(!this.isactivatedAccount && !this.registeredsuccess){
                 //后端要求初始化数据
                 activationData();
                 //有电话去关键词分析，没有去信息页
