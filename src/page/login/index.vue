@@ -41,8 +41,11 @@
 <script>
 import userLogin from "./user";
 import thirdLogin from "./thirdlogin";
-import weChat from "./wechat";
+// import weChat from "./wechat";
 import forgetPsw from "./forgetpsw";
+import { validatenull } from "@/util/validate";
+import {getQueryString, getTopUrl} from "@/util/util";
+import { dateFormat } from "@/util/date";
 import regSuccess from "./regsuccess";
 import noSupport from "./nosupport";
 import {mapGetters} from "vuex";
@@ -51,7 +54,7 @@ export default {
   name: "login",
   components: {
     userLogin,
-    weChat,
+    // weChat,
     forgetPsw,
     regSuccess,
     noSupport,
@@ -65,6 +68,18 @@ export default {
       skips: false,
     }  
   },
+    created() {
+    this.handleLogin();
+    this.getTime();
+  },
+  computed: {
+    ...mapGetters(["registeredsuccess", "website", "tagWel"])
+  },
+  watch: {
+    $route() {
+      this.handleLogin();
+    }
+  },
   methods: {
     //忘记密码
     forgetpswFn(val){
@@ -77,10 +92,42 @@ export default {
 
     userlogin() {
       this.skips = false;
+    },
+
+    getTime() {
+      setInterval(() => {
+        this.time = dateFormat(new Date());
+      }, 1000);
+    },
+    handleLogin() {
+      console.log('6676')
+      const topUrl = getTopUrl();
+      const redirectUrl = "/oauth/redirect/";
+      this.socialForm.source = getQueryString("source");
+      this.socialForm.code = getQueryString("code");
+      this.socialForm.state = getQueryString("state");
+      console.log(this.socialForm.source, this.socialForm.code, this.socialForm.state)
+      if (validatenull(this.socialForm.source) && topUrl.includes(redirectUrl)) {
+        let source = topUrl.split("?")[0];
+        source = source.split(redirectUrl)[1];
+        this.socialForm.source = source;
+      }
+      if (!validatenull(this.socialForm.source) && !validatenull(this.socialForm.code) && !validatenull(this.socialForm.state)) {
+        console.log('666')
+        const loading = this.$loading({
+          lock: true,
+          text: '第三方系统登录中,请稍后。。。',
+          spinner: "el-icon-loading"
+        });
+        this.$store.dispatch("LoginBySocial", this.socialForm).then(() => {
+          window.location.href = topUrl.split(redirectUrl)[0];
+          this.$router.push({path: this.tagWel.value});
+          loading.close();
+        }).catch(() => {
+          loading.close();
+        });
+      }
     }
-  },
-  computed: {
-    ...mapGetters(["registeredsuccess"])
   },
 }
 </script>

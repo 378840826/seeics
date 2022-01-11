@@ -30,9 +30,9 @@
                 <el-tab-pane label="账号密码登录" name="user">
                   <userLogin></userLogin>
                 </el-tab-pane>
-                <el-tab-pane label="微信登录" name="wechat">
+                <!-- <el-tab-pane label="微信登录" name="wechat">
                   <weChat></weChat>               
-                </el-tab-pane>              
+                </el-tab-pane>               -->
               </el-tabs>
               <!--
                   思意第一期用安知登录逻辑 ？？？？
@@ -63,7 +63,7 @@
   import userLogin from "./userlogin";
   import codeLogin from "./codelogin";
   import thirdLogin from "./thirdlogin";
-  import weChat from "./wechat";
+  // import weChat from "./wechat";
   import {mapGetters} from "vuex";
   import {dateFormat} from "@/util/date";
   import {validatenull} from "@/util/validate";
@@ -79,7 +79,7 @@
       thirdLogin,
       topLang,
       topColor,
-      weChat,
+      // weChat,
     },
     data() {
       return {
