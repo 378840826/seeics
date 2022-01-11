@@ -32,17 +32,28 @@ export default [{
         isTab: false,
         isAuth: false
       }
-  },{
-    path: '/oauth/redirect/wechat',
-    name: '微信登录注册页',
-    component: () =>
-      import( /* webpackChunkName: "page" */ '@/page/login/wechatreg'),
-      meta: {
-        keepAlive: true,
-        isTab: false,
-        isAuth: false
-      }
   },
+  // {
+  //   path: '/oauth/redirect/wechat',
+  //   name: '微信登录注册页',
+  //   component: () =>
+  //     import( /* webpackChunkName: "page" */ '@/page/login/wechatreg'),
+  //     meta: {
+  //       keepAlive: true,
+  //       isTab: false,
+  //       isAuth: false
+  //     }
+  // },{
+  //   path: '/thirdRegister',
+  //   component: () =>
+  //       import( /* webpackChunkName: "page" */ '@/components/third-register/main'),
+  //   name: 'thirdRegister',
+  //   meta: {
+  //       keepAlive: true,
+  //       isTab: false,
+  //       isAuth: false
+  //   }
+  // },
   {
     path: '/',
     name: '主页',

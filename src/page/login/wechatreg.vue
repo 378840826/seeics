@@ -34,10 +34,9 @@
   import {mapGetters} from "vuex";
   import {validatenull} from "@/util/validate";
   import {registerGuest} from "@/api/user";
-  import {getTopUrl, getQueryString,} from "@/util/util";
+  import {getTopUrl} from "@/util/util";
   import {info} from "@/api/system/tenant";
   import {resetRouter} from "@/router/router";
-  import {dateFormat} from "@/util/date";
 
   export default {
     name: "thirdRegister",
@@ -53,12 +52,6 @@
         loading: false,
         tenantMode: true,
         accountBox: false,
-        socialForm: {
-          tenantId: "000000",
-          source: "",
-          code: "",
-          state: "",
-        },
       };
     },
     computed: {
@@ -66,53 +59,18 @@
     },
     created() {
       this.getTenant();
-      this.handleLogin();
-      this.getTime();
     },
-    mounted() {      
+    mounted() {
+      // 若未登录则弹出框进行绑定
+       
       if (validatenull(this.userInfo.user_id) || this.userInfo.user_id < 0) {
         this.form.name = this.userInfo.user_name;
         this.form.account = this.userInfo.user_name;
         this.accountBox = true;
-      }    
-    },
-    watch: {
-      $route() {
-        this.handleLogin();
       }
+      
     },
     methods: {
-      getTime() {
-        setInterval(() => {
-          this.time = dateFormat(new Date());
-        }, 1000);
-      },
-      handleLogin() {
-        const topUrl = getTopUrl();
-        const redirectUrl = "/oauth/redirect/";
-        this.socialForm.source = getQueryString("source");
-        this.socialForm.code = getQueryString("code");
-        this.socialForm.state = getQueryString("state");
-        if (validatenull(this.socialForm.source) && topUrl.includes(redirectUrl)) {
-          let source = topUrl.split("?")[0];
-          source = source.split(redirectUrl)[1];
-          this.socialForm.source = source;
-        }
-        if (!validatenull(this.socialForm.source) && !validatenull(this.socialForm.code) && !validatenull(this.socialForm.state)) {
-          const loading = this.$loading({
-            lock: true,
-            text: '第三方系统登录中,请稍后。。。',
-            spinner: "el-icon-loading"
-          });
-          this.$store.dispatch("LoginBySocial", this.socialForm).then(() => {
-            window.location.href = topUrl.split(redirectUrl)[0];
-            this.$router.push({path: this.tagWel.value});
-            loading.close();
-          }).catch(() => {
-            loading.close();
-          });
-        }
-      },
       handleRegister() {
         if (this.form.tenantId === '') {
           this.$message.warning("请先输入租户编号");
