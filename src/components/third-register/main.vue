@@ -24,9 +24,8 @@
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
-      <el-button type="primary" :loading="loading" @click="handleRegister">确 定</el-button>
-      <el-button type="primary"  @click="closeregistered">取消</el-button>
-    </span>
+              <el-button type="primary" :loading="loading" @click="handleRegister">确 定</el-button>
+            </span>
   </el-dialog>
 </template>
 
@@ -62,7 +61,7 @@
     },
     mounted() {
       // 若未登录则弹出框进行绑定
-       
+       console.log(this.userInfo)
       if (validatenull(this.userInfo.user_id) || this.userInfo.user_id < 0) {
         this.form.name = this.userInfo.user_name;
         this.form.account = this.userInfo.user_name;
