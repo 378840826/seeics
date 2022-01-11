@@ -132,6 +132,7 @@ const user = {
       return new Promise((resolve) => {
         
         loginBySocial(userInfo.tenantId, userInfo.source, userInfo.code, userInfo.state).then(res => {
+          console.log(res)
           const data = res.data;
           if (data.error_description) {
             Message({
