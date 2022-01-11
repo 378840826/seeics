@@ -66,6 +66,12 @@ export default {
       userEmail:'',
       forgetpsw: false,//忘记密码
       skips: false,
+      socialForm: {
+          tenantId: "000000",
+          source: "",
+          code: "",
+          state: "",
+        }
     }  
   },
     created() {
