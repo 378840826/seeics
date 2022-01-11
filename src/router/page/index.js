@@ -57,14 +57,14 @@ export default [{
   {
     path: '/',
     name: '主页',
-    //redirect: '/wel'
-    component: () =>
-      import( /* webpackChunkName: "page" */ '@/views/index/index'),
-    meta: {
-      keepAlive: true,
-      isTab: false,
-      isAuth: false
-    }
+    redirect: '/wel'
+    // component: () =>
+    //   import( /* webpackChunkName: "page" */ '@/views/index/index'),
+    // meta: {
+    //   keepAlive: true,
+    //   isTab: false,
+    //   isAuth: false
+    // }
   },{
     path: '/lock',
     name: '锁屏页',
