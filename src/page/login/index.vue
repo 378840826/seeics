@@ -18,7 +18,7 @@
           <div class="main-right">
             <forgetPsw v-if="forgetpsw"></forgetPsw>
             <regSuccess v-else-if="registeredsuccess" :userEmail="userEmail"></regSuccess>
-            <thirdLogin v-else-if="skips"/>
+            <!-- <thirdLogin v-else-if="skips"/> -->
             <el-tabs  v-else v-model="activeName" @tab-click="handleClick">
               <el-tab-pane label="微信登录" name="wechat">
                 
@@ -28,7 +28,7 @@
                 <userLogin @forgetpswFn="forgetpswFn" @regsuccessFn="regsuccessFn" @useremailchange="useremailchangeFn"></userLogin>             
               </el-tab-pane>      
             </el-tabs>  
-            <div><span @click="userlogin">账号密码登录</span><span @click="skip">第三方模块</span></div>         
+            <!-- <div><span @click="userlogin">账号密码登录</span><span @click="skip">第三方模块</span></div>          -->
           </div>
         </div>
       </div>
@@ -40,7 +40,7 @@
 </template>
 <script>
 import userLogin from "./user";
-import thirdLogin from "./thirdlogin";
+// import thirdLogin from "./thirdlogin";
 import weChat from "./wechat";
 import forgetPsw from "./forgetpsw";
 import { validatenull } from "@/util/validate";
@@ -58,7 +58,7 @@ export default {
     forgetPsw,
     regSuccess,
     noSupport,
-    thirdLogin,
+    // thirdLogin,
   },
   data(){
     return {
