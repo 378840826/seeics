@@ -20,10 +20,10 @@
             <regSuccess v-else-if="registeredsuccess" :userEmail="userEmail"></regSuccess>
             <thirdLogin v-else-if="skips"/>
             <el-tabs  v-else v-model="activeName" @tab-click="handleClick">
-              <!-- <el-tab-pane label="微信登录" name="wechat">
+              <el-tab-pane label="微信登录" name="wechat">
                 
                 <weChat></weChat>
-              </el-tab-pane> -->
+              </el-tab-pane>
               <el-tab-pane label="账号密码登录" name="user">
                 <userLogin @forgetpswFn="forgetpswFn" @regsuccessFn="regsuccessFn" @useremailchange="useremailchangeFn"></userLogin>             
               </el-tab-pane>      
@@ -41,7 +41,7 @@
 <script>
 import userLogin from "./user";
 import thirdLogin from "./thirdlogin";
-// import weChat from "./wechat";
+import weChat from "./wechat";
 import forgetPsw from "./forgetpsw";
 import { validatenull } from "@/util/validate";
 import {getQueryString, getTopUrl} from "@/util/util";
@@ -54,7 +54,7 @@ export default {
   name: "login",
   components: {
     userLogin,
-    // weChat,
+    weChat,
     forgetPsw,
     regSuccess,
     noSupport,
@@ -106,21 +106,18 @@ export default {
       }, 1000);
     },
     handleLogin() {
-      console.log('6676')
       console.log(this.tagWel)
       const topUrl = getTopUrl();
       const redirectUrl = "/oauth/redirect/";
       this.socialForm.source = getQueryString("source");
       this.socialForm.code = getQueryString("code");
       this.socialForm.state = getQueryString("state");
-      console.log(this.socialForm.source, this.socialForm.code, this.socialForm.state)
       if (validatenull(this.socialForm.source) && topUrl.includes(redirectUrl)) {
         let source = topUrl.split("?")[0];
         source = source.split(redirectUrl)[1];
         this.socialForm.source = source;
       }
       if (!validatenull(this.socialForm.source) && !validatenull(this.socialForm.code) && !validatenull(this.socialForm.state)) {
-        console.log('666')
         const loading = this.$loading({
           lock: true,
           text: '第三方系统登录中,请稍后。。。',
