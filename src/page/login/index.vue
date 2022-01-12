@@ -71,8 +71,8 @@ export default {
           source: "",
           code: "",
           state: "",
-        }
-    }  
+        },
+    } 
   },
     created() {
     this.handleLogin();
