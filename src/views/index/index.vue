@@ -1,5 +1,6 @@
 <template>
   <div class="index-container">
+    <third-register></third-register>
     <div class="top-container">
       <div class="top-center">
         <div class="left-text">

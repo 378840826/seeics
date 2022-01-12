@@ -55,7 +55,7 @@ export default [{
     }
   },
   {
-    path: '/',
+    path: '/home',
     name: '主页',
     // redirect: '/wel',
     component: () =>
@@ -65,6 +65,10 @@ export default [{
       isTab: false,
       isAuth: false
     }
+  },{
+    path: '/',
+    name: '关键词',
+    redirect: '/keyword/index'
   },{
     path: '/lock',
     name: '锁屏页',

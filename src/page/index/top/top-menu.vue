@@ -47,7 +47,7 @@
       openHome(itemHome) {
         this.index.openMenu(itemHome);
         this.$router.push({
-          path: this.$router.$avueRouter.getPath({name: itemHome.name, src: ''}, {})
+          path: "/home"
         });
       },
       openMenu(item) {
