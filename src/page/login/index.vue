@@ -106,7 +106,6 @@ export default {
       }, 1000);
     },
     handleLogin() {
-      console.log(this.tagWel)
       const topUrl = getTopUrl();
       const redirectUrl = "/oauth/redirect/";
       this.socialForm.source = getQueryString("source");
