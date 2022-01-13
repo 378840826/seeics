@@ -3,6 +3,7 @@
 </template>
 
 <script>
+ import { wechatQrcode } from '@/api/user'
  export default {
   name: "wechat",
   mounted() {
@@ -16,7 +17,10 @@
     script.async = false;
     script.src = 'https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js';
     document.head.appendChild(script);
-
+    let states = '';
+     wechatQrcode().then(async res => {
+      states = await res.data.split('state=')[1];
+    })
       setTimeout(function(){
         // eslint-disable-next-line no-undef
         new WxLogin({
@@ -28,7 +32,7 @@
           // eslint-disable-next-line @typescript-eslint/camelcase
           redirect_uri: `https://seeics.com/blade-auth/oauth/redirect/wechat_open`,//授权成功之后到的回调url
           // redirect_uri: `http://dev.workics.cn/api/system/user/wechat-login`,
-          state: `${ (new Date()).getTime()}`,         
+          state: states,         
           style: 'black',
           href: hrefStyle,
         });

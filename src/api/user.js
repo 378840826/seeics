@@ -145,3 +145,8 @@ export const clearCache = () => request({
   url: '/api/blade-auth/oauth/clear-cache',
   method: 'get'
 });
+
+export const wechatQrcode = () => request({
+  url: '/api/blade-auth/oauth/wechat-qrcode',
+  method: 'get'
+});
