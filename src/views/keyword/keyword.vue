@@ -57,7 +57,7 @@
         </template>
         <template  slot="menu" slot-scope="scope">
           <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn">
-            <a :href="scope.row.excelUrl" download>导出分析结果</a>
+            <a :href="`/api${scope.row.excelUrl}`" download>导出分析结果</a>
             <span class="analysisaginspan" @click="analysiskeywords(scope.row.id, scope.row.crawlingCompleteTime)">重新分析</span>
             <div>
               <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
