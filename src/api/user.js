@@ -107,7 +107,7 @@ export const registerGuest = (form, oauthId) => request({
   url: '/api/blade-user/register-guest',
   method: 'post',
   params: {
-    tenantId: form.tenantId,
+    tenantId: '000000',
     name: form.name,
     account: form.account,
     password: form.password,

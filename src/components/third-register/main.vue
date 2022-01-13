@@ -5,12 +5,12 @@
              :close-on-click-modal="false"
              :close-on-press-escape="false"
              :show-close="false"
-             width="20%">
-    <el-form :model="form" ref="form" label-width="80px">
-      <el-form-item v-if="tenantMode" label="租户编号">
+             width="300px">
+    <el-form :model="form" ref="form" label-width="80px" >
+      <!-- <el-form-item v-if="tenantMode" label="租户编号">
         <el-input v-model="form.tenantId" placeholder="请输入租户编号"></el-input>
-      </el-form-item>
-      <el-form-item label="用户姓名">
+      </el-form-item> -->
+      <el-form-item label="用户姓名" size="medium">
         <el-input v-model="form.name" placeholder="请输入用户姓名"></el-input>
       </el-form-item>
       <el-form-item label="账号名称">
@@ -61,7 +61,6 @@
     },
     mounted() {
       // 若未登录则弹出框进行绑定
-       console.log(this.userInfo)
       if (validatenull(this.userInfo.user_id) || this.userInfo.user_id < 0) {
         this.form.name = this.userInfo.user_name;
         this.form.account = this.userInfo.user_name;
@@ -71,10 +70,10 @@
     },
     methods: {
       handleRegister() {
-        if (this.form.tenantId === '') {
-          this.$message.warning("请先输入租户编号");
-          return;
-        }
+        // if (this.form.tenantId === '') {
+        //   this.$message.warning("请先输入租户编号");
+        //   return;
+        // }
         if (this.form.account === '') {
           this.$message.warning("请先输入账号名称");
           return;
