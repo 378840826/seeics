@@ -49,9 +49,9 @@
           <div>
             {{scope.row.searchKeyword}}
           </div>
-          <div v-if="scope.row.crawlingSearchResultCount && scope.row.crawlingSearchResultPageSize && scope.row.crawlingSearchResultCount*1 >= scope.row.crawlingSearchResultPageSize*2">
+          <div v-if="scope.row.crawlingSearchResultCount && scope.row.crawlingSearchResultPageSize && scope.row.crawlingSearchResultCount*1 > 4000">
             <span class="erroecolor">
-              关键词搜索数量超过{{scope.row.crawlingSearchResultCount}}个，免费显示搜索结果前2页(每页显示{{scope.row.crawlingSearchResultPageSize}}个)
+              关键词搜索结果超过{{scope.row.crawlingSearchResultCount}}个，免费显示搜索结果前2页（每页可能{{scope.row.crawlingSearchResultPageSize}}个，以实际导出为准）
             </span>            
           </div>
         </template>
