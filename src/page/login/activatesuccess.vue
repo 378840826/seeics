@@ -16,7 +16,7 @@
           <span class="errortext">{{maxtime}} 秒 </span>后 自 动 跳 转 思 意 首 页
         </div>     
       </div>
-      <div class="successtext">激 活 失 败</div>
+      <div class="successtext" v-else>激 活 失 败</div>
     </div> 
     </div>
   </div>
