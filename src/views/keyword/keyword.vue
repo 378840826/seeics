@@ -1,6 +1,6 @@
 <template>
   <div>
-  <third-register></third-register>
+  <!-- <third-register></third-register> -->
   <el-card>
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item>
