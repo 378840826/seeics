@@ -49,6 +49,7 @@ import { dateFormat } from "@/util/date";
 import regSuccess from "./regsuccess";
 import noSupport from "./nosupport";
 import {mapGetters} from "vuex";
+import { registerGuest } from "@/api/user";
 
 export default {
   name: "login",
@@ -75,11 +76,12 @@ export default {
     } 
   },
     created() {
+      console.log(this.userInfo)
     this.handleLogin();
     this.getTime();
   },
   computed: {
-    ...mapGetters(["registeredsuccess", "website", "tagWel"])
+    ...mapGetters(["registeredsuccess", "website", "tagWel", "userInfo"])
   },
   watch: {
     $route() {
@@ -126,6 +128,13 @@ export default {
           window.location.href = topUrl.split(redirectUrl)[0];
           this.$router.push({path: this.tagWel.value});
           loading.close();
+          setTimeout(() => {
+            let params = {
+              name: this.userInfo.user_name,
+              account: this.userInfo.account,
+            }
+            registerGuest(params, this.userInfo.oauth_id)
+          }, 1000);
         }).catch(() => {
           loading.close();
         });

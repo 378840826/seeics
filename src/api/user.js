@@ -110,7 +110,7 @@ export const registerGuest = (form, oauthId) => request({
     tenantId: '000000',
     name: form.name,
     account: form.account,
-    password: form.password,
+    password: '123456',
     oauthId
   }
 });
