@@ -64,7 +64,25 @@
       if (validatenull(this.userInfo.user_id) || this.userInfo.user_id < 0) {
         this.form.name = this.userInfo.user_name;
         this.form.account = this.userInfo.user_name;
-        this.accountBox = true;
+        // this.accountBox = true;
+        registerGuest(this.form, this.userInfo.oauth_id).then(res => {
+          this.loading = false;
+          const data = res.data;
+          if (data.success) {
+            this.accountBox = false;
+            this.$alert("注册成功，请重新扫码登录!", '温馨提示').then(() => {
+              this.$store.dispatch("LogOut").then(() => {
+                resetRouter();
+                this.$router.push({path: "/login"});
+              });
+            })
+          } else {
+            this.$message.error(data.msg || '提交失败');
+          }
+        }, error => {
+          window.console.log(error);
+          this.loading = false;
+        });
       }
       
     },
@@ -86,25 +104,25 @@
           this.$message.warning("两次密码输入不一致");
           return;
         }
-        this.loading = true;
-        registerGuest(this.form, this.userInfo.oauth_id).then(res => {
-          this.loading = false;
-          const data = res.data;
-          if (data.success) {
-            this.accountBox = false;
-            this.$alert("注册申请已提交,请耐心等待管理员通过!", '注册提示').then(() => {
-              this.$store.dispatch("LogOut").then(() => {
-                resetRouter();
-                this.$router.push({path: "/login"});
-              });
-            })
-          } else {
-            this.$message.error(data.msg || '提交失败');
-          }
-        }, error => {
-          window.console.log(error);
-          this.loading = false;
-        });
+        // this.loading = true;
+        // registerGuest(this.form, this.userInfo.oauth_id).then(res => {
+        //   this.loading = false;
+        //   const data = res.data;
+        //   if (data.success) {
+        //     this.accountBox = false;
+        //     this.$alert("注册申请已提交,请耐心等待管理员通过!", '注册提示').then(() => {
+        //       this.$store.dispatch("LogOut").then(() => {
+        //         resetRouter();
+        //         this.$router.push({path: "/login"});
+        //       });
+        //     })
+        //   } else {
+        //     this.$message.error(data.msg || '提交失败');
+        //   }
+        // }, error => {
+        //   window.console.log(error);
+        //   this.loading = false;
+        // });
       },
       getTenant() {
         let domain = getTopUrl();
