@@ -15,7 +15,7 @@
   import {getUserInfo, updateInfo, updatePassword} from "@/api/system/user";
   import md5 from 'js-md5';
   import func from "@/util/func";
-
+  import { activationData } from "@/api/user";
 
   export default {
     data() {
@@ -27,6 +27,7 @@
     },
     created() {
       this.handleWitch();
+      activationData()
     },
     methods: {
       handleSubmit(form, done) {

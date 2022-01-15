@@ -2,7 +2,7 @@ import {setToken, setRefreshToken, removeToken, removeRefreshToken} from '@/util
 import {Message} from 'element-ui'
 import {setStore, getStore} from '@/util/store'
 import {isURL, validatenull} from '@/util/validate'
-import {deepClone} from '@/util/util'
+import {deepClone, getTopUrl} from '@/util/util'
 import website from '@/config/website'
 import {loginByUsername, loginBySocial, getUserInfo, logout, refreshToken, getButtons} from '@/api/user'
 import {getTopMenu, getRoutes} from '@/api/system/menu'
@@ -132,7 +132,6 @@ const user = {
       return new Promise((resolve) => {
         
         loginBySocial(userInfo.tenantId, userInfo.source, userInfo.code, userInfo.state).then(res => {
-          console.log(res)
           const data = res.data;
           if (data.error_description) {
             Message({
@@ -145,8 +144,13 @@ const user = {
             commit('SET_USER_INFO', data);
             commit('DEL_ALL_TAG');
             commit('CLEAR_LOCK');
+            if (!data.user_id) {
+              const topUrl = getTopUrl();
+              const redirectUrl = "/blade-auth/oauth/redirect/";
+              window.location.href = `${topUrl.split(redirectUrl)[0]}#/keyword/index`
+            }
           }
-          resolve();
+          resolve(data);
         })
       })
     },

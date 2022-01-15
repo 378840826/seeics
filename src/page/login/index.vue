@@ -76,8 +76,8 @@ export default {
     } 
   },
     created() {
-      console.log(this.userInfo)
-    this.handleLogin();
+      // console.log(this.userInfo)
+    // this.handleLogin();
     this.getTime();
   },
   computed: {
@@ -85,7 +85,7 @@ export default {
   },
   watch: {
     $route() {
-      this.handleLogin();
+      // this.handleLogin();
     }
   },
   methods: {
@@ -128,13 +128,6 @@ export default {
           window.location.href = topUrl.split(redirectUrl)[0];
           this.$router.push({path: this.tagWel.value});
           loading.close();
-          setTimeout(() => {
-            let params = {
-              name: this.userInfo.user_name,
-              account: this.userInfo.account,
-            }
-            registerGuest(params, this.userInfo.oauth_id)
-          }, 1000);
         }).catch(() => {
           loading.close();
         });
