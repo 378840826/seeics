@@ -28,6 +28,7 @@
             <el-option label="10" value=10 ></el-option>
           </el-select>
         </el-form-item>
+        <span class="formspan">页</span>
       </el-form>
       <div class="warningtext">今日还剩{{restnum}}次免费搜索机会</div>
       <div class="avuecrudclass">
@@ -419,5 +420,9 @@ export default {
 }
 .erroecolor {
   color: #FF3332;
+}
+.formspan {
+  font-size: 12px;
+  line-height: 40px;
 }
 </style>
