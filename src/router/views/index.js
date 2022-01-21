@@ -47,8 +47,34 @@ export default [{
     },
     component: () =>
       import( /* webpackChunkName: "views" */ '@/views/keyword/keyword')
+  },
+  // {
+  //   path: 'detail',
+  //   name: '关键词分析详情',
+  //   meta: {
+  //     i18n: 'detail'
+  //   },
+  //   component: () => {
+  //     import('@/views/keyword/keywordDetail')
+  //   },
+  // }
+]
+},
+{
+  path: '/keywordDetail',
+  component: Layout,
+  redirect: '/keywordDetail/index',
+  children: [{
+    path: 'index',
+    name: '关键词分析详情',
+    meta: {
+      i18n: 'keyword'
+    },
+    component: () => 
+      import(/* webpackChunkName: "views" */ '@/views/keyword/keywordDetail')
   }]
-},{
+}, 
+{
   path: '/dict-horizontal',
   component: Layout,
   redirect: '/dict-horizontal/index',
@@ -115,5 +141,7 @@ export default [{
     },
     component: () =>
       import( /* webpackChunkName: "views" */ '@/views/work/process/leave/detail')
-  }]
+  },
+   
+]
 }]

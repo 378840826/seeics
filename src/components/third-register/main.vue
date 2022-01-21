@@ -70,7 +70,7 @@
           const data = res.data;
           if (data.success) {
             this.accountBox = false;
-            this.$alert("注册成功，请重新扫码登录!", '温馨提示').then(() => {
+            this.$alert("注册成功，请重新扫码登录!", '温馨提示', { showClose: false }).then(() => {
               this.$store.dispatch("LogOut").then(() => {
                 resetRouter();
                 this.$router.push({path: "/login"});
