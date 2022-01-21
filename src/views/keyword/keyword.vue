@@ -29,6 +29,7 @@
           </el-select>
         </el-form-item>
         <span class="formspan">页</span>
+        <el-button type="primary" class="download" @click="download">下载可视化模板</el-button>
       </el-form>
       <div class="warningtext">今日还剩{{restnum}}次免费搜索机会</div>
       <div class="avuecrudclass">
@@ -87,6 +88,12 @@
               <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
             </div>
           </div> 
+          <div v-if="scope.row.status === 'COMPLETED'" class="derivedresultbtn" style="marginTop: 5px">
+            <a  v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'" @click="wordStatistics(scope.row.id)">生成标题词频</a>
+            <el-progress v-else-if="scope.row.wordFrequencyProgress !== '1.00'" :percentage="scope.row.wordFrequencyProgress*100" :format="wordFormat" :text-inside="true" :stroke-width="30"></el-progress>
+            <a v-else :href="`/api${scope.row.wordFrequencyExcelUrl}`" download>导出标题词频</a>
+            <!-- <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span> -->
+        </div>
         </template>
       </avue-crud>
     </div>
@@ -108,7 +115,7 @@
 </template>
 
 <script>
-import { getkeywordList, analysiskeyword } from "@/api/keyword/keyword";
+import { getkeywordList, analysiskeyword, wordStatistics, download } from "@/api/keyword/keyword";
 
 
 export default {
@@ -118,7 +125,7 @@ export default {
         formInline:{
           searchCountry: "US",
           searchKeyword: "",
-          searchTopPage: "2"
+          searchTopPage: "2",
         },
         user:{},
         data: [],
@@ -129,6 +136,8 @@ export default {
         derivedresult: true,//导出分析结果按钮，
         failanalysis: false,//分析失败按钮，
         analysisproccess:false,//正在分析按钮，还要考虑过程，应该是对象
+        results: false, //词频分析定时器
+        result: false,  //关键词分析定时器
         page:{
           total: 0,
           //pagerCount: 5,
@@ -185,10 +194,20 @@ export default {
   mounted(){  
     this.getkeywordLists();
   },
-  
   methods: {
     format(percentage) {
         return percentage === 100 ? '导出分析报告' : `正在分析${parseInt(percentage)}%`;
+    },
+    wordFormat(percentage) {
+        return percentage === 100 ? '导出标题词频' : `正在分析${parseInt(percentage)}%`;
+    },
+    wordStatistics(id) {
+      wordStatistics(id).then(res => {
+        this.getkeywordLists()
+        if (res.status === 200) {
+          this.getkeywordLists()
+        }
+      })
     },
     //关闭两星期弹框
     refeshList(){
@@ -223,9 +242,16 @@ export default {
         //有定时器先关掉定时器
         this.timer && this.clearTimer();
         //判断是否要加定时器
-        const result = this.data.some((item)=>item.status === "ANALYZING");
+        this.result = this.data.some((item)=>item.status === "ANALYZING");
+        this.results = this.data.some(item => item.wordFrequencyProgress && item.wordFrequencyProgress !== '1.00')
+        console.log(this.results)
         //加定时器
-        if(result){
+        if (this.results) {
+          setTimeout(() =>{
+            this.getkeywordLists()
+          },1000)
+        }
+        if(this.result){
           this.timer = setTimeout(()=>{
             this.getkeywordLists();
           },60000);
@@ -299,7 +325,43 @@ export default {
           //清空关键词
           this.formInline.searchKeyword = '';
       }
-    }   
+    },
+    detail (id) {
+      console.log(id)
+      // wordStatistics(id).then(res => console.log(res))
+      this.$router.push({path: "/keywordDetail/index", query: {detailId: id}});
+      // this.$router.push({path: `/keyword/detail`});
+      
+    },
+    //下载模板
+    download () {
+      const loading = this.$loading({
+          lock: true,
+          text: '正在下载模板...',
+          spinner: "el-icon-loading"
+        });
+      download().then(res => {
+        loading.close()
+        if (res.status === 200) {
+          const content = res.data;
+          const blob = new Blob([content], {type: 'application/vnd.ms-excel'});
+          const fileName = this.$t('可视化模板') + '.xls';
+          if ('download' in document.createElement('a')) { //非IE下载
+            const elink = document.createElement('a')
+            elink.download = fileName;
+            elink.style.display = 'none';
+            elink.href = URL.createObjectURL(blob)
+            elink.setAttribute('download', this.$t('可视化模板') + '.xls')
+            document.body.appendChild(elink);
+            elink.click();
+            URL.revokeObjectURL(elink.href)
+            document.body.removeChild(elink)
+          } else { //IE10+下载
+            navigator.msSaveBlob(blob, fileName)
+          }
+        }
+      })
+    }  
   },
   watch:{
     'formInline.searchTopPage'(){
@@ -311,7 +373,25 @@ export default {
           }
         });
       }
-    }
+    },
+    results: {
+      handler(val) {
+        if (!val) {
+          this.getkeywordLists()
+        }
+      },
+      deep: true,
+      immediate: false,
+    },
+    result:{
+      handler(val) {
+        if (!val) {
+          this.getkeywordLists()
+        }
+      },
+      deep: true,
+      immediate: false,
+    },
   },
   beforeDestroy(){
     this.timer && this.clearTimer();
@@ -424,5 +504,8 @@ export default {
 .formspan {
   font-size: 12px;
   line-height: 40px;
+}
+.download {
+      margin: 0 0px 0 40px;
 }
 </style>

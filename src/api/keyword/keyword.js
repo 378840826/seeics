@@ -23,3 +23,23 @@ export const analysiskeyword = (params,id) => {
     },  
   })
 }
+
+//词频统计
+export const wordStatistics = (id) => {
+  return request({
+    url: '/api/seeics-analysis/keyword-analyze/word-frequency',
+    method: 'post',
+    data: {
+      id,
+    },
+  })
+}
+
+//下载模板
+export const download = () => {
+  return request({
+    url: '/api/seeics-analysis/keyword-analyze/download/template',
+    method: 'get',
+    responseType: 'blob'
+  })
+}
