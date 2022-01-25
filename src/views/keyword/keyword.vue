@@ -14,7 +14,8 @@
           </el-select>
         </el-form-item>
         <el-form-item  class="inputclass">
-          <el-input v-model="formInline.searchKeyword" placeholder="请输入需要分析的关键词"></el-input>
+          <el-input v-model="formInline.searchKeyword" placeholder="请输入需要分析的关键词"
+          ></el-input>
         </el-form-item>       
         <el-form-item>
           <el-button type="primary" @click="analysiskeywords()">分析</el-button>
@@ -52,7 +53,7 @@
             {{scope.row.searchKeyword}}
           </div>
           <div v-if="scope.row.crawlingSearchResultCount && scope.row.crawlingSearchResultPageSize && scope.row.crawlingSearchResultCount*1 > 4000">
-            <span class="erroecolor">
+            <span style="color: 'black'">
               关键词搜索结果超过{{scope.row.crawlingSearchResultCount}}个，免费显示搜索结果前2页（每页可能{{scope.row.crawlingSearchResultPageSize}}个，以实际导出为准）
             </span>            
           </div>
@@ -88,8 +89,11 @@
               <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
             </div>
           </div> 
-          <div v-if="scope.row.status === 'COMPLETED'" class="derivedresultbtn" style="marginTop: 5px">
-            <a  v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'" @click="wordStatistics(scope.row.id)">生成标题词频</a>
+          <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn" style="marginTop: 5px">
+            <div v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'">
+              <a v-if="!scope.row.loading" @click="wordStatistics(scope.row.id)" >生成标题词频 <i :class="scope.row.loading ? 'el-icon-loading' : ''"></i></a>
+              <a v-else>生成标题词频 <i :class="'el-icon-loading'"></i></a>
+            </div>
             <el-progress v-else-if="scope.row.wordFrequencyProgress !== '1.00'" :percentage="scope.row.wordFrequencyProgress*100" :format="wordFormat" :text-inside="true" :stroke-width="30"></el-progress>
             <a v-else :href="`/api${scope.row.wordFrequencyExcelUrl}`" download>导出标题词频</a>
             <!-- <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span> -->
@@ -138,6 +142,7 @@ export default {
         analysisproccess:false,//正在分析按钮，还要考虑过程，应该是对象
         results: false, //词频分析定时器
         result: false,  //关键词分析定时器
+        id: '',
         page:{
           total: 0,
           //pagerCount: 5,
@@ -199,11 +204,11 @@ export default {
         return percentage === 100 ? '导出分析报告' : `正在分析${parseInt(percentage)}%`;
     },
     wordFormat(percentage) {
-        return percentage === 100 ? '导出标题词频' : `正在分析${parseInt(percentage)}%`;
+        return percentage === 100 ? '导出标题词频' : `正在生成${parseInt(percentage)}%`;
     },
     wordStatistics(id) {
       wordStatistics(id).then(res => {
-        this.getkeywordLists()
+        this.id = id;
         if (res.status === 200) {
           this.getkeywordLists()
         }
@@ -237,19 +242,30 @@ export default {
           //剩余次数数据
           this.restnum = res.data.data.todayFeeSearchCount;
           //添加成功，清空关键词
-          this.formInline.searchKeyword = ''; 
+          // this.formInline.searchKeyword = ''; 
         }
         //有定时器先关掉定时器
         this.timer && this.clearTimer();
         //判断是否要加定时器
         this.result = this.data.some((item)=>item.status === "ANALYZING");
         this.results = this.data.some(item => item.wordFrequencyProgress && item.wordFrequencyProgress !== '1.00')
-        console.log(this.results)
         //加定时器
         if (this.results) {
           setTimeout(() =>{
             this.getkeywordLists()
           },1000)
+        }
+        const arr = this.data.filter( item => item && item.id === this.id)
+        if (arr.length > 0 && !arr[0].wordFrequencyProgress) { //添加loading效果
+          this.data = this.data.map(item => {
+            if (item.id === arr[0].id) {
+              item.loading = true;
+            }
+            return item
+          })
+          setTimeout(() => {
+            this.getkeywordLists()
+          }, 1500)
         }
         if(this.result){
           this.timer = setTimeout(()=>{
@@ -329,7 +345,7 @@ export default {
     detail (id) {
       console.log(id)
       // wordStatistics(id).then(res => console.log(res))
-      this.$router.push({path: "/keywordDetail/index", query: {detailId: id}});
+      // this.$router.push({path: "/keywordDetail/index", query: {detailId: id}});
       // this.$router.push({path: `/keyword/detail`});
       
     },
