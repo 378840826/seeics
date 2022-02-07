@@ -52,7 +52,7 @@
           <div>
             {{scope.row.searchKeyword}}
           </div>
-          <div v-if="scope.row.crawlingSearchResultCount && scope.row.crawlingSearchResultPageSize && scope.row.crawlingSearchResultCount*1 > 4000">
+          <div v-if="scope.row.crawlingSearchResultCount && scope.row.crawlingSearchResultPageSize && scope.row.status === 'COMPLETED'">
             <span style="color: 'black'">
               关键词搜索结果超过{{scope.row.crawlingSearchResultCount}}个，免费显示搜索结果前2页（每页可能{{scope.row.crawlingSearchResultPageSize}}个，以实际导出为准）
             </span>            
@@ -90,7 +90,7 @@
             </div>
           </div> 
           <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn" style="marginTop: 5px">
-            <div v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'">
+            <div class="avuecrudclass" v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'">
               <a v-if="!scope.row.loading" @click="wordStatistics(scope.row.id)" >生成标题词频 <i :class="scope.row.loading ? 'el-icon-loading' : ''"></i></a>
               <a v-else>生成标题词频 <i :class="'el-icon-loading'"></i></a>
             </div>
@@ -119,7 +119,7 @@
 </template>
 
 <script>
-import { getkeywordList, analysiskeyword, wordStatistics, download } from "@/api/keyword/keyword";
+import { getkeywordList, analysiskeyword, wordStatistics, download, keyWordReset } from "@/api/keyword/keyword";
 
 
 export default {
@@ -244,6 +244,17 @@ export default {
           //添加成功，清空关键词
           // this.formInline.searchKeyword = ''; 
         }
+        //判断已分析关键词
+        this.data.filter(item => {
+          if (item.isRepeat) {
+            // console.log(item.id)
+           var inter = setInterval(() => {
+              keyWordReset(item.id)
+            }, 30000)
+          }else {
+            clearInterval(inter)
+          }
+        })
         //有定时器先关掉定时器
         this.timer && this.clearTimer();
         //判断是否要加定时器
@@ -506,6 +517,9 @@ export default {
     text-align: center;
     border-radius: 1px;
     margin-right: 30px;
+  }
+  a:hover {
+    cursor:pointer;
   }
   ::v-deep .el-button {
     border-radius: 1px;
