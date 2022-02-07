@@ -43,3 +43,14 @@ export const download = () => {
     responseType: 'blob'
   })
 }
+
+//重复关键词调用
+export const keyWordReset = (id) => {
+  return request({
+    url: '/api/seeics-analysis/keyword-analyze/reset-state',
+    method: 'get',
+    data: {
+      id: id,
+    }
+  })
+}
