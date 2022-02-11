@@ -247,12 +247,15 @@ export default {
         //判断已分析关键词
         this.data.filter(item => {
           if (item.isRepeat) {
-            // console.log(item.id)
-           var inter = setInterval(() => {
-              keyWordReset(item.id)
+            console.log(item.id)
+           let inter = setInterval(() => {
+              keyWordReset(item.id).then(res => {
+                if (res.status === 200) {
+                  clearInterval(inter)
+                  this.getkeywordLists()
+                }
+              })
             }, 30000)
-          }else {
-            clearInterval(inter)
           }
         })
         //有定时器先关掉定时器
