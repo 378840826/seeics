@@ -141,7 +141,18 @@ export default [{
     },
     component: () =>
       import( /* webpackChunkName: "views" */ '@/views/work/process/leave/detail')
-  },
-   
-]
+  },]
+}, {
+  path: '/listAnalysis',
+  component: Layout,
+  redirect: '/listAnalysis/index',
+  children: [{
+    path: 'index',
+    name: '榜单分析',
+    meta: {
+      i18n: 'listAnalysis'
+    },
+    component: () =>
+      import(/* webpackChunkName: "views" */ '@/views/listAnalysis/listAnalysis')
+  }]
 }]

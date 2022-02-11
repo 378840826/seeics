@@ -47,10 +47,7 @@ export const download = () => {
 //重复关键词调用
 export const keyWordReset = (id) => {
   return request({
-    url: '/api/seeics-analysis/keyword-analyze/reset-state',
+    url: `/api/seeics-analysis/keyword-analyze/reset-state?id=${id}`,
     method: 'get',
-    data: {
-      id: id,
-    }
   })
 }

@@ -195,7 +195,7 @@
         done();
       },
       handleDownload(row) {
-        window.open(`${row.link}`);
+        window.location.href = `${row.link}`
       },
       rowDel(row) {
         this.$confirm("确定将选择数据删除?", {
