@@ -14,25 +14,56 @@
           </el-select>
         </el-form-item>
         <el-form-item  class="inputclass">
-          <el-input v-model="formInline.searchKeyword" placeholder="请输入需要分析的关键词"
+          <el-input v-model="formInline.asin" placeholder="输入需要分析的ASIN"
           ></el-input>
-        </el-form-item>       
-        <el-form-item>
-          <el-button type="primary" @click="analysiskeywords()">分析</el-button>
-        </el-form-item>
-        <el-form-item label="亚马逊搜索结果前: ">
-          <el-select v-model="formInline.searchTopPage" class="pageselectclass">
-            <el-option label="2" value="2"></el-option>
-            <el-option label="4" value=4 ></el-option>
-            <el-option label="6" value=6 ></el-option>
-            <el-option label="8" value=8 ></el-option>
-            <el-option label="10" value=10 ></el-option>
+        </el-form-item> 
+        <el-form-item label="选择导入模板">
+          <el-select v-model="formInline.searchCountry">
+            <el-option label="美国" value="US"></el-option>
           </el-select>
         </el-form-item>
-        <span class="formspan">页</span>
-        <el-button type="primary" class="download" @click="download">下载可视化模板</el-button>
+        <el-form-item> 
+          <el-popover
+            :ref="'popover'"
+            placement="bottom"
+            title="导入关键词"
+            width="300"
+            :visible-arrow= "false"
+            trigger="click"
+            
+            >
+            <div class="importLy">
+              <span>选择文件：</span>
+              <div>
+                <el-upload
+                  class="upload-demo"
+                  ref="upload"
+                  :headers="myHeaders"
+                  action="/api/blade-resource/oss/endpoint/put-file-attach"
+                  :on-preview="handlePreview"
+                  :on-remove="handleRemove"
+                  :on-success="success"
+                  :on-change="change"
+                  :show-file-list="false"
+                  >
+                    <el-button slot="trigger" size="mini" type="primary">+选择文件</el-button>
+                    <a class="">下载模板</a>
+                    <div slot="tip" class="tip">{{file.name ? file.name : '未选择文件'}}</div>  
+                </el-upload>
+              </div>
+            </div>
+            <div style="text-align: right; margin: 0">
+              <el-button size="mini" type="text" @click="$refs.popover.doClose()">取消</el-button>
+              <el-button type="primary" size="mini" @click="submit">确定</el-button>
+            </div>
+            <el-button type="primary" size="mini" slot="reference" @click="visible = !visible">导入关键词</el-button>
+          </el-popover> 
+        </el-form-item>  
+        <el-form-item>
+          <el-button type="primary" size="mini" @click="analysiskeywords()">分析</el-button>
+        </el-form-item>
       </el-form>
-      <div class="warningtext">今日还剩{{restnum}}次免费搜索机会</div>
+      <div class="warningtext">今日还剩{{0}}次免费搜索机会</div>
       <div class="avuecrudclass">
       <avue-crud 
         :data="data" 
@@ -59,9 +90,45 @@
           </div>
         </template>
         <template  slot="menu" slot-scope="scope">
-          <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn">
-            <a :href="`/api${scope.row.excelUrl}`" download>导出分析结果</a>
-            <span class="analysisaginspan" @click="analysiskeywords(scope.row.id, scope.row.crawlingCompleteTime)">重新分析</span>
+          <div v-if="scope.row.status === 'COMPLETED' && scope.row.crawlingProgress === '1.00'" class="derivedresultbtn">
+            <div class="export">
+              <a @click="downloadKeyword(scope.row)">导出分析结果</a>
+              <el-button :ref="'btn_'+scope.row.id" class="btn" type="text" icon="el-icon-loading"></el-button>
+            </div>
+            <!-- <span class="analysisaginspan" @click="analysiskeywords(scope.row.id, scope.row.crawlingCompleteTime)">重新分析</span> -->
+            <el-popover
+              placement="bottom"
+              title="导入关键词"
+              width="300"
+              :visible-arrow= "false"
+              trigger="click"
+              :ref="'popover-'+scope.row.id"
+              @click.stop="isShowWhole = false"
+            >
+            <div style="display: flex; justify-self:space-between; height: 70px">
+              <span style="line-height: 30px;">选择文件：</span>
+              <div style="width: 200px">
+                <el-upload
+                  class="upload-demo"
+                  ref="upload"
+                  action="/api/blade-resource/oss/endpoint/put-file-attach"
+                  :on-preview="handlePreview"
+                  :on-remove="handleRemove"
+                  :limit='1'
+                  :on-change="change"
+                  :auto-upload="false">
+                    <el-button slot="trigger" size="small">+选择文件</el-button>
+                    <a>下载模板</a>
+                    <div v-show="fileList.length === 0" slot="tip" class="tip">未选择任何文件</div>  
+                </el-upload>
+              </div>
+            </div>
+            <div style="text-align: right; margin: 0">
+              <el-button size="mini" type="text" @click="close(scope.row.id)">取消</el-button>
+              <el-button type="primary" size="mini" @click="submit(scope.row.id)">确定</el-button>
+            </div>
+            <el-button type="text" size="mini" slot="reference" @click="importAsin(scope.row.id)">更新关键词</el-button>
+            </el-popover>
             <div>
               <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
             </div>
@@ -73,7 +140,7 @@
               <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
             </div>
           </div>
-          <div v-else-if="scope.row.status === 'COMPLETED' && !scope.row.excelUrl" class="derivedresultbtn">
+          <!-- <div v-else-if="scope.row.status === 'COMPLETED' && !scope.row.excelUrl" class="derivedresultbtn">
             <el-button type="info">分析失败</el-button>
             <div>
               <span class="erroecolor">该关键词没有找到相关商品</span>
@@ -82,21 +149,54 @@
               <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
             </div>
                          
-          </div>
-          <div v-else class="derivedresultbtn">
-            <el-progress :percentage="scope.row.progress*100" :format="format" :text-inside="true" :stroke-width="30"></el-progress>
+          </div> -->
+          <div v-else-if="scope.row.status !== 'COMPLETED' && !scope.row.excelUrl" class="derivedresultbtn">
+            <el-progress  :percentage="scope.row.crawlingProgress*100" :format="format" :text-inside="true" :stroke-width="30"></el-progress>
             <div>
               <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
             </div>
           </div> 
-          <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn" style="marginTop: 5px">
-            <div class="avuecrudclass" v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'">
+          <div v-if="scope.row.status === 'COMPLETED' && scope.row.crawlingProgress === '1.00'" class="derivedresultbtn" style="marginTop: 5px">
+            <!-- <div class="avuecrudclass" v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'">
               <a v-if="!scope.row.loading" @click="wordStatistics(scope.row.id)" >生成标题词频 <i :class="scope.row.loading ? 'el-icon-loading' : ''"></i></a>
               <a v-else>生成标题词频 <i :class="'el-icon-loading'"></i></a>
-            </div>
-            <el-progress v-else-if="scope.row.wordFrequencyProgress !== '1.00'" :percentage="scope.row.wordFrequencyProgress*100" :format="wordFormat" :text-inside="true" :stroke-width="30"></el-progress>
-            <a v-else :href="`/api${scope.row.wordFrequencyExcelUrl}`" download>导出标题词频</a>
+            </div> -->
+            <!-- <el-progress v-if="scope.row.wordFrequencyProgress !== '1.00'" :percentage="scope.row.wordFrequencyProgress*100" :format="wordFormat" :text-inside="true" :stroke-width="30"></el-progress> -->
+            <!-- <a v-else :href="`/api${scope.row.wordFrequencyExcelUrl}`" download>导出标题词频</a> -->
             <!-- <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span> -->
+          <!-- <el-popover
+          placement="bottom"
+          title="导入关键词"
+          width="300"
+          :visible-arrow= "false"
+          trigger="click"
+          :ref="'popover-'+scope.row.id"
+          @click.stop="isShowWhole = false"
+          >
+          <div style="display: flex; justify-self:space-between; height: 70px">
+            <span style="line-height: 30px;">选择文件：</span>
+            <div style="width: 200px">
+              <el-upload
+                class="upload-demo"
+                ref="upload"
+                action="/api/blade-resource/oss/endpoint/put-file-attach"
+                :on-preview="handlePreview"
+                :on-remove="handleRemove"
+                :limit='1'
+                :on-change="change"
+                :auto-upload="false">
+                  <el-button slot="trigger" size="small">+选择文件</el-button>
+                  <a>下载模板</a>
+                  <div v-show="fileList.length === 0" slot="tip" class="tip">未选择任何文件</div>  
+              </el-upload>
+            </div>
+          </div>
+          <div style="text-align: right; margin: 0">
+            <el-button size="mini" type="text" @click="close(scope.row.id)">取消</el-button>
+            <el-button type="primary" size="mini" @click="submit(scope.row.id)">确定</el-button>
+          </div>
+          <el-button type="text" slot="reference" @click="importAsin(scope.row.id)">导入关键词</el-button>
+        </el-popover> -->
         </div>
         </template>
       </avue-crud>
@@ -119,16 +219,25 @@
 </template>
 
 <script>
-import { getkeywordList, analysiskeyword, wordStatistics, download, keyWordReset } from "@/api/keyword/keyword";
-
-
+var toke = JSON.parse(localStorage.getItem('saber-token'))
+import { getkeywordList, analysiskeyword, wordStatistics, download, keyWordReset, exportKeyword, selectFile, importKeyword } from "@/api/ranking/ranking";
 export default {
- 
-  data() {
-      return {
-        formInline:{
+   name: 'asinRanking',
+   data() {
+     return {
+       myHeaders: {
+         Authorization: 'Basic c2FiZXI6c2FiZXJfc2VjcmV0',
+         'Blade-Auth': toke.content
+       },
+       visible: false,
+       fileList: [],
+       file: {
+         name: ''
+       },
+       ls: [],
+       formInline:{
           searchCountry: "US",
-          searchKeyword: "",
+          asin: "",
           searchTopPage: "2",
         },
         user:{},
@@ -194,12 +303,65 @@ export default {
             },
           ]
         },
-      };
-  },
-  mounted(){  
-    this.getkeywordLists();
-  },
-  methods: {
+        attachForm: {},
+        attachOption: {
+          submitBtn: false,
+          emptyBtn: false,
+          column: [
+            {
+              label: '选择文件',
+              prop: 'attachFile',
+              type: 'upload',
+              loadText: '模板上传中，请稍等',
+              span: 24,
+              propsHttp: {
+                res: 'data'
+              },
+              action: "/api/blade-resource/oss/endpoint/put-file-attach",
+              upload: false
+            }
+          ]
+        }
+     }
+   },
+   mounted() {
+     this.getkeywordLists()
+     this.getSelect()
+   },
+   methods: {
+     btn(id) {
+       console.log(this.$refs['btn_'+id].style.display = 'none')
+       this.$refs['btn_'+id].$el.style.display = 'none'
+     },
+    handleRemove() {
+      this.fileList= []
+    },
+    change(file, fileList) {
+      this.fileList = fileList
+    },
+    submit() {
+      importKeyword({
+        searchCountry: 'US',
+        searchTopPage: 2,
+        attachId: this.file.attachId,
+        url: this.file.url
+      }).then(res => {
+        console.log(res)
+      })
+      this.$refs.popover.doClose()
+      this.file = {}
+      // this.$refs['popover-'+id].doClose()
+    },
+    success(response) {
+      if (response.code === 200) {
+        this.file.attachId = response.data.attachId;
+        this.file.url = response.data.link;
+        this.file.name = response.data.originalName
+      }
+    },
+    close(id) {
+      this.$refs['popover-'+id].doClose()
+    },
     format(percentage) {
         return percentage === 100 ? '导出分析报告' : `正在分析${parseInt(percentage)}%`;
     },
@@ -221,6 +383,7 @@ export default {
     },
     //pagesize变化
     sizeChange(pageSize){
+      console.log(this.data)
       this.page.pageSize = pageSize;
       this.getkeywordLists();
     },
@@ -232,17 +395,18 @@ export default {
     //获取表格数据
     getkeywordLists(){
       getkeywordList(this.page.currentPage, this.page.pageSize).then(res => {
+        console.log(res)
           if(res.data.code === 200){
           //分页数据
-          this.page.currentPage = res.data.data.page.current;
-          this.page.pageSize = res.data.data.page.size;
-          this.page.total = res.data.data.page.total;
+          this.page.currentPage = res.data.data.current;
+          this.page.pageSize = res.data.data.size;
+          this.page.total = res.data.data.total;
           //表格数据
-          this.data = res.data.data.page.records;
+          this.data = res.data.data.records;
           //剩余次数数据
           this.restnum = res.data.data.todayFeeSearchCount;
           //添加成功，清空关键词
-          // this.formInline.searchKeyword = ''; 
+          this.formInline.searchKeyword = ''; 
         }
         //判断已分析关键词
         this.data.filter(item => {
@@ -302,7 +466,7 @@ export default {
       // }
       //关键词输入框是否为空
       if(!id){
-        if(!this.formInline.searchKeyword){
+        if(!this.formInline.asin){
           this.$message.error('请输入关键词');
           return;
         }
@@ -393,7 +557,46 @@ export default {
           // }
         }
       })
-    }  
+    },
+    downloadKeyword(row) {
+      // const loading = this.$loading({
+      //     lock: true,
+      //     text: '正在下载模板...',
+      //     spinner: "el-icon-loading"
+      //   });
+      this.$refs['btn_'+row.id].$el.style.display = 'block'
+      exportKeyword(row.id).then(res => {
+        if (res.status === 200) {
+          const content = res.data;
+          const blob = new Blob([content], {type: 'application/vnd.ms-excel'});
+          const fileName = this.$t(`${row.searchCountry}_${row.searchKeyword}`) + '.xls';
+          if ('download' in document.createElement('a')) { //非IE下载
+            const elink = document.createElement('a')
+            elink.download = fileName;
+            elink.style.display = 'none';
+            elink.href = URL.createObjectURL(blob)
+            elink.setAttribute('download', this.$t(`${row.searchCountry}_${row.searchKeyword}`) + '.xls')
+            document.body.appendChild(elink);
+            elink.click();
+            URL.revokeObjectURL(elink.href)
+            document.body.removeChild(elink)
+          } else { //IE10+下载
+            navigator.msSaveBlob(blob, fileName)
+          }
+          setTimeout(()=> {
+            this.$refs['btn_'+row.id].$el.style.display = 'none'
+          }, 2000)
+        }else {
+          this.$refs['btn_'+row.id].$el.style.display = 'none'
+        }
+      })  
+    },
+    //获取选择文件
+    getSelect() {
+      selectFile().then(res => {
+        console.log(res)
+      })
+    }
   },
   watch:{
     'formInline.searchTopPage'(){
@@ -432,6 +635,7 @@ export default {
     this.timer && this.clearTimer();
   },
 }
+
 </script>
 
 <style lang="scss" scoped>
@@ -458,9 +662,8 @@ export default {
     font-size: 12px;
   }
   .el-button {
-    height: 30px;
-    padding: 0 20px;
-    margin-right: 30px;
+    // height: 30px;
+    // padding: 0 20px;
   }
   .avue-crud__pagination {
     padding-bottom: 0px;
@@ -482,6 +685,7 @@ export default {
   .analysisaginspan {
     display: inline-block;
     color: #409EFF;
+    margin-left: 0;
 
     &:hover {
       cursor: pointer;
@@ -512,26 +716,28 @@ export default {
   margin-left: 175px;
 }
 .derivedresultbtn {
-  a{
+  div{
     display: inline-block;
-    height: 30px;
-    line-height: 30px;
-    width: 100px;
-    background: #409EFF;
-    color: #fff;
-    text-align: center;
-    border-radius: 1px;
-    margin-right: 30px;
+    margin-right: 24px;
+    a{
+      display: inline-block;
+      height: 30px;
+      line-height: 30px;
+      width: 97px;
+      background: #409EFF;
+      color: #fff;
+      text-align: center;
+      border-radius: 1px;
+    }
+    a:hover {
+      cursor:pointer;
+    }
+    ::v-deep .el-button {
+      border-radius: 1px;
+      width: 100px;
+      font-size: 12px;
+    }
   }
-  a:hover {
-    cursor:pointer;
-  }
-  ::v-deep .el-button {
-    border-radius: 1px;
-    width: 100px;
-    font-size: 12px;
-    //margin-left: 30px;
-  }  
 }
 .erroecolor {
   color: #FF3332;
@@ -541,6 +747,46 @@ export default {
   line-height: 40px;
 }
 .download {
-      margin: 0 0px 0 40px;
+  margin: 0 0px 0 40px;
+}
+.export {
+  width: 97px;
+  height: 30px;
+  position: relative;
+  div {
+    position: absolute;
+  }
+  .btn {
+    position: absolute;
+    color: black;
+    background: #fff;
+    opacity: 0.5;
+    top: 0;
+    display: none;
+  }
+}
+.importLy {
+  display: flex;
+  justify-self:space-between;
+  height: 70px;
+
+  span {
+    line-height: 30px;
+  }
+  div {
+    width: 200px;
+
+    a {
+      margin-left: 50px;
+    }
+
+    .tip {
+      height: 26px;
+      line-height: 26px;
+      margin: 10px 0 0 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
 }
 </style>
