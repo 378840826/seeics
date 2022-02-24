@@ -18,8 +18,8 @@
           ></el-input>
         </el-form-item> 
         <el-form-item label="选择导入模板">
-          <el-select v-model="formInline.searchCountry">
-            <el-option label="美国" value="US"></el-option>
+          <el-select v-model="formInline.attachId">
+            <el-option v-for="item in selectData" :label="item.name" :value="item.id" :key="item.id"/>
           </el-select>
         </el-form-item>
         <el-form-item> 
@@ -48,11 +48,11 @@
                   >
                     <el-button slot="trigger" size="mini" type="primary">+选择文件</el-button>
                     <a class="">下载模板</a>
-                    <div slot="tip" class="tip">{{file.name ? file.name : '未选择文件'}}</div>  
+                    <div slot="tip" class="tip">{{fileName ? fileName : '未选择文件'}}</div>  
                 </el-upload>
               </div>
             </div>
-            <div style="text-align: right; margin: 0">
+            <div class="submitBtn">
               <el-button size="mini" type="text" @click="$refs.popover.doClose()">取消</el-button>
               <el-button type="primary" size="mini" @click="submit">确定</el-button>
             </div>
@@ -234,12 +234,15 @@ export default {
        file: {
          name: ''
        },
+       fileName: '',
        ls: [],
        formInline:{
           searchCountry: "US",
           asin: "",
           searchTopPage: "2",
+          attachId: '',
         },
+        selectData: [],
         user:{},
         data: [],
         dialogVisible: false,//两周内是否搜索过弹框
@@ -324,9 +327,16 @@ export default {
         }
      }
    },
+   created() {
+     
+   },
    mounted() {
-     this.getkeywordLists()
-     this.getSelect()
+    this.getSelect()
+    setTimeout(() => {
+      this.getkeywordLists(this.formInline)
+    },500)
+     
+     
    },
    methods: {
      btn(id) {
@@ -346,17 +356,24 @@ export default {
         attachId: this.file.attachId,
         url: this.file.url
       }).then(res => {
-        console.log(res)
+        if (res.data.code === 200) {
+          
+          this.getSelect()
+          setTimeout(() => {
+            this.getkeywordLists(this.formInline)
+          }, 500)
+        }
       })
+      this.fileName = '';
       this.$refs.popover.doClose()
-      this.file = {}
       // this.$refs['popover-'+id].doClose()
     },
     success(response) {
       if (response.code === 200) {
+        console.log(1)
         this.file.attachId = response.data.attachId;
         this.file.url = response.data.link;
-        this.file.name = response.data.originalName
+        this.fileName = response.data.originalName
       }
     },
     close(id) {
@@ -393,9 +410,8 @@ export default {
       this.getkeywordLists();     
     },
     //获取表格数据
-    getkeywordLists(){
-      getkeywordList(this.page.currentPage, this.page.pageSize).then(res => {
-        console.log(res)
+    getkeywordLists(formInline){
+      getkeywordList(this.page.currentPage, this.page.pageSize, formInline).then(res => {
           if(res.data.code === 200){
           //分页数据
           this.page.currentPage = res.data.data.current;
@@ -594,7 +610,10 @@ export default {
     //获取选择文件
     getSelect() {
       selectFile().then(res => {
-        console.log(res)
+        if (res.data.code === 200) {
+          this.selectData = res.data.data
+          this.formInline.attachId = res.data.data.length !== 0 ? res.data.data[0].id : '';
+        }
       })
     }
   },
@@ -626,6 +645,9 @@ export default {
       },
       deep: true,
       immediate: false,
+    },
+    'formInline.attachId'() {
+       this.getkeywordLists(this.formInline)
     },
   },
   beforeDestroy(){
@@ -779,7 +801,6 @@ export default {
     a {
       margin-left: 50px;
     }
-
     .tip {
       height: 26px;
       line-height: 26px;
@@ -787,6 +808,16 @@ export default {
       overflow: hidden;
       text-overflow: ellipsis;
     }
+  }
+}
+
+.submitBtn {
+  text-align: center;
+  margin: 0;
+
+  .el-button {
+    height: 30px;
+    padding: 0 20px;
   }
 }
 </style>
