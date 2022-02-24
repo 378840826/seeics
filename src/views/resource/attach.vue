@@ -195,7 +195,8 @@
         done();
       },
       handleDownload(row) {
-        window.location.href = `${row.link}`
+        const http = row.link.replace("http","https")
+        window.location.href = http
       },
       rowDel(row) {
         this.$confirm("确定将选择数据删除?", {

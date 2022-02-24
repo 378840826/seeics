@@ -155,4 +155,17 @@ export default [{
     component: () =>
       import(/* webpackChunkName: "views" */ '@/views/listAnalysis/listAnalysis')
   }]
+}, {
+  path: '/keywordRanking',
+  component: Layout,
+  redirect: '/keywordRanking/index',
+  children: [{
+    path: 'index',
+    name: 'ASIN关键词排名',
+    meta: {
+      i18n: 'keywordRanking'
+    },
+    component: () => 
+    import(/* webpackChunkName: "views" */ '@/views/keywordRanking/asinRanking')
+  }]
 }]
