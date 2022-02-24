@@ -8,7 +8,7 @@ export const getkeywordList = (current, size, formInline) => {
       params: {
         current,
         size,
-        attachId: formInline.attachId,
+        attachId: formInline.attachId || '',
         searchCountry: formInline.searchCountry,
       }
     })

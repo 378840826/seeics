@@ -47,8 +47,8 @@
                   :show-file-list="false"
                   >
                     <el-button slot="trigger" size="mini" type="primary">+选择文件</el-button>
-                    <a class="">下载模板</a>
-                    <div slot="tip" class="tip">{{fileName ? fileName : '未选择文件'}}</div>  
+                    <a>下载模板</a>
+                    <div slot="tip" class="el-upload__tip">{{fileName ? fileName : '未选择文件'}}</div>
                 </el-upload>
               </div>
             </div>
@@ -105,13 +105,13 @@
               :ref="'popover-'+scope.row.id"
               @click.stop="isShowWhole = false"
             >
-            <div style="display: flex; justify-self:space-between; height: 70px">
+            <div class="importLy">
               <span style="line-height: 30px;">选择文件：</span>
               <div style="width: 200px">
                 <el-upload
                   class="upload-demo"
                   ref="upload"
-                  action="/api/blade-resource/oss/endpoint/put-file-attach"
+                  action=""
                   :on-preview="handlePreview"
                   :on-remove="handleRemove"
                   :limit='1'
@@ -119,15 +119,15 @@
                   :auto-upload="false">
                     <el-button slot="trigger" size="small">+选择文件</el-button>
                     <a>下载模板</a>
-                    <div v-show="fileList.length === 0" slot="tip" class="tip">未选择任何文件</div>  
+                    <div v-show="fileList.length === 0" slot="tip" class="el-upload__tip">未选择任何文件</div>  
                 </el-upload>
               </div>
             </div>
-            <div style="text-align: right; margin: 0">
+            <div class="submitBtn">
               <el-button size="mini" type="text" @click="close(scope.row.id)">取消</el-button>
-              <el-button type="primary" size="mini" @click="submit(scope.row.id)">确定</el-button>
+              <el-button type="primary" size="mini" @click="submits(scope.row.id)">确定</el-button>
             </div>
-            <el-button type="text" size="mini" slot="reference" @click="importAsin(scope.row.id)">更新关键词</el-button>
+            <el-button type="text" size="mini" slot="reference">更新关键词</el-button>
             </el-popover>
             <div>
               <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
@@ -422,7 +422,7 @@ export default {
           //剩余次数数据
           this.restnum = res.data.data.todayFeeSearchCount;
           //添加成功，清空关键词
-          this.formInline.searchKeyword = ''; 
+          this.formInline.asin = ''; 
         }
         //判断已分析关键词
         this.data.filter(item => {
@@ -458,12 +458,12 @@ export default {
             return item
           })
           setTimeout(() => {
-            this.getkeywordLists()
+            this.getkeywordLists(this.formInline)
           }, 1500)
         }
         if(this.result){
           this.timer = setTimeout(()=>{
-            this.getkeywordLists();
+            this.getkeywordLists(this.formInline);
           },60000);
         }
       });
@@ -506,7 +506,7 @@ export default {
           }
           if(res.data.code === 200 ){
             //刷新页面
-            this.getkeywordLists();
+            this.getkeywordLists(this.formInline);
           }
         })
           //清空关键词
@@ -529,7 +529,7 @@ export default {
           }
           if(res.data.code === 200 ){
             //刷新页面
-            this.getkeywordLists();
+            this.getkeywordLists(this.formInline);
           }
         })
           //清空关键词
@@ -801,7 +801,7 @@ export default {
     a {
       margin-left: 50px;
     }
-    .tip {
+    .el-upload__tip {
       height: 26px;
       line-height: 26px;
       margin: 10px 0 0 0;
