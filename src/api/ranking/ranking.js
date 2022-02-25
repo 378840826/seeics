@@ -51,3 +51,21 @@ export const importKeyword = (data) => {
       data,
     })
 }
+
+//下载模板
+export const download = () => {
+    return request({
+      url: '/api/seeics-analysis/keyword-analyze/download/ranking/template',
+      method: 'get',
+      responseType: 'blob'
+    })
+}
+
+//跟新关键词
+export const updateKeyword = (data) => {
+    return request({
+      url: '/api/seeics-analysis/keyword-ranking/update',
+      method: 'post',
+      data,
+    })
+}

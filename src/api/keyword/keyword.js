@@ -40,7 +40,7 @@ export const download = () => {
   return request({
     url: '/api/seeics-analysis/keyword-analyze/download/template',
     method: 'get',
-    // responseType: 'blob'
+    responseType: 'blob'
   })
 }
 

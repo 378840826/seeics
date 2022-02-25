@@ -39,6 +39,14 @@
                    v-if="permission.attach_download"
                    @click="handleDownload(scope.row)">下载
         </el-button>
+        <el-dropdown size="mini" placement="bottom">
+          <el-button type="text" class="el-dropdown-link" style="marginLeft: 10px">
+            设置默认
+          </el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="a" @click.native="defaultTemplate(scope.row.id)">可视化模块</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
       </template>
       <template slot-scope="{row}"
                 slot="attachSize">
@@ -56,7 +64,7 @@
 </template>
 
 <script>
-  import {getList, getDetail, remove} from "@/api/resource/attach";
+  import {getList, getDetail, remove, defaultTemplate} from "@/api/resource/attach";
   import {mapGetters} from "vuex";
 
   export default {
@@ -280,10 +288,23 @@
           this.loading = false;
           this.selectionClear();
         });
+      },
+      defaultTemplate(id) {
+        defaultTemplate(id).then(res => {
+         this.$message({
+              type: "success",
+              message: res.data.msg,
+            });
+        })
       }
     }
   };
 </script>
 
 <style>
+  .el-dropdown-link {
+    margin-left: 10px;
+    color: #409EFF;
+    font-size: 12px;
+  }
 </style>
