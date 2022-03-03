@@ -72,7 +72,7 @@ export default {
           source: "",
           code: "",
           state: "",
-        },
+      },
     } 
   },
     created() {

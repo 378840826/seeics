@@ -48,3 +48,14 @@ export const update = (row) => {
   })
 }
 
+//设置默认模板
+export const defaultTemplate = (id) => {
+  return request({
+   url: '/api/blade-resource/attach/default',
+   method: 'post',
+   params: {
+     id,
+   }
+  })
+}
+
