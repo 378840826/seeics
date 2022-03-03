@@ -136,7 +136,7 @@
                 </el-upload> -->
                 <label style="width: 0px; height: 30px">
                   <span class="selectFile">+选择文件</span>
-                  <input type="file" accept="xlsx" @change="updateChange(scope.row.id)" :id="'file'+scope.row.id" style="visibility: hidden; width: 1px">
+                  <input type="file" :ref="'file'+scope.row.id" accept="xlsx" @change="updateChange(scope.row.id)" :id="'file'+scope.row.id" style="visibility: hidden; width: 1px">
                 </label>
                 <a @click="download">下载模板</a>
                 <div slot="tip" class="el-upload__tip">{{scope.row.originalName || updateFileName || scope.row.searchKeyword +'关键词.xlsx'}}</div>
@@ -337,14 +337,14 @@ export default {
       if (!files) return;
       this.updateFileName = files.name;
       let formData = new FormData();
-      formData.append('files', files)
+      formData.append('file', files)
       this.data.map(item => {
         if (item.id === id) {
           item.formData = formData;
           item.originalName = files.name;
         }
       })
-      console.log(this.data)
+      console.log(this.$refs['file'+id].files)
     },
     btn(id) {
       console.log(this.$refs['btn_'+id].style.display = 'none')
@@ -358,70 +358,24 @@ export default {
     },
     submit() {
       imports(this.formData).then(res => {
-        console.log(res)
+        if (res.data.data === 200) {
+          this.getSelect();
+          setTimeout(() => {
+            this.getkeywordLists(this.formInline);
+          }, 500);
+        }
       })
-      // importKeyword({
-      //   searchCountry: this.formInline.searchCountry,
-      //   searchTopPage: this.formInline.searchTopPage,
-      //   attachId: this.file.attachId,
-      //   url: this.file.url
-      // }).then(res => {
-      //   if (res.data.code === 200) {
-          
-      //     this.getSelect()
-      //     setTimeout(() => {
-      //       this.getkeywordLists(this.formInline)
-      //     }, 500)
-      //   }
-      // })
       this.fileName = '';
       this.$refs.popover.doClose()
       // this.$refs['popover-'+id].doClose()
     },
-    success(response) {
-      if (response.code === 200) {
-        this.file.attachId = response.data.attachId;
-        this.file.url = response.data.link;
-        this.fileName = response.data.originalName
-      }
-    },
-    updateSuccess(response,file, fileList, id) {
-      console.log(file, fileList, id)
-      if (response.code === 200) {
-        this.updateFile.attachId = response.data.attachId;
-        this.updateFile.url = response.data.link;
-        this.updateFileName = response.data.originalName;
-      }
-    },
     close(id) {
       this.updateFileName = '';
-      this.updateFile = {};
-      // let arr = this.$refs['upload-'+id]._data.uploadFiles;
-      // if (arr.length > 0) {
-      //   this.data.map(item => {
-      //     if (item.id === id) {
-      //       item.url = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.link;
-      //       item.originalName = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.originalName;
-      //       item.updateId = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.attachId
-      //     }
-      //   })
-      // }
       this.$refs['popover-'+id].doClose()
     },
-    importHide(id) {
+    importHide() {
       this.updateFileName = '';
       this.updateFile = {};
-      // let arr = this.$refs['upload-'+id]._data.uploadFiles
-      // if (arr.length > 0) {
-      //   this.data.map(item => {
-      //     if (item.id === id) {
-      //       item.url = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.link;
-      //       item.originalName = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.originalName;
-      //       item.updateId = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.attachId;
-      //       item.originId = id;
-      //     }
-      //   })
-      // }
     },
     format(percentage) {
         return percentage === 100 ? '导出分析报告' : `正在分析${parseInt(percentage)}%`;
@@ -446,12 +400,12 @@ export default {
     sizeChange(pageSize){
       console.log(this.data)
       this.page.pageSize = pageSize;
-      this.getkeywordLists();
+      this.getkeywordLists(this.formInline);
     },
     //currentpage 变化
     currentChange(currentPage){
       this.page.currentPage = currentPage;
-      this.getkeywordLists();     
+      this.getkeywordLists(this.formInline);     
     },
     //获取表格数据
     getkeywordLists(formInline){
