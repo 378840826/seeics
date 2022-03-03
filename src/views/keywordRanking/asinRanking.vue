@@ -38,7 +38,7 @@
             <div class="importLy">
               <span>选择文件：</span>
               <div>
-                <el-upload
+                <!-- <el-upload
                   class="upload-demo"
                   ref="upload"
                   :headers="myHeaders"
@@ -50,11 +50,17 @@
                   :show-file-list="false"
                   >
                     <el-button slot="trigger" size="mini" type="primary">+选择文件</el-button>
-                    <a @click="download">下载模板</a>
-                    <div slot="tip" class="el-upload__tip">{{fileName ? fileName : '未选择文件'}}</div>
-                </el-upload>
+                    
+                    
+                </el-upload> -->
+                <label style="width: 0px; height: 30px">
+                  <span class="selectFile">+选择文件</span>
+                  <input type="file" accept="xlsx" @change="importChange" id="file" style="visibility: hidden; width: 1px">
+                </label>
+                <a @click="download">下载模板</a>
+                <div slot="tip" class="el-upload__tip">{{fileName ? fileName : '未选择文件'}}</div>
               </div>
-              <!-- <label ><input type="file" accept="xlsx" @change="changes" id="file"></label> -->
+              
             </div>
             <div class="submitBtn">
               <el-button size="mini" type="text" @click="$refs.popover.doClose()">取消</el-button>
@@ -113,7 +119,7 @@
             <div class="importLy">
               <span style="line-height: 30px;">选择文件：</span>
               <div style="width: 200px">
-                <el-upload
+                <!-- <el-upload
                   class="upload-demo"
                   :headers="myHeaders"
                   :ref="'upload-'+scope.row.id"
@@ -127,12 +133,18 @@
                     <el-button slot="trigger" size="small">+选择文件</el-button>
                     <a @click="download">下载模板</a>
                     <div slot="tip" class="el-upload__tip">{{scope.row.originalName || updateFileName || scope.row.searchKeyword +'关键词.xlsx'}}</div>
-                </el-upload>
+                </el-upload> -->
+                <label style="width: 0px; height: 30px">
+                  <span class="selectFile">+选择文件</span>
+                  <input type="file" accept="xlsx" @change="updateChange(scope.row.id)" :id="'file'+scope.row.id" style="visibility: hidden; width: 1px">
+                </label>
+                <a @click="download">下载模板</a>
+                <div slot="tip" class="el-upload__tip">{{scope.row.originalName || updateFileName || scope.row.searchKeyword +'关键词.xlsx'}}</div>
               </div>
             </div>
             <div class="submitBtn">
               <el-button size="mini" type="text" @click="close(scope.row.id)">取消</el-button>
-              <el-button type="primary" size="mini" @click="updateKeyword(scope.row)" :disabled="scope.row.url || updateFile.url ? false : true">确定</el-button>
+              <el-button type="primary" size="mini" @click="updateKeyword(scope.row)" :disabled="scope.row.formData || updateFile.url ? false : true">确定</el-button>
             </div>
             <el-button type="text" size="mini" slot="reference">更新关键词</el-button>
             </el-popover>
@@ -177,7 +189,7 @@
 
 <script>
 var toke = JSON.parse(localStorage.getItem('saber-token'))
-import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, importKeyword, updateKeyword } from "@/api/ranking/ranking";
+import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, importKeyword, updateKeyword, imports } from "@/api/ranking/ranking";
 export default {
    name: 'asinRanking',
    data() {
@@ -187,6 +199,7 @@ export default {
          'Blade-Auth': toke.content
        },
        visible: false,
+       formData: '',
        popover: this.$refs.popover,
        fileList: [],
        file: {
@@ -310,13 +323,29 @@ export default {
      
    },
    methods: {
-    // changes() {
-    //   let files = document.getElementById('file').files[0];
-    //   if (!files) return;
-    //   let formData = new FormData()
-    //   formData.append("file",files)
-    //   console.log(formData)
-    // },
+    importChange() {
+      let files = document.getElementById('file').files[0];
+      if (!files) return;
+      this.fileName = files.name
+      let formData = new FormData()
+      formData.append("file",files)
+      this.formData = formData
+      console.log(files)
+    },
+    updateChange(id) {
+      let files = document.getElementById(`file${id}`).files[0];
+      if (!files) return;
+      this.updateFileName = files.name;
+      let formData = new FormData();
+      formData.append('files', files)
+      this.data.map(item => {
+        if (item.id === id) {
+          item.formData = formData;
+          item.originalName = files.name;
+        }
+      })
+      console.log(this.data)
+    },
     btn(id) {
       console.log(this.$refs['btn_'+id].style.display = 'none')
       this.$refs['btn_'+id].$el.style.display = 'none'
@@ -328,20 +357,23 @@ export default {
       this.fileList = fileList
     },
     submit() {
-      importKeyword({
-        searchCountry: this.formInline.searchCountry,
-        searchTopPage: this.formInline.searchTopPage,
-        attachId: this.file.attachId,
-        url: this.file.url
-      }).then(res => {
-        if (res.data.code === 200) {
-          
-          this.getSelect()
-          setTimeout(() => {
-            this.getkeywordLists(this.formInline)
-          }, 500)
-        }
+      imports(this.formData).then(res => {
+        console.log(res)
       })
+      // importKeyword({
+      //   searchCountry: this.formInline.searchCountry,
+      //   searchTopPage: this.formInline.searchTopPage,
+      //   attachId: this.file.attachId,
+      //   url: this.file.url
+      // }).then(res => {
+      //   if (res.data.code === 200) {
+          
+      //     this.getSelect()
+      //     setTimeout(() => {
+      //       this.getkeywordLists(this.formInline)
+      //     }, 500)
+      //   }
+      // })
       this.fileName = '';
       this.$refs.popover.doClose()
       // this.$refs['popover-'+id].doClose()
@@ -364,32 +396,32 @@ export default {
     close(id) {
       this.updateFileName = '';
       this.updateFile = {};
-      let arr = this.$refs['upload-'+id]._data.uploadFiles;
-      if (arr.length > 0) {
-        this.data.map(item => {
-          if (item.id === id) {
-            item.url = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.link;
-            item.originalName = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.originalName;
-            item.updateId = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.attachId
-          }
-        })
-      }
+      // let arr = this.$refs['upload-'+id]._data.uploadFiles;
+      // if (arr.length > 0) {
+      //   this.data.map(item => {
+      //     if (item.id === id) {
+      //       item.url = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.link;
+      //       item.originalName = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.originalName;
+      //       item.updateId = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.attachId
+      //     }
+      //   })
+      // }
       this.$refs['popover-'+id].doClose()
     },
     importHide(id) {
       this.updateFileName = '';
       this.updateFile = {};
-      let arr = this.$refs['upload-'+id]._data.uploadFiles
-      if (arr.length > 0) {
-        this.data.map(item => {
-          if (item.id === id) {
-            item.url = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.link;
-            item.originalName = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.originalName;
-            item.updateId = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.attachId;
-            item.originId = id;
-          }
-        })
-      }
+      // let arr = this.$refs['upload-'+id]._data.uploadFiles
+      // if (arr.length > 0) {
+      //   this.data.map(item => {
+      //     if (item.id === id) {
+      //       item.url = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.link;
+      //       item.originalName = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.originalName;
+      //       item.updateId = this.$refs['upload-'+id]._data.uploadFiles.slice(-1)[0].response.data.attachId;
+      //       item.originId = id;
+      //     }
+      //   })
+      // }
     },
     format(percentage) {
         return percentage === 100 ? '导出分析报告' : `正在分析${parseInt(percentage)}%`;
@@ -594,21 +626,23 @@ export default {
     },
     //更新模板
     updateKeyword (data) {
-      updateKeyword({
-        url: this.updateFile.url || data.url,
-        attachId: this.updateFile.attachId || data.updateId,
-        searchCountry: this.formInline.searchCountry,
-        searchTopPage: this.formInline.searchTopPage,
-      }).then(res => {
+      imports(
+      //   {
+      //   url: this.updateFile.url || data.url,
+      //   attachId: this.updateFile.attachId || data.updateId,
+      //   searchCountry: this.formInline.searchCountry,
+      //   searchTopPage: this.formInline.searchTopPage,
+      // }
+      data.formData
+      ).then(res => {
         if (res.data.code === 200) {
           this.data.map(item => {
             if (item.originId) {
                 this.$refs['upload-'+item.originId]._data.uploadFiles = [];
             }
             if (item.id === data.id) {
-            delete item.url;
-            delete item.originalName;
-            delete item.updateId;
+              delete item.formData;
+              delete item.originalName;
             }
           });
           this.$refs['popover-'+data.id].doClose();
@@ -823,6 +857,14 @@ export default {
   span {
     line-height: 30px;
   }
+  .selectFile {
+    padding: 5px;
+    border-radius: 2px;
+    background: #409EFF;
+    color: #fff;
+    font-size: 12px;
+  }
+
   div {
     width: 200px;
 

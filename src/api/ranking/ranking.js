@@ -69,3 +69,12 @@ export const updateKeyword = (data) => {
       data,
     })
 }
+
+//shangc
+export const imports = (data) => {
+    return request({
+      url: '/api/blade-resource/oss/endpoint/put-file-rangking',
+      method: 'post',
+      data: data
+    })
+}
