@@ -17,7 +17,7 @@ export default {
       default: '100%'
     }
   }
-}
+};
 </script>
 <style scoped>
   .title {

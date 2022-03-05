@@ -9,8 +9,8 @@ export const startList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 export const claimList = (current, size, params) => {
   return request({
@@ -21,8 +21,8 @@ export const claimList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 export const todoList = (current, size, params) => {
   return request({
@@ -33,8 +33,8 @@ export const todoList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 export const sendList = (current, size, params) => {
   return request({
@@ -45,8 +45,8 @@ export const sendList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 
 export const doneList = (current, size, params) => {
@@ -58,8 +58,8 @@ export const doneList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 export const claimTask = (taskId) => {
   return request({
@@ -68,8 +68,8 @@ export const claimTask = (taskId) => {
     params: {
       taskId
     }
-  })
-}
+  });
+};
 
 
 export const completeTask = (data) => {
@@ -77,5 +77,5 @@ export const completeTask = (data) => {
     url: '/api/blade-flow/work/complete-task',
     method: 'post',
     data
-  })
-}
+  });
+};

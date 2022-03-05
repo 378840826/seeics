@@ -60,88 +60,92 @@
   </div>
 </template>
 <script>
-  import userLogin from "./userlogin";
-  import codeLogin from "./codelogin";
-  import thirdLogin from "./thirdlogin";
-  // import weChat from "./wechat";
-  import {mapGetters} from "vuex";
-  import {dateFormat} from "@/util/date";
-  import {validatenull} from "@/util/validate";
-  import topLang from "@/page/index/top/top-lang";
-  import topColor from "@/page/index/top/top-color";
-  import {getQueryString, getTopUrl} from "@/util/util";
+import userLogin from './userlogin';
+import codeLogin from './codelogin';
+import thirdLogin from './thirdlogin';
+// import weChat from "./wechat";
+import { mapGetters } from 'vuex';
+import { dateFormat } from '@/util/date';
+import { validatenull } from '@/util/validate';
+import topLang from '@/page/index/top/top-lang';
+import topColor from '@/page/index/top/top-color';
+import { getQueryString, getTopUrl } from '@/util/util';
 
-  export default {
-    name: "login",
-    components: {
-      userLogin,
-      codeLogin,
-      thirdLogin,
-      topLang,
-      topColor,
-      // weChat,
-    },
-    data() {
-      return {
-        time: "",
-        activeName: "user",
-        socialForm: {
-          tenantId: "000000",
-          source: "",
-          code: "",
-          state: "",
-        }
-      };
-    },
-    watch: {
-      $route() {
-        this.handleLogin();
+export default {
+  name: 'login',
+  components: {
+    userLogin,
+    codeLogin,
+    thirdLogin,
+    topLang,
+    topColor,
+    // weChat,
+  },
+  data() {
+    return {
+      time: '',
+      activeName: 'user',
+      socialForm: {
+        tenantId: '000000',
+        source: '',
+        code: '',
+        state: '',
       }
-    },
-    created() {
+    };
+  },
+  watch: {
+    $route() {
       this.handleLogin();
-      this.getTime();
+    }
+  },
+  created() {
+    this.handleLogin();
+    this.getTime();
+  },
+  // mounted() {
+  // },
+  computed: {
+    ...mapGetters(['website', 'tagWel'])
+  },
+  props: [],
+  methods: {
+    getTime() {
+      setInterval(() => {
+        this.time = dateFormat(new Date());
+      }, 1000);
     },
-    mounted() {
-    },
-    computed: {
-      ...mapGetters(["website", "tagWel"])
-    },
-    props: [],
-    methods: {
-      getTime() {
-        setInterval(() => {
-          this.time = dateFormat(new Date());
-        }, 1000);
-      },
-      handleLogin() {
-        const topUrl = getTopUrl();
-        const redirectUrl = "/oauth/redirect/";
-        this.socialForm.source = getQueryString("source");
-        this.socialForm.code = getQueryString("code");
-        this.socialForm.state = getQueryString("state");
-        if (validatenull(this.socialForm.source) && topUrl.includes(redirectUrl)) {
-          let source = topUrl.split("?")[0];
-          source = source.split(redirectUrl)[1];
-          this.socialForm.source = source;
-        }
-        if (!validatenull(this.socialForm.source) && !validatenull(this.socialForm.code) && !validatenull(this.socialForm.state)) {
-          const loading = this.$loading({
-            lock: true,
-            text: '第三方系统登录中,请稍后。。。',
-            spinner: "el-icon-loading"
-          });
-          this.$store.dispatch("LoginBySocial", this.socialForm).then(() => {
-            window.location.href = topUrl.split(redirectUrl)[0];
-            this.$router.push({path: this.tagWel.value});
-            loading.close();
-          }).catch(() => {
-            loading.close();
-          });
-        }
+    handleLogin() {
+      const topUrl = getTopUrl();
+      const redirectUrl = '/oauth/redirect/';
+      this.socialForm.source = getQueryString('source');
+      this.socialForm.code = getQueryString('code');
+      this.socialForm.state = getQueryString('state');
+      if (validatenull(this.socialForm.source) && topUrl.includes(redirectUrl)) {
+        let source = topUrl.split('?')[0];
+        source = source.split(redirectUrl)[1];
+        this.socialForm.source = source;
+      }
+      if (
+        !validatenull(this.socialForm.source)
+        && !validatenull(this.socialForm.code)
+        && !validatenull(this.socialForm.state)
+      ) {
+        const loading = this.$loading({
+          lock: true,
+          text: '第三方系统登录中,请稍后。。。',
+          spinner: 'el-icon-loading'
+        });
+        this.$store.dispatch('LoginBySocial', this.socialForm).then(() => {
+          window.location.href = topUrl.split(redirectUrl)[0];
+          this.$router.push({ path: this.tagWel.value });
+          loading.close();
+        }).catch(() => {
+          loading.close();
+        });
       }
     }
-  };
+  }
+};
 </script>
 
 <style lang="scss">

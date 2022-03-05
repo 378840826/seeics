@@ -84,17 +84,40 @@
                          
           </div>
           <div v-else class="derivedresultbtn">
-            <el-progress :percentage="scope.row.progress*100" :format="format" :text-inside="true" :stroke-width="30"></el-progress>
+            <el-progress
+              :percentage="scope.row.progress*100"
+              :format="format"
+              :text-inside="true"
+              :stroke-width="30"
+            ></el-progress>
             <div>
               <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
             </div>
           </div> 
-          <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn" style="marginTop: 5px">
-            <div class="avuecrudclass" v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'">
-              <a v-if="!scope.row.loading" @click="wordStatistics(scope.row.id)" >生成标题词频 <i :class="scope.row.loading ? 'el-icon-loading' : ''"></i></a>
+          <div
+            v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl"
+            class="derivedresultbtn"
+            style="marginTop: 5px"
+          >
+            <div
+              class="avuecrudclass" 
+              v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'"
+            >
+              <a 
+                v-if="!scope.row.loading" 
+                @click="wordStatistics(scope.row.id)"
+              >
+                生成标题词频 <i :class="scope.row.loading ? 'el-icon-loading' : ''"></i>
+              </a>
               <a v-else>生成标题词频 <i :class="'el-icon-loading'"></i></a>
             </div>
-            <el-progress v-else-if="scope.row.wordFrequencyProgress !== '1.00'" :percentage="scope.row.wordFrequencyProgress*100" :format="wordFormat" :text-inside="true" :stroke-width="30"></el-progress>
+            <el-progress 
+              v-else-if="scope.row.wordFrequencyProgress !== '1.00'" 
+              :percentage="scope.row.wordFrequencyProgress*100" 
+              :format="wordFormat" 
+              :text-inside="true" 
+              :stroke-width="30"
+            ></el-progress>
             <a v-else :href="`/api${scope.row.wordFrequencyExcelUrl}`" download>导出标题词频</a>
             <!-- <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span> -->
         </div>
@@ -119,104 +142,104 @@
 </template>
 
 <script>
-import { getkeywordList, analysiskeyword, wordStatistics, download, keyWordReset } from "@/api/keyword/keyword";
+import { getkeywordList, analysiskeyword, wordStatistics, download, keyWordReset } from '@/api/keyword/keyword';
 
 
 export default {
  
   data() {
-      return {
-        formInline:{
-          searchCountry: "US",
-          searchKeyword: "",
-          searchTopPage: "2",
-        },
-        user:{},
-        data: [],
-        dialogVisible: false,//两周内是否搜索过弹框
-        desc: false,//排序值
-        timer: null,//定时器名称
-        restnum: 10,//今日剩余数据
-        derivedresult: true,//导出分析结果按钮，
-        failanalysis: false,//分析失败按钮，
-        analysisproccess:false,//正在分析按钮，还要考虑过程，应该是对象
-        results: false, //词频分析定时器
-        result: false,  //关键词分析定时器
-        id: '',
-        page:{
-          total: 0,
-          //pagerCount: 5,
-          currentPage: 1,
-          layout: "total, sizes, prev, pager, next, jumper",
-          pageSize: 10,
-          pageSizes: [10,20,30,50],
-          //background:false,
-        },
-        option:{
-          emptyText: '没有找到相关商品，请重新查询',
-          addBtn: false,
-          border:true,
-          columnBtn:false,
-          refreshBtn:false,
-          saveBtn:false,
-          updateBtn:false,
-          cancelBtn:false,
-          delBtn:false,
-          menu:false,
-          editBtn:false,
-          align:'center',
-          menuAlign:'left',
-          rowKey:'id',
-          column:[
-             {
-              label:'更新时间',
-              prop:'recordTime',
-              sortable:true,//排序
-              width: 200,
-              //slot:true
-            },
-            {
-              label:'站点',
-              prop:'searchCountry',
-              //width:283,
-            },
-            {
-              label:'关键词',
-              prop:'searchKeyword',
-              width:700,
-              slot:true,            
-            },
-            {
-              label:'操作',
-              prop:'menu',
-              align: 'left',
-              width: 230,
-            },
-          ]
-        },
-      };
+    return {
+      formInline: {
+        searchCountry: 'US',
+        searchKeyword: '',
+        searchTopPage: '2',
+      },
+      user: {},
+      data: [],
+      dialogVisible: false, //两周内是否搜索过弹框
+      desc: false, //排序值
+      timer: null, //定时器名称
+      restnum: 10, //今日剩余数据
+      derivedresult: true, //导出分析结果按钮，
+      failanalysis: false, //分析失败按钮，
+      analysisproccess: false, //正在分析按钮，还要考虑过程，应该是对象
+      results: false, //词频分析定时器
+      result: false, //关键词分析定时器
+      id: '',
+      page: {
+        total: 0,
+        //pagerCount: 5,
+        currentPage: 1,
+        layout: 'total, sizes, prev, pager, next, jumper',
+        pageSize: 10,
+        pageSizes: [10, 20, 30, 50],
+        //background:false,
+      },
+      option: {
+        emptyText: '没有找到相关商品，请重新查询',
+        addBtn: false,
+        border: true,
+        columnBtn: false,
+        refreshBtn: false,
+        saveBtn: false,
+        updateBtn: false,
+        cancelBtn: false,
+        delBtn: false,
+        menu: false,
+        editBtn: false,
+        align: 'center',
+        menuAlign: 'left',
+        rowKey: 'id',
+        column: [
+          {
+            label: '更新时间',
+            prop: 'recordTime',
+            sortable: true, //排序
+            width: 200,
+            //slot:true
+          },
+          {
+            label: '站点',
+            prop: 'searchCountry',
+            //width:283,
+          },
+          {
+            label: '关键词',
+            prop: 'searchKeyword',
+            width: 700,
+            slot: true,            
+          },
+          {
+            label: '操作',
+            prop: 'menu',
+            align: 'left',
+            width: 230,
+          },
+        ]
+      },
+    };
   },
   mounted(){  
     this.getkeywordLists();
   },
   methods: {
     format(percentage) {
-        return percentage === 100 ? '导出分析报告' : `正在分析${parseInt(percentage)}%`;
+      return percentage === 100 ? '导出分析报告' : `正在分析${parseInt(percentage)}%`;
     },
     wordFormat(percentage) {
-        return percentage === 100 ? '导出标题词频' : `正在生成${parseInt(percentage)}%`;
+      return percentage === 100 ? '导出标题词频' : `正在生成${parseInt(percentage)}%`;
     },
     wordStatistics(id) {
       wordStatistics(id).then(res => {
         this.id = id;
         if (res.status === 200) {
-          this.getkeywordLists()
+          this.getkeywordLists();
         }
-      })
+      });
     },
     //关闭两星期弹框
     refeshList(){
-      this.dialogVisible=false;
+      this.dialogVisible = false;
       this.getkeywordLists();
     },
     //pagesize变化
@@ -232,7 +255,7 @@ export default {
     //获取表格数据
     getkeywordLists(){
       getkeywordList(this.page.currentPage, this.page.pageSize).then(res => {
-          if(res.data.code === 200){
+        if (res.data.code === 200){
           //分页数据
           this.page.currentPage = res.data.data.page.current;
           this.page.pageSize = res.data.data.page.size;
@@ -247,69 +270,69 @@ export default {
         //判断已分析关键词
         this.data.filter(item => {
           if (item.isRepeat) {
-            console.log(item.id)
-           let inter = setInterval(() => {
+            console.log(item.id);
+            const inter = setInterval(() => {
               keyWordReset(item.id).then(res => {
                 if (res.status === 200) {
-                  clearInterval(inter)
-                  this.getkeywordLists()
+                  clearInterval(inter);
+                  this.getkeywordLists();
                 }
-              })
-            }, 30000)
+              });
+            }, 30000);
           }
-        })
+        });
         //有定时器先关掉定时器
         this.timer && this.clearTimer();
         //判断是否要加定时器
-        this.result = this.data.some((item)=>item.status === "ANALYZING");
-        this.results = this.data.some(item => item.wordFrequencyProgress && item.wordFrequencyProgress !== '1.00')
+        this.result = this.data.some((item) => item.status === 'ANALYZING');
+        this.results = this.data.some(item => item.wordFrequencyProgress && item.wordFrequencyProgress !== '1.00');
         //加定时器
         if (this.results) {
-          setTimeout(() =>{
-            this.getkeywordLists()
-          },1000)
+          setTimeout(() => {
+            this.getkeywordLists();
+          }, 1000);
         }
-        const arr = this.data.filter( item => item && item.id === this.id)
+        const arr = this.data.filter( item => item && item.id === this.id);
         if (arr.length > 0 && !arr[0].wordFrequencyProgress) { //添加loading效果
           this.data = this.data.map(item => {
             if (item.id === arr[0].id) {
               item.loading = true;
             }
-            return item
-          })
+            return item;
+          });
           setTimeout(() => {
-            this.getkeywordLists()
-          }, 1500)
-        }
-        if(this.result){
-          this.timer = setTimeout(()=>{
             this.getkeywordLists();
-          },60000);
+          }, 1500);
+        }
+        if (this.result){
+          this.timer = setTimeout(() => {
+            this.getkeywordLists();
+          }, 60000);
         }
       });
     },
     //清除定时器
     clearTimer() {
-			clearTimeout(this.timer);
-			this.timer = null;
-		},
+      clearTimeout(this.timer);
+      this.timer = null;
+    },
     //发起关键词分析
-    analysiskeywords(id,time){
+    analysiskeywords(id, time){
       //判断次数
       // if(this.restnum <=0 ){
       //    this.$message.error('今日免费次数已用完');
       //     return;
       // }
       //关键词输入框是否为空
-      if(!id){
-        if(!this.formInline.searchKeyword){
+      if (!id){
+        if (!this.formInline.searchKeyword){
           this.$message.error('请输入关键词');
           return;
         }
       }
       //前端判断时间是否为两周内  
 
-      if(Date.parse(time) <= Date.now() + 14 * 24 * 60 * 60 * 1000){
+      if (Date.parse(time) <= Date.now() + 14 * 24 * 60 * 60 * 1000){
 
         //弹确认框
         this.$confirm(`距上次分析时间${time}间隔较短，确认重新分析？`, '提示', {
@@ -318,17 +341,17 @@ export default {
           type: 'warning'
         }).then(() => {
           //依旧发请求
-          analysiskeyword(this.formInline,id).then(res => {
-          if(res.data.msg === "您已经搜索过该关键词，请在搜索结果中操作"){       
+          analysiskeyword(this.formInline, id).then(res => {
+            if (res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
             //弹框提箱
-            this.dialogVisible = true;
-            return;           
-          }
-          if(res.data.code === 200 ){
+              this.dialogVisible = true;
+              return;           
+            }
+            if (res.data.code === 200 ){
             //刷新页面
-            this.getkeywordLists();
-          }
-        })
+              this.getkeywordLists();
+            }
+          });
           //清空关键词
           this.formInline.searchKeyword = '';
           
@@ -337,27 +360,27 @@ export default {
             type: 'info',
             message: '已取消分析'
           });          
-        })
+        });
 
         
       } else {
-        analysiskeyword(this.formInline,id).then(res => {
-          if(res.data.msg === "您已经搜索过该关键词，请在搜索结果中操作"){       
+        analysiskeyword(this.formInline, id).then(res => {
+          if (res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
             //弹框提箱
             this.dialogVisible = true;
             return;           
           }
-          if(res.data.code === 200 ){
+          if (res.data.code === 200 ){
             //刷新页面
             this.getkeywordLists();
           }
-        })
-          //清空关键词
-          this.formInline.searchKeyword = '';
+        });
+        //清空关键词
+        this.formInline.searchKeyword = '';
       }
     },
     detail (id) {
-      console.log(id)
+      console.log(id);
       // wordStatistics(id).then(res => console.log(res))
       // this.$router.push({path: "/keywordDetail/index", query: {detailId: id}});
       // this.$router.push({path: `/keyword/detail`});
@@ -366,38 +389,38 @@ export default {
     //下载模板
     download () {
       const loading = this.$loading({
-          lock: true,
-          text: '正在下载模板...',
-          spinner: "el-icon-loading"
-        });
+        lock: true,
+        text: '正在下载模板...',
+        spinner: 'el-icon-loading'
+      });
       download().then(res => {
         if (res.status === 200) {
           const content = res.data;
           // const http = res.data.data.replace("http","https")
           // window.location.href = http
-          loading.close()
-          const blob = new Blob([content], {type: 'application/vnd.ms-excel'});
-          const fileName = this.$t('可视化模板') + '.xlsx';
+          loading.close();
+          const blob = new Blob([content], { type: 'application/vnd.ms-excel' });
+          const fileName = `${this.$t('可视化模板') }.xlsx`;
           if ('download' in document.createElement('a')) { //非IE下载
-            const elink = document.createElement('a')
+            const elink = document.createElement('a');
             elink.download = fileName;
             elink.style.display = 'none';
-            elink.href = URL.createObjectURL(blob)
-            elink.setAttribute('download', this.$t('可视化模板') + '.xlsx')
+            elink.href = URL.createObjectURL(blob);
+            elink.setAttribute('download', `${this.$t('可视化模板') }.xlsx`);
             document.body.appendChild(elink);
             elink.click();
-            URL.revokeObjectURL(elink.href)
-            document.body.removeChild(elink)
+            URL.revokeObjectURL(elink.href);
+            document.body.removeChild(elink);
           } else { //IE10+下载
-            navigator.msSaveBlob(blob, fileName)
+            navigator.msSaveBlob(blob, fileName);
           }
         }
-      })
+      });
     }  
   },
-  watch:{
+  watch: {
     'formInline.searchTopPage'(){
-      if(this.formInline.searchTopPage  > 2){
+      if (this.formInline.searchTopPage > 2){
         this.$alert('付费用户专享，暂未开放', '提示', {
           confirmButtonText: '取消',
           callback: () => {
@@ -409,16 +432,16 @@ export default {
     results: {
       handler(val) {
         if (!val) {
-          this.getkeywordLists()
+          this.getkeywordLists();
         }
       },
       deep: true,
       immediate: false,
     },
-    result:{
+    result: {
       handler(val) {
         if (!val) {
-          this.getkeywordLists()
+          this.getkeywordLists();
         }
       },
       deep: true,
@@ -431,7 +454,7 @@ export default {
   destroyed() {
     this.timer && this.clearTimer();
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>

@@ -55,7 +55,13 @@
                 </el-upload> -->
                 <label style="width: 0px; height: 30px">
                   <span class="selectFile">+选择文件</span>
-                  <input type="file" accept="xlsx" @change="importChange" id="file" style="visibility: hidden; width: 1px">
+                  <input
+                    type="file"
+                    accept="xlsx"
+                    @change="importChange"
+                    id="file"
+                    style="visibility: hidden; width: 1px"
+                  >
                 </label>
                 <a @click="download">下载模板</a>
                 <div slot="tip" class="el-upload__tip">{{fileName ? fileName : '未选择文件'}}</div>
@@ -93,19 +99,24 @@
           <div>
             {{scope.row.searchKeyword}}
           </div>
-          <div v-if="scope.row.crawlingSearchResultCount && scope.row.crawlingSearchResultPageSize && scope.row.status === 'COMPLETED'">
+          <div v-if="scope.row.crawlingSearchResultCount 
+          && scope.row.crawlingSearchResultPageSize && scope.row.status === 'COMPLETED'">
             <span style="color: 'black'">
-              关键词搜索结果超过{{scope.row.crawlingSearchResultCount}}个，免费显示搜索结果前2页（每页可能{{scope.row.crawlingSearchResultPageSize}}个，以实际导出为准）
+              关键词搜索结果超过{{scope.row.crawlingSearchResultCount}}个，
+              免费显示搜索结果前2页（每页可能{{scope.row.crawlingSearchResultPageSize}}个，以实际导出为准）
             </span>            
           </div>
         </template> -->
         <template  slot="menu" slot-scope="scope">
-          <div v-if="scope.row.status === 'COMPLETED' && scope.row.crawlingProgress === '1.00'" class="derivedresultbtn">
+          <div
+            v-if="scope.row.status === 'COMPLETED' && scope.row.crawlingProgress === '1.00'" class="derivedresultbtn"
+          >
             <div class="export">
               <a @click="downloadKeyword(scope.row)">导出分析结果</a>
               <el-button :ref="'btn_'+scope.row.id" class="btn" type="text" icon="el-icon-loading"></el-button>
             </div>
-            <!-- <span class="analysisaginspan" @click="analysiskeywords(scope.row.id, scope.row.crawlingCompleteTime)">重新分析</span> -->
+            <!-- <span class="analysisaginspan" 
+            @click="analysiskeywords(scope.row.id, scope.row.crawlingCompleteTime)">重新分析</span> -->
             <el-popover
               placement="bottom"
               title="导入关键词"
@@ -132,19 +143,42 @@
                 >
                     <el-button slot="trigger" size="small">+选择文件</el-button>
                     <a @click="download">下载模板</a>
-                    <div slot="tip" class="el-upload__tip">{{scope.row.originalName || updateFileName || scope.row.searchKeyword +'关键词.xlsx'}}</div>
+                    <div slot="tip" 
+                      class="el-upload__tip"
+                    >
+                      {{scope.row.originalName || updateFileName || scope.row.searchKeyword +'关键词.xlsx'}}
+                    </div>
                 </el-upload> -->
                 <label style="width: 0px; height: 30px">
                   <span class="selectFile">+选择文件</span>
-                  <input type="file" :ref="'file'+scope.row.id" accept="xlsx" @change="updateChange(scope.row.id)" :id="'file'+scope.row.id" style="visibility: hidden; width: 1px">
+                  <input
+                    type="file"
+                    :ref="'file'+scope.row.id"
+                    accept="xlsx"
+                    @change="updateChange(scope.row.id)"
+                    :id="'file'+scope.row.id"
+                    style="visibility: hidden; width: 1px"
+                  >
                 </label>
                 <a @click="download">下载模板</a>
-                <div slot="tip" class="el-upload__tip">{{scope.row.originalName || updateFileName || scope.row.searchKeyword +'关键词.xlsx'}}</div>
+                <div
+                  slot="tip"
+                  class="el-upload__tip"
+                >
+                  {{scope.row.originalName || updateFileName || scope.row.searchKeyword +'关键词.xlsx'}}
+                </div>
               </div>
             </div>
             <div class="submitBtn">
               <el-button size="mini" type="text" @click="close(scope.row.id)">取消</el-button>
-              <el-button type="primary" size="mini" @click="updateKeyword(scope.row)" :disabled="scope.row.formData || updateFile.url ? false : true">确定</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                @click="updateKeyword(scope.row)"
+                :disabled="scope.row.formData || updateFile.url ? false : true"
+              >
+                确定
+              </el-button>
             </div>
             <el-button type="text" size="mini" slot="reference">更新关键词</el-button>
             </el-popover>
@@ -160,13 +194,21 @@
             </div>
           </div>
           <div v-else-if="scope.row.status !== 'COMPLETED' && !scope.row.excelUrl" class="derivedresultbtn">
-            <el-progress  :percentage="scope.row.crawlingProgress*100" :format="format" :text-inside="true" :stroke-width="30"></el-progress>
+            <el-progress
+              :percentage="scope.row.crawlingProgress*100"
+              :format="format"
+              :text-inside="true"
+              :stroke-width="30"
+            ></el-progress>
             <div>
               <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
             </div>
           </div> 
-          <div v-if="scope.row.status === 'COMPLETED' && scope.row.crawlingProgress === '1.00'" class="derivedresultbtn" style="marginTop: 5px">
-        </div>
+          <div
+            v-if="scope.row.status === 'COMPLETED' && scope.row.crawlingProgress === '1.00'" 
+            class="derivedresultbtn" style="marginTop: 5px"
+          >
+          </div>
         </template>
       </avue-crud>
     </div>
@@ -188,173 +230,177 @@
 </template>
 
 <script>
-var toke = JSON.parse(localStorage.getItem('saber-token'))
-import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, importKeyword, updateKeyword, imports } from "@/api/ranking/ranking";
+const toke = JSON.parse(localStorage.getItem('saber-token'));
+import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, imports } from '@/api/ranking/ranking';
 export default {
-   name: 'asinRanking',
-   data() {
-     return {
-       myHeaders: {
-         Authorization: 'Basic c2FiZXI6c2FiZXJfc2VjcmV0',
-         'Blade-Auth': toke.content
-       },
-       visible: false,
-       formData: '',
-       popover: this.$refs.popover,
-       fileList: [],
-       file: {
-         name: '',
-         attachId: ''
-       },
-       updateFile: {},
-       closeFile: {},
-       updateFileName: '',
-       fileName: '',
-       formInline:{
-          searchCountry: "US",
-          asin: "",
-          searchTopPage: "2",
-          attachId: '',
-        },
-        asinRules: {
-          asin: [
-            {pattern:/^[a-zA-Z0-9]{10}$/,message: 'ASIN不支持中文，支持10位纯数字或字母组合；', trigger: "change"}
-          ],
-        },
-        selectData: [
-          {
-            name: "全部模板",
-            id: ''
-          }
+  name: 'asinRanking',
+  data() {
+    return {
+      myHeaders: {
+        Authorization: 'Basic c2FiZXI6c2FiZXJfc2VjcmV0',
+        'Blade-Auth': toke.content
+      },
+      visible: false,
+      formData: '',
+      popover: this.$refs.popover,
+      fileList: [],
+      file: {
+        name: '',
+        attachId: ''
+      },
+      updateFile: {},
+      closeFile: {},
+      updateFileName: '',
+      fileName: '',
+      formInline: {
+        searchCountry: 'US',
+        asin: '',
+        searchTopPage: '2',
+        attachId: '',
+      },
+      asinRules: {
+        asin: [
+          { pattern: /^[a-zA-Z0-9]{10}$/, message: 'ASIN不支持中文，支持10位纯数字或字母组合；', trigger: 'change' }
         ],
-        user:{},
-        data: [],
-        dialogVisible: false,//两周内是否搜索过弹框
-        desc: false,//排序值
-        timer: null,//定时器名称
-        restnum: 10,//今日剩余数据
-        derivedresult: true,//导出分析结果按钮，
-        failanalysis: false,//分析失败按钮，
-        analysisproccess:false,//正在分析按钮，还要考虑过程，应该是对象
-        results: false, //词频分析定时器
-        result: false,  //关键词分析定时器
-        id: '',
-        page:{
-          total: 0,
-          //pagerCount: 5,
-          currentPage: 1,
-          layout: "total, sizes, prev, pager, next, jumper",
-          pageSize: 10,
-          pageSizes: [10,20,30,50],
-          //background:false,
-        },
-        option:{
-          emptyText: '没有找到相关商品，请重新查询',
-          addBtn: false,
-          border:true,
-          columnBtn:false,
-          refreshBtn:false,
-          saveBtn:false,
-          updateBtn:false,
-          cancelBtn:false,
-          delBtn:false,
-          menu:false,
-          editBtn:false,
-          align:'center',
-          menuAlign:'left',
-          rowKey:'id',
-          column:[
-             {
-              label:'更新时间',
-              prop:'searchTime',
-              sortable:true,//排序
-              width: 200,
-              //slot:true
-            },
-            {
-              label:'站点',
-              prop:'searchCountry',
-              //width:283,
-            },
-            {
-              label:'ASIN',
-              prop:'searchKeyword',
-              width:700,
-              slot:true,            
-            },
-            {
-              label:'操作',
-              prop:'menu',
-              align: 'left',
-              width: 230,
-            },
-          ]
-        },
-        attachForm: {},
-        attachOption: {
-          submitBtn: false,
-          emptyBtn: false,
-          column: [
-            {
-              label: '选择文件',
-              prop: 'attachFile',
-              type: 'upload',
-              loadText: '模板上传中，请稍等',
-              span: 24,
-              propsHttp: {
-                res: 'data'
-              },
-              action: "/api/blade-resource/oss/endpoint/put-file-attach",
-              upload: false
-            }
-          ]
+      },
+      selectData: [
+        {
+          name: '全部模板',
+          id: ''
         }
-     }
-   },
-   created() {
+      ],
+      user: {},
+      data: [],
+      dialogVisible: false, //两周内是否搜索过弹框
+      desc: false, //排序值
+      timer: null, //定时器名称
+      restnum: 10, //今日剩余数据
+      derivedresult: true, //导出分析结果按钮，
+      failanalysis: false, //分析失败按钮，
+      analysisproccess: false, //正在分析按钮，还要考虑过程，应该是对象
+      results: false, //词频分析定时器
+      result: false, //关键词分析定时器
+      id: '',
+      page: {
+        total: 0,
+        //pagerCount: 5,
+        currentPage: 1,
+        layout: 'total, sizes, prev, pager, next, jumper',
+        pageSize: 10,
+        pageSizes: [10, 20, 30, 50],
+        //background:false,
+      },
+      option: {
+        emptyText: '没有找到相关商品，请重新查询',
+        addBtn: false,
+        border: true,
+        columnBtn: false,
+        refreshBtn: false,
+        saveBtn: false,
+        updateBtn: false,
+        cancelBtn: false,
+        delBtn: false,
+        menu: false,
+        editBtn: false,
+        align: 'center',
+        menuAlign: 'left',
+        rowKey: 'id',
+        column: [
+          {
+            label: '更新时间',
+            prop: 'searchTime',
+            sortable: true, //排序
+            width: 200,
+            //slot:true
+          },
+          {
+            label: '站点',
+            prop: 'searchCountry',
+            //width:283,
+          },
+          {
+            label: 'ASIN',
+            prop: 'searchKeyword',
+            width: 700,
+            slot: true,            
+          },
+          {
+            label: '操作',
+            prop: 'menu',
+            align: 'left',
+            width: 230,
+          },
+        ]
+      },
+      attachForm: {},
+      attachOption: {
+        submitBtn: false,
+        emptyBtn: false,
+        column: [
+          {
+            label: '选择文件',
+            prop: 'attachFile',
+            type: 'upload',
+            loadText: '模板上传中，请稍等',
+            span: 24,
+            propsHttp: {
+              res: 'data'
+            },
+            action: '/api/blade-resource/oss/endpoint/put-file-attach',
+            upload: false
+          }
+        ]
+      }
+    };
+  },
+  // created() {
      
-   },
-   mounted() {
-    this.getSelect()
+  // },
+  mounted() {
+    this.getSelect();
     setTimeout(() => {
-      this.getkeywordLists(this.formInline)
-    },500)
+      this.getkeywordLists(this.formInline);
+    }, 500);
      
      
-   },
-   methods: {
+  },
+  methods: {
     importChange() {
-      let files = document.getElementById('file').files[0];
-      if (!files) return;
-      this.fileName = files.name
-      let formData = new FormData()
-      formData.append("file",files)
-      this.formData = formData
-      console.log(files)
+      const files = document.getElementById('file').files[0];
+      if (!files) {
+        return; 
+      }
+      this.fileName = files.name;
+      const formData = new FormData();
+      formData.append('file', files);
+      this.formData = formData;
+      console.log(files);
     },
     updateChange(id) {
-      let files = document.getElementById(`file${id}`).files[0];
-      if (!files) return;
+      const files = document.getElementById(`file${id}`).files[0];
+      if (!files) {
+        return; 
+      }
       this.updateFileName = files.name;
-      let formData = new FormData();
-      formData.append('file', files)
+      const formData = new FormData();
+      formData.append('file', files);
       this.data.map(item => {
         if (item.id === id) {
           item.formData = formData;
           item.originalName = files.name;
         }
-      })
-      console.log(this.$refs['file'+id].files)
+      });
+      console.log(this.$refs[`file${id}`].files);
     },
     btn(id) {
-      console.log(this.$refs['btn_'+id].style.display = 'none')
-      this.$refs['btn_'+id].$el.style.display = 'none'
+      console.log(this.$refs[`btn_${id}`].style.display = 'none');
+      this.$refs[`btn_${id}`].$el.style.display = 'none';
     },
     handleRemove() {
-      this.fileList= []
+      this.fileList = [];
     },
     change(file, fileList) {
-      this.fileList = fileList
+      this.fileList = fileList;
     },
     submit() {
       imports(this.formData).then(res => {
@@ -364,41 +410,41 @@ export default {
             this.getkeywordLists(this.formInline);
           }, 500);
         }
-      })
+      });
       this.fileName = '';
-      this.$refs.popover.doClose()
+      this.$refs.popover.doClose();
       // this.$refs['popover-'+id].doClose()
     },
     close(id) {
       this.updateFileName = '';
-      this.$refs['popover-'+id].doClose()
+      this.$refs[`popover-${id}`].doClose();
     },
     importHide() {
       this.updateFileName = '';
       this.updateFile = {};
     },
     format(percentage) {
-        return percentage === 100 ? '导出分析报告' : `正在分析${parseInt(percentage)}%`;
+      return percentage === 100 ? '导出分析报告' : `正在分析${parseInt(percentage)}%`;
     },
     wordFormat(percentage) {
-        return percentage === 100 ? '导出标题词频' : `正在生成${parseInt(percentage)}%`;
+      return percentage === 100 ? '导出标题词频' : `正在生成${parseInt(percentage)}%`;
     },
     wordStatistics(id) {
       wordStatistics(id).then(res => {
         this.id = id;
         if (res.status === 200) {
-          this.getkeywordLists()
+          this.getkeywordLists();
         }
-      })
+      });
     },
     //关闭两星期弹框
     refeshList(){
-      this.dialogVisible=false;
+      this.dialogVisible = false;
       this.getkeywordLists(this.formInline);
     },
     //pagesize变化
     sizeChange(pageSize){
-      console.log(this.data)
+      console.log(this.data);
       this.page.pageSize = pageSize;
       this.getkeywordLists(this.formInline);
     },
@@ -410,7 +456,7 @@ export default {
     //获取表格数据
     getkeywordLists(formInline){
       getkeywordList(this.page.currentPage, this.page.pageSize, formInline).then(res => {
-          if(res.data.code === 200){
+        if (res.data.code === 200){
           //分页数据
           this.page.currentPage = res.data.data.current;
           this.page.pageSize = res.data.data.size;
@@ -426,36 +472,36 @@ export default {
         //有定时器先关掉定时器
         this.timer && this.clearTimer();
         //判断是否要加定时器
-        this.result = this.data.some((item)=>item.status === "ANALYZING");
-        if(this.result){
-          this.timer = setTimeout(()=>{
+        this.result = this.data.some((item) => item.status === 'ANALYZING');
+        if (this.result){
+          this.timer = setTimeout(() => {
             this.getkeywordLists(this.formInline);
-          },60000);
+          }, 60000);
         }
       });
     },
     //清除定时器
     clearTimer() {
-			clearTimeout(this.timer);
-			this.timer = null;
-		},
+      clearTimeout(this.timer);
+      this.timer = null;
+    },
     //发起关键词分析
-    analysiskeywords(id,time){
+    analysiskeywords(id, time){
       //判断次数
       // if(this.restnum <=0 ){
       //    this.$message.error('今日免费次数已用完');
       //     return;
       // }
       //关键词输入框是否为空
-      if(!id){
-        if(!this.formInline.asin){
+      if (!id){
+        if (!this.formInline.asin){
           this.$message.error('请输入ASIN');
           return;
         }
       }
       //前端判断时间是否为两周内  
 
-      if(Date.parse(time) <= Date.now() + 14 * 24 * 60 * 60 * 1000){
+      if (Date.parse(time) <= Date.now() + 14 * 24 * 60 * 60 * 1000){
 
         //弹确认框
         this.$confirm(`距上次分析时间${time}间隔较短，确认重新分析？`, '提示', {
@@ -464,17 +510,17 @@ export default {
           type: 'warning'
         }).then(() => {
           //依旧发请求
-          analysiskeyword(this.formInline,id).then(res => {
-          if(res.data.msg === "您已经搜索过该关键词，请在搜索结果中操作"){       
+          analysiskeyword(this.formInline, id).then(res => {
+            if (res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
             //弹框提箱
-            this.dialogVisible = true;
-            return;           
-          }
-          if(res.data.code === 200 ){
+              this.dialogVisible = true;
+              return;           
+            }
+            if (res.data.code === 200 ){
             //刷新页面
-            this.getkeywordLists(this.formInline);
-          }
-        })
+              this.getkeywordLists(this.formInline);
+            }
+          });
           //清空关键词
           this.formInline.searchKeyword = '';
           
@@ -483,27 +529,27 @@ export default {
             type: 'info',
             message: '已取消分析'
           });          
-        })
+        });
 
         
       } else {
-        analysiskeyword(this.formInline,id).then(res => {
-          if(res.data.msg === "您已经搜索过该关键词，请在搜索结果中操作"){       
+        analysiskeyword(this.formInline, id).then(res => {
+          if (res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
             //弹框提箱
             this.dialogVisible = true;
             return;           
           }
-          if(res.data.code === 200 ){
+          if (res.data.code === 200 ){
             //刷新页面
             this.getkeywordLists(this.formInline);
           }
-        })
-          //清空关键词
-          this.formInline.searchKeyword = '';
+        });
+        //清空关键词
+        this.formInline.searchKeyword = '';
       }
     },
     detail (id) {
-      console.log(id)
+      console.log(id);
       // wordStatistics(id).then(res => console.log(res))
       // this.$router.push({path: "/keywordDetail/index", query: {detailId: id}});
       // this.$router.push({path: `/keyword/detail`});
@@ -513,70 +559,70 @@ export default {
     download () {
       // console.log(655)
       const loading = this.$loading({
-          lock: true,
-          text: '正在下载模板...',
-          spinner: "el-icon-loading"
-        });
+        lock: true,
+        text: '正在下载模板...',
+        spinner: 'el-icon-loading'
+      });
       download().then(res => {
         if (res.status === 200) {
           const content = res.data;
-          const blob = new Blob([content], {type: 'application/vnd.ms-excel'});
-          const fileName = this.$t('ASIN-关键词排名导出模板') + '.xlsx';
+          const blob = new Blob([content], { type: 'application/vnd.ms-excel' });
+          const fileName = `${this.$t('ASIN-关键词排名导出模板') }.xlsx`;
           if ('download' in document.createElement('a')) { //非IE下载
-            const elink = document.createElement('a')
+            const elink = document.createElement('a');
             elink.download = fileName;
             elink.style.display = 'none';
-            elink.href = URL.createObjectURL(blob)
-            elink.setAttribute('download', this.$t('ASIN-关键词排名导出模板') + '.xlsx')
+            elink.href = URL.createObjectURL(blob);
+            elink.setAttribute('download', `${this.$t('ASIN-关键词排名导出模板') }.xlsx`);
             document.body.appendChild(elink);
             elink.click();
-            URL.revokeObjectURL(elink.href)
-            document.body.removeChild(elink)
+            URL.revokeObjectURL(elink.href);
+            document.body.removeChild(elink);
           } else { //IE10+下载
-            navigator.msSaveBlob(blob, fileName)
+            navigator.msSaveBlob(blob, fileName);
           }
           setTimeout(() => {
-            loading.close()
-          }, 2000)
+            loading.close();
+          }, 2000);
         }
-      })
+      });
     },
     downloadKeyword(row) {
-      this.$refs['btn_'+row.id].$el.style.display = 'block'
+      this.$refs[`btn_${row.id}`].$el.style.display = 'block';
       exportKeyword(row.id).then(res => {
         if (res.status === 200) {
           const content = res.data;
-          const blob = new Blob([content], {type: 'application/vnd.ms-excel'});
-          const fileName = this.$t(`${row.searchCountry}_${row.searchKeyword}`) + '.xlsx';
+          const blob = new Blob([content], { type: 'application/vnd.ms-excel' });
+          const fileName = `${this.$t(`${row.searchCountry}_${row.searchKeyword}`) }.xlsx`;
           if ('download' in document.createElement('a')) { //非IE下载
-            const elink = document.createElement('a')
+            const elink = document.createElement('a');
             elink.download = fileName;
             elink.style.display = 'none';
-            elink.href = URL.createObjectURL(blob)
-            elink.setAttribute('download', this.$t(`${row.searchCountry}_${row.searchKeyword}`) + '.xlsx')
+            elink.href = URL.createObjectURL(blob);
+            elink.setAttribute('download', `${this.$t(`${row.searchCountry}_${row.searchKeyword}`) }.xlsx`);
             document.body.appendChild(elink);
             elink.click();
-            URL.revokeObjectURL(elink.href)
-            document.body.removeChild(elink)
+            URL.revokeObjectURL(elink.href);
+            document.body.removeChild(elink);
           } else { //IE10+下载
-            navigator.msSaveBlob(blob, fileName)
+            navigator.msSaveBlob(blob, fileName);
           }
-          setTimeout(()=> {
-            this.$refs['btn_'+row.id].$el.style.display = 'none'
-          }, 2000)
-        }else {
-          this.$refs['btn_'+row.id].$el.style.display = 'none'
+          setTimeout(() => {
+            this.$refs[`btn_${row.id}`].$el.style.display = 'none';
+          }, 2000);
+        } else {
+          this.$refs[`btn_${row.id}`].$el.style.display = 'none';
         }
-      })  
+      });  
     },
     //获取选择文件
     getSelect() {
       selectFile().then(res => {
         if (res.data.code === 200) {
-          this.selectData = [...this.selectData,...res.data.data]
+          this.selectData = [...this.selectData, ...res.data.data];
           this.formInline.attachId = this.file.attachId || '';
         }
-      })
+      });
     },
     //更新模板
     updateKeyword (data) {
@@ -587,24 +633,24 @@ export default {
       //   searchCountry: this.formInline.searchCountry,
       //   searchTopPage: this.formInline.searchTopPage,
       // }
-      data.formData
+        data.formData
       ).then(res => {
         if (res.data.code === 200) {
           this.data.map(item => {
             if (item.originId) {
-                this.$refs['upload-'+item.originId]._data.uploadFiles = [];
+              this.$refs[`upload-${item.originId}`]._data.uploadFiles = [];
             }
             if (item.id === data.id) {
               delete item.formData;
               delete item.originalName;
             }
           });
-          this.$refs['popover-'+data.id].doClose();
+          this.$refs[`popover-${data.id}`].doClose();
           this.getkeywordLists(this.formInline);
           this.$message({
-              type: "success",
-              message: "更新成功!"
-            });
+            type: 'success',
+            message: '更新成功!'
+          });
           this.updateFileName = '';
           this.updateFile = {};
         }
@@ -612,11 +658,11 @@ export default {
     },
   },
   loseFocus(val) {
-    console.log(val)
+    console.log(val);
   },
-  watch:{
+  watch: {
     'formInline.searchTopPage'(){
-      if(this.formInline.searchTopPage  > 2){
+      if (this.formInline.searchTopPage > 2){
         this.$alert('付费用户专享，暂未开放', '提示', {
           confirmButtonText: '取消',
           callback: () => {
@@ -628,28 +674,28 @@ export default {
     results: {
       handler(val) {
         if (!val) {
-          this.getkeywordLists()
+          this.getkeywordLists();
         }
       },
       deep: true,
       immediate: false,
     },
-    result:{
+    result: {
       handler(val) {
         if (!val) {
-          this.getkeywordLists()
+          this.getkeywordLists();
         }
       },
       deep: true,
       immediate: false,
     },
     'formInline.attachId'() {
-       this.getkeywordLists(this.formInline)
+      this.getkeywordLists(this.formInline);
     },
     popover: {
       handler(val) {
         if (!val) {
-          console.log(val)
+          console.log(val);
         }
       },
       deep: true,
@@ -662,7 +708,7 @@ export default {
   destroyed() {
     this.timer && this.clearTimer();
   },
-}
+};
 
 </script>
 

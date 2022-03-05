@@ -50,20 +50,20 @@
 </template>
 <script>
 //import {getQueryString} from "@/util/util";
-import {resetPassword} from "@/api/user";
+import { resetPassword } from '@/api/user';
 import md5 from 'js-md5';
 
 export default {
   name: 'activatesuccess',
   data(){
-    const validaconfirmpassword=(rule, value, callback) => {
+    const validaconfirmpassword = (rule, value, callback) => {
       if (!value) {
-        callback(new Error("新密码不能为空"));
+        callback(new Error('新密码不能为空'));
         return;
       }
       //与第一次输入密码相比较
-      if(value !== this.setupnewpswForm.password){
-        callback(new Error("两次密码输入不一致"));
+      if (value !== this.setupnewpswForm.password){
+        callback(new Error('两次密码输入不一致'));
         return;
       }
       //要考虑修改了上面的
@@ -72,21 +72,21 @@ export default {
 
     return {
       markId: 'whf',
-      passwordType: "password",
-      setupnewpswForm:{
+      passwordType: 'password',
+      setupnewpswForm: {
         password: '',
         confirmpassword: '',
       },
       setupnewpswRules: {
-        password:[
-          {required: true, message: "请输入新密码", trigger: ["blur","change"]}, // eslint-disable-next-line
+        password: [
+          { required: true, message: '请输入新密码', trigger: ['blur', 'change'] }, // eslint-disable-next-line
           {pattern:/(?!^[0-9]+$)(?!^[A-Za-z]+$)(?!^[^A-Za-z0-9]+$)^[`~!@#$%\^&*\(\)\-=_+\[\]\\\{\}:";'',./<>?|A-z0-9]{6,16}$/,message: '长度6~16，至少包含字母、数字和英文符号中的两种', trigger: "blur"},
         ],
-        confirmpassword:[
-          {required: true, trigger: ["blur","change"],validator: validaconfirmpassword}
+        confirmpassword: [
+          { required: true, trigger: ['blur', 'change'], validator: validaconfirmpassword }
         ]
       }
-    }
+    };
   },
   methods: {
     //提交密码
@@ -96,16 +96,16 @@ export default {
       
       //先验证
       this.$refs.setupnewpswForm.validate(valid => {
-        if(valid){
-          resetPassword(dd,md5(this.setupnewpswForm.password)).then((res) => {
-          if(res.data.code === 200){
-            this.$message.success(res.data.msg);
-            this.$router.push({path: '/login'});
+        if (valid){
+          resetPassword(dd, md5(this.setupnewpswForm.password)).then((res) => {
+            if (res.data.code === 200){
+              this.$message.success(res.data.msg);
+              this.$router.push({ path: '/login' });
             }       
           });
         }
-      }) 
+      }); 
     }
   },
-}
+};
 </script>

@@ -65,50 +65,50 @@
 </template>
 
 <script>
-  import {
-    setStore,
-    getStore,
-    removeStore,
-    clearStore,
-    getAllStore
-  } from "@/util/store";
+import {
+  setStore,
+  getStore,
+  removeStore,
+  clearStore,
+  getAllStore
+} from '@/util/store';
 
-  export default {
-    name: "store",
-    methods: {
-      setItem(params = {}) {
-        const {name, value, type} = params;
-        setStore({
-          name: name,
-          content: value,
-          type: type
-        });
-        this.$message(`设置数据 ${name} = ${value}`);
-      },
-      getItem(params = {}) {
-        const {name, type} = params;
-        const content = getStore({
-          name: name,
-          type: type
-        });
-        this.$message(`获取数据 ${name} = ${content}`);
-      },
-      delItem(params = {}) {
-        const {name, type} = params;
-        removeStore({name, type});
-        this.$message(`删除数据 ${name}`);
-      },
-      clearAll(params = {}) {
-        clearStore(params);
-        this.$message(`清除全部数据完成`);
-      },
-      getAll(params = {}) {
-        const list = getAllStore(params);
-        window.console.log(list);
-        this.$message(`结果已经打印到控制台`);
-      }
+export default {
+  name: 'store',
+  methods: {
+    setItem(params = {}) {
+      const { name, value, type } = params;
+      setStore({
+        name: name,
+        content: value,
+        type: type
+      });
+      this.$message(`设置数据 ${name} = ${value}`);
+    },
+    getItem(params = {}) {
+      const { name, type } = params;
+      const content = getStore({
+        name: name,
+        type: type
+      });
+      this.$message(`获取数据 ${name} = ${content}`);
+    },
+    delItem(params = {}) {
+      const { name, type } = params;
+      removeStore({ name, type });
+      this.$message(`删除数据 ${name}`);
+    },
+    clearAll(params = {}) {
+      clearStore(params);
+      this.$message(`清除全部数据完成`);
+    },
+    getAll(params = {}) {
+      const list = getAllStore(params);
+      window.console.log(list);
+      this.$message(`结果已经打印到控制台`);
     }
-  };
+  }
+};
 </script>
 
 <style lang="scss">

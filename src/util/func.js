@@ -47,6 +47,7 @@ export default class func {
       return defaultValue === undefined ? -1 : defaultValue;
     }
     const num = parseInt(val, 0);
+    // eslint-disable-next-line no-nested-ternary
     return Number.isNaN(num) ? (defaultValue === undefined ? -1 : defaultValue) : num;
   }
 

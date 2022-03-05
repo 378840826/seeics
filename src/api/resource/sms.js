@@ -9,8 +9,8 @@ export const getList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 export const getDetail = (id) => {
   return request({
@@ -19,8 +19,8 @@ export const getDetail = (id) => {
     params: {
       id
     }
-  })
-}
+  });
+};
 
 export const remove = (ids) => {
   return request({
@@ -29,24 +29,24 @@ export const remove = (ids) => {
     params: {
       ids,
     }
-  })
-}
+  });
+};
 
 export const add = (row) => {
   return request({
     url: '/api/blade-resource/sms/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const update = (row) => {
   return request({
     url: '/api/blade-resource/sms/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const enable = (id) => {
   return request({
@@ -55,8 +55,8 @@ export const enable = (id) => {
     params: {
       id
     }
-  })
-}
+  });
+};
 
 export const send = (code, phones, params) => {
   return request({
@@ -67,6 +67,6 @@ export const send = (code, phones, params) => {
       phones,
       params,
     }
-  })
-}
+  });
+};
 

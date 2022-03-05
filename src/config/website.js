@@ -2,14 +2,14 @@
  * 全局配置文件
  */
 export default {
-  title: "思意",//title: "saber",
-  logo: "S",
-  key: 'saber',//配置主键,目前用于存储
-  indexTitle: '思意',//导航栏最上面的显示
+  title: '思意', //title: "saber",
+  logo: 'S',
+  key: 'saber', //配置主键,目前用于存储
+  indexTitle: '思意', //导航栏最上面的显示
   clientId: 'saber', // 客户端id
   clientSecret: 'saber_secret', // 客户端密钥
   tenantMode: true, // 是否开启租户模式
-  tenantId: "000000", // 管理组租户编号
+  tenantId: '000000', // 管理组租户编号
   captchaMode: true, // 是否开启验证码模式
   switchMode: false, // 是否开启部门切换模式
   lockPage: '/lock',
@@ -20,8 +20,8 @@ export default {
   //配置首页不可关闭
   isFirstPage: false,
   fistPage: {
-    label: "关键词分析",
-    value: "/keyword/index",
+    label: '关键词分析',
+    value: '/keyword/index',
     params: {},
     query: {},
     meta: {
@@ -48,4 +48,4 @@ export default {
   flowDesignUrl: 'http://localhost:9999',
   // 报表设计器地址(cloud端口为8108,boot端口为80)
   reportUrl: 'http://localhost:8108/ureport',
-}
+};

@@ -6,14 +6,14 @@
 
 <script>
 export default {
-  name: "app",
+  name: 'app',
   data() {
     return {};
   },
   watch: {},
-  created() {
+  // created() {
 
-  },
+  // },
   methods: {},
   computed: {}
 };

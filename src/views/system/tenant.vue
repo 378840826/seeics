@@ -64,8 +64,8 @@
 </template>
 
 <script>
-import {getList, getDetail, remove, update, add, setting, datasource} from "@/api/system/tenant";
-import {mapGetters} from "vuex";
+import { getList, getDetail, remove, update, add, setting, datasource } from '@/api/system/tenant';
+import { mapGetters } from 'vuex';
 
 export default {
   data() {
@@ -95,8 +95,8 @@ export default {
         dialogClickModal: false,
         column: [
           {
-            label: "租户ID",
-            prop: "tenantId",
+            label: '租户ID',
+            prop: 'tenantId',
             width: 100,
             search: true,
             addDisplay: false,
@@ -104,70 +104,70 @@ export default {
             span: 24,
             rules: [{
               required: true,
-              message: "请输入租户ID",
-              trigger: "blur"
+              message: '请输入租户ID',
+              trigger: 'blur'
             }]
           },
           {
-            label: "租户名称",
-            prop: "tenantName",
+            label: '租户名称',
+            prop: 'tenantName',
             search: true,
             width: 180,
             span: 24,
             rules: [{
               required: true,
-              message: "请输入参数名称",
-              trigger: "blur"
+              message: '请输入参数名称',
+              trigger: 'blur'
             }]
           },
           {
-            label: "联系人",
-            prop: "linkman",
+            label: '联系人',
+            prop: 'linkman',
             width: 100,
             search: true,
             rules: [{
               required: true,
-              message: "请输入联系人",
-              trigger: "blur"
+              message: '请输入联系人',
+              trigger: 'blur'
             }]
           },
           {
-            label: "联系电话",
-            prop: "contactNumber",
+            label: '联系电话',
+            prop: 'contactNumber',
             width: 150,
           },
           {
-            label: "联系地址",
-            prop: "address",
+            label: '联系地址',
+            prop: 'address',
             span: 24,
             minRows: 2,
-            type: "textarea",
+            type: 'textarea',
             hide: true,
           },
           {
-            label: "账号额度",
-            prop: "accountNumber",
+            label: '账号额度',
+            prop: 'accountNumber',
             width: 90,
             slot: true,
             addDisplay: false,
             editDisplay: false,
           },
           {
-            label: "过期时间",
-            prop: "expireTime",
+            label: '过期时间',
+            prop: 'expireTime',
             width: 180,
             slot: true,
             addDisplay: false,
             editDisplay: false,
           },
           {
-            label: "绑定域名",
-            prop: "domain",
+            label: '绑定域名',
+            prop: 'domain',
             span: 24,
           },
           {
-            label: "系统背景",
-            prop: "backgroundUrl",
+            label: '系统背景',
+            prop: 'backgroundUrl',
             type: 'upload',
             listType: 'picture-img',
             dataType: 'string',
@@ -186,17 +186,17 @@ export default {
       settingOption: {
         column: [
           {
-            label: "账号额度",
-            prop: "accountNumber",
-            type: "number",
+            label: '账号额度',
+            prop: 'accountNumber',
+            type: 'number',
             span: 24,
           },
           {
-            label: "过期时间",
-            prop: "expireTime",
-            type: "date",
-            format: "yyyy-MM-dd hh:mm:ss",
-            valueFormat: "yyyy-MM-dd hh:mm:ss",
+            label: '过期时间',
+            prop: 'expireTime',
+            type: 'date',
+            format: 'yyyy-MM-dd hh:mm:ss',
+            valueFormat: 'yyyy-MM-dd hh:mm:ss',
             span: 24,
           },
         ]
@@ -205,20 +205,20 @@ export default {
       datasourceOption: {
         column: [
           {
-            label: "数据源",
-            prop: "datasourceId",
+            label: '数据源',
+            prop: 'datasourceId',
             search: true,
             span: 24,
-            type: "select",
-            dicUrl: "/api/blade-develop/datasource/select",
+            type: 'select',
+            dicUrl: '/api/blade-develop/datasource/select',
             props: {
-              label: "name",
-              value: "id"
+              label: 'name',
+              value: 'id'
             },
             rules: [{
               required: true,
-              message: "请选择数据源",
-              trigger: "blur"
+              message: '请选择数据源',
+              trigger: 'blur'
             }]
           },
         ]
@@ -226,7 +226,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["userInfo", "permission"]),
+    ...mapGetters(['userInfo', 'permission']),
     permissionList() {
       return {
         addBtn: this.vaildData(this.permission.tenant_add, false),
@@ -236,11 +236,11 @@ export default {
       };
     },
     ids() {
-      let ids = [];
+      const ids = [];
       this.selectionList.forEach(ele => {
         ids.push(ele.id);
       });
-      return ids.join(",");
+      return ids.join(',');
     },
     tenantId() {
       return this.selectionList[0].tenantId;
@@ -251,8 +251,8 @@ export default {
       add(row).then(() => {
         this.onLoad(this.page);
         this.$message({
-          type: "success",
-          message: "操作成功!"
+          type: 'success',
+          message: '操作成功!'
         });
         done();
       }, error => {
@@ -264,8 +264,8 @@ export default {
       update(row).then(() => {
         this.onLoad(this.page);
         this.$message({
-          type: "success",
-          message: "操作成功!"
+          type: 'success',
+          message: '操作成功!'
         });
         done();
       }, error => {
@@ -274,10 +274,10 @@ export default {
       });
     },
     rowDel(row) {
-      this.$confirm("确定将选择数据删除?", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
+      this.$confirm('确定将选择数据删除?', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
         .then(() => {
           return remove(row.id);
@@ -285,20 +285,20 @@ export default {
         .then(() => {
           this.onLoad(this.page);
           this.$message({
-            type: "success",
-            message: "操作成功!"
+            type: 'success',
+            message: '操作成功!'
           });
         });
     },
     beforeOpen(done, type) {
-      if (["view"].includes(type)) {
+      if (['view'].includes(type)) {
         getDetail(this.form.id).then(res => {
           const data = res.data.data;
           if (!(data.accountNumber > 0)) {
-            data.accountNumber = "不限制";
+            data.accountNumber = '不限制';
           }
           if (!data.expireTime) {
-            data.expireTime = "不限制";
+            data.expireTime = '不限制';
           }
           this.form = data;
         });
@@ -324,13 +324,13 @@ export default {
     },
     handleDelete() {
       if (this.selectionList.length === 0) {
-        this.$message.warning("请选择至少一条数据");
+        this.$message.warning('请选择至少一条数据');
         return;
       }
-      this.$confirm("确定将选择数据删除?", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
+      this.$confirm('确定将选择数据删除?', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
         .then(() => {
           return remove(this.ids);
@@ -338,15 +338,15 @@ export default {
         .then(() => {
           this.onLoad(this.page);
           this.$message({
-            type: "success",
-            message: "操作成功!"
+            type: 'success',
+            message: '操作成功!'
           });
           this.$refs.crud.toggleSelection();
         });
     },
     handleSetting() {
       if (this.selectionList.length === 0) {
-        this.$message.warning("请选择至少一条数据");
+        this.$message.warning('请选择至少一条数据');
         return;
       }
       if (this.selectionList.length === 1) {
@@ -363,11 +363,11 @@ export default {
     },
     handleDatasource() {
       if (this.selectionList.length === 0) {
-        this.$message.warning("请选择至少一条数据");
+        this.$message.warning('请选择至少一条数据');
         return;
       }
       if (this.selectionList.length !== 1) {
-        this.$message.warning("只能选择一条数据");
+        this.$message.warning('只能选择一条数据');
         return;
       }
       getDetail(this.selectionList[0].id).then(res => {
@@ -380,8 +380,8 @@ export default {
       setting(this.ids, form).then(() => {
         this.onLoad(this.page);
         this.$message({
-          type: "success",
-          message: "配置成功!"
+          type: 'success',
+          message: '配置成功!'
         });
         done();
         this.box = false;
@@ -393,8 +393,8 @@ export default {
     handleDatasourceSubmit(form, done, loading) {
       datasource(this.tenantId, form.datasourceId).then(() => {
         this.$message({
-          type: "success",
-          message: "配置成功!"
+          type: 'success',
+          message: '配置成功!'
         });
         done();
         this.datasourceBox = false;

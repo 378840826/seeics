@@ -1,4 +1,4 @@
-import Layout from '@/page/index/'
+import Layout from '@/page/index/';
 
 export default [{
   path: '/wel',
@@ -58,7 +58,7 @@ export default [{
   //     import('@/views/keyword/keywordDetail')
   //   },
   // }
-]
+  ]
 },
 {
   path: '/keywordDetail',
@@ -141,7 +141,7 @@ export default [{
     },
     component: () =>
       import( /* webpackChunkName: "views" */ '@/views/work/process/leave/detail')
-  },]
+  }]
 }, {
   path: '/listAnalysis',
   component: Layout,
@@ -168,4 +168,4 @@ export default [{
     component: () => 
     import(/* webpackChunkName: "views" */ '@/views/keywordRanking/asinRanking')
   }]
-}]
+}];

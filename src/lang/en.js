@@ -106,4 +106,4 @@ export default {
     closeOthers: 'Close Others',
     closeAll: 'Close All'
   }
-}
+};

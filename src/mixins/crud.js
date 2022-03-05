@@ -1,4 +1,4 @@
-import {mapGetters} from "vuex";
+import { mapGetters } from 'vuex';
 
 export default (app, option = {}) => {
   const mixins = {
@@ -15,7 +15,7 @@ export default (app, option = {}) => {
           pageSizes: [10, 30, 50, 100, 200],
           pageSize: 10
         },
-      }
+      };
     },
     computed: {
       ...mapGetters(['userInfo', 'permission', 'roles']),
@@ -24,7 +24,7 @@ export default (app, option = {}) => {
         this.selectionList.forEach(ele => {
           ids.push(ele[this.rowKey]);
         });
-        return ids.join(",");
+        return ids.join(',');
       },
       bindVal() {
         return {
@@ -32,7 +32,7 @@ export default (app, option = {}) => {
           option: this.option,
           data: this.data,
           tableLoading: this.loading
-        }
+        };
       },
       onEvent() {
         return {
@@ -45,10 +45,10 @@ export default (app, option = {}) => {
           'date-change': this.dateChange,
           'search-change': this.searchChange,
           'search-reset': this.searchChange
-        }
+        };
       },
       rowKey() {
-        return this.option.rowKey || option.rowKey || 'id'
+        return this.option.rowKey || option.rowKey || 'id';
       }
     },
     methods: {
@@ -68,8 +68,8 @@ export default (app, option = {}) => {
               this.listAfter(data);
             }
             this.loading = false;
-          })
-        }
+          });
+        };
         if (this.listBefore) {
           this.listBefore();
         }
@@ -88,8 +88,8 @@ export default (app, option = {}) => {
             done();
           }).catch(() => {
             loading();
-          })
-        }
+          });
+        };
         if (this.addBefore) {
           this.addBefore();
         }
@@ -108,8 +108,8 @@ export default (app, option = {}) => {
             done();
           }).catch(() => {
             loading();
-          })
-        }
+          });
+        };
         if (this.updateBefore) {
           this.updateBefore();
         }
@@ -120,12 +120,12 @@ export default (app, option = {}) => {
           this.api[option.del || 'remove'](row[this.rowKey], row).then((data) => {
             this.getList();
             if (this.delAfter) {
-              this.delAfter(data, row, index)
+              this.delAfter(data, row, index);
             } else {
               this.$message.success('删除成功');
             }
-          })
-        }
+          });
+        };
         if (this.delBefore) {
           this.delBefore();
           callback();
@@ -136,18 +136,18 @@ export default (app, option = {}) => {
             type: 'warning'
           }).then(() => {
             callback();
-          })
+          });
         }
       },
       handleDelete() {
         if (this.selectionList.length === 0) {
-          this.$message.warning("请选择至少一条数据");
+          this.$message.warning('请选择至少一条数据');
           return;
         }
-        this.$confirm("确定将选择数据删除?", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
+        this.$confirm('确定将选择数据删除?', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         })
           .then(() => {
             this.api[option.del || 'remove'](this.ids).then((data) => {
@@ -161,20 +161,22 @@ export default (app, option = {}) => {
           });
       },
       searchChange(params, done) {
-        if (done) done();
+        if (done) {
+          done(); 
+        }
         if (this.validatenull(params)) {
           Object.keys(this.params).forEach(ele => {
             if (!['createTime_dategt', 'createTime_datelt'].includes(ele)) {
               delete this.params[ele];
             }
-          })
+          });
         } else {
           Object.keys(params).forEach(ele => {
             if (this.validatenull(params[ele])) {
               delete this.params[ele];
               delete params[ele];
             }
-          })
+          });
         }
         this.params = Object.assign(this.params, params);
         this.page.currentPage = 1;
@@ -202,8 +204,8 @@ export default (app, option = {}) => {
         this.getList();
       }
     }
-  }
+  };
   app.mixins = app.mixins || [];
   app.mixins.push(mixins);
   return app;
-}
+};

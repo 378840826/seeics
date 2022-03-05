@@ -3,24 +3,24 @@
 </template>
 
 <script>
- import { wechatQrcode } from '@/api/user'
- export default {
-  name: "wechat",
+import { wechatQrcode } from '@/api/user';
+export default {
+  name: 'wechat',
   mounted() {
     this.setWxerwma();  
   },
   methods: {
     setWxerwma () {
       const hrefStyle = `data:text/css;base64,LmltcG93ZXJCb3ggLnFyY29kZSB7d2lkdGg6IDE4MHB4O30KLmltcG93ZXJCb3ggLnRpdGxlIHtkaXNwbGF5OiBub25lO30KLmltcG93ZXJCb3ggLmluZm8ge3dpZHRoOiAyMDBweDt9Ci5zdGF0dXNfaWNvbiB7ZGlzcGxheTogbm9uZX0KLmltcG93ZXJCb3ggLnN0YXR1cyB7dGV4dC1hbGlnbjogY2VudGVyO30=`;
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.async = false;
-    script.src = 'https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js';
-    document.head.appendChild(script);
-    let states = '';
-     wechatQrcode().then(async res => {
-      states = await res.data.split('state=')[1];
-    })
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.async = false;
+      script.src = 'https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js';
+      document.head.appendChild(script);
+      let states = '';
+      wechatQrcode().then(async res => {
+        states = await res.data.split('state=')[1];
+      });
       setTimeout(function(){
         // eslint-disable-next-line no-undef
         new WxLogin({
@@ -30,7 +30,7 @@
           appid: 'wxf5fcd79ce8d427b5', 
           scope: 'snsapi_login', 
           // eslint-disable-next-line @typescript-eslint/camelcase
-          redirect_uri: `https://seeics.com/blade-auth/oauth/redirect/wechat_open`,//授权成功之后到的回调url
+          redirect_uri: `https://seeics.com/blade-auth/oauth/redirect/wechat_open`, //授权成功之后到的回调url
           // redirect_uri: `http://dev.workics.cn/api/system/user/wechat-login`,
           state: states,         
           style: 'black',
@@ -46,7 +46,7 @@
       }, 1000);
     },  
   },
- }
+};
 </script>
 
 <style lang="scss" scoped>

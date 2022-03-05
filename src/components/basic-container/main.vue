@@ -10,7 +10,7 @@
 
 <script>
 export default {
-  name: "basicContainer",
+  name: 'basicContainer',
   props: {
     radius: {
       type: [String, Number],
@@ -29,7 +29,7 @@ export default {
       return {
         borderRadius: this.setPx(this.radius),
         background: this.background,
-      }
+      };
     }
   }
 };

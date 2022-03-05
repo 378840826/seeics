@@ -9,8 +9,8 @@ export const getList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 export const getPostList = (tenantId) => {
   return request({
@@ -19,8 +19,8 @@ export const getPostList = (tenantId) => {
     params: {
       tenantId
     }
-  })
-}
+  });
+};
 
 export const getDetail = (id) => {
   return request({
@@ -29,8 +29,8 @@ export const getDetail = (id) => {
     params: {
       id
     }
-  })
-}
+  });
+};
 
 export const remove = (ids) => {
   return request({
@@ -39,22 +39,22 @@ export const remove = (ids) => {
     params: {
       ids,
     }
-  })
-}
+  });
+};
 
 export const add = (row) => {
   return request({
     url: '/api/blade-system/post/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const update = (row) => {
   return request({
     url: '/api/blade-system/post/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 

@@ -25,7 +25,7 @@ export default {
     to: {
       type: Object,
       default: () => {
-        return {}
+        return {};
       }
     },
     text: {
@@ -58,18 +58,18 @@ export default {
         width: this.setPx(this.width),
         height: this.setPx(this.height),
         margin: this.setPx(this.gutter)
-      }
+      };
     },
     boxStyleName () {
       return {
         backgroundColor: this.color,
         backgroundImage: `url('${this.background}')`,
 
-      }
+      };
 
     }
   }
-}
+};
 </script>
 
 <style lang="scss">

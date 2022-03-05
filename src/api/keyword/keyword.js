@@ -9,11 +9,11 @@ export const getkeywordList = (current, size) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 //发起关键词分析
-export const analysiskeyword = (params,id) => {
+export const analysiskeyword = (params, id) => {
   return request({
     url: '/api/seeics-analysis/keyword-analyze/analyze',
     method: 'post',
@@ -21,8 +21,8 @@ export const analysiskeyword = (params,id) => {
       ...params,
       id,
     },  
-  })
-}
+  });
+};
 
 //词频统计
 export const wordStatistics = (id) => {
@@ -32,8 +32,8 @@ export const wordStatistics = (id) => {
     data: {
       id,
     },
-  })
-}
+  });
+};
 
 //下载模板
 export const download = () => {
@@ -41,13 +41,13 @@ export const download = () => {
     url: '/api/seeics-analysis/keyword-analyze/download/template',
     method: 'get',
     responseType: 'blob'
-  })
-}
+  });
+};
 
 //重复关键词调用
 export const keyWordReset = (id) => {
   return request({
     url: `/api/seeics-analysis/keyword-analyze/reset-state?id=${id}`,
     method: 'get',
-  })
-}
+  });
+};

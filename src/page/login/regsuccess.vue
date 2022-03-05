@@ -15,17 +15,17 @@
 </template>
 
 <script>
-import {sendEmailAgain} from "@/api/user";
-import {mapGetters} from "vuex";
+import { sendEmailAgain } from '@/api/user';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'regsuccess', 
   data() {
     return {
       emailsite: '',
-      iscountdown:false,
+      iscountdown: false,
       countdown: 120
-    }
+    };
   },
   props: {
     userEmail: {
@@ -35,13 +35,13 @@ export default {
   },
   created() {
     const regEmail = /@(\w)+((\.\w+)+)$/;
-      const m = this.cacheemail.match(regEmail);
-      if (m.length){
-        this.emailsite = `http://www.mail.${ m[0].substr(1)}`;
-      }
+    const m = this.cacheemail.match(regEmail);
+    if (m.length){
+      this.emailsite = `http://www.mail.${ m[0].substr(1)}`;
+    }
   },
   computed: {
-    ...mapGetters(["cacheemail"])
+    ...mapGetters(['cacheemail'])
   },
   methods: {
 
@@ -49,30 +49,30 @@ export default {
     startcountdown(){
       this.countdown = this.countdown - 1;
       //判断是否>0
-      if(this.countdown > 0){
-        setTimeout(()=>{
+      if (this.countdown > 0){
+        setTimeout(() => {
           this.startcountdown();
-        },1000);
+        }, 1000);
       } else {
         //重新发送字样,关倒计时
         this.iscountdown = false;
         //给值回到120
         this.countdown = 120;
-        return;
+        
       }
     },
     resetsendEmail(){
       this.iscountdown = true;
       //发送请求
       sendEmailAgain(this.cacheemail).then((res) => {
-        if(res.data.code === 200){
-          this.$message.success('激活邮件已发送至您的邮箱，请查收')
+        if (res.data.code === 200){
+          this.$message.success('激活邮件已发送至您的邮箱，请查收');
           //开启倒计时
           this.startcountdown();
         }
-      })
+      });
     },
   },
-}
+};
 
 </script>

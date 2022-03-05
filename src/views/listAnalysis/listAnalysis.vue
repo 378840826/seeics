@@ -67,7 +67,9 @@
         <template  slot="menu" slot-scope="scope">
           <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn">
             <a :href="`/api${scope.row.excelUrl}`" download>导出分析结果</a>
-            <span class="analysisaginspan" @click="analysiskeywords(scope.row.id, scope.row.crawlingCompleteTime)">重新分析</span>
+            <span class="analysisaginspan" @click="analysiskeywords(scope.row.id, scope.row.crawlingCompleteTime)">
+              重新分析
+            </span>
             <div>
               <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
             </div>
@@ -90,17 +92,40 @@
                          
           </div>
           <div v-else class="derivedresultbtn">
-            <el-progress :percentage="scope.row.progress*100" :format="format" :text-inside="true" :stroke-width="30"></el-progress>
+            <el-progress
+              :percentage="scope.row.progress*100"
+              :format="format"
+              :text-inside="true"
+              :stroke-width="30"
+            ></el-progress>
             <div>
               <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
             </div>
           </div> 
-          <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn" style="marginTop: 5px">
-            <div class="avuecrudclass" v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'">
-              <a v-if="!scope.row.loading" @click="wordStatistics(scope.row.id)" >生成标题词频 <i :class="scope.row.loading ? 'el-icon-loading' : ''"></i></a>
+          <div
+            v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl"
+            class="derivedresultbtn"
+            style="marginTop: 5px"
+          >
+            <div
+              class="avuecrudclass"
+              v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'"
+            >
+              <a
+                v-if="!scope.row.loading" 
+                @click="wordStatistics(scope.row.id)"
+              >
+                生成标题词频<i :class="scope.row.loading ? 'el-icon-loading' : ''"></i>
+              </a>
               <a v-else>生成标题词频 <i :class="'el-icon-loading'"></i></a>
             </div>
-            <el-progress v-else-if="scope.row.wordFrequencyProgress !== '1.00'" :percentage="scope.row.wordFrequencyProgress*100" :format="wordFormat" :text-inside="true" :stroke-width="30"></el-progress>
+            <el-progress
+              v-else-if="scope.row.wordFrequencyProgress !== '1.00'"
+              :percentage="scope.row.wordFrequencyProgress*100"
+              :format="wordFormat"
+              :text-inside="true"
+              :stroke-width="30"
+            ></el-progress>
             <a v-else :href="`/api${scope.row.wordFrequencyExcelUrl}`" download>导出标题词频</a>
             <!-- <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span> -->
         </div>
@@ -148,146 +173,146 @@ export default {
       ],
       value: 1, //下拉框默认选择
       data: [{
-          id: 1,
-          label: '一级 1',
+        id: 1,
+        label: '一级 1',
+        children: [{
+          id: 4,
+          label: '二级 1-1',
           children: [{
-            id: 4,
-            label: '二级 1-1',
-            children: [{
-              id: 9,
-              label: '三级 1-1-1'
-            }, {
-              id: 10,
-              label: '三级 1-1-2'
-            }]
-          }]
-        }, 
-        {
-          id: 2,
-          label: '一级 2',
-          children: [{
-            id: 5,
-            label: '二级 2-1'
+            id: 9,
+            label: '三级 1-1-1'
           }, {
-            id: 6,
-            label: '二级 2-2'
+            id: 10,
+            label: '三级 1-1-2'
           }]
+        }]
+      }, 
+      {
+        id: 2,
+        label: '一级 2',
+        children: [{
+          id: 5,
+          label: '二级 2-1'
         }, {
-          id: 3,
-          label: '一级 3',
-          children: [{
-            id: 7,
-            label: '二级 3-1'
-          }, {
-            id: 8,
-            label: '二级 3-2'
-          }]
-        }
-        ],
-        defaultProps: {
-          children: 'children',
-          label: 'label',
-          isLeaf: 'leaf'
+          id: 6,
+          label: '二级 2-2'
+        }]
+      }, {
+        id: 3,
+        label: '一级 3',
+        children: [{
+          id: 7,
+          label: '二级 3-1'
+        }, {
+          id: 8,
+          label: '二级 3-2'
+        }]
+      }
+      ],
+      defaultProps: {
+        children: 'children',
+        label: 'label',
+        isLeaf: 'leaf'
+      },
+      list: [
+        {
+          text: 'New Releases'
         },
-        list: [
-          {
-            text: 'New Releases'
-          },
-          {
-            text: 'Best Sellers'
-          },
-          {
-            text: 'Movers&shakers'
-          },
-          {
-            text: 'most wished'
-          },
-          {
-            text: 'Gift ldeas'
-          },
-        ],
-        node: null,
-        searchValue: '',
-        restaurants: [{ "value": "三全鲜食（北新泾店）", "address": "长宁区新渔路144号" },
-          { "value": "三全鲜食（北新泾店）1", "address": "长宁区新渔路144号" },
-          { "value": "Hot honey 首尔炸鸡（仙霞路）", "address": "上海市长宁区淞虹路661号" },], //模糊搜索存储
-        active: 'New Releases', //按钮高亮默认选中
-        option:{
-          emptyText: '没有找到相关商品，请重新查询',
-          addBtn: false,
-          border:true,
-          columnBtn:false,
-          refreshBtn:false,
-          saveBtn:false,
-          updateBtn:false,
-          cancelBtn:false,
-          delBtn:false,
-          menu:false,
-          editBtn:false,
-          align:'center',
-          menuAlign:'left',
-          rowKey:'id',
-          column:[
-             {
-              label:'更新时间',
-              prop:'recordTime',
-              sortable:true,//排序
-              width: 200,
-              //slot:true
-            },
-            {
-              label:'站点',
-              prop:'searchCountry',
-              //width:283,
-            },
-            {
-              label:'分类',
-              prop:'searchKeyword',
-              width:700,
-              slot:true,            
-            },
-            {
-              label:'操作',
-              prop:'menu',
-              align: 'left',
-              width: 230,
-            },
-          ]
+        {
+          text: 'Best Sellers'
         },
-    }
+        {
+          text: 'Movers&shakers'
+        },
+        {
+          text: 'most wished'
+        },
+        {
+          text: 'Gift ldeas'
+        },
+      ],
+      node: null,
+      searchValue: '',
+      restaurants: [{ 'value': '三全鲜食（北新泾店）', 'address': '长宁区新渔路144号' },
+        { 'value': '三全鲜食（北新泾店）1', 'address': '长宁区新渔路144号' },
+        { 'value': 'Hot honey 首尔炸鸡（仙霞路）', 'address': '上海市长宁区淞虹路661号' }], //模糊搜索存储
+      active: 'New Releases', //按钮高亮默认选中
+      option: {
+        emptyText: '没有找到相关商品，请重新查询',
+        addBtn: false,
+        border: true,
+        columnBtn: false,
+        refreshBtn: false,
+        saveBtn: false,
+        updateBtn: false,
+        cancelBtn: false,
+        delBtn: false,
+        menu: false,
+        editBtn: false,
+        align: 'center',
+        menuAlign: 'left',
+        rowKey: 'id',
+        column: [
+          {
+            label: '更新时间',
+            prop: 'recordTime',
+            sortable: true, //排序
+            width: 200,
+            //slot:true
+          },
+          {
+            label: '站点',
+            prop: 'searchCountry',
+            //width:283,
+          },
+          {
+            label: '分类',
+            prop: 'searchKeyword',
+            width: 700,
+            slot: true,            
+          },
+          {
+            label: '操作',
+            prop: 'menu',
+            align: 'left',
+            width: 230,
+          },
+        ]
+      },
+    };
   },
   methods: {
-    change(e) {
-        console.log(this.value)
+    change() {
+      console.log(this.value);
     },
-    treeLoad(node, resolve) {
-
+    treeLoad() {
+      // 
     },
     handleNodeClick(data, children) {
-        console.log(data,children)
+      console.log(data, children);
     },
     onClick(name) {
-      this.active = name
+      this.active = name;
     },
     querySearchAsync(queryString, cb) {
-        var restaurants = this.restaurants
-        console.log(queryString, cb)
-        var results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants;
+      const restaurants = this.restaurants;
+      console.log(queryString, cb);
+      const results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants;
 
-          cb(results);
+      cb(results);
         
     },
     createStateFilter(queryString) {
-        return (state) => {
-          return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
-        };
+      return (state) => {
+        return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+      };
     },
     search() {
-      this.searchValue = ''
+      this.searchValue = '';
     }
    
   }
-}
+};
 </script>
 <style lang="scss" scoped>
   ::v-deep {

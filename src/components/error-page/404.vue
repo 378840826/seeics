@@ -16,7 +16,7 @@
 
 <script>
 export default {
-  name: "error-404"
+  name: 'error-404'
 };
 </script>
 <style lang="scss" scoped>

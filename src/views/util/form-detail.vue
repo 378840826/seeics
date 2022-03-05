@@ -20,8 +20,8 @@ export default {
         labelWidth: 110,
         column: [
           {
-            label: "姓名",
-            prop: "name"
+            label: '姓名',
+            prop: 'name'
           }
         ]
       }

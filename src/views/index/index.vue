@@ -47,24 +47,24 @@
   </div>
 </template>
 <script>
-import {getQueryString, getTopUrl} from "@/util/util";
-import { validatenull } from "@/util/validate";
+import { getQueryString, getTopUrl } from '@/util/util';
+import { validatenull } from '@/util/validate';
 export default {
   name: 'index',
   data(){
     return {
-      formInline:{
-        site: "美国",
-        keyword: "",
-        page: "2"
+      formInline: {
+        site: '美国',
+        keyword: '',
+        page: '2'
       },
       socialForm: {
-          tenantId: "000000",
-          source: "",
-          code: "",
-          state: "",
+        tenantId: '000000',
+        source: '',
+        code: '',
+        state: '',
       },
-    }
+    };
   },
   created() {
     this.handleLogin();
@@ -76,26 +76,30 @@ export default {
   },
   methods: {
     tokeywordindex(){
-      this.$router.push({path: "/keyword/index"});
+      this.$router.push({ path: '/keyword/index' });
     },
     handleLogin() {
       const topUrl = getTopUrl();
-      const redirectUrl = "/blade-auth/oauth/redirect/";
-      this.socialForm.source = getQueryString("source");
-      this.socialForm.code = getQueryString("code");
-      this.socialForm.state = getQueryString("state");
+      const redirectUrl = '/blade-auth/oauth/redirect/';
+      this.socialForm.source = getQueryString('source');
+      this.socialForm.code = getQueryString('code');
+      this.socialForm.state = getQueryString('state');
       if (validatenull(this.socialForm.source) && topUrl.includes(redirectUrl)) {
-        let source = topUrl.split("?")[0];
+        let source = topUrl.split('?')[0];
         source = source.split(redirectUrl)[1];
         this.socialForm.source = source;
       }
-      if (!validatenull(this.socialForm.source) && !validatenull(this.socialForm.code) && !validatenull(this.socialForm.state)) {
+      if (
+        !validatenull(this.socialForm.source)
+        && !validatenull(this.socialForm.code) 
+        && !validatenull(this.socialForm.state)
+      ) {
         const loading = this.$loading({
           lock: true,
           text: '第三方系统登录中,请稍后。。。',
-          spinner: "el-icon-loading"
+          spinner: 'el-icon-loading'
         });
-        this.$store.dispatch("LoginBySocial", this.socialForm).then( res => {
+        this.$store.dispatch('LoginBySocial', this.socialForm).then( res => {
           if ( res.user_id > 0) {
             window.location.href = `${topUrl.split(redirectUrl)[0]}#/info/index`;
           }
@@ -107,7 +111,7 @@ export default {
       }
     }
   },
-}
+};
 </script>
 <style lang="scss">
   @import "./index.scss";

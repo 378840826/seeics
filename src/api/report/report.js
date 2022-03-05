@@ -9,8 +9,8 @@ export const getList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 export const remove = (ids) => {
   return request({
     url: '/api/blade-report/report/rest/remove',
@@ -18,5 +18,5 @@ export const remove = (ids) => {
     params: {
       ids,
     }
-  })
-}
+  });
+};

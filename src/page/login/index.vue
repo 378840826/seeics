@@ -25,7 +25,11 @@
                 <weChat></weChat>
               </el-tab-pane>
               <el-tab-pane label="账号密码登录" name="user">
-                <userLogin @forgetpswFn="forgetpswFn" @regsuccessFn="regsuccessFn" @useremailchange="useremailchangeFn"></userLogin>             
+                <userLogin
+                  @forgetpswFn="forgetpswFn"
+                  @regsuccessFn="regsuccessFn"
+                  @useremailchange="useremailchangeFn"
+                ></userLogin>             
               </el-tab-pane>      
             </el-tabs>  
             <!-- <div><span @click="userlogin">账号密码登录</span><span @click="skip">第三方模块</span></div>          -->
@@ -39,20 +43,20 @@
   </div>
 </template>
 <script>
-import userLogin from "./user";
+import userLogin from './user';
 // import thirdLogin from "./thirdlogin";
-import weChat from "./wechat";
-import forgetPsw from "./forgetpsw";
-import { validatenull } from "@/util/validate";
-import {getQueryString, getTopUrl} from "@/util/util";
-import { dateFormat } from "@/util/date";
-import regSuccess from "./regsuccess";
-import noSupport from "./nosupport";
-import {mapGetters} from "vuex";
-import { registerGuest } from "@/api/user";
+import weChat from './wechat';
+import forgetPsw from './forgetpsw';
+import { validatenull } from '@/util/validate';
+import { getQueryString, getTopUrl } from '@/util/util';
+import { dateFormat } from '@/util/date';
+import regSuccess from './regsuccess';
+import noSupport from './nosupport';
+import { mapGetters } from 'vuex';
+// import { registerGuest } from '@/api/user';
 
 export default {
-  name: "login",
+  name: 'login',
   components: {
     userLogin,
     weChat,
@@ -64,24 +68,24 @@ export default {
   data(){
     return {
       activeName: 'user',
-      userEmail:'',
-      forgetpsw: false,//忘记密码
+      userEmail: '',
+      forgetpsw: false, //忘记密码
       skips: false,
       socialForm: {
-          tenantId: "000000",
-          source: "",
-          code: "",
-          state: "",
+        tenantId: '000000',
+        source: '',
+        code: '',
+        state: '',
       },
-    } 
+    }; 
   },
-    created() {
-      // console.log(this.userInfo)
+  created() {
+    // console.log(this.userInfo)
     // this.handleLogin();
     this.getTime();
   },
   computed: {
-    ...mapGetters(["registeredsuccess", "website", "tagWel", "userInfo"])
+    ...mapGetters(['registeredsuccess', 'website', 'tagWel', 'userInfo'])
   },
   watch: {
     $route() {
@@ -91,7 +95,7 @@ export default {
   methods: {
     //忘记密码
     forgetpswFn(val){
-      this.forgetpsw=val;
+      this.forgetpsw = val;
     },
 
     skip() {
@@ -109,24 +113,28 @@ export default {
     },
     handleLogin() {
       const topUrl = getTopUrl();
-      const redirectUrl = "/oauth/redirect/";
-      this.socialForm.source = getQueryString("source");
-      this.socialForm.code = getQueryString("code");
-      this.socialForm.state = getQueryString("state");
+      const redirectUrl = '/oauth/redirect/';
+      this.socialForm.source = getQueryString('source');
+      this.socialForm.code = getQueryString('code');
+      this.socialForm.state = getQueryString('state');
       if (validatenull(this.socialForm.source) && topUrl.includes(redirectUrl)) {
-        let source = topUrl.split("?")[0];
+        let source = topUrl.split('?')[0];
         source = source.split(redirectUrl)[1];
         this.socialForm.source = source;
       }
-      if (!validatenull(this.socialForm.source) && !validatenull(this.socialForm.code) && !validatenull(this.socialForm.state)) {
+      if (
+        !validatenull(this.socialForm.source)
+        && !validatenull(this.socialForm.code)
+        && !validatenull(this.socialForm.state)
+      ) {
         const loading = this.$loading({
           lock: true,
           text: '第三方系统登录中,请稍后。。。',
-          spinner: "el-icon-loading"
+          spinner: 'el-icon-loading'
         });
-        this.$store.dispatch("LoginBySocial", this.socialForm).then(() => {
+        this.$store.dispatch('LoginBySocial', this.socialForm).then(() => {
           window.location.href = topUrl.split(redirectUrl)[0];
-          this.$router.push({path: this.tagWel.value});
+          this.$router.push({ path: this.tagWel.value });
           loading.close();
         }).catch(() => {
           loading.close();
@@ -134,7 +142,7 @@ export default {
       }
     }
   },
-}
+};
 </script>
 <style lang="scss">
 @import "./login.scss";

@@ -22,7 +22,7 @@
   </div>
 </template>
 <script>
-import {activateAccount} from "@/api/user";
+import { activateAccount } from '@/api/user';
 //import {getQueryString} from "@/util/util";
 
 export default {
@@ -31,7 +31,7 @@ export default {
     return {
       isSuccess: false,
       maxtime: 4,
-    }
+    };
   },
   mounted() {
     this.activateaccount();
@@ -39,31 +39,31 @@ export default {
   methods: {
     activateaccount(){
       //从url里面切activateId
-      const dd = this.$route.query.activateId
+      const dd = this.$route.query.activateId;
       
       activateAccount(dd).then((res) => {
         //激活成功执行倒计时
-        if(res.data.code === 200){
-          if(res.data.msg === "已激活"){
-            this.$message.success(`${res.data.msg}`)
+        if (res.data.code === 200){
+          if (res.data.msg === '已激活'){
+            this.$message.success(`${res.data.msg}`);
           }
-          this.isSuccess=true;
+          this.isSuccess = true;
           this.countdown();
         }
-      })
+      });
     },
     //倒计时
     countdown(){  
-      this.maxtime = this.maxtime-1;
-      if(this.maxtime > 0){
-        setTimeout(()=>{
+      this.maxtime = this.maxtime - 1;
+      if (this.maxtime > 0){
+        setTimeout(() => {
           this.countdown();
-        },1000);
+        }, 1000);
       } else {
-        this.$router.push({path: '/login'});
+        this.$router.push({ path: '/login' });
       }
     }
   },
-}
+};
 
 </script>

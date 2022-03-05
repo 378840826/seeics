@@ -38,8 +38,8 @@ export default {
         row: true,
         prop: 'phone',
         rules: [
-          {required: true,message: '手机号不能为空',trigger: 'blur'},
-          {pattern:  /^\d{11}$/,message: '手机号为11位数字', trigger: "blur"},
+          { required: true, message: '手机号不能为空', trigger: 'blur' },
+          { pattern: /^\d{11}$/, message: '手机号为11位数字', trigger: 'blur' },
         ]
       }, {
         label: '邮箱',
@@ -72,4 +72,4 @@ export default {
       }]
     }
   ],
-}
+};

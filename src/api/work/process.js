@@ -9,8 +9,8 @@ export const historyFlowList = (processInstanceId) => {
     params: {
       processInstanceId
     }
-  })
-}
+  });
+};
 
 
 // =====================请假流程===========================
@@ -20,8 +20,8 @@ export const leaveProcess = (data) => {
     url: '/api/blade-desk/process/leave/start-process',
     method: 'post',
     data
-  })
-}
+  });
+};
 
 export const leaveDetail = (businessId) => {
   return request({
@@ -30,5 +30,5 @@ export const leaveDetail = (businessId) => {
     params: {
       businessId
     }
-  })
-}
+  });
+};

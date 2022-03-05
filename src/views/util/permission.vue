@@ -28,54 +28,54 @@
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        text: false,
-        permission: {},
-        option: {
-          expand: true,
-          column: [
-            {
-              label: "姓名",
-              prop: "name"
-            },
-            {
-              label: "年龄",
-              prop: "sex"
-            }
-          ]
-        },
-        data: [
+export default {
+  data() {
+    return {
+      text: false,
+      permission: {},
+      option: {
+        expand: true,
+        column: [
           {
-            id: 1,
-            name: "张三",
-            sex: 12
+            label: '姓名',
+            prop: 'name'
           },
           {
-            id: 2,
-            name: "李四",
-            sex: 20
+            label: '年龄',
+            prop: 'sex'
           }
         ]
-      };
-    },
-    watch: {
-      text() {
-        if (this.text === true) {
-          this.permission = {
-            delBtn: false,
-            addBtn: false
-          };
-        } else {
-          this.permission = {
-            delBtn: true,
-            addBtn: true
-          };
+      },
+      data: [
+        {
+          id: 1,
+          name: '张三',
+          sex: 12
+        },
+        {
+          id: 2,
+          name: '李四',
+          sex: 20
         }
+      ]
+    };
+  },
+  watch: {
+    text() {
+      if (this.text === true) {
+        this.permission = {
+          delBtn: false,
+          addBtn: false
+        };
+      } else {
+        this.permission = {
+          delBtn: true,
+          addBtn: true
+        };
       }
     }
-  };
+  }
+};
 </script>
 
 <style>

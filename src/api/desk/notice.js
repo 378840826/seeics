@@ -9,8 +9,8 @@ export const getList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 export const remove = (ids) => {
   return request({
@@ -19,24 +19,24 @@ export const remove = (ids) => {
     params: {
       ids,
     }
-  })
-}
+  });
+};
 
 export const add = (row) => {
   return request({
     url: '/api/blade-desk/notice/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const update = (row) => {
   return request({
     url: '/api/blade-desk/notice/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const getNotice = (id) => {
   return request({
@@ -45,6 +45,6 @@ export const getNotice = (id) => {
     params: {
       id
     }
-  })
-}
+  });
+};
 

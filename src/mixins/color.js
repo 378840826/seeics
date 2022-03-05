@@ -1,35 +1,37 @@
-import { mapGetters } from "vuex";
-const version = require("element-ui/package.json").version; // element-ui version from node_modules
-const ORIGINAL_THEME = "#409EFF"; // default color
+import { mapGetters } from 'vuex';
+const version = require('element-ui/package.json').version; // element-ui version from node_modules
+const ORIGINAL_THEME = '#409EFF'; // default color
 export default function () {
   return {
     data() {
       return {
         themeVal: ORIGINAL_THEME
-      }
+      };
     },
     created() {
       this.themeVal = this.colorName;
     },
     watch: {
       themeVal(val, oldVal) {
-        this.$store.commit("SET_COLOR_NAME", val);
+        this.$store.commit('SET_COLOR_NAME', val);
         this.updateTheme(val, oldVal);
       }
     },
     computed: {
-      ...mapGetters(["colorName"])
+      ...mapGetters(['colorName'])
     },
     methods: {
       updateTheme(val, oldVal) {
-        if (typeof val !== "string") return;
-        const head = document.getElementsByTagName("head")[0];
-        const themeCluster = this.getThemeCluster(val.replace("#", ""));
-        const originalCluster = this.getThemeCluster(oldVal.replace("#", ""));
+        if (typeof val !== 'string') {
+          return; 
+        }
+        const head = document.getElementsByTagName('head')[0];
+        const themeCluster = this.getThemeCluster(val.replace('#', ''));
+        const originalCluster = this.getThemeCluster(oldVal.replace('#', ''));
         const getHandler = (variable, id) => {
           return () => {
             const originalCluster = this.getThemeCluster(
-              ORIGINAL_THEME.replace("#", "")
+              ORIGINAL_THEME.replace('#', '')
             );
             const newStyle = this.updateStyle(
               this[variable],
@@ -39,32 +41,32 @@ export default function () {
 
             let styleTag = document.getElementById(id);
             if (!styleTag) {
-              styleTag = document.createElement("style");
-              styleTag.setAttribute("id", id);
+              styleTag = document.createElement('style');
+              styleTag.setAttribute('id', id);
               head.appendChild(styleTag);
             }
             styleTag.innerText = newStyle;
           };
         };
 
-        const chalkHandler = getHandler("chalk", "chalk-style");
+        const chalkHandler = getHandler('chalk', 'chalk-style');
 
         if (!this.chalk) {
           const url = `/cdn/element-ui/${version}/theme-chalk/index.css`;
-          this.getCSSString(url, chalkHandler, "chalk");
+          this.getCSSString(url, chalkHandler, 'chalk');
         } else {
           chalkHandler();
         }
 
         const link = [].slice.call(
-          document.getElementsByTagName("head")[0].getElementsByTagName("link")
+          document.getElementsByTagName('head')[0].getElementsByTagName('link')
         );
         for (let i = 0; i < link.length; i++) {
           const style = link[i];
           if (style.href.includes('css')) {
             this.getCSSString(style.href, innerText => {
               const originalCluster = this.getThemeCluster(
-                ORIGINAL_THEME.replace("#", "")
+                ORIGINAL_THEME.replace('#', '')
               );
               const newStyle = this.updateStyle(
                 innerText,
@@ -73,7 +75,7 @@ export default function () {
               );
               let styleTag = document.getElementById(i);
               if (!styleTag) {
-                styleTag = document.createElement("style");
+                styleTag = document.createElement('style');
                 styleTag.id = i;
                 styleTag.innerText = newStyle;
                 head.appendChild(styleTag);
@@ -82,13 +84,15 @@ export default function () {
           }
         }
 
-        const styles = [].slice.call(document.querySelectorAll("style"))
+        const styles = [].slice.call(document.querySelectorAll('style'));
 
         styles.forEach(style => {
           const {
             innerText
           } = style;
-          if (typeof innerText !== "string") return;
+          if (typeof innerText !== 'string') {
+            return; 
+          }
           style.innerText = this.updateStyle(
             innerText,
             originalCluster,
@@ -99,7 +103,7 @@ export default function () {
       updateStyle(style, oldCluster, newCluster) {
         let newStyle = style;
         oldCluster.forEach((color, index) => {
-          newStyle = newStyle.replace(new RegExp(color, "ig"), newCluster[index]);
+          newStyle = newStyle.replace(new RegExp(color, 'ig'), newCluster[index]);
         });
         return newStyle;
       },
@@ -109,12 +113,12 @@ export default function () {
         xhr.onreadystatechange = () => {
           if (xhr.readyState === 4 && xhr.status === 200) {
             if (variable) {
-              this[variable] = xhr.responseText.replace(/@font-face{[^}]+}/, "");
+              this[variable] = xhr.responseText.replace(/@font-face{[^}]+}/, '');
             }
             callback(xhr.responseText);
           }
         };
-        xhr.open("GET", url);
+        xhr.open('GET', url);
         xhr.send();
       },
 
@@ -126,18 +130,18 @@ export default function () {
 
           if (tint === 0) {
             // when primary color is in its rgb space
-            return [red, green, blue].join(",");
-          } else {
-            red += Math.round(tint * (255 - red));
-            green += Math.round(tint * (255 - green));
-            blue += Math.round(tint * (255 - blue));
+            return [red, green, blue].join(',');
+          } 
+          red += Math.round(tint * (255 - red));
+          green += Math.round(tint * (255 - green));
+          blue += Math.round(tint * (255 - blue));
 
-            red = red.toString(16);
-            green = green.toString(16);
-            blue = blue.toString(16);
+          red = red.toString(16);
+          green = green.toString(16);
+          blue = blue.toString(16);
 
-            return `#${red}${green}${blue}`;
-          }
+          return `#${red}${green}${blue}`;
+          
         };
 
         const shadeColor = (color, shade) => {
@@ -164,5 +168,5 @@ export default function () {
         return clusters;
       }
     }
-  }
+  };
 }

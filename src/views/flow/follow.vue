@@ -43,156 +43,156 @@
 </template>
 
 <script>
-  import {mapGetters} from "vuex";
-  import {followList, deleteProcessInstance} from "@/api/flow/flow";
+import { mapGetters } from 'vuex';
+import { followList, deleteProcessInstance } from '@/api/flow/flow';
 
-  export default {
-    data() {
+export default {
+  data() {
+    return {
+      form: {},
+      selectionId: '',
+      processInstanceId: '',
+      selectionList: [],
+      query: {},
+      loading: true,
+      page: {
+        pageSize: 10,
+        currentPage: 1,
+        total: 0
+      },
+      followBox: false,
+      deleteReason: '',
+      option: {
+        height: 'auto',
+        calcHeight: 30,
+        tip: false,
+        searchShow: true,
+        searchMenuSpan: 6,
+        border: true,
+        index: true,
+        selection: true,
+        editBtn: false,
+        addBtn: false,
+        viewBtn: false,
+        dialogWidth: 900,
+        menuWidth: 100,
+        dialogClickModal: false,
+        column: [
+          {
+            label: '执行id',
+            prop: 'executionId',
+            search: true,
+            width: 320,
+          },
+          {
+            label: '流程key',
+            prop: 'processDefinitionKey',
+            search: true,
+          },
+          {
+            label: '实例id',
+            prop: 'processInstanceId',
+            search: true,
+            width: 320,
+          },
+          {
+            label: '状态',
+            prop: 'suspensionState',
+            slot: true,
+            width: 80,
+          },
+          {
+            label: '发起人',
+            prop: 'startUser',
+            width: 100,
+          },
+          {
+            label: '开始时间',
+            prop: 'startTime',
+            width: 165,
+          },
+        ]
+      },
+      data: []
+    };
+  },
+  computed: {
+    ...mapGetters(['permission']),
+    permissionList() {
       return {
-        form: {},
-        selectionId: '',
-        processInstanceId: '',
-        selectionList: [],
-        query: {},
-        loading: true,
-        page: {
-          pageSize: 10,
-          currentPage: 1,
-          total: 0
-        },
-        followBox: false,
-        deleteReason: '',
-        option: {
-          height: 'auto',
-          calcHeight: 30,
-          tip: false,
-          searchShow: true,
-          searchMenuSpan: 6,
-          border: true,
-          index: true,
-          selection: true,
-          editBtn: false,
-          addBtn: false,
-          viewBtn: false,
-          dialogWidth: 900,
-          menuWidth: 100,
-          dialogClickModal: false,
-          column: [
-            {
-              label: "执行id",
-              prop: "executionId",
-              search: true,
-              width: 320,
-            },
-            {
-              label: "流程key",
-              prop: "processDefinitionKey",
-              search: true,
-            },
-            {
-              label: "实例id",
-              prop: "processInstanceId",
-              search: true,
-              width: 320,
-            },
-            {
-              label: "状态",
-              prop: "suspensionState",
-              slot: true,
-              width: 80,
-            },
-            {
-              label: "发起人",
-              prop: "startUser",
-              width: 100,
-            },
-            {
-              label: '开始时间',
-              prop: 'startTime',
-              width: 165,
-            },
-          ]
-        },
-        data: []
+        delBtn: this.vaildData(this.permission.flow_follow_delete, false),
       };
     },
-    computed: {
-      ...mapGetters(["permission"]),
-      permissionList() {
-        return {
-          delBtn: this.vaildData(this.permission.flow_follow_delete, false),
-        };
-      },
-      ids() {
-        let ids = [];
-        this.selectionList.forEach(ele => {
-          ids.push(ele.id);
-        });
-        return ids.join(",");
-      }
-    },
-    methods: {
-      rowDel(row) {
-        this.followBox = true;
-        this.selectionId = row.id;
-        this.processInstanceId = row.processInstanceId;
-      },
-      handleDelete() {
-        this.$confirm("确定将选择数据删除?", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
-          .then(() => {
-            return deleteProcessInstance({deleteReason: this.deleteReason, processInstanceId: this.processInstanceId});
-          })
-          .then(() => {
-            this.onLoad(this.page);
-            this.followBox = false;
-            this.$message({
-              type: "success",
-              message: "操作成功!"
-            });
-          });
-      },
-      searchReset() {
-        this.query = {};
-        this.onLoad(this.page);
-      },
-      searchChange(params, done) {
-        this.query = params;
-        this.page.currentPage = 1;
-        this.onLoad(this.page, params);
-        done();
-      },
-      selectionChange(list) {
-        this.selectionList = list;
-      },
-      selectionClear() {
-        this.selectionList = [];
-        this.$refs.crud.toggleSelection();
-      },
-      currentChange(currentPage) {
-        this.page.currentPage = currentPage;
-      },
-      sizeChange(pageSize) {
-        this.page.pageSize = pageSize;
-      },
-      refreshChange() {
-        this.onLoad(this.page, this.query);
-      },
-      onLoad(page, params = {}) {
-        this.loading = true;
-        followList(page.currentPage, page.pageSize, Object.assign(params, this.query)).then(res => {
-          const data = res.data.data;
-          this.page.total = data.total;
-          this.data = data.records;
-          this.loading = false;
-          this.selectionClear();
-        });
-      }
+    ids() {
+      const ids = [];
+      this.selectionList.forEach(ele => {
+        ids.push(ele.id);
+      });
+      return ids.join(',');
     }
-  };
+  },
+  methods: {
+    rowDel(row) {
+      this.followBox = true;
+      this.selectionId = row.id;
+      this.processInstanceId = row.processInstanceId;
+    },
+    handleDelete() {
+      this.$confirm('确定将选择数据删除?', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          return deleteProcessInstance({ deleteReason: this.deleteReason, processInstanceId: this.processInstanceId });
+        })
+        .then(() => {
+          this.onLoad(this.page);
+          this.followBox = false;
+          this.$message({
+            type: 'success',
+            message: '操作成功!'
+          });
+        });
+    },
+    searchReset() {
+      this.query = {};
+      this.onLoad(this.page);
+    },
+    searchChange(params, done) {
+      this.query = params;
+      this.page.currentPage = 1;
+      this.onLoad(this.page, params);
+      done();
+    },
+    selectionChange(list) {
+      this.selectionList = list;
+    },
+    selectionClear() {
+      this.selectionList = [];
+      this.$refs.crud.toggleSelection();
+    },
+    currentChange(currentPage) {
+      this.page.currentPage = currentPage;
+    },
+    sizeChange(pageSize) {
+      this.page.pageSize = pageSize;
+    },
+    refreshChange() {
+      this.onLoad(this.page, this.query);
+    },
+    onLoad(page, params = {}) {
+      this.loading = true;
+      followList(page.currentPage, page.pageSize, Object.assign(params, this.query)).then(res => {
+        const data = res.data.data;
+        this.page.total = data.total;
+        this.data = data.records;
+        this.loading = false;
+        this.selectionClear();
+      });
+    }
+  }
+};
 </script>
 
 <style>

@@ -9,8 +9,8 @@ export const getList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 export const getLazyList = (parentId, params) => {
   return request({
@@ -20,8 +20,8 @@ export const getLazyList = (parentId, params) => {
       ...params,
       parentId
     }
-  })
-}
+  });
+};
 
 export const getLazyMenuList = (parentId, params) => {
   return request({
@@ -31,8 +31,8 @@ export const getLazyMenuList = (parentId, params) => {
       ...params,
       parentId
     }
-  })
-}
+  });
+};
 
 export const getMenuList = (current, size, params) => {
   return request({
@@ -43,8 +43,8 @@ export const getMenuList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 export const getMenuTree = (tenantId) => {
   return request({
@@ -53,8 +53,8 @@ export const getMenuTree = (tenantId) => {
     params: {
       tenantId,
     }
-  })
-}
+  });
+};
 
 export const remove = (ids) => {
   return request({
@@ -63,24 +63,24 @@ export const remove = (ids) => {
     params: {
       ids,
     }
-  })
-}
+  });
+};
 
 export const add = (row) => {
   return request({
     url: '/api/blade-system/menu/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const update = (row) => {
   return request({
     url: '/api/blade-system/menu/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const getMenu = (id) => {
   return request({
@@ -89,8 +89,8 @@ export const getMenu = (id) => {
     params: {
       id,
     }
-  })
-}
+  });
+};
 
 export const getTopMenu = () => request({
   url: '/api/blade-system/menu/top-menu',

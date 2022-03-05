@@ -9,14 +9,14 @@ export const getList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 export const grantTree = () => {
   return request({
     url: '/api/blade-system/menu/grant-tree',
     method: 'get',
-  })
-}
+  });
+};
 
 export const grant = (roleIds, menuIds, dataScopeIds, apiScopeIds) => {
   return request({
@@ -28,8 +28,8 @@ export const grant = (roleIds, menuIds, dataScopeIds, apiScopeIds) => {
       dataScopeIds,
       apiScopeIds
     }
-  })
-}
+  });
+};
 
 export const remove = (ids) => {
   return request({
@@ -38,24 +38,24 @@ export const remove = (ids) => {
     params: {
       ids,
     }
-  })
-}
+  });
+};
 
 export const add = (row) => {
   return request({
     url: '/api/blade-system/role/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const update = (row) => {
   return request({
     url: '/api/blade-system/role/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 
 export const getRole = (roleIds) => {
@@ -65,8 +65,8 @@ export const getRole = (roleIds) => {
     params: {
       roleIds,
     }
-  })
-}
+  });
+};
 
 export const getRoleTree = (tenantId) => {
   return request({
@@ -75,8 +75,8 @@ export const getRoleTree = (tenantId) => {
     params: {
       tenantId,
     }
-  })
-}
+  });
+};
 
 export const getRoleTreeById = (roleId) => {
   return request({
@@ -85,5 +85,5 @@ export const getRoleTreeById = (roleId) => {
     params: {
       roleId,
     }
-  })
-}
+  });
+};

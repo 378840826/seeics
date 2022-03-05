@@ -29,15 +29,15 @@ export default {
         editBtn: false,
         column: [
           {
-            label: "姓名",
-            prop: "name"
+            label: '姓名',
+            prop: 'name'
           }
         ]
       },
       data: [
         {
           id: 1,
-          name: "small"
+          name: 'small'
         }
       ]
     };
@@ -45,7 +45,7 @@ export default {
   methods: {
     handleForm(id) {
       this.$router.push({
-        path: "/form-detail/index",
+        path: '/form-detail/index',
         query: {
           id: id
         }

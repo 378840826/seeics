@@ -9,8 +9,8 @@ export const modelList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 export const managerList = (current, size, params) => {
   return request({
@@ -21,8 +21,8 @@ export const managerList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 export const followList = (current, size, params) => {
   return request({
@@ -33,8 +33,8 @@ export const followList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 
 export const removeModel = (ids) => {
@@ -44,24 +44,24 @@ export const removeModel = (ids) => {
     params: {
       ids,
     }
-  })
-}
+  });
+};
 
 export const deployModel = (params) => {
   return request({
     url: '/api/blade-flow/model/deploy',
     method: 'post',
     params
-  })
-}
+  });
+};
 
 export const changeState = (params) => {
   return request({
     url: '/api/blade-flow/manager/change-state',
     method: 'post',
     params
-  })
-}
+  });
+};
 
 export const deployUpload = (category, tenantIds, files) => {
   const formData = new FormData();
@@ -72,13 +72,13 @@ export const deployUpload = (category, tenantIds, files) => {
   });
   return request({
     headers: {
-      "Content-Type": "multipart/form-data"
+      'Content-Type': 'multipart/form-data'
     },
     url: '/api/blade-flow/manager/deploy-upload',
     method: 'post',
     data: formData
-  })
-}
+  });
+};
 
 export const deleteDeployment = (deploymentIds) => {
   return request({
@@ -87,13 +87,13 @@ export const deleteDeployment = (deploymentIds) => {
     params: {
       deploymentIds,
     }
-  })
-}
+  });
+};
 
 export const deleteProcessInstance = (params) => {
   return request({
     url: '/api/blade-flow/follow/delete-process-instance',
     method: 'post',
     params
-  })
-}
+  });
+};
