@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import { getList, getDetail, remove, defaultTemplate } from '@/api/resource/attach';
+import { getList, getDetail, remove, defaultTemplate, download } from '@/api/resource/attach';
 import { mapGetters } from 'vuex';
 
 export default {
@@ -197,14 +197,51 @@ export default {
       this.attachBox = true;
     },
     uploadAfter(res, done, loading, column) {
-      window.console.log(column);
+      if (res.message) {
+        this.$alert(`附件管理有${res.message}同名文件，请先删除再进行上传`, {
+          showCancelButton: true,
+          confirmButtonText: '确定',
+          beforeClose: (action, instance, done) => {
+            if (action === 'confirm') {
+              // this.query.originalName = res.message;
+              this.onLoad(this.page, { originalName: res.message });
+              done();
+            } else {
+              done();
+            }
+          }
+        }).catch( res => {
+          console.log(res);
+        });
+      } 
       this.attachBox = false;
       this.refreshChange();
       done();
     },
     handleDownload(row) {
-      const http = row.link.replace('http', 'https');
-      window.location.href = http;
+      download({
+        originalName: row.originalName,
+        link: row.link,
+      }).then( res => {
+        if (res.status === 200) {
+          const content = res.data;
+          const blob = new Blob([content], { type: 'application/vnd.ms-excel' });
+          const fileName = this.$t(`${row.originalName}`);
+          if ('download' in document.createElement('a')) { //非IE下载
+            const elink = document.createElement('a');
+            elink.download = fileName;
+            elink.style.display = 'none';
+            elink.href = URL.createObjectURL(blob);
+            elink.setAttribute('download', this.$t(`${row.originalName}`));
+            document.body.appendChild(elink);
+            elink.click();
+            URL.revokeObjectURL(elink.href);
+            document.body.removeChild(elink);
+          } else { //IE10+下载
+            navigator.msSaveBlob(blob, fileName);
+          }
+        }
+      });
     },
     rowDel(row) {
       this.$confirm('确定将选择数据删除?', {
