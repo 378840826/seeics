@@ -1,8 +1,11 @@
 <template>
-  <el-container class="container">
-    <el-aside class="aside">
-      <div class="selectBox">
-        <el-select class="select" v-model="value" @change="change" size="mini">
+  <el-row>
+    <el-col :span="5">
+      <div class="box">
+        <el-scrollbar>
+          <basic-container>
+            <!-- <div class="selectBox"> -->
+        <el-select class="select" v-model="value" @change="change" size="small">
             <el-option
             v-for="item in options"
             :key="item.value"
@@ -11,22 +14,13 @@
             >
             </el-option>
         </el-select>
+      <!-- </div> -->
+            <avue-tree :option="treeOption" :data="treeData" @node-click="nodeClick"/>
+          </basic-container>
+        </el-scrollbar>
       </div>
-      <div class="tree">
-        <p>分类</p>
-        <el-tree
-          :data="data"
-          :props="defaultProps"
-          :filter-node-method="filterNode"
-          ref="tree"
-          lazy="true"
-          :load="treeLoad"
-          @node-click="handleNodeClick"
-        >
-        </el-tree>
-      </div>
-      
-    </el-aside>
+    </el-col>
+    <el-col :span="19">
     <el-container>
        <el-header class="header" style="height: 124px;">
           <el-row class="button">
@@ -134,10 +128,12 @@
     </div>
       </el-main>
   </el-container>
-</el-container>
+  </el-col>
+</el-row>
 </template>
 
 <script>
+import {getDeptTree, getDeptLazyTree} from "@/api/system/dept";
 export default {
   data() {
     return {
@@ -171,6 +167,31 @@ export default {
           label: '德国'
         }
       ],
+      treeData: [],
+      treeOption: {
+          nodeKey: 'id',
+          lazy: true,
+          treeLoad: function (node, resolve) {
+            const parentId = (node.level === 0) ? 0 : node.data.id;
+            getDeptLazyTree(parentId).then(res => {
+              resolve(res.data.data.map(item => {
+                return {
+                  ...item,
+                  leaf: !item.hasChildren
+                }
+              }))
+            });
+          },
+          addBtn: false,
+          menu: false,
+          size: 'small',
+          props: {
+            labelText: '标题',
+            label: 'title',
+            value: 'value',
+            children: 'children'
+          }
+        },
       value: 1, //下拉框默认选择
       data: [{
         id: 1,
@@ -319,6 +340,10 @@ export default {
     .avue-crud__menu {
       min-height: 0px;
     }
+
+    .avue-tree__filter {
+      display: none;
+    }
   }
   .aside {
     width: 416px !important;
@@ -342,10 +367,7 @@ export default {
       align-items: center;
   }
   .select {
-    width: 366px;
-    height: 20px;
-    text-align: center;
-    margin: 0 15px;
+    width: 100%;
   }
   .tree {
     margin-left: 10px;
@@ -377,4 +399,16 @@ export default {
     padding: 0px;
   }
 }
+.box {
+    height: 800px;
+  }
+
+  .el-scrollbar {
+    height: 100%;
+  }
+
+  .box .el-scrollbar__wrap {
+    overflow: scroll;
+  }
+  
 </style>

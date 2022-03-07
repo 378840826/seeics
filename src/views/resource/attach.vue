@@ -133,7 +133,7 @@ export default {
           },
           {
             label: '附件拓展名',
-            prop: 'extension',
+            prop: 'xtension',
             rules: [{
               required: true,
               message: '请输入附件拓展名',
