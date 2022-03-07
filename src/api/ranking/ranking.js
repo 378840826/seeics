@@ -78,3 +78,11 @@ export const imports = (data) => {
       data: data
     })
 }
+
+//分析次数
+export const analyzeItme = () => {
+   return request({
+     url: '/api/seeics-analysis/keyword-ranking/times',
+     method: 'get',
+   })
+}

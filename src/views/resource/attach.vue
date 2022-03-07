@@ -197,7 +197,21 @@
         this.attachBox = true;
       },
       uploadAfter(res, done, loading, column) {
-        window.console.log(column);
+        if (res.message) {
+          this.$alert(`附件管理有${res.message}同名文件，请先删除再进行上传`, {
+          showCancelButton: true,
+          confirmButtonText: '确定',
+          beforeClose: (action, instance, done) => {
+            if (action === 'confirm') {
+              // this.query.originalName = res.message;
+              this.onLoad(this.page, {originalName: res.message});
+              done()
+            } else {
+              done()
+            }
+          }
+        }).catch(() => {});
+        } 
         this.attachBox = false;
         this.refreshChange();
         done();
@@ -261,6 +275,7 @@
         this.query = params;
         this.page.currentPage = 1;
         this.onLoad(this.page, params);
+        console.log(this.$refs.crud)
         done();
       },
       selectionChange(list) {

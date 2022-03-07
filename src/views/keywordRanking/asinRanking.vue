@@ -55,7 +55,7 @@
                 </el-upload> -->
                 <label style="width: 0px; height: 30px">
                   <span class="selectFile">+选择文件</span>
-                  <input type="file" accept="xlsx" @change="importChange" id="file" style="visibility: hidden; width: 1px">
+                  <input type="file" accept="xlsx" @change="importChange" id="file" v-if="isrefresh" style="visibility: hidden; width: 1px">
                 </label>
                 <a @click="download">下载模板</a>
                 <div slot="tip" class="el-upload__tip">{{fileName ? fileName : '未选择文件'}}</div>
@@ -70,10 +70,12 @@
           </el-popover> 
         </el-form-item>  
         <el-form-item>
-          <el-button type="primary" size="mini" @click="analysiskeywords()" style="margin-left: 30px;">分析</el-button>
+          <el-button type="primary" size="mini" @click="analysiskeywords()" style="margin-left: 30px;" :disabled="formInline.attachId ? false : true">分析</el-button>
         </el-form-item>
       </el-form>
-      <div class="warningtext">今日还剩{{0}}次免费搜索机会</div>
+      <div class="warningtext">
+        <!-- {{analyzeNum.usr ? '' : '今日还剩' + analyzeNum.freeTimes + '次免费分析机会，支持爬取关键词还剩' + analyzeNum.number + '个；'}} -->
+      </div>
       <div class="avuecrudclass">
       <avue-crud 
         :data="data" 
@@ -85,20 +87,6 @@
         @sort-change="sortChange"
         @on-load="getkeywordLists"
         >
-        <!-- <template slot="name" slot-scope="scope" >
-          <div>{{scope}}</div>
-        </template>
-        <template slot="searchKeyword" slot-scope="scope">
-        
-          <div>
-            {{scope.row.searchKeyword}}
-          </div>
-          <div v-if="scope.row.crawlingSearchResultCount && scope.row.crawlingSearchResultPageSize && scope.row.status === 'COMPLETED'">
-            <span style="color: 'black'">
-              关键词搜索结果超过{{scope.row.crawlingSearchResultCount}}个，免费显示搜索结果前2页（每页可能{{scope.row.crawlingSearchResultPageSize}}个，以实际导出为准）
-            </span>            
-          </div>
-        </template> -->
         <template  slot="menu" slot-scope="scope">
           <div v-if="scope.row.status === 'COMPLETED' && scope.row.crawlingProgress === '1.00'" class="derivedresultbtn">
             <div class="export">
@@ -136,7 +124,7 @@
                 </el-upload> -->
                 <label style="width: 0px; height: 30px">
                   <span class="selectFile">+选择文件</span>
-                  <input type="file" :ref="'file'+scope.row.id" accept="xlsx" @change="updateChange(scope.row.id)" :id="'file'+scope.row.id" style="visibility: hidden; width: 1px">
+                  <input type="file" :ref="'file'+scope.row.id" accept="xlsx" v-if="updateIsrefresh" @change="updateChange(scope.row.id)" :id="'file'+scope.row.id" style="visibility: hidden; width: 1px">
                 </label>
                 <a @click="download">下载模板</a>
                 <div slot="tip" class="el-upload__tip">{{scope.row.originalName || updateFileName || scope.row.searchKeyword +'关键词.xlsx'}}</div>
@@ -189,7 +177,7 @@
 
 <script>
 var toke = JSON.parse(localStorage.getItem('saber-token'))
-import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, importKeyword, updateKeyword, imports } from "@/api/ranking/ranking";
+import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports } from "@/api/ranking/ranking";
 export default {
    name: 'asinRanking',
    data() {
@@ -201,12 +189,18 @@ export default {
        visible: false,
        formData: '',
        popover: this.$refs.popover,
-       fileList: [],
+       analyzeNum: {
+         freeTimes: 0,
+         number: 0,
+         usr: ''
+       },
        file: {
          name: '',
          attachId: ''
        },
        updateFile: {},
+       isrefresh: true, //强制跟新
+       updateIsrefresh: true,
        closeFile: {},
        updateFileName: '',
        fileName: '',
@@ -221,12 +215,7 @@ export default {
             {pattern:/^[a-zA-Z0-9]{10}$/,message: 'ASIN不支持中文，支持10位纯数字或字母组合；', trigger: "change"}
           ],
         },
-        selectData: [
-          {
-            name: "全部模板",
-            id: ''
-          }
-        ],
+        selectData: [],
         user:{},
         data: [],
         dialogVisible: false,//两周内是否搜索过弹框
@@ -291,24 +280,6 @@ export default {
           ]
         },
         attachForm: {},
-        attachOption: {
-          submitBtn: false,
-          emptyBtn: false,
-          column: [
-            {
-              label: '选择文件',
-              prop: 'attachFile',
-              type: 'upload',
-              loadText: '模板上传中，请稍等',
-              span: 24,
-              propsHttp: {
-                res: 'data'
-              },
-              action: "/api/blade-resource/oss/endpoint/put-file-attach",
-              upload: false
-            }
-          ]
-        }
      }
    },
    created() {
@@ -316,9 +287,9 @@ export default {
    },
    mounted() {
     this.getSelect()
-    setTimeout(() => {
+    // setTimeout(() => {
       this.getkeywordLists(this.formInline)
-    },500)
+    // },500)
      
      
    },
@@ -326,40 +297,58 @@ export default {
     importChange() {
       let files = document.getElementById('file').files[0];
       if (!files) return;
-      this.fileName = files.name
+      // let arr = [];
+      // this.selectData.map(item => {
+      //   if (item.name.indexOf(files.name.slice(0,-5)) != -1) {
+      //     arr.push(item)
+      //   }
+      // })
+      let flag = this.selectData.some(item => item.name == files.name)
+      console.log(flag)
+      this.fileName = files.name;
       let formData = new FormData()
       formData.append("file",files)
       this.formData = formData
-      console.log(files)
+      this.isrefresh = this.isrefresh ? false : true;
+      this.$nextTick(() => {
+        this.isrefresh = this.isrefresh ? false : true;
+      })
     },
     updateChange(id) {
       let files = document.getElementById(`file${id}`).files[0];
       if (!files) return;
-      this.updateFileName = files.name;
+      let arr = [];
+      this.selectData.map(item => {
+        if (item.name.indexOf(files.name.slice(0,-5)) != -1) {
+          arr.push(item)
+        }
+      })
+      this.updateFileName = arr.length > 0 ? `${arr[0].name.slice(0,-5)}-副本(${arr.length + 1}).xlsx` : files.name;
       let formData = new FormData();
-      formData.append('file', files)
+      arr.length > 0 ? formData.append("file",files, `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx`) : formData.append("file",files)
       this.data.map(item => {
         if (item.id === id) {
           item.formData = formData;
-          item.originalName = files.name;
+          item.originalName = arr.length > 0 ? `${arr[0].name.slice(0,-5)}-副本(${arr.length + 1}).xlsx` : files.name;
         }
+      });
+      this.updateIsrefresh = this.updateIsrefresh ? false : true;
+      this.$nextTick(() => {
+        this.updateIsrefresh = this.updateIsrefresh ? false : true;
       })
-      console.log(this.$refs['file'+id].files)
     },
     btn(id) {
       console.log(this.$refs['btn_'+id].style.display = 'none')
       this.$refs['btn_'+id].$el.style.display = 'none'
     },
-    handleRemove() {
-      this.fileList= []
-    },
-    change(file, fileList) {
-      this.fileList = fileList
-    },
     submit() {
       imports(this.formData).then(res => {
-        if (res.data.data === 200) {
-          this.getSelect();
+        if (res.data.code === 200) {
+          this.$message({
+              type: "success",
+              message: "导入关键词成功!"
+          });
+          this.getSelect(1);
           setTimeout(() => {
             this.getkeywordLists(this.formInline);
           }, 500);
@@ -409,6 +398,9 @@ export default {
     },
     //获取表格数据
     getkeywordLists(formInline){
+      // analyzeItme().then(res => {
+      //   this.analyzeNum = res.data.data;
+      // });
       getkeywordList(this.page.currentPage, this.page.pageSize, formInline).then(res => {
           if(res.data.code === 200){
           //分页数据
@@ -570,11 +562,16 @@ export default {
       })  
     },
     //获取选择文件
-    getSelect() {
+    getSelect(flag) {
       selectFile().then(res => {
+        let defalutData = {
+            name: "请先选择模板",
+            id: ''
+          }
         if (res.data.code === 200) {
-          this.selectData = [...this.selectData,...res.data.data]
-          this.formInline.attachId = this.file.attachId || '';
+          res.data.data.unshift(defalutData)
+          this.selectData = res.data.data
+          this.formInline.attachId = flag ? res.data.data.slice(-1)[0].id : '';
         }
       })
     },
@@ -603,7 +600,7 @@ export default {
           this.getkeywordLists(this.formInline);
           this.$message({
               type: "success",
-              message: "更新成功!"
+              message: "更新关键词成功!"
             });
           this.updateFileName = '';
           this.updateFile = {};
@@ -747,6 +744,7 @@ export default {
   }
 }
 .warningtext {
+  height: 24px;
   font-size: 12px;
   font-family: MicrosoftYaHei;
   color: #FF3332;
