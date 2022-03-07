@@ -59,3 +59,14 @@ export const defaultTemplate = (id) => {
   })
 }
 
+//附件下载
+export const download = (data) => {
+  return request({
+    url: '/api/blade-resource/attach/download',
+    method:'get',
+    responseType: 'blob',
+    params: {
+      ...data
+    }
+  })
+}

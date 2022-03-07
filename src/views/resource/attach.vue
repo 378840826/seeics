@@ -64,8 +64,8 @@
 </template>
 
 <script>
-  import {getList, getDetail, remove, defaultTemplate} from "@/api/resource/attach";
-  import {mapGetters} from "vuex";
+  import { getList, getDetail, remove, defaultTemplate, download } from "@/api/resource/attach";
+  import { mapGetters } from "vuex";
 
   export default {
     data() {
@@ -217,8 +217,30 @@
         done();
       },
       handleDownload(row) {
-        const http = row.link.replace("http","https")
-        window.location.href = http
+        download({
+          originalName: row.originalName,
+          link: row.link,
+        }).then( res => {
+          console.log(res)
+          if (res.status === 200) {
+            const content = res.data;
+            const blob = new Blob([content], { type: 'application/vnd.ms-excel' });
+            const fileName = this.$t(`${row.originalName}`);
+            if ('download' in document.createElement('a')) { //非IE下载
+              const elink = document.createElement('a');
+              elink.download = fileName;
+              elink.style.display = 'none';
+              elink.href = URL.createObjectURL(blob);
+              elink.setAttribute('download', this.$t(`${row.originalName}`));
+              document.body.appendChild(elink);
+              elink.click();
+              URL.revokeObjectURL(elink.href);
+              document.body.removeChild(elink);
+            } else { //IE10+下载
+              navigator.msSaveBlob(blob, fileName);
+            }
+          }
+        });
       },
       rowDel(row) {
         this.$confirm("确定将选择数据删除?", {
