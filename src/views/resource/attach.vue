@@ -163,10 +163,11 @@
               prop: 'attachFile',
               type: 'upload',
               drag: true,
+              showFileList: false,
               loadText: '模板上传中，请稍等',
               span: 24,
               propsHttp: {
-                res: 'data'
+                // res: 'data'
               },
               action: "/api/blade-resource/oss/endpoint/put-file-attach"
             }
@@ -192,26 +193,35 @@
         return ids.join(",");
       }
     },
+    mounted() {
+      this.onLoad(this.page, {originalName: this.$route.params.fileName});
+    },
     methods: {
       handleUpload() {
         this.attachBox = true;
       },
       uploadAfter(res, done, loading, column) {
-        if (res.message) {
-          this.$alert(`附件管理有${res.message}同名文件，请先删除再进行上传`, {
+        console.log(res)
+        if (!res.success) {
+          this.$alert(`附件管理有${res.data}同名文件，请先删除再进行上传`, {
           showCancelButton: true,
           confirmButtonText: '确定',
           beforeClose: (action, instance, done) => {
             if (action === 'confirm') {
               // this.query.originalName = res.message;
-              this.onLoad(this.page, {originalName: res.message});
+              this.onLoad(this.page, {originalName: res.data});
               done()
             } else {
               done()
             }
           }
         }).catch(() => {});
-        } 
+        } else {
+          this.$message({
+            type: 'success',
+            message: '上传成功！'
+          })
+        }
         this.attachBox = false;
         this.refreshChange();
         done();

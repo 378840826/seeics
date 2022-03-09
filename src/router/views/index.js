@@ -143,17 +143,17 @@ export default [{
       import( /* webpackChunkName: "views" */ '@/views/work/process/leave/detail')
   },]
 }, {
-  path: '/listAnalysis',
+  path: '/listAnalyze',
   component: Layout,
-  redirect: '/listAnalysis/index',
+  redirect: '/listAnalyze/index',
   children: [{
     path: 'index',
     name: '榜单分析',
     meta: {
-      i18n: 'listAnalysis'
+      i18n: 'listAnalyze'
     },
     component: () =>
-      import(/* webpackChunkName: "views" */ '@/views/listAnalysis/listAnalysis')
+      import(/* webpackChunkName: "views" */ '@/views/listAnalyze/listAnalyze')
   }]
 }, {
   path: '/keywordRanking',
