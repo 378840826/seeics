@@ -110,7 +110,7 @@
             @click="analysiskeywords(scope.row.id, scope.row.crawlingCompleteTime)">重新分析</span> -->
             <el-popover
               placement="bottom"
-              title="导入关键词"
+              title="更新关键词"
               width="300"
               :visible-arrow= "false"
               trigger="click"
@@ -216,12 +216,26 @@
     <el-button type="primary" @click="refeshList">确 定</el-button>
     </span>
   </el-dialog>
+  <el-dialog
+    :visible.sync="dialogImport"
+    width="30%"
+    center=true
+    append-to-body=true
+  >
+    <span>{{`附件管理有“${fileName}”同名文件，建议点击去删除先在附件管理删除再进行上传，或点击取消自行重命名文件再上传，或者点击自动重命名则文件名称为“${renameFile}”；`}}</span>
+    <span slot="footer" class="dialog-footer">
+    <el-button @click="cancel">取 消</el-button>
+    <el-button @click="reImport">自动重命名</el-button>
+    <el-button type="primary" @click="toDelete">去删除</el-button>
+    </span>
+  </el-dialog>
   </div>
 </template>
 
 <script>
 const toke = JSON.parse(localStorage.getItem('saber-token'));
-import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, imports } from '@/api/ranking/ranking';
+import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports } from '@/api/ranking/ranking';
+import { time } from 'echarts';
 export default {
   name: 'asinRanking',
   data() {
@@ -232,6 +246,7 @@ export default {
       },
       visible: false,
       formData: '',
+      reFormData: '',
       popover: this.$refs.popover,
       analyzeNum: {
         freeTimes: 0,
@@ -248,6 +263,7 @@ export default {
       closeFile: {},
       updateFileName: '',
       fileName: '',
+      renameFile: '',
       formInline: {
         searchCountry: 'US',
         asin: '',
@@ -263,6 +279,7 @@ export default {
       user: {},
       data: [],
       dialogVisible: false, //两周内是否搜索过弹框
+      dialogImport: false,
       desc: false, //排序值
       timer: null, //定时器名称
       restnum: 10, //今日剩余数据
@@ -330,7 +347,7 @@ export default {
     this.getSelect();
     // setTimeout(() => {
     this.getkeywordLists(this.formInline);
-    // },500) 
+  // },500) 
   },
   methods: {
     importChange() {
@@ -338,14 +355,19 @@ export default {
       if (!files) {
         return;
       }
-      // let arr = [];
-      // this.selectData.map(item => {
-      //   if (item.name.indexOf(files.name.slice(0,-5)) != -1) {
-      //     arr.push(item)
-      //   }
-      // })
-      const flag = this.selectData.some(item => item.name === files.name);
-      console.log(flag);
+      //自动重命名上传
+      const arr = [];
+      this.selectData.map(item => {
+        if (item.name.indexOf(files.name.slice(0, -5)) !== -1) {
+          arr.push(item);
+        }
+      });
+      this.renameFile = arr.length > 0 && `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx`;
+      const reFormData = new FormData();
+      reFormData.append('file', files, this.renameFile);
+      this.reFormData = reFormData;
+    
+      //正常上传
       this.fileName = files.name;
       const formData = new FormData();
       formData.append('file', files);
@@ -386,7 +408,28 @@ export default {
     },
     submit() {
       imports(this.formData).then(res => {
-        if (res.data.code === 200) {
+        if (res.data.success) {
+          this.$message({
+            type: 'success',
+            message: '导入关键词成功!'
+          });
+          this.getSelect(1);
+          setTimeout(() => {
+            this.getkeywordLists(this.formInline);
+          }, 500);
+        } else {
+          this.fileName = res.data.data;
+          this.dialogImport = true;
+        }
+      });
+      this.fileName = '';
+      this.$refs.popover.doClose();
+      // this.$refs['popover-'+id].doClose()
+    },
+    //自动重命名上传
+    reImport() {
+      imports(this.reFormData).then( res => {
+        if (res.data.success) {
           this.$message({
             type: 'success',
             message: '导入关键词成功!'
@@ -398,8 +441,23 @@ export default {
         }
       });
       this.fileName = '';
-      this.$refs.popover.doClose();
-      // this.$refs['popover-'+id].doClose()
+      this.renameFile = '';
+      this.dialogImport = false;
+    },
+    //去删除
+    toDelete() {
+      this.$router.push({
+        name: '附件管理',
+        params: {
+          fileName: this.fileName
+        }
+      });
+    },
+    //取消清空
+    cancel() {
+      this.fileName = '';
+      this.renameFile = '';
+      this.dialogImport = false;
     },
     close(id) {
       this.updateFileName = '';
