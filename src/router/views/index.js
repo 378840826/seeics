@@ -75,6 +75,20 @@ export default [{
   }]
 }, 
 {
+  path: '/contact',
+  component: Layout,
+  //redirect: '/contact/index',
+  children: [{
+    path: '/',
+    name: '联系客服',
+    meta: {
+      i18n: 'contact'
+    },
+    component: () => 
+      import(/* webpackChunkName: "views" */ '@/views/contactCustomer/index')
+  }]
+},
+{
   path: '/dict-horizontal',
   component: Layout,
   redirect: '/dict-horizontal/index',
