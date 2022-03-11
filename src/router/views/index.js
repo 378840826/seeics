@@ -161,7 +161,7 @@ export default [{
   redirect: '/keywordRanking/index',
   children: [{
     path: 'index',
-    name: 'ASIN关键词分析',
+    name: 'ASIN关键词排名',
     meta: {
       i18n: 'keywordRanking'
     },

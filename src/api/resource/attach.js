@@ -49,13 +49,13 @@ export const update = (row) => {
 }
 
 //设置默认模板
-export const defaultTemplate = (id) => {
+export const defaultTemplate = (data) => {
   return request({
-   url: '/api/blade-resource/attach/default',
+   url: '/api/blade-system/param/default',
    method: 'post',
    params: {
-     id,
-   }
+     ...data
+   },
   })
 }
 
