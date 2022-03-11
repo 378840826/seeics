@@ -39,12 +39,13 @@
                    v-if="permission.attach_download"
                    @click="handleDownload(scope.row)">下载
         </el-button>
-        <el-dropdown size="mini" placement="bottom">
+        <el-dropdown size="mini" placement="bottom" @command="defaultTemplate">
           <el-button type="text" class="el-dropdown-link" style="marginLeft: 10px">
             设置默认
           </el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="a" @click.native="defaultTemplate(scope.row.id)">可视化模块</el-dropdown-item>
+            <el-dropdown-item :command="visual('keyword', scope.row.link)" >可视化模块</el-dropdown-item>
+            <el-dropdown-item :command="visual('ranking', scope.row.link)" >ASIN排名</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </template>
@@ -301,6 +302,20 @@ export default {
       }
       done();
     },
+    visual(flag, link) {
+      return {
+        'type': flag,
+        'url': link
+      };
+    },
+    defaultTemplate(val) {
+      defaultTemplate(val).then(res => {
+        this.$message({
+          type: 'success',
+          message: res.data.msg,
+        });
+      });
+    },
     searchReset() {
       this.query = {};
       this.onLoad(this.page);
@@ -337,14 +352,6 @@ export default {
         this.selectionClear();
       });
     },
-    defaultTemplate(id) {
-      defaultTemplate(id).then(res => {
-        this.$message({
-          type: 'success',
-          message: res.data.msg,
-        });
-      });
-    }
   },
 };
 </script>

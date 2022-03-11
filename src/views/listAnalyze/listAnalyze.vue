@@ -2,9 +2,9 @@
   <el-form :model="formInline">
   <el-row>
     <el-col :span="5">
-      <div class="box">
+      <div >
         <el-scrollbar>
-          <basic-container>
+          <basic-container >
             <!-- <div class="selectBox"> -->
         <el-form-item v-model="formInline.searchCountry">
         <el-select class="select" v-model="formInline.searchCountry" @change="change" size="small">
@@ -19,7 +19,7 @@
         </el-select>
         </el-form-item>
       <!-- </div> -->
-            <avue-tree :option="treeOption" :data="treeData" @node-click="nodeClick" default-expand-all/>
+            <avue-tree class="box" :option="treeOption" :data="treeData" @node-click="nodeClick" default-expand-all/>
           </basic-container>
         </el-scrollbar>
       </div>
@@ -37,7 +37,7 @@
           </el-row>   
           <el-row style="marginTop: 20px">
             <el-form-item v-model="formInline.searchKeyword">
-              <el-col :span="10" class="searchBox">
+              <el-col :span="15" class="searchBox">
                 <el-autocomplete
                   :popper-append-to-body="false"
                   placeholder="输入分类名称，快速定位分类"
@@ -46,11 +46,14 @@
                   v-model="formInline.searchKeyword"
                   :fetch-suggestions="querySearchAsync"
                   @select="handleSelect"
-                  @change="onChange"
+                  @input="onChange"
                 >
                   <template slot-scope="{ item }">
-                    <div>{{ item.value }}</div>
-                    <span class="span" style=" color: #ccc">in {{item.fullName}}</span>
+                    <div class="box2">
+                      <div>{{ item.value }}</div>
+                      <span class="span" style=" color: #ccc">in {{item.fullName}}</span>
+                    </div>
+                    
                   </template>
                 </el-autocomplete>
                 <el-button size="mini" class="searchBtn" type="primary" icon="el-icon-search" @click="search">搜索</el-button>
@@ -63,11 +66,12 @@
           <avue-crud 
             :option="option" 
             v-model="user"
+            :data="data" 
             :page.sync="page"
             @size-change="sizeChange"
             @current-change="currentChange"
             @sort-change="sortChange"
-            @on-load="getkeywordLists"
+            @on-load="getAnalyzeLists"
             >
             <template slot="name" slot-scope="scope" >
               <div>{{scope}}</div>
@@ -110,7 +114,7 @@
                 </div>
                 <el-progress v-else-if="scope.row.wordFrequencyProgress !== '1.00'" :percentage="scope.row.wordFrequencyProgress*100" :format="wordFormat" :text-inside="true" :stroke-width="30"></el-progress>
                 <a v-else :href="`/api${scope.row.wordFrequencyExcelUrl}`" download>导出标题词频</a>
-                <!-- <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span> -->
+                <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span>
             </div>
             </template>
           </avue-crud>
@@ -123,7 +127,7 @@
 </template>
 
 <script>
-import { analyzeTree, analyzeSearch } from '@/api/listAnalyze/listAnalyze';
+import { analyzeTree, analyzeSearch, analyzePage } from '@/api/listAnalyze/listAnalyze';
 export default {
   data() {
     return {
@@ -225,6 +229,7 @@ export default {
         },
       ],
       node: null,
+      data: [],
       searchValue: '',
       restaurants: [], //模糊搜索存储
       active: 'New Releases', //按钮高亮默认选中
@@ -282,6 +287,9 @@ export default {
       },
     }
   },
+  mounted() {
+    this.getAnalyzeLists()
+  },
   methods: {
     focus() {
       const input = document.querySelector('.input');
@@ -299,6 +307,27 @@ export default {
     change(e) {
         console.log(this.value)
     },
+    //获取分页
+    getAnalyzeLists() {
+      analyzePage({
+        current: this.page.currentPage,
+        size: this.page.pageSize,
+        searchCountry: this.formInline.searchCountry,
+        searchTopPage: this.formInline.searchTopPage,
+        deptCategory: this.formInline.deptCategory
+      }).then( res => {
+        if (res.data.code === 200) {
+          this.page.pageSize = res.data.data.page.size;
+          this.page.currentPage = res.data.data.page.current;
+          this.page.total = res.data.data.page.total;
+          this.data = res.data.data.page.records;
+        }
+      })
+    },
+    //重新分析
+    analysiskeywords(row) {
+      console.log(row)
+    },
     nodeClick(node) {
       console.log(node.title)
       this.formInline.searchKeyword = node.title;
@@ -311,21 +340,22 @@ export default {
       this.formInline.deptCategory = item.value;
     },
     querySearchAsync(queryString, cb) {
-      analyzeSearch({
-        ...this.formInline,
-        searchKeyword: queryString
-      }).then( res => {
-        this.restaurants = res.data.data.map( itme => {
-          return {
-            value: itme.deptName,
-            fullName: itme.fullName
-          }
+      if (queryString) {
+        analyzeSearch({
+          ...this.formInline,
+          searchKeyword: queryString
+        }).then( res => {
+          this.restaurants = res.data.data.map( itme => {
+            return {
+              value: itme.deptName,
+              fullName: itme.fullName
+            }
+          });
+          const restaurants = this.restaurants;
+          // const results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants;
+          cb(restaurants);
         });
-      });
-      const restaurants = this.restaurants;
-      const results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants;
-      cb(results);
-        
+      }
     },
     createStateFilter(queryString) {
         return (state) => {
@@ -353,6 +383,9 @@ export default {
         console.log(res)
       })
     },
+    onChange(e) {
+      console.log(e)
+    },
     search() {
       this.formInline.searchKeyword = '';
       // analyzeSearch(this.formInline).then( res => {
@@ -373,8 +406,22 @@ export default {
     .avue-tree__filter {
       display: none;
     }
-    .el-autocomplete-suggestion li{
+    .el-autocomplete-suggestion li {
       border-bottom: 1px #E4E7ED solid;
+      line-height: 20px;
+    }
+    .el-autocomplete-suggestion__wrap {
+      max-height: 430px;
+    }
+    .el-tree-node__label {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .el-tree-node__label:hover {
+      text-overflow:inherit;
+      overflow: visible;
+      white-space: pre-line;
     }
   }
   .aside {
@@ -409,6 +456,16 @@ export default {
       width: 70%;
       margin-right: 10px;
     }
+    .box2 {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .box2:hover {
+      text-overflow:inherit;
+      overflow: visible;
+      white-space: pre-line;
+    }
   }
   .active {
     color: #fff;
@@ -416,6 +473,7 @@ export default {
   }
   .avuecrudclass {
   //  padding: 0 20px;
+  min-height: 30vh;
   .analysisaginspan {
     display: inline-block;
     color: #409EFF;
@@ -428,16 +486,50 @@ export default {
     padding: 0px;
   }
 }
+.derivedresultbtn {
+  a{
+    display: inline-block;
+    height: 30px;
+    line-height: 30px;
+    width: 100px;
+    background: #409EFF;
+    color: #fff;
+    text-align: center;
+    border-radius: 1px;
+    margin-right: 30px;
+  }
+  a:hover {
+    cursor:pointer;
+  }
+  ::v-deep .el-button {
+    border-radius: 1px;
+    width: 100px;
+    font-size: 12px;
+    //margin-left: 30px;
+  }  
+}
+.erroecolor {
+  color: #FF3332;
+}
 .box {
-    height: 800px;
-  }
-
-  .el-scrollbar {
-    height: 100%;
-  }
-
-  .box .el-scrollbar__wrap {
+    // height: 800px;
+    max-height: 80vh;
     overflow: scroll;
+     scrollbar-width: none; /* firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+  overflow-x: hidden;
+  overflow-y: auto;
   }
+.box::-webkit-scrollbar {
+  display: none; /* Chrome Safari */
+}
+
+  // .el-scrollbar {
+  //   // height: 100%;
+  // }
+
+  // .box .el-scrollbar__wrap {
+  //   overflow: scroll;
+  // }
 
 </style>
