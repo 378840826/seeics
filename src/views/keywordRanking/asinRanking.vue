@@ -189,9 +189,8 @@
 </template>
 
 <script>
-var toke = JSON.parse(localStorage.getItem('saber-token'))
-import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports } from "@/api/ranking/ranking";
-import { time } from 'echarts';
+var toke = JSON.parse(localStorage.getItem('saber-token'));
+import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports } from '@/api/ranking/ranking';
 export default {
    name: 'asinRanking',
    data() {
@@ -221,27 +220,27 @@ export default {
        fileName: '',
        renameFile: '',
        formInline:{
-          searchCountry: "US",
-          asin: "",
-          searchTopPage: "2",
+          searchCountry: 'US',
+          asin: '',
+          searchTopPage: '2',
           attachId: '',
         },
         asinRules: {
           asin: [
-            {pattern:/^[a-zA-Z0-9]{10}$/,message: 'ASIN不支持中文，支持10位纯数字或字母组合；', trigger: "change"}
+            { pattern: /^[a-zA-Z0-9]{10}$/, message: 'ASIN不支持中文，支持10位纯数字或字母组合；', trigger: "change" }
           ],
         },
         selectData: [],
         user:{},
         data: [],
-        dialogVisible: false,//两周内是否搜索过弹框
+        dialogVisible: false, //两周内是否搜索过弹框
         dialogImport: false,
-        desc: false,//排序值
-        timer: null,//定时器名称
-        restnum: 10,//今日剩余数据
-        derivedresult: true,//导出分析结果按钮，
-        failanalysis: false,//分析失败按钮，
-        analysisproccess:false,//正在分析按钮，还要考虑过程，应该是对象
+        desc: false, //排序值
+        timer: null, //定时器名称
+        restnum: 10, //今日剩余数据
+        derivedresult: true, //导出分析结果按钮，
+        failanalysis: false, //分析失败按钮，
+        analysisproccess: false, //正在分析按钮，还要考虑过程，应该是对象
         results: false, //词频分析定时器
         result: false,  //关键词分析定时器
         id: '',
@@ -249,7 +248,7 @@ export default {
           total: 0,
           //pagerCount: 5,
           currentPage: 1,
-          layout: "total, sizes, prev, pager, next, jumper",
+          layout: 'total, sizes, prev, pager, next, jumper',
           pageSize: 10,
           pageSizes: [10,20,30,50],
           //background:false,
@@ -257,40 +256,40 @@ export default {
         option:{
           emptyText: '没有找到相关商品，请重新查询',
           addBtn: false,
-          border:true,
-          columnBtn:false,
-          refreshBtn:false,
-          saveBtn:false,
-          updateBtn:false,
-          cancelBtn:false,
-          delBtn:false,
-          menu:false,
-          editBtn:false,
-          align:'center',
-          menuAlign:'left',
-          rowKey:'id',
-          column:[
-             {
-              label:'更新时间',
-              prop:'searchTime',
-              sortable:true,//排序
+          border: true,
+          columnBtn: false,
+          refreshBtn: false,
+          saveBtn: false,
+          updateBtn: false,
+          cancelBtn: false,
+          delBtn: false,
+          menu: false,
+          editBtn: false,
+          align: 'center',
+          menuAlign: 'left',
+          rowKey: 'id',
+          column: [
+            {
+              label: '更新时间',
+              prop: 'searchTime',
+              sortable:true, //排序
               width: 200,
               //slot:true
             },
             {
-              label:'站点',
-              prop:'searchCountry',
-              //width:283,
+              label: '站点',
+              prop: 'searchCountry',
+              width:283,
             },
             {
-              label:'ASIN',
-              prop:'searchKeyword',
-              width:700,
-              slot:true,            
+              label: 'ASIN',
+              prop: 'searchKeyword',
+              // width: 700,
+              slot: true,            
             },
             {
-              label:'操作',
-              prop:'menu',
+              label: '操作',
+              prop: 'menu',
               align: 'left',
               width: 230,
             },
@@ -304,16 +303,14 @@ export default {
    },
    mounted() {
     this.getSelect()
-    // setTimeout(() => {
-      this.getkeywordLists(this.formInline)
-    // },500)
-     
-     
+    this.getkeywordLists(this.formInline);
    },
    methods: {
     importChange() {
       let files = document.getElementById('file').files[0];
-      if (!files) return;
+      if (!files) {
+        return;
+      }
       //自动重命名上传
       let arr = [];
       this.selectData.map(item => {
@@ -477,7 +474,7 @@ export default {
         //有定时器先关掉定时器
         this.timer && this.clearTimer();
         //判断是否要加定时器
-        this.result = this.data.some((item)=>item.status === "ANALYZING");
+        this.result = this.data.some((item)=>item.status === 'ANALYZING');
         if(this.result){
           this.timer = setTimeout(()=>{
             this.getkeywordLists(this.formInline);
@@ -539,7 +536,7 @@ export default {
         
       } else {
         analysiskeyword(this.formInline,id).then(res => {
-          if(res.data.msg === "您已经搜索过该关键词，请在搜索结果中操作"){       
+          if(res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
             //弹框提箱
             this.dialogVisible = true;
             return;           
@@ -624,7 +621,7 @@ export default {
     getSelect(flag) {
       selectFile().then(res => {
         let defalutData = {
-            name: "请先选择模板",
+            name: '请先选择模板',
             id: ''
           }
         if (res.data.code === 200) {
@@ -658,8 +655,8 @@ export default {
           this.$refs['popover-'+data.id].doClose();
           this.getkeywordLists(this.formInline);
           this.$message({
-              type: "success",
-              message: "更新关键词成功!"
+              type: 'success',
+              message: '更新关键词成功!'
             });
           this.updateFileName = '';
           this.updateFile = {};

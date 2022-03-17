@@ -264,17 +264,17 @@ export default {
             prop:'recordTime',
             sortable:true,//排序
             width: 200,
-            //slot:true
+            slot:true
           },
           {
             label:'站点',
             prop:'searchCountry',
-            //width:283,
+            width:283,
           },
           {
             label:'分类',
             prop:'searchKeyword',
-            width:700,
+            // width:700,
             slot:true,            
           },
           {
@@ -282,6 +282,7 @@ export default {
             prop:'menu',
             align: 'left',
             width: 230,
+            // fixed:true
           },
         ]
       },

@@ -94,61 +94,61 @@
           dialogClickModal: false,
           column: [
             {
-              label: "附件地址",
-              prop: "link",
+              label: '附件地址',
+              prop: 'link',
               rules: [{
                 required: true,
-                message: "请输入附件地址",
-                trigger: "blur"
+                message: '请输入附件地址',
+                trigger: 'blur'
               }]
             },
             {
-              label: "附件域名",
-              prop: "domain",
+              label: '附件域名',
+              prop: 'domain',
               search: true,
               rules: [{
                 required: true,
-                message: "请输入附件域名",
-                trigger: "blur"
+                message: '请输入附件域名',
+                trigger: 'blur'
               }]
             },
             {
-              label: "附件名称",
-              prop: "name",
+              label: '附件名称',
+              prop: 'name',
               search: true,
               rules: [{
                 required: true,
-                message: "请输入附件名称",
-                trigger: "blur"
+                message: '请输入附件名称',
+                trigger: 'blur'
               }]
             },
             {
-              label: "附件原名",
-              prop: "originalName",
+              label: '附件原名',
+              prop: 'originalName',
               search: true,
               rules: [{
                 required: true,
-                message: "请输入附件原名",
-                trigger: "blur"
+                message: '请输入附件原名',
+                trigger: 'blur'
               }]
             },
             {
-              label: "附件拓展名",
-              prop: "extension",
+              label: '附件拓展名',
+              prop: 'extension',
               rules: [{
                 required: true,
-                message: "请输入附件拓展名",
-                trigger: "blur"
+                message: '请输入附件拓展名',
+                trigger: 'blur'
               }]
             },
             {
-              label: "附件大小",
-              prop: "attachSize",
+              label: '附件大小',
+              prop: 'attachSize',
               slot: true,
               rules: [{
                 required: true,
-                message: "请输入附件大小",
-                trigger: "blur"
+                message: '请输入附件大小',
+                trigger: 'blur'
               }]
             },
           ]
@@ -170,14 +170,14 @@
               propsHttp: {
                 // res: 'data'
               },
-              action: "/api/blade-resource/oss/endpoint/put-file-attach"
+              action: 'api/blade-resource/oss/endpoint/put-file-attach'
             }
           ]
         }
       };
     },
     computed: {
-      ...mapGetters(["permission"]),
+      ...mapGetters(['permission']),
       permissionList() {
         return {
           addBtn: false,
@@ -191,7 +191,7 @@
         this.selectionList.forEach(ele => {
           ids.push(ele.id);
         });
-        return ids.join(",");
+        return ids.join(',');
       }
     },
     mounted() {
@@ -254,10 +254,10 @@
         });
       },
       rowDel(row) {
-        this.$confirm("确定将选择数据删除?", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
+        this.$confirm('确定将选择数据删除?', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         })
           .then(() => {
             return remove(row.id);
@@ -265,20 +265,20 @@
           .then(() => {
             this.onLoad(this.page);
             this.$message({
-              type: "success",
-              message: "操作成功!"
+              type: 'uccess',
+              message: '操作成功!'
             });
           });
       },
       handleDelete() {
         if (this.selectionList.length === 0) {
-          this.$message.warning("请选择至少一条数据");
+          this.$message.warning('请选择至少一条数据');
           return;
         }
-        this.$confirm("确定将选择数据删除?", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
+        this.$confirm('确定将选择数据删除?', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         })
           .then(() => {
             return remove(this.ids);
@@ -286,14 +286,14 @@
           .then(() => {
             this.onLoad(this.page);
             this.$message({
-              type: "success",
-              message: "操作成功!"
+              type: 'success',
+              message: '操作成功!'
             });
             this.$refs.crud.toggleSelection();
           });
       },
       beforeOpen(done, type) {
-        if (["edit", "view"].includes(type)) {
+        if (['edit', 'view'].includes(type)) {
           getDetail(this.form.id).then(res => {
             this.form = res.data.data;
           });
@@ -346,7 +346,7 @@
       defaultTemplate(val) {
         defaultTemplate(val).then(res => {
          this.$message({
-              type: "success",
+              type: 'success',
               message: res.data.msg,
             });
         });
