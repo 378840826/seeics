@@ -56,7 +56,8 @@
                     
                   </template>
                 </el-autocomplete>
-                <el-button size="mini" class="searchBtn" type="primary" icon="el-icon-search" @click="search">搜索</el-button>
+                <el-button 
+                  size="mini" class="searchBtn" type="primary" icon="el-icon-search" @click="search">搜索</el-button>
               </el-col>
             </el-form-item>
           </el-row>
@@ -79,7 +80,9 @@
             <template  slot="menu" slot-scope="scope">
               <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn">
                 <a :href="`/api${scope.row.excelUrl}`" download>导出分析结果</a>
-                <span class="analysisaginspan" @click="analysiskeywords(scope.row.id, scope.row.crawlingCompleteTime)">重新分析</span>
+                <span 
+                  class="analysisaginspan"
+                 @click="analysiskeywords(scope.row.id, scope.row.crawlingCompleteTime)">重新分析</span>
                 <div>
                   <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
                 </div>
@@ -102,17 +105,30 @@
                             
               </div>
               <div v-else class="derivedresultbtn">
-                <el-progress :percentage="scope.row.progress*100" :format="format" :text-inside="true" :stroke-width="30"></el-progress>
+                <el-progress 
+                  :percentage="scope.row.progress*100" 
+                  :format="format" :text-inside="true" :stroke-width="30"></el-progress>
                 <div>
                   <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
                 </div>
               </div> 
-              <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn" style="marginTop: 5px">
-                <div class="avuecrudclass" v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'">
-                  <a v-if="!scope.row.loading" @click="wordStatistics(scope.row.id)" >生成标题词频 <i :class="scope.row.loading ? 'el-icon-loading' : ''"></i></a>
+              <div 
+                v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" 
+                class="derivedresultbtn" 
+                style="marginTop: 5px">
+                <div 
+                  class="avuecrudclass"
+                   v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'">
+                  <a 
+                    v-if="!scope.row.loading" 
+                    @click="wordStatistics(scope.row.id)" >
+                    生成标题词频 <i :class="scope.row.loading ? 'el-icon-loading' : ''"></i></a>
                   <a v-else>生成标题词频 <i :class="'el-icon-loading'"></i></a>
                 </div>
-                <el-progress v-else-if="scope.row.wordFrequencyProgress !== '1.00'" :percentage="scope.row.wordFrequencyProgress*100" :format="wordFormat" :text-inside="true" :stroke-width="30"></el-progress>
+                <el-progress
+                   v-else-if="scope.row.wordFrequencyProgress !== '1.00'" 
+                   :percentage="scope.row.wordFrequencyProgress*100" 
+                   :format="wordFormat" :text-inside="true" :stroke-width="30"></el-progress>
                 <a v-else :href="`/api${scope.row.wordFrequencyExcelUrl}`" download>导出标题词频</a>
                 <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span>
             </div>
@@ -168,10 +184,10 @@ export default {
           disabled: true,
         }
       ],
-      formInline:{
+      formInline: {
         searchCountry: 'US',
         deptCategory: 'NR',
-        searchTopPage: "2",
+        searchTopPage: '2',
         searchKeyword: '',
       },
       treeData: [],
@@ -180,14 +196,14 @@ export default {
         lazy: true,
         treeLoad: function (node, resolve) {
           const parentId = (node.level === 0) ? 0 : node.data.id;
-          console.log(node)
+          console.log(node);
           analyzeTree(parentId).then(res => {
             resolve(res.data.data.map(item => {
               return {
                 ...item,
                 leaf: !item.hasChildren
-              }
-            }))
+              };
+            }));
           });
         },
         addBtn: false,
@@ -233,62 +249,63 @@ export default {
       searchValue: '',
       restaurants: [], //模糊搜索存储
       active: 'New Releases', //按钮高亮默认选中
-      user:{},
-      page:{
+      user: {},
+      page: {
         total: 0,
         //pagerCount: 5,
         currentPage: 1,
         layout: 'total, sizes, prev, pager, next, jumper',
         pageSize: 10,
-        pageSizes: [10,20,30,50],
+        pageSizes: [10, 20, 30, 50],
         //background:false,
       },
-      option:{
+      option: {
         emptyText: '没有找到相关商品，请重新查询',
         addBtn: false,
-        border:true,
-        columnBtn:false,
-        refreshBtn:false,
-        saveBtn:false,
-        updateBtn:false,
-        cancelBtn:false,
-        delBtn:false,
-        menu:false,
-        editBtn:false,
-        align:'center',
-        menuAlign:'left',
-        rowKey:'id',
-        column:[
-            {
-            label:'更新时间',
-            prop:'recordTime',
-            sortable:true,//排序
+        border: true,
+        columnBtn: false,
+        refreshBtn: false,
+        saveBtn: false,
+        updateBtn: false,
+        cancelBtn: false,
+        delBtn: false,
+        menu: false,
+        editBtn: false,
+        align: 'center',
+        menuAlign: 'left',
+        rowKey: 'id',
+        column: [
+          {
+            label: '更新时间',
+            prop: 'recordTime',
+            sortable: true, //排序
             width: 200,
-            //slot:true
+            slot: true
           },
           {
-            label:'站点',
-            prop:'searchCountry',
-            //width:283,
+            label: '站点',
+            prop: 'searchCountry',
+            width: 283,
           },
           {
-            label:'分类',
-            prop:'searchKeyword',
-            width:700,
-            slot:true,            
+            label: '分类',
+            prop: 'searchKeyword',
+            // width:700,
+            slot: true,            
           },
           {
-            label:'操作',
-            prop:'menu',
+            label: '操作',
+            prop: 'menu',
             align: 'left',
             width: 230,
+            // fixed:true
           },
         ]
       },
-    }
+    };
   },
   mounted() {
-    this.getAnalyzeLists()
+    this.getAnalyzeLists();
   },
   methods: {
     focus() {
@@ -296,16 +313,16 @@ export default {
       const box = document.querySelector('.searchTip');
       const w = input.clientWidth;
       const j = input.getBoundingClientRect().left;
-      box.style.width = w + 'px';
-      box.style.display = 'block'
-      console.log(w, j)
+      box.style.width = `${ w } + px`;
+      box.style.display = 'block';
+      console.log(w, j);
     },
     blur() {
       const box = document.querySelector('.searchTip');
-      box.style.display = 'none'
+      box.style.display = 'none';
     },
     change(e) {
-        console.log(this.value)
+      console.log(this.value);
     },
     //获取分页
     getAnalyzeLists() {
@@ -322,18 +339,18 @@ export default {
           this.page.total = res.data.data.page.total;
           this.data = res.data.data.page.records;
         }
-      })
+      });
     },
     //重新分析
     analysiskeywords(row) {
-      console.log(row)
+      console.log(row);
     },
     nodeClick(node) {
-      console.log(node.title)
+      console.log(node.title);
       this.formInline.searchKeyword = node.title;
     },
     handleNodeClick(data, children) {
-        console.log(data,children)
+      console.log(data, children);
     },
     onClick(item) {
       this.active = item.text;
@@ -349,7 +366,7 @@ export default {
             return {
               value: itme.deptName,
               fullName: itme.fullName
-            }
+            };
           });
           const restaurants = this.restaurants;
           // const results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants;
@@ -358,15 +375,15 @@ export default {
       }
     },
     createStateFilter(queryString) {
-        return (state) => {
-          return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
-        };
+      return (state) => {
+        return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+      };
     },
     handleSelect(val) {
-      console.log(val)
+      console.log(val);
       const arr = [];
       analyzeTree(0).then(res => {
-        console.log(res)
+        console.log(res);
         res.data.data.map( item => {
           // return {
           //   ...item,
@@ -375,27 +392,27 @@ export default {
           arr.push({
             ...item,
             leaf: !item.hasChildren
-          })
-        })
-        console.log(arr)
-      })
+          });
+        });
+        console.log(arr);
+      });
       analyzeTree(10).then(res => {
-        console.log(res)
-      })
+        console.log(res);
+      });
     },
     onChange(e) {
-      console.log(e)
+      console.log(e);
     },
     search() {
       this.formInline.searchKeyword = '';
       // analyzeSearch(this.formInline).then( res => {
       //   this.data = res.data.data;
       // })
-      console.log(this.treeData)
+      console.log(this.treeData);
     }
    
   }
-}
+};
 </script>
 <style lang="scss" scoped>
   ::v-deep {

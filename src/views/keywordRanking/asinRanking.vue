@@ -235,7 +235,6 @@
 <script>
 const toke = JSON.parse(localStorage.getItem('saber-token'));
 import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports } from '@/api/ranking/ranking';
-import { time } from 'echarts';
 export default {
   name: 'asinRanking',
   data() {
@@ -324,12 +323,12 @@ export default {
           {
             label: '站点',
             prop: 'searchCountry',
-            //width:283,
+            width: 283,
           },
           {
             label: 'ASIN',
             prop: 'searchKeyword',
-            width: 700,
+            // width: 700,
             slot: true,            
           },
           {
@@ -345,9 +344,7 @@ export default {
   },
   mounted() {
     this.getSelect();
-    // setTimeout(() => {
     this.getkeywordLists(this.formInline);
-  // },500) 
   },
   methods: {
     importChange() {
@@ -520,7 +517,7 @@ export default {
         this.timer && this.clearTimer();
         //判断是否要加定时器
         this.result = this.data.some((item) => item.status === 'ANALYZING');
-        if (this.result){
+        if (this.result) {
           this.timer = setTimeout(() => {
             this.getkeywordLists(this.formInline);
           }, 60000);
