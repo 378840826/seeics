@@ -17,7 +17,6 @@
           <el-input
             v-model="formInline.asin"
             placeholder="输入需要分析的ASIN"
-            @input='loseFocus'
             maxlength="10"
           ></el-input>
         </el-form-item> 
@@ -227,7 +226,7 @@ export default {
         },
         asinRules: {
           asin: [
-            { pattern: /^[a-zA-Z0-9]{10}$/, message: 'ASIN不支持中文，支持10位纯数字或字母组合；', trigger: "change" }
+            { pattern: /^[a-zA-Z0-9]{10}$/, message: 'ASIN不支持中文，支持10位纯数字或字母组合；', trigger: 'change' }
           ],
         },
         selectData: [],
@@ -302,17 +301,17 @@ export default {
      
    },
    mounted() {
-    this.getSelect()
+    this.getSelect();
     this.getkeywordLists(this.formInline);
    },
    methods: {
     importChange() {
-      let files = document.getElementById('file').files[0];
+      const files = document.getElementById('file').files[0];
       if (!files) {
         return;
       }
       //自动重命名上传
-      let arr = [];
+      const arr = [];
       this.selectData.map(item => {
         if (item.name.indexOf(files.name.slice(0,-5)) != -1) {
           arr.push(item);
@@ -325,9 +324,9 @@ export default {
     
       //正常上传
       this.fileName = files.name;
-      let formData = new FormData()
-      formData.append("file",files)
-      this.formData = formData
+      const formData = new FormData()
+      formData.append('file', files)
+      this.formData = formData;
       this.isrefresh = this.isrefresh ? false : true;
       this.$nextTick(() => {
         this.isrefresh = this.isrefresh ? false : true;
@@ -339,12 +338,12 @@ export default {
       let arr = [];
       this.selectData.map(item => {
         if (item.name.indexOf(files.name.slice(0,-5)) != -1) {
-          arr.push(item)
+          arr.push(item);
         }
       })
       this.updateFileName = arr.length > 0 ? `${arr[0].name.slice(0,-5)}-副本(${arr.length + 1}).xlsx` : files.name;
       let formData = new FormData();
-      arr.length > 0 ? formData.append("file",files, `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx`) : formData.append("file",files)
+      arr.length > 0 ? formData.append("file",files, `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx`) : formData.append('file', files);
       this.data.map(item => {
         if (item.id === id) {
           item.formData = formData;
@@ -357,12 +356,10 @@ export default {
       })
     },
     btn(id) {
-      console.log(this.$refs['btn_'+id].style.display = 'none')
-      this.$refs['btn_'+id].$el.style.display = 'none'
+      this.$refs['btn_'+id].$el.style.display = 'none';
     },
     submit() {
       imports(this.formData).then(res => {
-        console.log(res)
         if (res.data.success) {
           this.$message({
               type: 'success',
@@ -378,7 +375,7 @@ export default {
         }
       })
       this.fileName = '';
-      this.$refs.popover.doClose()
+      this.$refs.popover.doClose();
       // this.$refs['popover-'+id].doClose()
     },
     //自动重命名上传
@@ -404,7 +401,7 @@ export default {
       this.$router.push({
         name: '附件管理',
         params: {
-          fileName: this.fileName
+          fileName: this.fileName,
         }
       });
     },
@@ -416,7 +413,7 @@ export default {
     },
     close(id) {
       this.updateFileName = '';
-      this.$refs['popover-'+id].doClose()
+      this.$refs['popover-'+id].doClose();
     },
     importHide() {
       this.updateFileName = '';
@@ -432,7 +429,7 @@ export default {
       wordStatistics(id).then(res => {
         this.id = id;
         if (res.status === 200) {
-          this.getkeywordLists()
+          this.getkeywordLists();
         }
       })
     },
@@ -513,7 +510,7 @@ export default {
         }).then(() => {
           //依旧发请求
           analysiskeyword(this.formInline,id).then(res => {
-          if(res.data.msg === "您已经搜索过该关键词，请在搜索结果中操作"){       
+          if(res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
             //弹框提箱
             this.dialogVisible = true;
             return;           
@@ -531,9 +528,7 @@ export default {
             type: 'info',
             message: '已取消分析'
           });          
-        })
-
-        
+        });
       } else {
         analysiskeyword(this.formInline,id).then(res => {
           if(res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
@@ -559,7 +554,6 @@ export default {
     },
     //下载模板
     download () {
-      // console.log(655)
       const loading = this.$loading({
           lock: true,
           text: '正在下载模板...',
@@ -578,19 +572,19 @@ export default {
             elink.setAttribute('download', this.$t('ASIN-关键词排名导出模板') + '.xlsx')
             document.body.appendChild(elink);
             elink.click();
-            URL.revokeObjectURL(elink.href)
-            document.body.removeChild(elink)
+            URL.revokeObjectURL(elink.href);
+            document.body.removeChild(elink);
           } else { //IE10+下载
-            navigator.msSaveBlob(blob, fileName)
+            navigator.msSaveBlob(blob, fileName);
           }
           setTimeout(() => {
-            loading.close()
-          }, 2000)
+            loading.close();
+          }, 2000);
         }
-      })
+      });
     },
     downloadKeyword(row) {
-      this.$refs['btn_'+row.id].$el.style.display = 'block'
+      this.$refs['btn_'+row.id].$el.style.display = 'block';
       exportKeyword(row.id).then(res => {
         if (res.status === 200) {
           const content = res.data;
@@ -604,16 +598,16 @@ export default {
             elink.setAttribute('download', this.$t(`${row.searchCountry}_${row.searchKeyword}`) + '.xlsx')
             document.body.appendChild(elink);
             elink.click();
-            URL.revokeObjectURL(elink.href)
-            document.body.removeChild(elink)
+            URL.revokeObjectURL(elink.href);
+            document.body.removeChild(elink);
           } else { //IE10+下载
-            navigator.msSaveBlob(blob, fileName)
+            navigator.msSaveBlob(blob, fileName);
           }
           setTimeout(()=> {
-            this.$refs['btn_'+row.id].$el.style.display = 'none'
-          }, 2000)
+            this.$refs['btn_'+row.id].$el.style.display = 'none';
+          }, 2000);
         }else {
-          this.$refs['btn_'+row.id].$el.style.display = 'none'
+          this.$refs['btn_'+row.id].$el.style.display = 'none';
         }
       })  
     },
@@ -625,21 +619,15 @@ export default {
             id: ''
           }
         if (res.data.code === 200) {
-          res.data.data.unshift(defalutData)
-          this.selectData = res.data.data
+          res.data.data.unshift(defalutData);
+          this.selectData = res.data.data;
           this.formInline.attachId = flag ? res.data.data.slice(-1)[0].id : '';
         }
-      })
+      });
     },
     //更新模板
     updateKeyword (data) {
       imports(
-      //   {
-      //   url: this.updateFile.url || data.url,
-      //   attachId: this.updateFile.attachId || data.updateId,
-      //   searchCountry: this.formInline.searchCountry,
-      //   searchTopPage: this.formInline.searchTopPage,
-      // }
       data.formData
       ).then(res => {
         if (res.data.code === 200) {
@@ -664,9 +652,6 @@ export default {
       });
     },
   },
-  loseFocus(val) {
-    console.log(val)
-  },
   watch:{
     'formInline.searchTopPage'(){
       if(this.formInline.searchTopPage  > 2){
@@ -681,7 +666,7 @@ export default {
     results: {
       handler(val) {
         if (!val) {
-          this.getkeywordLists()
+          this.getkeywordLists();
         }
       },
       deep: true,
@@ -690,24 +675,15 @@ export default {
     result:{
       handler(val) {
         if (!val) {
-          this.getkeywordLists()
+          this.getkeywordLists();
         }
       },
       deep: true,
       immediate: false,
     },
     'formInline.attachId'() {
-       this.getkeywordLists(this.formInline)
+       this.getkeywordLists(this.formInline);
     },
-    popover: {
-      handler(val) {
-        if (!val) {
-          console.log(val)
-        }
-      },
-      deep: true,
-      immediate: false
-    }
   },
   beforeDestroy(){
     this.timer && this.clearTimer();
