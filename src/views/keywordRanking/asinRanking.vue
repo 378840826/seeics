@@ -17,7 +17,6 @@
           <el-input
             v-model="formInline.asin"
             placeholder="输入需要分析的ASIN"
-            @input='loseFocus'
             maxlength="10"
           ></el-input>
         </el-form-item> 
@@ -385,7 +384,7 @@ export default {
           arr.push(item);
         }
       });
-      this.updateFileName = arr.length > 0 ? `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx` : files.name;
+      this.updateFileName = arr.length > 0 ? `${arr[0].name.slice(0,-5)}-副本(${arr.length + 1}).xlsx` : files.name;
       const formData = new FormData();
       arr.length > 0 ? formData.append('file', files, `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx`) : formData.append('file', files);
       this.data.map(item => {
@@ -400,8 +399,7 @@ export default {
       });
     },
     btn(id) {
-      console.log(this.$refs[`btn_${id}`].style.display = 'none');
-      this.$refs[`btn_${id}`].$el.style.display = 'none';
+      this.$refs['btn_'+id].$el.style.display = 'none';
     },
     submit() {
       imports(this.formData).then(res => {
@@ -446,7 +444,7 @@ export default {
       this.$router.push({
         name: '附件管理',
         params: {
-          fileName: this.fileName
+          fileName: this.fileName,
         }
       });
     },
@@ -458,7 +456,7 @@ export default {
     },
     close(id) {
       this.updateFileName = '';
-      this.$refs[`popover-${id}`].doClose();
+      this.$refs['popover-'+id].doClose();
     },
     importHide() {
       this.updateFileName = '';
@@ -574,8 +572,6 @@ export default {
             message: '已取消分析'
           });          
         });
-
-        
       } else {
         analysiskeyword(this.formInline, id).then(res => {
           if (res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
@@ -601,7 +597,6 @@ export default {
     },
     //下载模板
     download () {
-      // console.log(655)
       const loading = this.$loading({
         lock: true,
         text: '正在下载模板...',
@@ -632,7 +627,7 @@ export default {
       });
     },
     downloadKeyword(row) {
-      this.$refs[`btn_${row.id}`].$el.style.display = 'block';
+      this.$refs['btn_'+row.id].$el.style.display = 'block';
       exportKeyword(row.id).then(res => {
         if (res.status === 200) {
           const content = res.data;
@@ -652,10 +647,10 @@ export default {
             navigator.msSaveBlob(blob, fileName);
           }
           setTimeout(() => {
-            this.$refs[`btn_${row.id}`].$el.style.display = 'none';
+            this.$refs['btn_'+row.id].$el.style.display = 'none';
           }, 2000);
         } else {
-          this.$refs[`btn_${row.id}`].$el.style.display = 'none';
+          this.$refs['btn_'+row.id].$el.style.display = 'none';
         }
       });  
     },
@@ -676,12 +671,6 @@ export default {
     //更新模板
     updateKeyword (data) {
       imports(
-      //   {
-      //   url: this.updateFile.url || data.url,
-      //   attachId: this.updateFile.attachId || data.updateId,
-      //   searchCountry: this.formInline.searchCountry,
-      //   searchTopPage: this.formInline.searchTopPage,
-      // }
         data.formData
       ).then(res => {
         if (res.data.code === 200) {
@@ -705,9 +694,6 @@ export default {
         }
       });
     },
-  },
-  loseFocus(val) {
-    console.log(val);
   },
   watch: {
     'formInline.searchTopPage'(){
@@ -741,15 +727,6 @@ export default {
     'formInline.attachId'() {
       this.getkeywordLists(this.formInline);
     },
-    popover: {
-      handler(val) {
-        if (!val) {
-          console.log(val);
-        }
-      },
-      deep: true,
-      immediate: false
-    }
   },
   beforeDestroy(){
     this.timer && this.clearTimer();

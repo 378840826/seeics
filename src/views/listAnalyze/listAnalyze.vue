@@ -7,7 +7,7 @@
           <basic-container >
             <!-- <div class="selectBox"> -->
         <el-form-item v-model="formInline.searchCountry">
-        <el-select class="select" v-model="formInline.searchCountry" @change="change" size="small">
+        <el-select class="select" v-model="formInline.searchCountry" size="small">
             <el-option
             v-for="item in options"
             :key="item.value"
@@ -19,131 +19,118 @@
         </el-select>
         </el-form-item>
       <!-- </div> -->
-            <avue-tree class="box" :option="treeOption" :data="treeData" @node-click="nodeClick" default-expand-all/>
+          <avue-tree class="box" ref="tree" :option="treeOption" :data="treeData" @node-click="nodeClick">
+            <span class="custom-tree-node" slot-scope="{ node, data }">
+              <span :id="data.id">{{ data.title }}</span>
+            </span>
+          </avue-tree>
           </basic-container>
         </el-scrollbar>
       </div>
     </el-col>
     <el-col :span="19">
-    <basic-container>
-       <!-- <el-header class="header" style="height: 124px;"> -->
-          <el-row class="button">
-            <el-button 
-              v-for="item in deptCategory" 
-              :key="item.text" :class="{active: active == item.text}" 
-              @click="onClick(item)"
-              size="small"
-            >{{item.text}}</el-button>
-          </el-row>   
-          <el-row style="marginTop: 20px">
-            <el-form-item v-model="formInline.searchKeyword">
-              <el-col :span="15" class="searchBox">
-                <el-autocomplete
-                  :popper-append-to-body="false"
-                  placeholder="输入分类名称，快速定位分类"
-                  size="small"
-                  class="autocomplete"
-                  v-model="formInline.searchKeyword"
-                  :fetch-suggestions="querySearchAsync"
-                  @select="handleSelect"
-                  @input="onChange"
-                >
-                  <template slot-scope="{ item }">
-                    <div class="box2">
-                      <div>{{ item.value }}</div>
-                      <span class="span" style=" color: #ccc">in {{item.fullName}}</span>
-                    </div>
-                    
-                  </template>
-                </el-autocomplete>
-                <el-button 
-                  size="mini" class="searchBtn" type="primary" icon="el-icon-search" @click="search">搜索</el-button>
-              </el-col>
-            </el-form-item>
-          </el-row>
-       <!-- </el-header> -->
-      <!-- <el-main> -->
-        <div class="avuecrudclass">
-          <avue-crud 
-            :option="option" 
-            v-model="user"
-            :data="data" 
-            :page.sync="page"
-            @size-change="sizeChange"
-            @current-change="currentChange"
-            @sort-change="sortChange"
-            @on-load="getAnalyzeLists"
-            >
-            <template slot="name" slot-scope="scope" >
-              <div>{{scope}}</div>
-            </template>
-            <template  slot="menu" slot-scope="scope">
-              <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn">
-                <a :href="`/api${scope.row.excelUrl}`" download>导出分析结果</a>
-                <span 
-                  class="analysisaginspan"
-                 @click="analysiskeywords(scope.row.id, scope.row.crawlingCompleteTime)">重新分析</span>
-                <div>
-                  <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
+      <basic-container>
+        <!-- <el-header class="header" style="height: 124px;"> -->
+            <el-row class="button">
+              <el-button 
+                v-for="item in deptCategory" 
+                :key="item.text" :class="{active: active == item.text}" 
+                @click="onClick(item)"
+                size="small"
+              >{{item.text}}</el-button>
+            </el-row>   
+            <el-row style="marginTop: 20px">
+              <el-form-item v-model="formInline.searchKeyword">
+                <el-col :span="15" class="searchBox">
+                  <el-autocomplete
+                    :popper-append-to-body="false"
+                    placeholder="输入分类名称，快速定位分类"
+                    size="small"
+                    class="autocomplete"
+                    v-model="formInline.searchKeyword"
+                    :fetch-suggestions="querySearchAsync"
+                    @select="handleSelect"
+                  >
+                    <template slot-scope="{ item }">
+                      <div class="box2">
+                        <div>{{ item.value }}</div>
+                        <span class="span" style=" color: #ccc">in {{item.fullName}}</span>
+                      </div>
+                      
+                    </template>
+                  </el-autocomplete>
+                  <el-button size="mini" class="searchBtn" type="primary" icon="el-icon-search" @click="analyze">搜索</el-button>
+                </el-col>
+              </el-form-item>
+            </el-row>
+        <!-- </el-header> -->
+        <!-- <el-main> -->
+          <div class="avuecrudclass">
+            <avue-crud 
+              :option="option" 
+              v-model="user"
+              :data="data" 
+              :page.sync="page"
+              @size-change="sizeChange"
+              @current-change="currentChange"
+              @sort-change="sortChange"
+              @on-load="getAnalyzeLists"
+              >
+              <!-- <template slot="name" slot-scope="scope" >
+                <div>{{scope}}</div>
+              </template> -->
+              <template  slot="menu" slot-scope="scope">
+                <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn">
+                  <a :href="`/api${scope.row.excelUrl}`" download>导出分析结果</a>
+                  <span class="analysisaginspan" @click="analysiskeywords(scope.row, scope.row.crawlingCompleteTime)">重新分析</span>
+                  <div>
+                    <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
+                  </div>
                 </div>
+                <div v-else-if="scope.row.status === 'ANALYZE_FAILED'" class="derivedresultbtn">
+                  <el-button type="info" class="failBtn">分析失败</el-button>
+                  <span class="analysisaginspan" @click="analysiskeywords(scope.row)">重试</span>
+                  <div>
+                    <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
+                  </div>
+                </div>
+                <div v-else-if="scope.row.status === 'COMPLETED' && !scope.row.excelUrl" class="derivedresultbtn">
+                  <el-button type="info" class="failBtn">分析失败</el-button>
+                  <div>
+                    <span class="erroecolor">该关键词没有找到相关商品</span>
+                  </div>
+                  <div>
+                    <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
+                  </div>
+                              
+                </div>
+                <div v-else class="derivedresultbtn">
+                  <el-progress :percentage="scope.row.progress*100" :format="format" :text-inside="true" :stroke-width="30"></el-progress>
+                  <div>
+                    <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
+                  </div>
+                </div> 
+                <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn" style="marginTop: 5px">
+                  <div  v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'">
+                    <a v-if="!scope.row.loading" @click="wordStatistics(scope.row.id)" >生成标题词频 <i :class="scope.row.loading ? 'el-icon-loading' : ''"></i></a>
+                    <a v-else>生成标题词频 <i :class="'el-icon-loading'"></i></a>
+                  </div>
+                  <el-progress v-else-if="scope.row.wordFrequencyProgress !== '1.00'" :percentage="scope.row.wordFrequencyProgress*100" :format="wordFormat" :text-inside="true" :stroke-width="30"></el-progress>
+                  <a v-else :href="`/api${scope.row.wordFrequencyExcelUrl}`" download>导出标题词频</a>
+                  <!-- <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span> -->
               </div>
-              <div v-else-if="scope.row.status === 'ANALYZE_FAILED'" class="derivedresultbtn">
-                <el-button type="info">分析失败</el-button>
-                <span class="analysisaginspan" @click="analysiskeywords(scope.row.id)">重试</span>
-                <div>
-                  <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
-                </div>
-              </div>
-              <div v-else-if="scope.row.status === 'COMPLETED' && !scope.row.excelUrl" class="derivedresultbtn">
-                <el-button type="info">分析失败</el-button>
-                <div>
-                  <span class="erroecolor">该关键词没有找到相关商品</span>
-                </div>
-                <div>
-                  <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
-                </div>
-                            
-              </div>
-              <div v-else class="derivedresultbtn">
-                <el-progress 
-                  :percentage="scope.row.progress*100" 
-                  :format="format" :text-inside="true" :stroke-width="30"></el-progress>
-                <div>
-                  <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
-                </div>
-              </div> 
-              <div 
-                v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" 
-                class="derivedresultbtn" 
-                style="marginTop: 5px">
-                <div 
-                  class="avuecrudclass"
-                   v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'">
-                  <a 
-                    v-if="!scope.row.loading" 
-                    @click="wordStatistics(scope.row.id)" >
-                    生成标题词频 <i :class="scope.row.loading ? 'el-icon-loading' : ''"></i></a>
-                  <a v-else>生成标题词频 <i :class="'el-icon-loading'"></i></a>
-                </div>
-                <el-progress
-                   v-else-if="scope.row.wordFrequencyProgress !== '1.00'" 
-                   :percentage="scope.row.wordFrequencyProgress*100" 
-                   :format="wordFormat" :text-inside="true" :stroke-width="30"></el-progress>
-                <a v-else :href="`/api${scope.row.wordFrequencyExcelUrl}`" download>导出标题词频</a>
-                <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span>
-            </div>
-            </template>
-          </avue-crud>
-         </div>
-      <!-- </el-main> -->
-  </basic-container>
+              </template>
+            </avue-crud>
+          </div>
+        <!-- </el-main> -->
+    </basic-container>
   </el-col>
 </el-row>
 </el-form>
 </template>
 
 <script>
-import { analyzeTree, analyzeSearch, analyzePage } from '@/api/listAnalyze/listAnalyze';
+import { analyzeTree, analyzeSearch, analyzePage, analyze, keyWordAnalyze } from '@/api/listAnalyze/listAnalyze';
 export default {
   data() {
     return {
@@ -190,22 +177,23 @@ export default {
         searchTopPage: '2',
         searchKeyword: '',
       },
+      analyzeData: {
+        searchCountry: '',
+        searchKeyword: '',
+        searchTopPage: '',
+        url: '',
+        fullName: '',
+        deptCategory: '',
+      },
       treeData: [],
       treeOption: {
         nodeKey: 'id',
+        defaultExpandedKeys: [],
+        highlightCurrent: true,
+        currentNoedKey: '',
+        accordion: true,
         lazy: true,
-        treeLoad: function (node, resolve) {
-          const parentId = (node.level === 0) ? 0 : node.data.id;
-          console.log(node);
-          analyzeTree(parentId).then(res => {
-            resolve(res.data.data.map(item => {
-              return {
-                ...item,
-                leaf: !item.hasChildren
-              };
-            }));
-          });
-        },
+        treeLoad: this.treeLoad,
         addBtn: false,
         menu: false,
         size: 'small',
@@ -213,7 +201,8 @@ export default {
           labelText: '标题',
           label: 'title',
           value: 'value',
-          children: 'children'
+          children: 'children',
+          isLeaf: true
         }
       },
       value: 1, //下拉框默认选择
@@ -233,15 +222,15 @@ export default {
         },
         {
           text: 'Movers&shakers',
-          value: 'MSF'
+          value: 'MS'
         },
         {
-          text: 'most wished',
-          value: 'MW'
+          text: 'Most wished For',
+          value: 'MWF'
         },
         {
           text: 'Gift ldeas',
-          value: 'GL'
+          value: 'GI'
         },
       ],
       node: null,
@@ -249,6 +238,8 @@ export default {
       searchValue: '',
       restaurants: [], //模糊搜索存储
       active: 'New Releases', //按钮高亮默认选中
+      timer: null, //定时器
+
       user: {},
       page: {
         total: 0,
@@ -289,7 +280,7 @@ export default {
           },
           {
             label: '分类',
-            prop: 'searchKeyword',
+            prop: 'fullName',
             // width:700,
             slot: true,            
           },
@@ -298,65 +289,219 @@ export default {
             prop: 'menu',
             align: 'left',
             width: 230,
-            // fixed:true
+            fixed: 'right'
           },
         ]
       },
+      nodehad: [],
+      resolvehad: [],
+      parentId: 0,
+      result: true,
+      results: true,
     };
   },
   mounted() {
     this.getAnalyzeLists();
+    const box = document.querySelector('.box');
+    box.scrollTo(0, 0);
+  },
+  watch: {
+    results: {
+      handler(val) {
+        if (!val) {
+          this.getAnalyzeLists();
+        }
+      },
+      deep: true,
+    },
+    result: {
+      handler(val) {
+        if (!val) {
+          this.getAnalyzeLists();
+        }
+      },
+      deep: true,
+    }
   },
   methods: {
-    focus() {
-      const input = document.querySelector('.input');
-      const box = document.querySelector('.searchTip');
-      const w = input.clientWidth;
-      const j = input.getBoundingClientRect().left;
-      box.style.width = `${ w } + px`;
-      box.style.display = 'block';
-      console.log(w, j);
+    treeLoad (node, resolve, text) {
+      if (node.level === 0) {
+        this.parentId = 0;
+        this.nodehad = node; //这里是关键！在data里面定义一个变量，将node.level == 0的node存起来
+        this.resolvehad = resolve; //同上，把node.level == 0的resolve也存起来
+      } else {
+        this.parentId = node.data.id;
+      }
+      analyzeTree({ parentId: this.parentId, deptCategory: text || this.formInline.deptCategory }).then(res => {
+        resolve(res.data.data.map(item => {
+          return {
+            ...item,
+            leaf: !item.hasChildren
+          };
+        }));
+      });
     },
-    blur() {
-      const box = document.querySelector('.searchTip');
-      box.style.display = 'none';
+    format(percentage) {
+      return percentage === 100 ? '导出分析报告' : `正在分析${parseInt(percentage)}%`;
     },
-    change(e) {
-      console.log(this.value);
+    wordFormat(percentage) {
+      return percentage === 100 ? '导出标题词频' : `正在生成${parseInt(percentage)}%`;
     },
     //获取分页
-    getAnalyzeLists() {
-      analyzePage({
-        current: this.page.currentPage,
-        size: this.page.pageSize,
-        searchCountry: this.formInline.searchCountry,
-        searchTopPage: this.formInline.searchTopPage,
-        deptCategory: this.formInline.deptCategory
-      }).then( res => {
-        if (res.data.code === 200) {
-          this.page.pageSize = res.data.data.page.size;
+    getAnalyzeLists(){
+      analyzePage(this.formInline).then(res => {
+        if (res.data.code === 200){
+          //分页数据
           this.page.currentPage = res.data.data.page.current;
+          this.page.pageSize = res.data.data.page.size;
           this.page.total = res.data.data.page.total;
+          //表格数据
           this.data = res.data.data.page.records;
+          //添加成功，清空关键词
+          // this.formInline.searchKeyword = ''; 
+        }
+        //判断已分析关键词
+        // this.data.filter(item => {
+        //   if (item.isRepeat) {
+        //     console.log(item.id)
+        //    let inter = setInterval(() => {
+        //       keyWordReset(item.id).then(res => {
+        //         if (res.status === 200) {
+        //           clearInterval(inter)
+        //           this.getkeywordLists()
+        //         }
+        //       })
+        //     }, 30000)
+        //   }
+        // })
+        //有定时器先关掉定时器
+        this.timer && this.clearTimer();
+        //判断是否要加定时器
+        this.result = this.data.some((item) => item.status === 'ANALYZING');
+        this.results = this.data.some(item => item.wordFrequencyProgress && item.wordFrequencyProgress !== '1.00');
+        //加定时器
+        if (this.results) {
+          setTimeout(() => {
+            this.getAnalyzeLists();
+          }, 1000);
+        }
+        const arr = this.data.filter( item => item && item.id === this.id);
+        if (arr.length > 0 && !arr[0].wordFrequencyProgress) { //添加loading效果
+          this.data = this.data.map(item => {
+            if (item.id === arr[0].id) {
+              item.loading = true;
+            }
+            return item;
+          });
+          setTimeout(() => {
+            this.getAnalyzeLists();
+          }, 1500);
+        }
+        if (this.result){
+          this.timer = setTimeout(() => {
+            this.getAnalyzeLists();
+          }, 60000);
+        }
+      });
+    },
+    //清除定时器
+    clearTimer() {
+		  clearTimeout(this.timer);
+	    this.timer = null;
+	  },
+    //词频分析
+    wordStatistics(id) {
+      keyWordAnalyze(id).then(res => {
+        this.id = id;
+        if (res.status === 200) {
+          this.getAnalyzeLists();
         }
       });
     },
     //重新分析
-    analysiskeywords(row) {
-      console.log(row);
+    analysiskeywords(row, time){
+      //判断次数
+      // if(this.restnum <=0 ){
+      //    this.$message.error('今日免费次数已用完');
+      //     return;
+      // }
+      //关键词输入框是否为空
+      if (!row.id){
+        if (!this.formInline.searchKeyword){
+          this.$message.error('请输入关键词');
+          return;
+        }
+      }
+      //前端判断时间是否为两周内  
+      //参数
+      const params = {
+        searchCountry: row.searchCountry,
+        searchKeyword: row.searchKeyword,
+        searchTopPage: row.searchTopPage,
+        url: row.url,
+        fullName: row.fullName,
+        deptCategory: row.deptCategory
+      };
+      if (Date.parse(time) <= Date.now() + 14 * 24 * 60 * 60 * 1000){
+
+        //弹确认框
+        this.$confirm(`距上次分析时间${time}间隔较短，确认重新分析？`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          //依旧发请求
+          analyze(params, row.id).then(res => {
+            if (res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
+              //弹框提箱
+              this.dialogVisible = true;
+              return;           
+            }
+            if (res.data.code === 200 ){
+              //刷新页面
+              this.getAnalyzeLists();
+            }
+          });
+          //清空关键词
+          this.formInline.searchKeyword = '';
+          
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消分析'
+          });          
+        });
+
+        
+      } else {
+        analyze(params, row.id).then(res => {
+          if (res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
+            //弹框提箱
+            this.dialogVisible = true;
+            return;           
+          }
+          if (res.data.code === 200 ){
+            //刷新页面
+            this.getAnalyzeLists();
+          }
+        });
+        //清空关键词
+        this.formInline.searchKeyword = '';
+      }
     },
     nodeClick(node) {
-      console.log(node.title);
       this.formInline.searchKeyword = node.title;
     },
-    handleNodeClick(data, children) {
-      console.log(data, children);
-    },
     onClick(item) {
+      this.nodehad.childNodes = []; //把存起来的node的子节点清空，不然会界面会出现重复树！
+      this.treeOption.defaultExpandedKeys = [];
+      this.treeLoad(this.nodehad, this.resolvehad, item.value);
       this.active = item.text;
       this.formInline.deptCategory = item.value;
+      this.getAnalyzeLists();
     },
     querySearchAsync(queryString, cb) {
+      this.treeOption.defaultExpandedKeys = [];
       if (queryString) {
         analyzeSearch({
           ...this.formInline,
@@ -365,7 +510,8 @@ export default {
           this.restaurants = res.data.data.map( itme => {
             return {
               value: itme.deptName,
-              fullName: itme.fullName
+              fullName: itme.fullName,
+              ...itme
             };
           });
           const restaurants = this.restaurants;
@@ -380,37 +526,49 @@ export default {
       };
     },
     handleSelect(val) {
-      console.log(val);
-      const arr = [];
-      analyzeTree(0).then(res => {
-        console.log(res);
-        res.data.data.map( item => {
-          // return {
-          //   ...item,
-          //   leaf: !item.hasChildren
-          // }
-          arr.push({
-            ...item,
-            leaf: !item.hasChildren
-          });
-        });
-        console.log(arr);
-      });
-      analyzeTree(10).then(res => {
-        console.log(res);
-      });
+      if (val) {
+        this.analyzeData = {
+          searchCountry: val.country,
+          searchKeyword: val.deptName,
+          searchTopPage: '2',
+          url: val.url,
+          fullName: val.fullName,
+          deptCategory: val.deptCategory,
+        };
+        this.treeOption.defaultExpandedKeys = val.ancestors.split(',');
+        //定位到可视化区域
+        this.repetition(val);
+      }
+      
     },
-    onChange(e) {
-      console.log(e);
+    //递归重复调用
+    repetition(val) {
+      const box = document.querySelector('.box');
+      // box.scrollTop = 0;
+      const boxs = document.getElementById(`${val.deptId}`);
+      if (boxs) {
+        //选中高亮
+        setTimeout(() => {
+          this.treeOption.currentNoedKey = val.deptId;
+          this.$refs.tree.setCurrentKey(val.deptId);
+        }, 1000);
+        
+        //定位到可视化区域
+        box.scrollTop = boxs.offsetTop;
+      } else {
+        setTimeout(() => {
+          this.repetition(val);
+        }, 1000);
+      }
     },
-    search() {
+    analyze() {
       this.formInline.searchKeyword = '';
-      // analyzeSearch(this.formInline).then( res => {
-      //   this.data = res.data.data;
-      // })
-      console.log(this.treeData);
-    }
-   
+      analyze(this.analyzeData).then( res => {
+        if (res.data.success) {
+          this.getAnalyzeLists();
+        }
+      });
+    },
   }
 };
 </script>
@@ -440,6 +598,16 @@ export default {
       overflow: visible;
       white-space: pre-line;
     }
+    .el-progress-bar__outer {
+      border-radius: 1px;
+      width: 100px;
+    }
+    .el-progress-bar__inner {
+      border-radius: 1px;
+    }
+    .el-tree-node {
+      
+}
   }
   .aside {
     width: 416px !important;
@@ -490,18 +658,23 @@ export default {
   }
   .avuecrudclass {
   //  padding: 0 20px;
-  min-height: 30vh;
-  .analysisaginspan {
-    display: inline-block;
-    color: #409EFF;
+    min-height: 28vh;
+    .analysisaginspan {
+      display: inline-block;
+      color: #409EFF;
 
-    &:hover {
-      cursor: pointer;
+      &:hover {
+        cursor: pointer;
+      }
     }
-  }
-  ::v-deep .el-card__body {
-    padding: 0px;
-  }
+    .failBtn {
+      height: 30px;
+      padding: 0 20px;
+      margin-right: 30px;
+    }
+    ::v-deep .el-card__body {
+      padding: 0px;
+    }
 }
 .derivedresultbtn {
   a{
@@ -529,24 +702,22 @@ export default {
   color: #FF3332;
 }
 .box {
-    // height: 800px;
-    max-height: 80vh;
-    overflow: scroll;
-     scrollbar-width: none; /* firefox */
+  // height: 800px;
+  max-height: 80vh;
+  overflow: scroll;
+  scrollbar-width: none; /* firefox */
   -ms-overflow-style: none; /* IE 10+ */
   overflow-x: hidden;
   overflow-y: auto;
-  }
+  
+}
+.custom-tree-node {
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .box::-webkit-scrollbar {
   display: none; /* Chrome Safari */
 }
-
-  // .el-scrollbar {
-  //   // height: 100%;
-  // }
-
-  // .box .el-scrollbar__wrap {
-  //   overflow: scroll;
-  // }
-
 </style>
