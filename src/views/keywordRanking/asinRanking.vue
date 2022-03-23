@@ -343,7 +343,6 @@ export default {
   },
   mounted() {
     this.getSelect();
-    this.getkeywordLists(this.formInline);
   },
   methods: {
     importChange() {
@@ -383,8 +382,8 @@ export default {
         if (item.name.indexOf(files.name.slice(0, -5)) !== -1) {
           arr.push(item);
         }
-      });
-      this.updateFileName = arr.length > 0 ? `${arr[0].name.slice(0,-5)}-副本(${arr.length + 1}).xlsx` : files.name;
+      })
+      this.updateFileName = arr.length > 0 ? `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx` : files.name;
       const formData = new FormData();
       arr.length > 0 ? formData.append('file', files, `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx`) : formData.append('file', files);
       this.data.map(item => {
@@ -410,7 +409,7 @@ export default {
           });
           this.getSelect(1);
           setTimeout(() => {
-            this.getkeywordLists(this.formInline);
+            this.getkeywordLists();
           }, 500);
         } else {
           this.fileName = res.data.data;
@@ -431,7 +430,7 @@ export default {
           });
           this.getSelect(1);
           setTimeout(() => {
-            this.getkeywordLists(this.formInline);
+            this.getkeywordLists();
           }, 500);
         }
       });
@@ -479,25 +478,22 @@ export default {
     //关闭两星期弹框
     refeshList(){
       this.dialogVisible = false;
-      this.getkeywordLists(this.formInline);
+      this.getkeywordLists();
     },
     //pagesize变化
     sizeChange(pageSize){
-      console.log(this.data);
       this.page.pageSize = pageSize;
-      this.getkeywordLists(this.formInline);
     },
     //currentpage 变化
     currentChange(currentPage){
-      this.page.currentPage = currentPage;
-      this.getkeywordLists(this.formInline);     
+      this.page.currentPage = currentPage;  
     },
     //获取表格数据
-    getkeywordLists(formInline){
+    getkeywordLists(){
       // analyzeItme().then(res => {
       //   this.analyzeNum = res.data.data;
       // });
-      getkeywordList(this.page.currentPage, this.page.pageSize, formInline).then(res => {
+      getkeywordList(this.page.currentPage, this.page.pageSize, this.formInline).then(res => {
         if (res.data.code === 200){
           //分页数据
           this.page.currentPage = res.data.data.current;
@@ -515,9 +511,9 @@ export default {
         this.timer && this.clearTimer();
         //判断是否要加定时器
         this.result = this.data.some((item) => item.status === 'ANALYZING');
-        if (this.result) {
+        if (this.result){
           this.timer = setTimeout(() => {
-            this.getkeywordLists(this.formInline);
+            this.getkeywordLists();
           }, 60000);
         }
       });
@@ -552,15 +548,15 @@ export default {
           type: 'warning'
         }).then(() => {
           //依旧发请求
-          analysiskeyword(this.formInline, id).then(res => {
+          analysiskeyword(this.formInline,id).then(res => {
             if (res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
-            //弹框提箱
+              //弹框提箱
               this.dialogVisible = true;
               return;           
             }
             if (res.data.code === 200 ){
-            //刷新页面
-              this.getkeywordLists(this.formInline);
+              //刷新页面
+              this.getkeywordLists();
             }
           });
           //清空关键词
@@ -581,7 +577,7 @@ export default {
           }
           if (res.data.code === 200 ){
             //刷新页面
-            this.getkeywordLists(this.formInline);
+            this.getkeywordLists();
           }
         });
         //清空关键词
@@ -683,8 +679,8 @@ export default {
               delete item.originalName;
             }
           });
-          this.$refs[`popover-${data.id}`].doClose();
-          this.getkeywordLists(this.formInline);
+          this.$refs['popover-'+data.id].doClose();
+          this.getkeywordLists();
           this.$message({
             type: 'success',
             message: '更新关键词成功!'
@@ -725,7 +721,7 @@ export default {
       immediate: false,
     },
     'formInline.attachId'() {
-      this.getkeywordLists(this.formInline);
+      this.getkeywordLists();
     },
   },
   beforeDestroy(){

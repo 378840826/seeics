@@ -188,8 +188,8 @@ export default {
       treeData: [],
       treeOption: {
         nodeKey: 'id',
-        defaultExpandedKeys: [],
-        highlightCurrent: true,
+        defaultExpandedKeys: [], //选中默认展开
+        highlightCurrent: true, //选中高亮
         currentNoedKey: '',
         accordion: true,
         lazy: true,
@@ -293,7 +293,7 @@ export default {
           },
         ]
       },
-      nodehad: [],
+      nodehad: [], //存储树节点
       resolvehad: [],
       parentId: 0,
       result: true,
@@ -301,7 +301,6 @@ export default {
     };
   },
   mounted() {
-    this.getAnalyzeLists();
     const box = document.querySelector('.box');
     box.scrollTo(0, 0);
   },
@@ -346,6 +345,15 @@ export default {
     },
     wordFormat(percentage) {
       return percentage === 100 ? '导出标题词频' : `正在生成${parseInt(percentage)}%`;
+    },
+    //pagesize变化
+    sizeChange(pageSize){
+      console.log(this.data)
+      this.page.pageSize = pageSize;
+    },
+    //currentpage 变化
+    currentChange(currentPage){
+      this.page.currentPage = currentPage;  
     },
     //获取分页
     getAnalyzeLists(){
@@ -453,7 +461,7 @@ export default {
           //依旧发请求
           analyze(params, row.id).then(res => {
             if (res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
-              //弹框提箱
+            //弹框提箱
               this.dialogVisible = true;
               return;           
             }
@@ -470,9 +478,7 @@ export default {
             type: 'info',
             message: '已取消分析'
           });          
-        });
-
-        
+        });   
       } else {
         analyze(params, row.id).then(res => {
           if (res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
@@ -496,12 +502,12 @@ export default {
       this.nodehad.childNodes = []; //把存起来的node的子节点清空，不然会界面会出现重复树！
       this.treeOption.defaultExpandedKeys = [];
       this.treeLoad(this.nodehad, this.resolvehad, item.value);
+      this.formInline.searchKeyword = '';
       this.active = item.text;
       this.formInline.deptCategory = item.value;
       this.getAnalyzeLists();
     },
     querySearchAsync(queryString, cb) {
-      this.treeOption.defaultExpandedKeys = [];
       if (queryString) {
         analyzeSearch({
           ...this.formInline,
@@ -515,15 +521,9 @@ export default {
             };
           });
           const restaurants = this.restaurants;
-          // const results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants;
           cb(restaurants);
         });
       }
-    },
-    createStateFilter(queryString) {
-      return (state) => {
-        return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
-      };
     },
     handleSelect(val) {
       if (val) {
@@ -535,11 +535,10 @@ export default {
           fullName: val.fullName,
           deptCategory: val.deptCategory,
         };
-        this.treeOption.defaultExpandedKeys = val.ancestors.split(',');
+        this.treeOption.defaultExpandedKeys = val.ancestors.split(','); //默认展开ID
         //定位到可视化区域
         this.repetition(val);
       }
-      
     },
     //递归重复调用
     repetition(val) {
@@ -605,9 +604,6 @@ export default {
     .el-progress-bar__inner {
       border-radius: 1px;
     }
-    .el-tree-node {
-      
-}
   }
   .aside {
     width: 416px !important;
@@ -675,49 +671,49 @@ export default {
     ::v-deep .el-card__body {
       padding: 0px;
     }
-}
-.derivedresultbtn {
-  a{
-    display: inline-block;
-    height: 30px;
-    line-height: 30px;
-    width: 100px;
-    background: #409EFF;
-    color: #fff;
-    text-align: center;
-    border-radius: 1px;
-    margin-right: 30px;
   }
-  a:hover {
-    cursor:pointer;
+  .derivedresultbtn {
+    a{
+      display: inline-block;
+      height: 30px;
+      line-height: 30px;
+      width: 100px;
+      background: #409EFF;
+      color: #fff;
+      text-align: center;
+      border-radius: 1px;
+      margin-right: 30px;
+    }
+    a:hover {
+      cursor:pointer;
+    }
+    ::v-deep .el-button {
+      border-radius: 1px;
+      width: 100px;
+      font-size: 12px;
+      //margin-left: 30px;
+    }  
   }
-  ::v-deep .el-button {
-    border-radius: 1px;
-    width: 100px;
-    font-size: 12px;
-    //margin-left: 30px;
-  }  
-}
-.erroecolor {
-  color: #FF3332;
-}
-.box {
-  // height: 800px;
-  max-height: 80vh;
-  overflow: scroll;
-  scrollbar-width: none; /* firefox */
-  -ms-overflow-style: none; /* IE 10+ */
-  overflow-x: hidden;
-  overflow-y: auto;
-  
-}
-.custom-tree-node {
-  font-size: 14px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.box::-webkit-scrollbar {
-  display: none; /* Chrome Safari */
-}
+  .erroecolor {
+    color: #FF3332;
+  }
+  .box {
+    // height: 800px;
+    max-height: 80vh;
+    overflow: scroll;
+    scrollbar-width: none; /* firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+    overflow-x: hidden;
+    overflow-y: auto;
+    
+  }
+  .custom-tree-node {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .box::-webkit-scrollbar {
+    display: none; /* Chrome Safari */
+  }
 </style>
