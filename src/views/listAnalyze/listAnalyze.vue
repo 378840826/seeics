@@ -125,7 +125,21 @@
         <!-- </el-main> -->
     </basic-container>
   </el-col>
+  <el-dialog
+    title="提示"
+    :visible.sync="dialogVisible"
+    width="30%"
+    center=true
+    append-to-body=true
+  >
+    <span>您已经搜索过该关键词，请在搜索结果中操作</span>
+    <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="refeshList">确 定</el-button>
+    </span>
+  </el-dialog>
 </el-row>
+
 </el-form>
 </template>
 
@@ -235,7 +249,7 @@ export default {
       restaurants: [], //模糊搜索存储
       active: 'New Releases', //按钮高亮默认选中
       timer: null, //定时器
-
+      dialogVisible: false,
       user:{},
       page:{
         total: 0,
@@ -342,9 +356,14 @@ export default {
     wordFormat(percentage) {
         return percentage === 100 ? '导出标题词频' : `正在生成${parseInt(percentage)}%`;
     },
+    //关闭两星期弹框
+    refeshList(){
+      this.dialogVisible=false;
+      this.formInline.searchKeyword = '';
+      this.getAnalyzeLists();
+    },
     //pagesize变化
     sizeChange(pageSize){
-      console.log(this.data)
       this.page.pageSize = pageSize;
     },
     //currentpage 变化
@@ -456,8 +475,10 @@ export default {
         }).then(() => {
           //依旧发请求
           analyze(params, row.id).then(res => {
+            console.log(res)
             if (res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
               //弹框提箱
+              console.log(res)
               this.dialogVisible = true;
               return;           
             }
@@ -556,6 +577,11 @@ export default {
     },
     analyze() {
       analyze(Object.assign(this.formInline, this.analyzeData)).then( res => {
+        console.log(res)
+        if (res.data.msg === '您已经搜索过该类目，请在搜索结果中操作') {
+          this.dialogVisible = true;
+          return;  
+        }
         if (res.data.success) {
           this.formInline.searchKeyword = '';
           this.getAnalyzeLists();
