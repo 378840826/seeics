@@ -56,12 +56,19 @@
                         <div>{{ item.value }}</div>
                         <span class="span" style=" color: #ccc">in {{item.fullName}}</span>
                       </div>
-                      
                     </template>
                   </el-autocomplete>
-                  <el-button size="mini" class="searchBtn" type="primary" icon="el-icon-search" @click="analyze">搜索</el-button>
+                  <el-button
+                    size="mini"
+                    class="searchBtn"
+                    type="primary"
+                    icon="el-icon-search"
+                    :disabled="disabled"
+                    @click="analyze">搜索</el-button>
                 </el-col>
+                
               </el-form-item>
+              <div class="warningtext" v-show="visible">没有搜索到相关分类</div>
             </el-row>
         <!-- </el-header> -->
         <!-- <el-main> -->
@@ -308,6 +315,8 @@ export default {
       parentId: 0,
       result: true,
       results: true,
+      visible: false,
+      disabled: true,
     };
   },
   mounted() {
@@ -330,7 +339,18 @@ export default {
         }
       },
       deep: true,
-    }
+    },
+    'formInline.searchKeyword': {
+      handler(val) {
+        if (!val) {
+          this.disabled = true;
+          this.visible = false;
+        } else if (val === 'Any Department') {
+          this.disabled = true;
+        }
+      },
+      deep: true,
+    },
   },
   methods: {
     treeLoad (node, resolve, text) {
@@ -513,9 +533,12 @@ export default {
       }
     },
     nodeClick(node) {
-      this.formInline.searchKeyword = node.title;
-      this.analyzeData.url = node.url;
-      this.analyzeData.fullName = node.fullName;
+      if (node.title !== 'Any Department') {
+        this.formInline.searchKeyword = node.title;
+        this.analyzeData.url = node.url;
+        this.analyzeData.fullName = node.fullName;
+        this.disabled = false
+      }
     },
     onClick(item) {
       this.nodehad.childNodes = []; //把存起来的node的子节点清空，不然会界面会出现重复树！
@@ -532,20 +555,30 @@ export default {
           ...this.formInline,
           searchKeyword: queryString
         }).then( res => {
-          this.restaurants = res.data.data.map( itme => {
-            return {
-              value: itme.deptName,
-              fullName: itme.fullName,
-              ...itme
-            };
-          });
-          const restaurants = this.restaurants;
-          cb(restaurants);
+          if (res.data.data.length > 0 && res.data.data[0].fullName !== 'Any Department') {
+            this.visible = false;
+            this.restaurants = res.data.data.map( itme => {
+              return {
+                value: itme.deptName,
+                fullName: itme.fullName,
+                ...itme
+              };
+            });
+            const restaurants = this.restaurants;
+            cb(restaurants);
+          } else {
+            this.disabled = true;
+            this.visible = true;
+             cb([]);
+          }
         });
+        
+        // this.restaurants = [];
       }
     },
     handleSelect(val) {
       if (val) {
+        this.disabled = false;
         this.analyzeData = {
           url: val.url,
           fullName: val.fullName,
@@ -584,6 +617,7 @@ export default {
         }
         if (res.data.success) {
           this.formInline.searchKeyword = '';
+          this.disabled = true;
           this.getAnalyzeLists();
         }
       });
@@ -726,6 +760,15 @@ export default {
     overflow-x: hidden;
     overflow-y: auto;
     
+  }
+  .warningtext {
+    position: absolute;
+    top: 40px;
+    font-size: 12px;
+    font-family: MicrosoftYaHei;
+    color: #FF3332;
+    line-height: 24px;
+    margin-left: 175px;
   }
   .custom-tree-node {
     font-size: 14px;
