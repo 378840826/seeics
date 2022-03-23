@@ -191,120 +191,116 @@
 var toke = JSON.parse(localStorage.getItem('saber-token'));
 import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports } from '@/api/ranking/ranking';
 export default {
-   name: 'asinRanking',
-   data() {
-     return {
-       myHeaders: {
-         Authorization: 'Basic c2FiZXI6c2FiZXJfc2VjcmV0',
-         'Blade-Auth': toke.content
-       },
-       visible: false,
-       formData: '',
-       reFormData: '',
-       popover: this.$refs.popover,
-       analyzeNum: {
-         freeTimes: 0,
-         number: 0,
-         usr: ''
-       },
-       file: {
-         name: '',
-         attachId: ''
-       },
-       updateFile: {},
-       isrefresh: true, //强制跟新
-       updateIsrefresh: true,
-       closeFile: {},
-       updateFileName: '',
-       fileName: '',
-       renameFile: '',
-       formInline:{
-          searchCountry: 'US',
-          asin: '',
-          searchTopPage: '2',
-          attachId: '',
-        },
-        asinRules: {
-          asin: [
-            { pattern: /^[a-zA-Z0-9]{10}$/, message: 'ASIN不支持中文，支持10位纯数字或字母组合；', trigger: 'change' }
-          ],
-        },
-        selectData: [],
-        user:{},
-        data: [],
-        dialogVisible: false, //两周内是否搜索过弹框
-        dialogImport: false,
-        desc: false, //排序值
-        timer: null, //定时器名称
-        restnum: 10, //今日剩余数据
-        derivedresult: true, //导出分析结果按钮，
-        failanalysis: false, //分析失败按钮，
-        analysisproccess: false, //正在分析按钮，还要考虑过程，应该是对象
-        results: false, //词频分析定时器
-        result: false,  //关键词分析定时器
-        id: '',
-        page:{
-          total: 0,
-          //pagerCount: 5,
-          currentPage: 1,
-          layout: 'total, sizes, prev, pager, next, jumper',
-          pageSize: 10,
-          pageSizes: [10,20,30,50],
-          //background:false,
-        },
-        option:{
-          emptyText: '没有找到相关商品，请重新查询',
-          addBtn: false,
-          border: true,
-          columnBtn: false,
-          refreshBtn: false,
-          saveBtn: false,
-          updateBtn: false,
-          cancelBtn: false,
-          delBtn: false,
-          menu: false,
-          editBtn: false,
-          align: 'center',
-          menuAlign: 'left',
-          rowKey: 'id',
-          column: [
-            {
-              label: '更新时间',
-              prop: 'searchTime',
-              sortable:true, //排序
-              width: 200,
-              //slot:true
-            },
-            {
-              label: '站点',
-              prop: 'searchCountry',
-              width:283,
-            },
-            {
-              label: 'ASIN',
-              prop: 'searchKeyword',
-              // width: 700,
-              slot: true,            
-            },
-            {
-              label: '操作',
-              prop: 'menu',
-              align: 'left',
-              width: 230,
-            },
-          ]
-        },
-        attachForm: {},
-     }
-   },
-   created() {
-     
-   },
-   mounted() {
-    this.getSelect();
-    this.getkeywordLists(this.formInline);
-   },
-   methods: {
+  name: 'asinRanking',
+  data() {
+    return {
+      myHeaders: {
+        Authorization: 'Basic c2FiZXI6c2FiZXJfc2VjcmV0',
+        'Blade-Auth': toke.content
+      },
+      visible: false,
+      formData: '',
+      reFormData: '',
+      popover: this.$refs.popover,
+      analyzeNum: {
+        freeTimes: 0,
+        number: 0,
+        usr: ''
+      },
+      file: {
+        name: '',
+        attachId: ''
+      },
+      updateFile: {},
+      isrefresh: true, //强制跟新
+      updateIsrefresh: true,
+      closeFile: {},
+      updateFileName: '',
+      fileName: '',
+      renameFile: '',
+      formInline:{
+        searchCountry: 'US',
+        asin: '',
+        searchTopPage: '2',
+        attachId: '',
+      },
+      asinRules: {
+        asin: [
+          { pattern: /^[a-zA-Z0-9]{10}$/, message: 'ASIN不支持中文，支持10位纯数字或字母组合；', trigger: 'change' }
+        ],
+      },
+      selectData: [],
+      user:{},
+      data: [],
+      dialogVisible: false, //两周内是否搜索过弹框
+      dialogImport: false,
+      desc: false, //排序值
+      timer: null, //定时器名称
+      restnum: 10, //今日剩余数据
+      derivedresult: true, //导出分析结果按钮，
+      failanalysis: false, //分析失败按钮，
+      analysisproccess: false, //正在分析按钮，还要考虑过程，应该是对象
+      results: false, //词频分析定时器
+      result: false,  //关键词分析定时器
+      id: '',
+      page:{
+        total: 0,
+        //pagerCount: 5,
+        currentPage: 1,
+        layout: 'total, sizes, prev, pager, next, jumper',
+        pageSize: 10,
+        pageSizes: [10, 20, 30, 50],
+        //background:false,
+      },
+      option:{
+        emptyText: '没有找到相关商品，请重新查询',
+        addBtn: false,
+        border: true,
+        columnBtn: false,
+        refreshBtn: false,
+        saveBtn: false,
+        updateBtn: false,
+        cancelBtn: false,
+        delBtn: false,
+        menu: false,
+        editBtn: false,
+        align: 'center',
+        menuAlign: 'left',
+        rowKey: 'id',
+        column: [
+          {
+            label: '更新时间',
+            prop: 'searchTime',
+            sortable:true, //排序
+            width: 200,
+            //slot:true
+          },
+          {
+            label: '站点',
+            prop: 'searchCountry',
+            width:283,
+          },
+          {
+            label: 'ASIN',
+            prop: 'searchKeyword',
+            // width: 700,
+            slot: true,            
+          },
+          {
+            label: '操作',
+            prop: 'menu',
+            align: 'left',
+            width: 230,
+          },
+        ]
+      },
+      attachForm: {},
+    };
+  },
+  mounted() {
+  this.getSelect();
+  },
+  methods: {
     importChange() {
       const files = document.getElementById('file').files[0];
       if (!files) {
@@ -313,11 +309,11 @@ export default {
       //自动重命名上传
       const arr = [];
       this.selectData.map(item => {
-        if (item.name.indexOf(files.name.slice(0,-5)) != -1) {
+        if (item.name.indexOf(files.name.slice(0, -5)) !== -1) {
           arr.push(item);
         }
       });
-      this.renameFile = arr.length > 0 && `${arr[0].name.slice(0,-5)}-副本(${arr.length + 1}).xlsx`;
+      this.renameFile = arr.length > 0 && `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx`;
       const reFormData = new FormData();
       reFormData.append('file', files, this.renameFile);
       this.reFormData = reFormData;
@@ -333,21 +329,23 @@ export default {
       })
     },
     updateChange(id) {
-      let files = document.getElementById(`file${id}`).files[0];
-      if (!files) return;
-      let arr = [];
+      const files = document.getElementById(`file${id}`).files[0];
+      if (!files) {
+        return;
+      }
+      const arr = [];
       this.selectData.map(item => {
-        if (item.name.indexOf(files.name.slice(0,-5)) != -1) {
+        if (item.name.indexOf(files.name.slice(0, -5)) !== -1) {
           arr.push(item);
         }
       })
-      this.updateFileName = arr.length > 0 ? `${arr[0].name.slice(0,-5)}-副本(${arr.length + 1}).xlsx` : files.name;
-      let formData = new FormData();
-      arr.length > 0 ? formData.append("file",files, `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx`) : formData.append('file', files);
+      this.updateFileName = arr.length > 0 ? `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx` : files.name;
+      const formData = new FormData();
+      arr.length > 0 ? formData.append('file', files, `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx`) : formData.append('file', files);
       this.data.map(item => {
         if (item.id === id) {
           item.formData = formData;
-          item.originalName = arr.length > 0 ? `${arr[0].name.slice(0,-5)}-副本(${arr.length + 1}).xlsx` : files.name;
+          item.originalName = arr.length > 0 ? `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx` : files.name;
         }
       });
       this.updateIsrefresh = this.updateIsrefresh ? false : true;
@@ -367,7 +365,7 @@ export default {
           });
           this.getSelect(1);
           setTimeout(() => {
-            this.getkeywordLists(this.formInline);
+            this.getkeywordLists();
           }, 500);
         } else {
           this.fileName = res.data.data;
@@ -388,7 +386,7 @@ export default {
           });
           this.getSelect(1);
           setTimeout(() => {
-            this.getkeywordLists(this.formInline);
+            this.getkeywordLists();
           }, 500);
         }
       })
@@ -436,25 +434,22 @@ export default {
     //关闭两星期弹框
     refeshList(){
       this.dialogVisible=false;
-      this.getkeywordLists(this.formInline);
+      this.getkeywordLists();
     },
     //pagesize变化
     sizeChange(pageSize){
-      console.log(this.data)
       this.page.pageSize = pageSize;
-      this.getkeywordLists(this.formInline);
     },
     //currentpage 变化
     currentChange(currentPage){
-      this.page.currentPage = currentPage;
-      this.getkeywordLists(this.formInline);     
+      this.page.currentPage = currentPage;  
     },
     //获取表格数据
-    getkeywordLists(formInline){
+    getkeywordLists(){
       // analyzeItme().then(res => {
       //   this.analyzeNum = res.data.data;
       // });
-      getkeywordList(this.page.currentPage, this.page.pageSize, formInline).then(res => {
+      getkeywordList(this.page.currentPage, this.page.pageSize, this.formInline).then(res => {
           if(res.data.code === 200){
           //分页数据
           this.page.currentPage = res.data.data.current;
@@ -471,11 +466,11 @@ export default {
         //有定时器先关掉定时器
         this.timer && this.clearTimer();
         //判断是否要加定时器
-        this.result = this.data.some((item)=>item.status === 'ANALYZING');
-        if(this.result){
+        this.result = this.data.some((item) => item.status === 'ANALYZING');
+        if (this.result){
           this.timer = setTimeout(()=>{
-            this.getkeywordLists(this.formInline);
-          },60000);
+            this.getkeywordLists();
+          }, 60000);
         }
       });
     },
@@ -510,14 +505,14 @@ export default {
         }).then(() => {
           //依旧发请求
           analysiskeyword(this.formInline,id).then(res => {
-          if(res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
+          if (res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
             //弹框提箱
             this.dialogVisible = true;
             return;           
           }
-          if(res.data.code === 200 ){
+          if (res.data.code === 200 ){
             //刷新页面
-            this.getkeywordLists(this.formInline);
+            this.getkeywordLists();
           }
         })
           //清空关键词
@@ -538,7 +533,7 @@ export default {
           }
           if(res.data.code === 200 ){
             //刷新页面
-            this.getkeywordLists(this.formInline);
+            this.getkeywordLists();
           }
         })
           //清空关键词
@@ -606,7 +601,7 @@ export default {
           setTimeout(()=> {
             this.$refs['btn_'+row.id].$el.style.display = 'none';
           }, 2000);
-        }else {
+        } else {
           this.$refs['btn_'+row.id].$el.style.display = 'none';
         }
       })  
@@ -641,7 +636,7 @@ export default {
             }
           });
           this.$refs['popover-'+data.id].doClose();
-          this.getkeywordLists(this.formInline);
+          this.getkeywordLists();
           this.$message({
               type: 'success',
               message: '更新关键词成功!'
@@ -682,7 +677,7 @@ export default {
       immediate: false,
     },
     'formInline.attachId'() {
-       this.getkeywordLists(this.formInline);
+       this.getkeywordLists();
     },
   },
   beforeDestroy(){

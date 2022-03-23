@@ -188,8 +188,8 @@ export default {
       treeData: [],
       treeOption: {
         nodeKey: 'id',
-        defaultExpandedKeys: [],
-        highlightCurrent: true,
+        defaultExpandedKeys: [], //选中默认展开
+        highlightCurrent: true, //选中高亮
         currentNoedKey: '',
         accordion: true,
         lazy: true,
@@ -247,7 +247,7 @@ export default {
         currentPage: 1,
         layout: 'total, sizes, prev, pager, next, jumper',
         pageSize: 10,
-        pageSizes: [10,20,30,50],
+        pageSizes: [10, 20, 30, 50],
         //background:false,
       },
       option:{
@@ -293,15 +293,14 @@ export default {
           },
         ]
       },
-      nodehad: [],
+      nodehad: [], //存储树节点
       resolvehad: [],
       parentId: 0,
       result: true,
       results: true,
-    }
+    };
   },
   mounted() {
-    this.getAnalyzeLists();
     const box = document.querySelector('.box');
     box.scrollTo(0, 0);
   },
@@ -337,7 +336,7 @@ export default {
           return {
             ...item,
             leaf: !item.hasChildren
-          }
+          };
         }));
       });
     },
@@ -346,6 +345,15 @@ export default {
     },
     wordFormat(percentage) {
         return percentage === 100 ? '导出标题词频' : `正在生成${parseInt(percentage)}%`;
+    },
+    //pagesize变化
+    sizeChange(pageSize){
+      console.log(this.data)
+      this.page.pageSize = pageSize;
+    },
+    //currentpage 变化
+    currentChange(currentPage){
+      this.page.currentPage = currentPage;  
     },
     //获取分页
     getAnalyzeLists(){
@@ -377,7 +385,7 @@ export default {
         //有定时器先关掉定时器
         this.timer && this.clearTimer();
         //判断是否要加定时器
-        this.result = this.data.some((item)=>item.status === "ANALYZING");
+        this.result = this.data.some((item) => item.status === 'ANALYZING');
         this.results = this.data.some(item => item.wordFrequencyProgress && item.wordFrequencyProgress !== '1.00');
         //加定时器
         if (this.results) {
@@ -397,7 +405,7 @@ export default {
             this.getAnalyzeLists();
           }, 1500);
         }
-        if(this.result){
+        if (this.result){
           this.timer = setTimeout(()=>{
             this.getAnalyzeLists();
           }, 60000);
@@ -426,8 +434,8 @@ export default {
       //     return;
       // }
       //关键词输入框是否为空
-      if(!row.id){
-        if(!this.formInline.searchKeyword){
+      if (!row.id){
+        if (!this.formInline.searchKeyword){
           this.$message.error('请输入关键词');
           return;
         }
@@ -435,13 +443,13 @@ export default {
       //前端判断时间是否为两周内  
       //参数
       const params = {
-            searchCountry: row.searchCountry,
-            searchKeyword: row.searchKeyword,
-            searchTopPage: row.searchTopPage,
-            url: row.url,
-            fullName: row.fullName,
-            deptCategory: row.deptCategory
-          };
+        searchCountry: row.searchCountry,
+        searchKeyword: row.searchKeyword,
+        searchTopPage: row.searchTopPage,
+        url: row.url,
+        fullName: row.fullName,
+        deptCategory: row.deptCategory
+      };
       if(Date.parse(time) <= Date.now() + 14 * 24 * 60 * 60 * 1000){
 
         //弹确认框
@@ -452,12 +460,12 @@ export default {
         }).then(() => {
           //依旧发请求
           analyze(params, row.id).then(res => {
-          if(res.data.msg === "您已经搜索过该关键词，请在搜索结果中操作"){       
+          if (res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
             //弹框提箱
             this.dialogVisible = true;
             return;           
           }
-          if(res.data.code === 200 ){
+          if (res.data.code === 200 ){
             //刷新页面
             this.getAnalyzeLists();
           }
@@ -470,21 +478,19 @@ export default {
             type: 'info',
             message: '已取消分析'
           });          
-        })
-
-        
+        });   
       } else {
         analyze(params, row.id).then(res => {
-          if(res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
+          if (res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
             //弹框提箱
             this.dialogVisible = true;
             return;           
           }
-          if(res.data.code === 200 ){
+          if (res.data.code === 200 ){
             //刷新页面
             this.getAnalyzeLists();
           }
-        })
+        });
           //清空关键词
           this.formInline.searchKeyword = '';
       }
@@ -496,12 +502,12 @@ export default {
       this.nodehad.childNodes = []; //把存起来的node的子节点清空，不然会界面会出现重复树！
       this.treeOption.defaultExpandedKeys = [];
       this.treeLoad(this.nodehad, this.resolvehad, item.value);
+      this.formInline.searchKeyword = '';
       this.active = item.text;
       this.formInline.deptCategory = item.value;
       this.getAnalyzeLists();
     },
     querySearchAsync(queryString, cb) {
-      this.treeOption.defaultExpandedKeys = []
       if (queryString) {
         analyzeSearch({
           ...this.formInline,
@@ -512,18 +518,12 @@ export default {
               value: itme.deptName,
               fullName: itme.fullName,
               ...itme
-            }
+            };
           });
           const restaurants = this.restaurants;
-          // const results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants;
           cb(restaurants);
         });
       }
-    },
-    createStateFilter(queryString) {
-      return (state) => {
-        return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
-      };
     },
     handleSelect(val) {
       if (val) {
@@ -535,11 +535,10 @@ export default {
           fullName: val.fullName,
           deptCategory: val.deptCategory,
         }
-        this.treeOption.defaultExpandedKeys = val.ancestors.split(',');
+        this.treeOption.defaultExpandedKeys = val.ancestors.split(','); //默认展开ID
         //定位到可视化区域
         this.repetition(val);
       }
-      
     },
     //递归重复调用
     repetition(val) {
@@ -555,7 +554,7 @@ export default {
         
         //定位到可视化区域
         box.scrollTop = boxs.offsetTop;
-      }else {
+      } else {
         setTimeout(() => {
           this.repetition(val);
         }, 1000);
@@ -569,7 +568,7 @@ export default {
         }
       });
     },
-  }
+  },
 }
 </script>
 <style lang="scss" scoped>
@@ -605,9 +604,6 @@ export default {
     .el-progress-bar__inner {
       border-radius: 1px;
     }
-    .el-tree-node {
-      
-}
   }
   .aside {
     width: 416px !important;
@@ -675,49 +671,49 @@ export default {
     ::v-deep .el-card__body {
       padding: 0px;
     }
-}
-.derivedresultbtn {
-  a{
-    display: inline-block;
-    height: 30px;
-    line-height: 30px;
-    width: 100px;
-    background: #409EFF;
-    color: #fff;
-    text-align: center;
-    border-radius: 1px;
-    margin-right: 30px;
   }
-  a:hover {
-    cursor:pointer;
+  .derivedresultbtn {
+    a{
+      display: inline-block;
+      height: 30px;
+      line-height: 30px;
+      width: 100px;
+      background: #409EFF;
+      color: #fff;
+      text-align: center;
+      border-radius: 1px;
+      margin-right: 30px;
+    }
+    a:hover {
+      cursor:pointer;
+    }
+    ::v-deep .el-button {
+      border-radius: 1px;
+      width: 100px;
+      font-size: 12px;
+      //margin-left: 30px;
+    }  
   }
-  ::v-deep .el-button {
-    border-radius: 1px;
-    width: 100px;
-    font-size: 12px;
-    //margin-left: 30px;
-  }  
-}
-.erroecolor {
-  color: #FF3332;
-}
-.box {
-  // height: 800px;
-  max-height: 80vh;
-  overflow: scroll;
-  scrollbar-width: none; /* firefox */
-  -ms-overflow-style: none; /* IE 10+ */
-  overflow-x: hidden;
-  overflow-y: auto;
-  
-}
-.custom-tree-node {
-  font-size: 14px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.box::-webkit-scrollbar {
-  display: none; /* Chrome Safari */
-}
+  .erroecolor {
+    color: #FF3332;
+  }
+  .box {
+    // height: 800px;
+    max-height: 80vh;
+    overflow: scroll;
+    scrollbar-width: none; /* firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+    overflow-x: hidden;
+    overflow-y: auto;
+    
+  }
+  .custom-tree-node {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .box::-webkit-scrollbar {
+    display: none; /* Chrome Safari */
+  }
 </style>
