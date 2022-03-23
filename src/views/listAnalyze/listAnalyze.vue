@@ -178,12 +178,8 @@ export default {
         searchKeyword: '',
       },
       analyzeData: {
-        searchCountry: '',
-        searchKeyword: '',
-        searchTopPage: '',
         url: '',
         fullName: '',
-        deptCategory: '',
       },
       treeData: [],
       treeOption: {
@@ -357,7 +353,7 @@ export default {
     },
     //获取分页
     getAnalyzeLists(){
-      analyzePage(this.formInline).then(res => {
+      analyzePage(this.page.currentPage, this.page.pageSize, this.formInline).then(res => {
           if(res.data.code === 200){
           //分页数据
           this.page.currentPage = res.data.data.page.current;
@@ -450,7 +446,7 @@ export default {
         fullName: row.fullName,
         deptCategory: row.deptCategory
       };
-      if(Date.parse(time) <= Date.now() + 14 * 24 * 60 * 60 * 1000){
+      if (Date.parse(time) <= Date.now() + 14 * 24 * 60 * 60 * 1000){
 
         //弹确认框
         this.$confirm(`距上次分析时间${time}间隔较短，确认重新分析？`, '提示', {
@@ -460,16 +456,16 @@ export default {
         }).then(() => {
           //依旧发请求
           analyze(params, row.id).then(res => {
-          if (res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
-            //弹框提箱
-            this.dialogVisible = true;
-            return;           
-          }
-          if (res.data.code === 200 ){
-            //刷新页面
-            this.getAnalyzeLists();
-          }
-        })
+            if (res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
+              //弹框提箱
+              this.dialogVisible = true;
+              return;           
+            }
+            if (res.data.code === 200 ){
+              //刷新页面
+              this.getAnalyzeLists();
+            }
+          });
           //清空关键词
           this.formInline.searchKeyword = '';
           
@@ -497,6 +493,8 @@ export default {
     },
     nodeClick(node) {
       this.formInline.searchKeyword = node.title;
+      this.analyzeData.url = node.url;
+      this.analyzeData.fullName = node.fullName;
     },
     onClick(item) {
       this.nodehad.childNodes = []; //把存起来的node的子节点清空，不然会界面会出现重复树！
@@ -528,12 +526,8 @@ export default {
     handleSelect(val) {
       if (val) {
         this.analyzeData = {
-          searchCountry: val.country,
-          searchKeyword: val.deptName,
-          searchTopPage: '2',
           url: val.url,
           fullName: val.fullName,
-          deptCategory: val.deptCategory,
         }
         this.treeOption.defaultExpandedKeys = val.ancestors.split(','); //默认展开ID
         //定位到可视化区域
@@ -547,10 +541,10 @@ export default {
       const boxs = document.getElementById(`${val.deptId}`);
       if (boxs) {
         //选中高亮
-        setTimeout(() => {
+        // setTimeout(() => {
           this.treeOption.currentNoedKey = val.deptId;
           this.$refs.tree.setCurrentKey(val.deptId);
-        }, 1000)
+        // }, 1000)
         
         //定位到可视化区域
         box.scrollTop = boxs.offsetTop;
@@ -561,9 +555,9 @@ export default {
       }
     },
     analyze() {
-      this.formInline.searchKeyword = '';
-      analyze(this.analyzeData).then( res => {
+      analyze(Object.assign(this.formInline, this.analyzeData)).then( res => {
         if (res.data.success) {
+          this.formInline.searchKeyword = '';
           this.getAnalyzeLists();
         }
       });

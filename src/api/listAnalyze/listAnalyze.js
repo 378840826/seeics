@@ -7,8 +7,8 @@ export const analyzeTree = ( data ) => {
     params: {
       ...data,
     }
-  })
-}
+  });
+};
 
 //搜索
 export const analyzeSearch = ( data ) => {
@@ -16,19 +16,21 @@ export const analyzeSearch = ( data ) => {
     url: '/api/seeics-analysis/list-analyze/search',
     method: 'post',
     data,
-  })
-}
+  });
+};
 
 //分页
-export const analyzePage = ( data )  => {
+export const analyzePage = (current, size, data)  => {
   return request({
     url: '/api/seeics-analysis/list-analyze/page',
     method: 'get',
     params: {
+      current,
+      size,
       ...data,
     }
-  })
-}
+  });
+};
 
 //分析
 export const analyze = ( data, id ) => {
@@ -39,8 +41,8 @@ export const analyze = ( data, id ) => {
       ...data,
       id,
     },
-  })
-}
+  });
+};
 
 //词频分析
 export const keyWordAnalyze = ( id ) => {
@@ -50,5 +52,5 @@ export const keyWordAnalyze = ( id ) => {
     data: {
       id,
     },
-  })
-}
+  });
+};
