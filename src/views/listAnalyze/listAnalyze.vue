@@ -33,10 +33,12 @@
         <!-- <el-header class="header" style="height: 124px;"> -->
             <el-row class="button">
               <el-button 
+                :ref="'btn_' + item.value"
                 v-for="item in deptCategory" 
                 :key="item.text" :class="{active: active == item.text}" 
                 @click="onClick(item)"
                 size="small"
+                :disabled="btnDisabled"
               >{{item.text}}</el-button>
             </el-row>   
             <el-row style="marginTop: 20px">
@@ -50,6 +52,7 @@
                     v-model="formInline.searchKeyword"
                     :fetch-suggestions="querySearchAsync"
                     @select="handleSelect"
+                    clearable
                   >
                     <template slot-scope="{ item }">
                       <div class="box2">
@@ -103,8 +106,9 @@
                 </div>
                 <div v-else-if="scope.row.status === 'COMPLETED' && !scope.row.excelUrl" class="derivedresultbtn">
                   <el-button type="info" class="failBtn">分析失败</el-button>
+                  <span  class="analysisaginspan" @click="analysiskeywords(scope.row)">重试</span>
                   <div>
-                    <span class="erroecolor">该关键词没有找到相关商品</span>
+                    <span class="erroecolor">该分类下暂无商品，建议在亚马逊前台先行确认</span>
                   </div>
                   <div>
                     <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
@@ -201,6 +205,7 @@ export default {
       analyzeData: {
         url: '',
         fullName: '',
+        searchKeyword: '',
       },
       treeData: [],
       treeOption: {
@@ -317,6 +322,7 @@ export default {
       results: true,
       visible: false,
       disabled: true,
+      btnDisabled: false,
     };
   },
   mounted() {
@@ -345,7 +351,12 @@ export default {
         if (!val) {
           this.disabled = true;
           this.visible = false;
+          this.analyzeData.url = '';
+          this.analyzeData.fullName = '';
+          this.analyzeData.searchKeyword = '';
         } else if (val === 'Any Department') {
+          this.disabled = true;
+        } else if (val !== this.analyzeData.searchKeyword) {
           this.disabled = true;
         }
       },
@@ -362,12 +373,25 @@ export default {
         this.parentId = node.data.id;
       }
       analyzeTree({ parentId: this.parentId, deptCategory: text || this.formInline.deptCategory }).then(res => {
+        if (res.data.success && text) {
+          this.$refs[`btn_${text}`][0].icon = '';
+          this.btnDisabled = false;
+        }
         resolve(res.data.data.map(item => {
           return {
             ...item,
             leaf: !item.hasChildren
           };
         }));
+      }).catch(() => {
+        if (text) {
+          this.$refs[`btn_${text}`][0].icon = '';
+          this.btnDisabled = false;
+          this.$message({
+            type: 'error',
+            message: '请求网络超时！'
+          });
+        }
       });
     },
     format(percentage) {
@@ -535,10 +559,14 @@ export default {
         this.formInline.searchKeyword = node.title;
         this.analyzeData.url = node.url;
         this.analyzeData.fullName = node.fullName;
-        this.disabled = false
+        this.analyzeData.searchKeyword = node.title;
+        this.disabled = false;
+        this.visible = false;
       }
     },
     onClick(item) {
+      this.$refs[`btn_${item.value}`][0].icon = 'el-icon-loading'; //点击按钮loading效果
+      this.btnDisabled = true; //所有按钮禁用
       this.nodehad.childNodes = []; //把存起来的node的子节点清空，不然会界面会出现重复树！
       this.treeOption.defaultExpandedKeys = [];
       this.treeLoad(this.nodehad, this.resolvehad, item.value);
@@ -555,6 +583,7 @@ export default {
         }).then( res => {
           if (res.data.data.length > 0 && res.data.data[0].fullName !== 'Any Department') {
             this.visible = false;
+            // this.disabled = true;
             this.restaurants = res.data.data.map( itme => {
               return {
                 value: itme.deptName,
@@ -567,7 +596,7 @@ export default {
           } else {
             this.disabled = true;
             this.visible = true;
-             cb([]);
+            cb([]);
           }
         });
         
@@ -580,6 +609,8 @@ export default {
         this.analyzeData = {
           url: val.url,
           fullName: val.fullName,
+          // eslint-disable-next-line key-spacing
+          searchKeyword : val.deptName,
         };
         this.treeOption.defaultExpandedKeys = val.ancestors.split(','); //默认展开ID
         //定位到可视化区域
