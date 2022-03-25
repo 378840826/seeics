@@ -178,7 +178,7 @@ export default {
             {
               label:'站点',
               prop:'searchCountry',
-              //width:283,
+              width:283,
             },
             {
               label:'关键词',

@@ -298,7 +298,7 @@ export default {
           {
             label: '站点',
             prop: 'searchCountry',
-            width: 283,
+            width: 60,
           },
           {
             label: '分类',
@@ -378,11 +378,11 @@ export default {
           this.btnDisabled = false;
         }
         resolve(res.data.data.map(item => {
-            return {
-              ...item,
-              leaf: !item.hasChildren
-            };
-          }));
+          return {
+            ...item,
+            leaf: !item.hasChildren
+          };
+        }));
       }).catch(() => {
         if (text) {
           this.$refs[`btn_${text}`][0].icon = '';
@@ -390,7 +390,7 @@ export default {
           this.$message({
             type: 'error',
             message: '请求网络超时！'
-          })
+          });
         }
       });
     },
@@ -610,7 +610,7 @@ export default {
           url: val.url,
           fullName: val.fullName,
           searchKeyword : val.deptName,
-        }
+        };
         this.treeOption.defaultExpandedKeys = val.ancestors.split(','); //默认展开ID
         //定位到可视化区域
         this.repetition(val);
