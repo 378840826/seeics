@@ -201,12 +201,12 @@ export default {
           {
             label: '站点',
             prop: 'searchCountry',
-            //width:283,
+            width: 283,
           },
           {
             label: '关键词',
             prop: 'searchKeyword',
-            width: 700,
+            // width:700,
             slot: true,            
           },
           {
