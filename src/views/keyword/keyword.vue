@@ -30,7 +30,7 @@
           </el-select>
         </el-form-item>
         <span class="formspan">页</span>
-        <el-button type="primary" class="download" @click="download">下载可视化模板</el-button>
+        <el-button class="download" @click="download">下载可视化模板</el-button>
       </el-form>
       <div class="warningtext">今日还剩{{restnum}}次免费搜索机会</div>
       <div class="avuecrudclass">

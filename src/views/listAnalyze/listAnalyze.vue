@@ -68,8 +68,8 @@
                     icon="el-icon-search"
                     :disabled="disabled"
                     @click="analyze">搜索</el-button>
+                    <el-button class="download" size="mini" @click="download">下载可视化模板</el-button>
                 </el-col>
-                
               </el-form-item>
               <div class="warningtext" v-show="visible">没有搜索到相关分类</div>
             </el-row>
@@ -155,7 +155,7 @@
 </template>
 
 <script>
-import { analyzeTree, analyzeSearch, analyzePage, analyze, keyWordAnalyze } from '@/api/listAnalyze/listAnalyze';
+import { analyzeTree, analyzeSearch, analyzePage, analyze, keyWordAnalyze, download } from '@/api/listAnalyze/listAnalyze';
 export default {
   data() {
     return {
@@ -650,7 +650,38 @@ export default {
         }
       });
     },
-  }
+    //下载模板
+    download () {
+      const loading = this.$loading({
+        lock: true,
+        text: '正在下载模板...',
+        spinner: 'el-icon-loading'
+      });
+      download().then(res => {
+        if (res.status === 200) {
+          const content = res.data;
+          // const http = res.data.data.replace("http","https")
+          // window.location.href = http
+          loading.close();
+          const blob = new Blob([content], { type: 'application/vnd.ms-excel' });
+          const fileName = `${this.$t('可视化模板') }.xlsx`;
+          if ('download' in document.createElement('a')) { //非IE下载
+            const elink = document.createElement('a');
+            elink.download = fileName;
+            elink.style.display = 'none';
+            elink.href = URL.createObjectURL(blob);
+            elink.setAttribute('download', `${this.$t('可视化模板') }.xlsx`);
+            document.body.appendChild(elink);
+            elink.click();
+            URL.revokeObjectURL(elink.href);
+            document.body.removeChild(elink);
+          } else { //IE10+下载
+            navigator.msSaveBlob(blob, fileName);
+          }
+        }
+      });
+    }  
+  },
 };
 </script>
 <style lang="scss" scoped>
@@ -716,7 +747,7 @@ export default {
   }
   .searchBox {
     .autocomplete {
-      width: 70%;
+      width: 55%;
       margin-right: 10px;
     }
     .box2 {
@@ -806,5 +837,8 @@ export default {
   }
   .box::-webkit-scrollbar {
     display: none; /* Chrome Safari */
+  }
+  .download {
+    margin: 0 0px 0 30px;
   }
 </style>
