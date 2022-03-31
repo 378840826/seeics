@@ -156,6 +156,7 @@
 
 <script>
 import { analyzeTree, analyzeSearch, analyzePage, analyze, keyWordAnalyze, download } from '@/api/listAnalyze/listAnalyze';
+import { downloadFile } from '@/util/util';
 export default {
   data() {
     return {
@@ -660,25 +661,12 @@ export default {
       download().then(res => {
         if (res.status === 200) {
           const content = res.data;
-          // const http = res.data.data.replace("http","https")
-          // window.location.href = http
           loading.close();
-          const blob = new Blob([content], { type: 'application/vnd.ms-excel' });
           const fileName = `${this.$t('可视化模板') }.xlsx`;
-          if ('download' in document.createElement('a')) { //非IE下载
-            const elink = document.createElement('a');
-            elink.download = fileName;
-            elink.style.display = 'none';
-            elink.href = URL.createObjectURL(blob);
-            elink.setAttribute('download', `${this.$t('可视化模板') }.xlsx`);
-            document.body.appendChild(elink);
-            elink.click();
-            URL.revokeObjectURL(elink.href);
-            document.body.removeChild(elink);
-          } else { //IE10+下载
-            navigator.msSaveBlob(blob, fileName);
-          }
+          downloadFile(content, fileName);
         }
+      }).catch(() => {
+        loading.close();
       });
     }  
   },

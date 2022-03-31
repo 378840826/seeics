@@ -234,6 +234,7 @@
 <script>
 const toke = JSON.parse(localStorage.getItem('saber-token'));
 import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports } from '@/api/ranking/ranking';
+import { downloadFile } from '@/util/util';
 export default {
   name: 'asinRanking',
   data() {
@@ -382,7 +383,7 @@ export default {
         if (item.name.indexOf(files.name.slice(0, -5)) !== -1) {
           arr.push(item);
         }
-      })
+      });
       this.updateFileName = arr.length > 0 ? `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx` : files.name;
       const formData = new FormData();
       arr.length > 0 ? formData.append('file', files, `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx`) : formData.append('file', files);
@@ -398,7 +399,7 @@ export default {
       });
     },
     btn(id) {
-      this.$refs['btn_'+id].$el.style.display = 'none';
+      this.$refs[`btn_${id}`].$el.style.display = 'none';
     },
     submit() {
       imports(this.formData).then(res => {
@@ -455,7 +456,7 @@ export default {
     },
     close(id) {
       this.updateFileName = '';
-      this.$refs['popover-'+id].doClose();
+      this.$refs[`popover-${id}`].doClose();
     },
     importHide() {
       this.updateFileName = '';
@@ -601,53 +602,31 @@ export default {
       download().then(res => {
         if (res.status === 200) {
           const content = res.data;
-          const blob = new Blob([content], { type: 'application/vnd.ms-excel' });
           const fileName = `${this.$t('ASIN-关键词排名导出模板') }.xlsx`;
-          if ('download' in document.createElement('a')) { //非IE下载
-            const elink = document.createElement('a');
-            elink.download = fileName;
-            elink.style.display = 'none';
-            elink.href = URL.createObjectURL(blob);
-            elink.setAttribute('download', `${this.$t('ASIN-关键词排名导出模板') }.xlsx`);
-            document.body.appendChild(elink);
-            elink.click();
-            URL.revokeObjectURL(elink.href);
-            document.body.removeChild(elink);
-          } else { //IE10+下载
-            navigator.msSaveBlob(blob, fileName);
-          }
+          downloadFile(content, fileName);
           setTimeout(() => {
             loading.close();
           }, 2000);
         }
+      }).catch(() => {
+        loading.close();
       });
     },
     downloadKeyword(row) {
-      this.$refs['btn_'+row.id].$el.style.display = 'block';
+      this.$refs[`btn_${row.id}`].$el.style.display = 'block';
       exportKeyword(row.id).then(res => {
         if (res.status === 200) {
           const content = res.data;
-          const blob = new Blob([content], { type: 'application/vnd.ms-excel' });
           const fileName = `${this.$t(`${row.searchCountry}_${row.searchKeyword}`) }.xlsx`;
-          if ('download' in document.createElement('a')) { //非IE下载
-            const elink = document.createElement('a');
-            elink.download = fileName;
-            elink.style.display = 'none';
-            elink.href = URL.createObjectURL(blob);
-            elink.setAttribute('download', `${this.$t(`${row.searchCountry}_${row.searchKeyword}`) }.xlsx`);
-            document.body.appendChild(elink);
-            elink.click();
-            URL.revokeObjectURL(elink.href);
-            document.body.removeChild(elink);
-          } else { //IE10+下载
-            navigator.msSaveBlob(blob, fileName);
-          }
+          downloadFile(content, fileName);
           setTimeout(() => {
-            this.$refs['btn_'+row.id].$el.style.display = 'none';
+            this.$refs[`btn_${row.id}`].$el.style.display = 'none';
           }, 2000);
         } else {
-          this.$refs['btn_'+row.id].$el.style.display = 'none';
+          this.$refs[`btn_${row.id}`].$el.style.display = 'none';
         }
+      }).catch(() => {
+        this.$refs[`btn_${row.id}`].$el.style.display = 'none';
       });  
     },
     //获取选择文件
@@ -679,7 +658,7 @@ export default {
               delete item.originalName;
             }
           });
-          this.$refs['popover-'+data.id].doClose();
+          this.$refs[`popover-${data.id}`].doClose();
           this.getkeywordLists();
           this.$message({
             type: 'success',

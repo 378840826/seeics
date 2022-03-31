@@ -371,3 +371,25 @@ export const downloadFileBase64 = (path, name) => {
     }
   };
 };
+
+/**
+ * 导出
+ * @param {Blob} blob - blob文件
+ * @param {String} fileName -文件名(带后缀名 默认xls)
+ */
+export const downloadFile = (blob, fileName) => {
+  const blobs = new Blob([blob], { type: 'application/vnd.ms-excel' });
+  if ('download' in document.createElement('a')) { //非IE下载
+    const a = document.createElement('a');
+    a.download = fileName;
+    a.style.display = 'none';
+    a.href = URL.createObjectURL(blobs);
+    a.setAttribute('download', fileName);
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(a.href);
+    document.body.removeChild(a);
+  } else { //IE10+下载
+    navigator.msSaveBlob(blobs, fileName);
+  }
+};

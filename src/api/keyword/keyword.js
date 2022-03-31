@@ -51,3 +51,15 @@ export const keyWordReset = (id) => {
     method: 'get',
   });
 };
+
+//词频选项
+export const keywordOptions = (data) => {
+  return request({
+    url: '/api/seeics-analysis/keyword-analyze/download/keyword/count',
+    method: 'get',
+    params: {
+      ...data
+    },
+    responseType: 'blob'
+  });
+};

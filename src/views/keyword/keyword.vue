@@ -31,6 +31,26 @@
         </el-form-item>
         <span class="formspan">页</span>
         <el-button class="download" @click="download">下载可视化模板</el-button>
+        <!-- <el-popover
+          placement="bottom"
+          width="100"
+          trigger="manual"
+          v-model="popoverVisible">
+          <p>分词：
+            <el-checkbox
+              
+              v-model="checkAll" 
+              @change="handleCheckAllChange">全选</el-checkbox>
+          </p>
+          <el-checkbox-group v-model="checkedCities" @change="handleCheckedCitiesChange">
+            <el-checkbox v-for="item in keywordNums" :label="item.value" :key="item.label">{{item.label}}</el-checkbox>
+          </el-checkbox-group>
+          <div style="text-align: center;">
+            <el-button size="mini" type="primary" @click="popoverVisible = false" style="height: 24px; margin: 10px; fontSize: 10px; padding: 3px 4px 3px 4px;">全局应用</el-button>
+            <el-button size="mini" @click="popoverVisible = false"  style="height: 24px; margin: 0; fontSize: 10px; padding: 3px 4px 3px 4px;">取消</el-button>
+          </div>
+          <el-button type="text" slot="reference" @click="popoverVisible = !popoverVisible">词频选项</el-button>
+        </el-popover> -->
       </el-form>
       <div class="warningtext">今日还剩{{restnum}}次免费搜索机会</div>
       <div class="avuecrudclass">
@@ -99,26 +119,52 @@
             class="derivedresultbtn"
             style="marginTop: 5px"
           >
-            <div
-              class="avuecrudclass" 
+            <span
               v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'"
+              class="derivedresultbtn"
             >
               <a 
-                v-if="!scope.row.loading" 
+                 v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'"
                 @click="wordStatistics(scope.row.id)"
               >
                 生成标题词频 <i :class="scope.row.loading ? 'el-icon-loading' : ''"></i>
               </a>
               <a v-else>生成标题词频 <i :class="'el-icon-loading'"></i></a>
-            </div>
-            <el-progress 
-              v-else-if="scope.row.wordFrequencyProgress !== '1.00'" 
-              :percentage="scope.row.wordFrequencyProgress*100" 
-              :format="wordFormat" 
-              :text-inside="true" 
-              :stroke-width="30"
-            ></el-progress>
+            </span>
+            <span v-else-if="scope.row.wordFrequencyProgress !== '1.00'" class="derivedresultbtn" >
+              <el-progress 
+                :percentage="scope.row.wordFrequencyProgress*100" 
+                :format="wordFormat" 
+                :text-inside="true" 
+                :stroke-width="30"
+                width="100"
+              ></el-progress>
+            </span>
+            
             <a v-else :href="`/api${scope.row.wordFrequencyExcelUrl}`" download>导出标题词频</a>
+            <el-popover
+              :ref="'popover_'+scope.row.id"
+              placement="bottom"
+              width="100"
+              :visible-arrow= "false"
+              trigger="click"
+              @click.stop="isShowWhole = false"
+              >
+              <p>分词：
+                <el-checkbox
+                  
+                  v-model="checkAll" 
+                  @change="handleCheckAllChange">全选</el-checkbox>
+              </p>
+              <el-checkbox-group v-model="checkedCities" @change="handleCheckedCitiesChange">
+                <el-checkbox v-for="item in keywordNums" :label="item.value" :key="item.label">{{item.label}}</el-checkbox>
+              </el-checkbox-group>
+              <div style="text-align: center;">
+                <el-button size="mini" type="primary" @click="useBtn(scope.row)" class="popoverBtn" style="margin: 10px;">此处应用</el-button>
+                <el-button size="mini" @click="opent(scope.row.id)" class="popoverBtn">取消</el-button>
+              </div>
+              <span class="analysisaginspan" type="text" slot="reference" style="margin: 0">修改词频选项</span>
+        </el-popover>
             <!-- <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span> -->
         </div>
         </template>
@@ -142,8 +188,8 @@
 </template>
 
 <script>
-import { getkeywordList, analysiskeyword, wordStatistics, download, keyWordReset } from '@/api/keyword/keyword';
-
+import { getkeywordList, analysiskeyword, wordStatistics, download, keyWordReset, keywordOptions } from '@/api/keyword/keyword';
+import { downloadFile } from '@/util/util';
 
 export default {
  
@@ -156,6 +202,28 @@ export default {
       },
       user: {},
       data: [],
+      popoverVisible: false, //词频选项框
+      checkAll: false,
+      isIndeterminate: true,
+      checkedCities: [1],
+      keywordNums: [
+        { 
+          value: 1,
+          label: '1个单词' 
+        },
+        {
+          value: 2,
+          label: '2个单词'
+        }, 
+        { 
+          value: 3, 
+          label: '3个单词' 
+        }, 
+        { 
+          value: 4, 
+          label: '4个单词' 
+        }
+      ],
       dialogVisible: false, //两周内是否搜索过弹框
       desc: false, //排序值
       timer: null, //定时器名称
@@ -223,6 +291,33 @@ export default {
     this.getkeywordLists();
   },
   methods: {
+    handleCheckAllChange(val) {
+      this.checkedCities = val ? [1, 2, 3, 4] : [];
+      this.isIndeterminate = false;
+    },
+    handleCheckedCitiesChange(value) {
+      const checkedCount = value.length;
+      this.checkAll = checkedCount === this.keywordNums.length;
+      this.isIndeterminate = checkedCount > 0 && checkedCount < this.keywordNums.length;
+    },
+    opent(id) {
+      this.$refs[`popover_${id}`].doClose();
+    },
+    useBtn(row) {
+      keywordOptions({
+        id: row.id,
+        combingRules: this.checkedCities.sort((a, b) => b - a).join(',') || 1,
+        isAsc: false,
+      }).then( res => {
+        if (res.status === 200) {
+          const content = res.data;
+          const fileName = `${this.$t(row.searchKeyword)}.xlsx`;
+          downloadFile(content, fileName);
+          this.$refs[`popover_${row.id}`].doClose();
+        }
+        // downloadFile(res.data, row.searchKeyword);
+      });
+    },
     format(percentage) {
       return percentage === 100 ? '导出分析报告' : `正在分析${parseInt(percentage)}%`;
     },
@@ -396,25 +491,12 @@ export default {
       download().then(res => {
         if (res.status === 200) {
           const content = res.data;
-          // const http = res.data.data.replace("http","https")
-          // window.location.href = http
           loading.close();
-          const blob = new Blob([content], { type: 'application/vnd.ms-excel' });
-          const fileName = `${this.$t('可视化模板') }.xlsx`;
-          if ('download' in document.createElement('a')) { //非IE下载
-            const elink = document.createElement('a');
-            elink.download = fileName;
-            elink.style.display = 'none';
-            elink.href = URL.createObjectURL(blob);
-            elink.setAttribute('download', `${this.$t('可视化模板') }.xlsx`);
-            document.body.appendChild(elink);
-            elink.click();
-            URL.revokeObjectURL(elink.href);
-            document.body.removeChild(elink);
-          } else { //IE10+下载
-            navigator.msSaveBlob(blob, fileName);
-          }
+          const fileName = `${this.$t('可视化模板')}.xlsx`;
+          downloadFile(content, fileName);
         }
+      }).catch(() => {
+        loading.close();
       });
     }  
   },
@@ -463,6 +545,13 @@ export default {
   .el-progress-bar__outer {
     border-radius: 1px;
     width: 100px;
+    margin-right: 30px;
+    display: inline-block;
+  }
+  .el-progress {
+    position: relative;
+    line-height: 1;
+    display: inline-block;
   }
   .el-progress-bar__inner {
     border-radius: 1px;
@@ -500,6 +589,10 @@ export default {
   .el-progress-bar__inner {
     text-align: center;
   }
+}
+.el-checkbox-group {
+    font-size: 0;
+    margin: -10px 0px 0px 47px;
 }
 .avuecrudclass {
   .analysisaginspan {
@@ -565,5 +658,11 @@ export default {
 }
 .download {
       margin: 0 0px 0 40px;
+}
+.popoverBtn {
+  height: 24px;
+  margin: 0;
+  font-size: 10px;
+  padding: 3px 4px 3px 4px;
 }
 </style>
