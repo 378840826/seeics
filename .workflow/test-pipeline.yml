@@ -51,7 +51,7 @@ stages:
       - step: deploy@agent
         name: deploy_agent
         displayName: 主机部署
-        hostGroupID: test-bladex
+        hostGroupID: test-saber
         deployArtifact:
           - source: artifact
             name: output
