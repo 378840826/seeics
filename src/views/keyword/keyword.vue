@@ -4,13 +4,15 @@
   <el-card>
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item>
-          <el-select v-model="formInline.searchCountry">
+          <el-select v-model="formInline.searchCountry" @change="selectState">
             <el-option label="美国" value="US"></el-option>
-            <el-option label="英国" value="EN" disabled></el-option>
-            <el-option label="加拿大" value="CA" disabled></el-option>
-            <el-option label="法国" value="FR" disabled></el-option>
-            <el-option label="意大利" value="SP" disabled></el-option>
-            <el-option label="德国" value="GE" disabled></el-option>
+            <el-option label="英国" value="UK"></el-option>
+            <el-option label="加拿大" value="CA"></el-option>
+            <el-option label="法国" value="FR"></el-option>
+            <el-option label="意大利" value="IT"></el-option>
+            <el-option label="德国" value="DE"></el-option>
+            <el-option label="日本" value="JP"></el-option>
+            <el-option label="西班牙" value="ES"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item  class="inputclass">
@@ -31,26 +33,27 @@
         </el-form-item>
         <span class="formspan">页</span>
         <el-button class="download" @click="download">下载可视化模板</el-button>
-        <!-- <el-popover
+        <el-popover
           placement="bottom"
           width="100"
-          trigger="manual"
+          trigger="click"
+          @click.stop="isShowWhole = false"
+          @show="globalCheckAll = globalChecked.length ===  4 ? true : false"
           v-model="popoverVisible">
           <p>分词：
             <el-checkbox
-              
-              v-model="checkAll" 
-              @change="handleCheckAllChange">全选</el-checkbox>
+              v-model="globalCheckAll" 
+              @change="globalHandleCheckAllChange">全选</el-checkbox>
           </p>
-          <el-checkbox-group v-model="checkedCities" @change="handleCheckedCitiesChange">
+          <el-checkbox-group v-model="globalChecked" @change="globalHandleCheckedCitiesChange">
             <el-checkbox v-for="item in keywordNums" :label="item.value" :key="item.label">{{item.label}}</el-checkbox>
           </el-checkbox-group>
           <div style="text-align: center;">
-            <el-button size="mini" type="primary" @click="popoverVisible = false" style="height: 24px; margin: 10px; fontSize: 10px; padding: 3px 4px 3px 4px;">全局应用</el-button>
+            <el-button size="mini" type="primary" @click="popoverVisible = false, checkedCities = globalChecked" style="height: 24px; margin: 10px; fontSize: 10px; padding: 3px 4px 3px 4px;">全局应用</el-button>
             <el-button size="mini" @click="popoverVisible = false"  style="height: 24px; margin: 0; fontSize: 10px; padding: 3px 4px 3px 4px;">取消</el-button>
           </div>
-          <el-button type="text" slot="reference" @click="popoverVisible = !popoverVisible">词频选项</el-button>
-        </el-popover> -->
+          <el-button type="text" slot="reference">词频选项</el-button>
+        </el-popover>
       </el-form>
       <div class="warningtext">今日还剩{{restnum}}次免费搜索机会</div>
       <div class="avuecrudclass">
@@ -119,13 +122,13 @@
             class="derivedresultbtn"
             style="marginTop: 5px"
           >
-            <span
+            <!-- <span
               v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'"
               class="derivedresultbtn"
-            >
-              <a 
+            > -->
+              <!-- <a 
                  v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'"
-                @click="wordStatistics(scope.row.id)"
+                @click="wordStatistics(scope.row)"
               >
                 生成标题词频 <i :class="scope.row.loading ? 'el-icon-loading' : ''"></i>
               </a>
@@ -141,7 +144,8 @@
               ></el-progress>
             </span>
             
-            <a v-else :href="`/api${scope.row.wordFrequencyExcelUrl}`" download>导出标题词频</a>
+            <a v-else :href="`/api${scope.row.wordFrequencyExcelUrl}`" download>导出标题词频</a> -->
+            <a @click="wordStatistics(scope.row)">导出标题词频</a>
             <el-popover
               :ref="'popover_'+scope.row.id"
               placement="bottom"
@@ -149,16 +153,19 @@
               :visible-arrow= "false"
               trigger="click"
               @click.stop="isShowWhole = false"
+              @show="popoverShow"
+              @hide="popoverHide"
               >
               <p>分词：
                 <el-checkbox
-                  
                   v-model="checkAll" 
                   @change="handleCheckAllChange">全选</el-checkbox>
               </p>
+              
               <el-checkbox-group v-model="checkedCities" @change="handleCheckedCitiesChange">
                 <el-checkbox v-for="item in keywordNums" :label="item.value" :key="item.label">{{item.label}}</el-checkbox>
               </el-checkbox-group>
+              <span style="fontSize: 8px; color: red" v-if="checkedCities.length < 1">当前选项为空！默认全局选项</span>
               <div style="text-align: center;">
                 <el-button size="mini" type="primary" @click="useBtn(scope.row)" class="popoverBtn" style="margin: 10px;">此处应用</el-button>
                 <el-button size="mini" @click="opent(scope.row.id)" class="popoverBtn">取消</el-button>
@@ -203,9 +210,13 @@ export default {
       user: {},
       data: [],
       popoverVisible: false, //词频选项框
+      globalCheckAll: false,
       checkAll: false,
       isIndeterminate: true,
-      checkedCities: [1],
+      globalChecked: [1, 2, 3, 4],
+      checkedCities: [1, 2, 3, 4],
+      formerChecke: [],
+      checkeds: [],
       keywordNums: [
         { 
           value: 1,
@@ -296,27 +307,33 @@ export default {
       this.isIndeterminate = false;
     },
     handleCheckedCitiesChange(value) {
+      this.checkeds = value;
       const checkedCount = value.length;
       this.checkAll = checkedCount === this.keywordNums.length;
       this.isIndeterminate = checkedCount > 0 && checkedCount < this.keywordNums.length;
     },
+    globalHandleCheckAllChange(val) {
+      this.globalChecked = val ? [1, 2, 3, 4] : [];
+      this.isIndeterminate = false;
+    },
+    globalHandleCheckedCitiesChange(value) {
+      const checkedCount = value.length;
+      this.globalCheckAll = checkedCount === this.keywordNums.length;
+      this.isIndeterminate = checkedCount > 0 && checkedCount < this.keywordNums.length;
+    },
     opent(id) {
+      // this.checkedCities = this.formerChecke;
       this.$refs[`popover_${id}`].doClose();
     },
     useBtn(row) {
-      keywordOptions({
-        id: row.id,
-        combingRules: this.checkedCities.sort((a, b) => b - a).join(',') || 1,
-        isAsc: false,
-      }).then( res => {
-        if (res.status === 200) {
-          const content = res.data;
-          const fileName = `${this.$t(row.searchKeyword)}.xlsx`;
-          downloadFile(content, fileName);
-          this.$refs[`popover_${row.id}`].doClose();
-        }
-        // downloadFile(res.data, row.searchKeyword);
-      });
+      this.$refs[`popover_${row.id}`].doClose();
+    },
+    popoverShow() {
+      this.checkAll = this.checkedCities.length === 4 ? true : false;
+      // this.formerChecke = this.checkedCities; 
+    },
+    popoverHide() {
+      // this.checkedCities = this.formerChecke;
     },
     format(percentage) {
       return percentage === 100 ? '导出分析报告' : `正在分析${parseInt(percentage)}%`;
@@ -324,12 +341,27 @@ export default {
     wordFormat(percentage) {
       return percentage === 100 ? '导出标题词频' : `正在生成${parseInt(percentage)}%`;
     },
-    wordStatistics(id) {
-      wordStatistics(id).then(res => {
-        this.id = id;
+    wordStatistics(row) {
+      // wordStatistics(id).then(res => {
+      //   this.id = id;
+      //   if (res.status === 200) {
+      //     this.getkeywordLists();
+      //   }
+      // });
+      keywordOptions({
+        id: row.id,
+        combingRules: this.checkedCities.sort((a, b) => b - a).join(',') 
+        || this.globalChecked.sort((a, b) => b - a).join(',')
+        || 1,
+        isAsc: false,
+      }).then( res => {
         if (res.status === 200) {
-          this.getkeywordLists();
+          const content = res.data;
+          const fileName = `${this.$t(row.searchKeyword)}.xlsx`;
+          downloadFile(content, fileName);
+          // this.$refs[`popover_${row.id}`].doClose();
         }
+        // downloadFile(res.data, row.searchKeyword);
       });
     },
     //关闭两星期弹框
@@ -347,9 +379,13 @@ export default {
       this.page.currentPage = currentPage;
       this.getkeywordLists();     
     },
+    //切换国家
+    selectState() {
+      this.getkeywordLists();
+    },
     //获取表格数据
     getkeywordLists(){
-      getkeywordList(this.page.currentPage, this.page.pageSize).then(res => {
+      getkeywordList(this.page.currentPage, this.page.pageSize, this.formInline.searchCountry).then(res => {
         if (res.data.code === 200){
           //分页数据
           this.page.currentPage = res.data.data.page.current;
