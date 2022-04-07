@@ -61,5 +61,29 @@ export const download = () => {
     url: '/api/seeics-analysis/keyword-analyze/download/template',
     method: 'get',
     responseType: 'blob'
-  })
-}
+  });
+};
+
+//导出分析
+export const analyzeDownload = (id) => {
+  return request({
+    url: '/api/seeics-analysis/list-analyze/download',
+    method: 'get',
+    params: {
+      id,
+    },
+    responseType: 'blob'
+  });
+};
+
+//导出词频
+export const wordFrequency = (id) => {
+  return request({
+    url: '/api/seeics-analysis/list-analyze/word-frequency/download',
+    method: 'get',
+    params: {
+      id
+    },
+    responseType: 'blob'
+  });
+};

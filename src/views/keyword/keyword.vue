@@ -83,7 +83,7 @@
         </template>
         <template  slot="menu" slot-scope="scope">
           <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn">
-            <a :href="`/api${scope.row.excelUrl}`" download>导出分析结果</a>
+            <a @click="analyzeDownload(scope.row)">导出分析结果</a>
             <span class="analysisaginspan" @click="analysiskeywords(scope.row.id, scope.row.recordTime)">重新分析</span>
             <div>
               <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
@@ -195,7 +195,7 @@
 </template>
 
 <script>
-import { getkeywordList, analysiskeyword, wordStatistics, download, keyWordReset, keywordOptions } from '@/api/keyword/keyword';
+import { getkeywordList, analysiskeyword, wordStatistics, download, keyWordReset, keywordOptions, analyzeDownload } from '@/api/keyword/keyword';
 import { downloadFile } from '@/util/util';
 
 export default {
@@ -357,9 +357,9 @@ export default {
       }).then( res => {
         if (res.status === 200) {
           const content = res.data;
-          const fileName = `${this.$t(row.searchKeyword)}.xlsx`;
+          const fileName = `${this.$t(`${row.searchCountry}_analyze_frequency_${row.searchKeyword}`)}.xlsx`;
           downloadFile(content, fileName);
-          // this.$refs[`popover_${row.id}`].doClose();
+          this.$refs[`popover_${row.id}`].doClose();
         }
         // downloadFile(res.data, row.searchKeyword);
       });
@@ -534,7 +534,15 @@ export default {
       }).catch(() => {
         loading.close();
       });
-    }  
+    },
+    //导出分析
+    analyzeDownload(row) {
+      analyzeDownload(row.id).then(res => {
+        const content = res.data;
+        const fileName = `${this.$t(`${row.searchCountry}_analyze_${row.searchKeyword}`) }.xlsx`;
+        downloadFile(content, fileName);
+      });
+    }
   },
   watch: {
     'formInline.searchTopPage'(){

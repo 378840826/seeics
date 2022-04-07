@@ -617,7 +617,7 @@ export default {
       exportKeyword(row.id).then(res => {
         if (res.status === 200) {
           const content = res.data;
-          const fileName = `${this.$t(`${row.searchCountry}_${row.searchKeyword}`) }.xlsx`;
+          const fileName = `${this.$t(`${row.searchCountry}_rank_${row.searchKeyword}`) }.xlsx`;
           downloadFile(content, fileName);
           setTimeout(() => {
             this.$refs[`btn_${row.id}`].$el.style.display = 'none';
