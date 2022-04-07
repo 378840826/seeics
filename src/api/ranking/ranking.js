@@ -86,3 +86,12 @@ export const analyzeItme = () => {
     method: 'get',
   });
 };
+
+//监控频率
+export const monitoring = (data) => {
+  return request({
+    url: '/api/seeics-analysis/keyword-ranking/monitor',
+    method: 'post',
+    data,
+  });
+};

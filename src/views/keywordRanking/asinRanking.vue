@@ -4,13 +4,15 @@
   <el-card>
       <el-form :inline="true" :model="formInline" class="demo-form-inline" :rules="asinRules">
         <el-form-item>
-          <el-select v-model="formInline.searchCountry">
+          <el-select v-model="formInline.searchCountry" @change="selectState">
             <el-option label="美国" value="US"></el-option>
-            <el-option label="英国" value="EN" disabled></el-option>
-            <el-option label="加拿大" value="CA" disabled></el-option>
-            <el-option label="法国" value="FR" disabled></el-option>
-            <el-option label="意大利" value="SP" disabled></el-option>
-            <el-option label="德国" value="GE" disabled></el-option>
+            <el-option label="加拿大" value="CA"></el-option>
+            <el-option label="日本" value="JP"></el-option>
+            <el-option label="德国" value="DE"></el-option>
+            <el-option label="意大利" value="IT"></el-option>
+            <el-option label="法国" value="FR"></el-option>
+            <el-option label="西班牙" value="ES"></el-option>
+            <el-option label="英国" value="UK"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item  class="inputclass" prop="asin">
@@ -82,10 +84,58 @@
            style="margin-left: 30px;"
           :disabled="formInline.attachId ? false : true">分析</el-button>
         </el-form-item>
+        <el-form-item>
+          <el-popover
+            ref="popover"
+            placement="bottom"
+            title="监控频率"
+            width="150"
+            trigger="click">
+            <el-radio-group v-model="modelRadio">
+              <el-radio class="radio" v-for="item in radioOption" :label="item.label" :key="item.label">{{item.title}}</el-radio>
+            </el-radio-group>
+            <div class="radioBtn">
+              <el-button size="mini" @click="$refs.popover.doClose()">取消</el-button>
+              <el-button type="primary" size="mini" @click="monitoring">确定</el-button>
+            </div>
+            <el-button slot="reference" size="mini" :disabled="checkList.length > 0 ? false : true">监控频率</el-button>
+          </el-popover>
+        </el-form-item>
       </el-form>
+      
       <div class="warningtext">
-      <!-- {{analyzeNum.usr ? '' : '今日还剩' + analyzeNum.freeTimes + '次免费分析机会，支持爬取关键词还剩' + analyzeNum.number + '个；'}} -->
+      {{analyzeNum.usr ? '' : '今日还剩' + analyzeNum.freeTimes + '次免费分析机会，支持爬取关键词还剩' + analyzeNum.number + '个；'}}
       </div>
+      <el-popover
+        placement="bottom-start"
+        ref="filterPopover"
+      >
+        <el-form :model="filters" ref="filterRef">
+          <!-- <el-form-item><el-input v-model="formInline.asin"/></el-form-item>
+          <el-form-item><el-input/></el-form-item> -->
+          <el-row>
+            <el-col :span="12">
+              <fromitem label="自然排名" :max.sync="filters.limax" :min.sync="filters.limin"  :inputWidth="'100px'"/>
+            </el-col>
+            <el-col :span="12">
+              <fromitem label="自然排名页码" :max.sync="filters.keyMax" :min.sync="filters.keyMin" :inputWidth="'100px'"/>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <fromitem label="广告排名" :max.sync="filters.limax" :min.sync="filters.limin" :inputWidth="'100px'"/>
+            </el-col>
+            <el-col :span="12">
+              <fromitem label="广告排名页码" :max.sync="filters.limax" :min.sync="filters.limin" :inputWidth="'100px'"/>
+            </el-col>
+          </el-row>
+        </el-form>
+        <div style="textAlign: center">
+          <el-button @click="filterBtn" type="primary" size="mini">全局应用</el-button>
+          <el-button size="mini" @click="$refs.filterPopover.doClose()">取消</el-button>
+        </div>
+        <el-button slot="reference" size="mini">全局筛选</el-button>
+      </el-popover>
       <div class="avuecrudclass">
       <avue-crud 
         :data="data" 
@@ -96,6 +146,7 @@
         @current-change="currentChange"
         @sort-change="sortChange"
         @on-load="getkeywordLists"
+        @selection-change="platformSelectionChange"
         >
         <template  slot="menu" slot-scope="scope">
           <div
@@ -233,10 +284,14 @@
 
 <script>
 const toke = JSON.parse(localStorage.getItem('saber-token'));
-import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports } from '@/api/ranking/ranking';
+import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports, monitoring } from '@/api/ranking/ranking';
 import { downloadFile } from '@/util/util';
+import fromitem from '../../components/fromItem/FromItem.vue';
 export default {
   name: 'asinRanking',
+  components: {
+    fromitem
+  },
   data() {
     return {
       myHeaders: {
@@ -274,9 +329,35 @@ export default {
           { pattern: /^[a-zA-Z0-9]{10}$/, message: 'ASIN不支持中文，支持10位纯数字或字母组合；', trigger: 'change' }
         ],
       },
-      selectData: [],
+      radioOption: [
+        {
+          label: 7,
+          title: '每周自动更新'
+        },
+        {
+          label: 14,
+          title: '每2周自动更新'
+        },
+        {
+          label: 21,
+          title: '每3周自动更新'
+        },
+        {
+          label: 30,
+          title: '每月周自动更新'
+        },
+      ],
+      modelRadio: 1,
+      selectData: [1],
+      filters: {
+        limax: '',
+        limin: '',
+        keyMax: '',
+        keyMin: '',
+      },
       user: {},
       data: [],
+      checkList: [], //选择框
       dialogVisible: false, //两周内是否搜索过弹框
       dialogImport: false,
       desc: false, //排序值
@@ -309,6 +390,8 @@ export default {
         delBtn: false,
         menu: false,
         editBtn: false,
+        tip: false,
+        selection: true,
         align: 'center',
         menuAlign: 'left',
         rowKey: 'id',
@@ -346,6 +429,19 @@ export default {
     this.getSelect();
   },
   methods: {
+    monitoring() {
+      monitoring({
+        cycle: 30,
+        attachIdList: this.checkList,
+        searchCountry: this.formInline.searchCountry,
+        searchTopPage: this.formInline.searchTopPage
+      }).then(res => {
+        console.log(res)
+      });
+    },
+    filterBtn() {
+      console.log(this.filters)
+    },
     importChange() {
       const files = document.getElementById('file').files[0];
       if (!files) {
@@ -489,6 +585,10 @@ export default {
     currentChange(currentPage){
       this.page.currentPage = currentPage;  
     },
+    //切换国家
+    selectState() {
+      this.getkeywordLists();
+    },
     //获取表格数据
     getkeywordLists(){
       // analyzeItme().then(res => {
@@ -549,7 +649,7 @@ export default {
           type: 'warning'
         }).then(() => {
           //依旧发请求
-          analysiskeyword(this.formInline,id).then(res => {
+          analysiskeyword(this.formInline, id).then(res => {
             if (res.data.msg === '您已经搜索过该关键词，请在搜索结果中操作'){       
               //弹框提箱
               this.dialogVisible = true;
@@ -584,6 +684,14 @@ export default {
         //清空关键词
         this.formInline.searchKeyword = '';
       }
+    },
+    platformSelectionChange(list) {
+      // this.checkList = list.attachId;
+      const arr = [];
+      list.map(item => {
+        arr.push(item.attachId);
+      });
+      this.checkList = arr.length < 1 ? this.checkList : arr;
     },
     detail (id) {
       console.log(id);
@@ -895,6 +1003,19 @@ export default {
 
   .el-button {
     height: 30px;
+    padding: 0 20px;
+  }
+}
+.radio {
+  line-height: 30px;
+  margin-left: 10px;
+}
+.radioBtn {
+  text-align: center;
+  margin-top: 10px;
+
+  .el-button {
+    height: 24px;
     padding: 0 20px;
   }
 }
