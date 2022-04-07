@@ -13,8 +13,6 @@ stages:
         nodeVersion: 12.16.1
         # 构建命令：安装依赖 -> 清除上次打包产物残留 -> 执行构建 【请根据项目实际产出进行填写】
         commands:
-          - npm uninstall node-sass
-          - npm install sass -i
           - rm -rf ./dist && npm run build
         # 非必填字段，开启后表示将构建产物暂存，但不会上传到制品库中，7天后自动清除
         artifacts:
@@ -66,6 +64,8 @@ stages:
         script: |
           cd /usr/local/nginx/html
           ls
+          tar -zxf output.tar.gz  --strip-components 1
+          ./usr/local/nginx/sbin/nginx -s reload -c /usr/local/nginx/conf/nginx.conf
           echo "Deploy Success"
 triggers:
   push:
