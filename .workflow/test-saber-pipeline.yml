@@ -68,7 +68,7 @@ stages:
           cd /usr/local/nginx/html
           ls
           tar -zxf output.tar.gz  --strip-components 1
-          ./usr/local/nginx/sbin/nginx -s reload -c /usr/local/nginx/conf/nginx.conf
+          /usr/local/nginx/sbin/nginx -s reload -c /usr/local/nginx/conf/nginx.conf
           echo "Deploy Success"
 triggers:
   push:

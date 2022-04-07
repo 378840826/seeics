@@ -18,6 +18,7 @@
               -->
               <div class="toptext">
                 祝你大卖
+                hello
               </div>
               <img class="img" src="/img/bg/LRBanner.png" alt="图片">
               <div class="bottomtext">
