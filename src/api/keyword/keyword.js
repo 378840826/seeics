@@ -64,3 +64,15 @@ export const keywordOptions = (data) => {
     responseType: 'blob'
   });
 };
+
+//导出分析
+export const analyzeDownload = (id) => {
+  return request({
+    url: '/api/seeics-analysis/keyword-analyze/download',
+    method: 'get',
+    params: {
+      id,
+    },
+    responseType: 'blob'
+  });
+};

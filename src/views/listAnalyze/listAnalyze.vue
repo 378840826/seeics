@@ -91,7 +91,7 @@
               </template> -->
               <template  slot="menu" slot-scope="scope">
                 <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn">
-                  <a :href="`/api${scope.row.excelUrl}`" download>导出分析结果</a>
+                  <a @click="analyzeDownload(scope.row)">导出分析结果</a>
                   <span class="analysisaginspan" @click="analysiskeywords(scope.row, scope.row.crawlingCompleteTime)">重新分析</span>
                   <div>
                     <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
@@ -127,7 +127,7 @@
                     <a v-else>生成标题词频 <i :class="'el-icon-loading'"></i></a>
                   </div>
                   <el-progress v-else-if="scope.row.wordFrequencyProgress !== '1.00'" :percentage="scope.row.wordFrequencyProgress*100" :format="wordFormat" :text-inside="true" :stroke-width="30"></el-progress>
-                  <a v-else :href="`/api${scope.row.wordFrequencyExcelUrl}`" download>导出标题词频</a>
+                  <a v-else @click="wordFrequency(scope.row)">导出标题词频</a>
                   <!-- <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span> -->
               </div>
               </template>
@@ -155,7 +155,7 @@
 </template>
 
 <script>
-import { analyzeTree, analyzeSearch, analyzePage, analyze, keyWordAnalyze, download } from '@/api/listAnalyze/listAnalyze';
+import { analyzeTree, analyzeSearch, analyzePage, analyze, keyWordAnalyze, download, analyzeDownload, wordFrequency } from '@/api/listAnalyze/listAnalyze';
 import { downloadFile } from '@/util/util';
 export default {
   data() {
@@ -668,7 +668,23 @@ export default {
       }).catch(() => {
         loading.close();
       });
-    }  
+    },
+    //导出词频
+    wordFrequency(row) {
+      wordFrequency(row.id).then(res => {
+        const content = res.data;
+        const fileName = `${this.$t(`${row.searchCountry}_list_frequency_${row.searchKeyword}`) }.xlsx`;
+        downloadFile(content, fileName);
+      });
+    },
+    //导出分析
+    analyzeDownload(row) {
+      analyzeDownload(row.id).then(res => {
+        const content = res.data;
+        const fileName = `${this.$t(`${row.searchCountry}_list_${row.searchKeyword}`) }.xlsx`;
+        downloadFile(content, fileName);
+      });
+    },
   },
 };
 </script>
