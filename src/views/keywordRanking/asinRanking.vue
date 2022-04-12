@@ -91,7 +91,7 @@
             title="监控频率"
             width="150"
             trigger="click">
-            <el-radio-group v-model="modelRadio">
+            <el-radio-group v-model="modelRadio" @change="radioChange">
               <el-radio class="radio" v-for="item in radioOption" :label="item.label" :key="item.label">{{item.title}}</el-radio>
             </el-radio-group>
             <div class="radioBtn">
@@ -347,7 +347,7 @@ export default {
           title: '每月周自动更新'
         },
       ],
-      modelRadio: 1,
+      modelRadio: 7,
       selectData: [1],
       filters: {
         limax: '',
@@ -431,16 +431,19 @@ export default {
   methods: {
     monitoring() {
       monitoring({
-        cycle: 30,
+        cycle: this.modelRadio,
         attachIdList: this.checkList,
         searchCountry: this.formInline.searchCountry,
         searchTopPage: this.formInline.searchTopPage
       }).then(res => {
-        console.log(res)
+        console.log(res);
       });
     },
+    radioChange(e) {
+      this.modelRadio = e;
+    },
     filterBtn() {
-      console.log(this.filters)
+      console.log(this.filters);
     },
     importChange() {
       const files = document.getElementById('file').files[0];
