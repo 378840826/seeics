@@ -1,0 +1,28 @@
+.explain {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #e7e7e7;
+  color: #6c6c6c;
+  background: #f6f6f6;
+}
+
+.form-container {
+  padding: 0 20px;
+}
+
+.form_item_value-row {
+  display: flex;
+
+  button {
+    margin-left: 10px;
+  }
+}
+
+.warn {
+  color: #F56C6C;
+  font-weight: bold;
+}
+
+.btns {
+  text-align: center;
+}
