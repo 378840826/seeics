@@ -23,6 +23,20 @@ export default [{
       import( /* webpackChunkName: "views" */ '@/views/wel/dashboard')
   }]
 }, {
+  path: '/ppc',
+  component: Layout,
+  children: [
+    {
+      path: '/ppc/shop',
+      name: '我的店铺',
+      component: () => import('@/views/ppc/shop/ShopList'),
+    }, {
+      path: '/ppc/search-term',
+      name: 'Search Term报表',
+      component: () => import('@/views/ppc/searchTerm'),
+    },
+  ],
+}, {
   path: '/test',
   component: Layout,
   redirect: '/test/index',
