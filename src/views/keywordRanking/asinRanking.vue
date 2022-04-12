@@ -134,7 +134,7 @@
           <el-button @click="filterBtn" type="primary" size="mini">全局应用</el-button>
           <el-button size="mini" @click="$refs.filterPopover.doClose()">取消</el-button>
         </div>
-        <el-button slot="reference" size="mini">全局筛选</el-button>
+        <!-- <el-button slot="reference" size="mini">全局筛选</el-button> -->
       </el-popover>
       <div class="avuecrudclass">
       <avue-crud 
@@ -436,7 +436,13 @@ export default {
         searchCountry: this.formInline.searchCountry,
         searchTopPage: this.formInline.searchTopPage
       }).then(res => {
-        console.log(res);
+        if (res.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: '修改监控频率成功'
+          });
+          this.$refs.popover.doClose();
+        }
       });
     },
     radioChange(e) {
@@ -1022,4 +1028,5 @@ export default {
     padding: 0 20px;
   }
 }
+
 </style>
