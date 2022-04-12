@@ -695,12 +695,15 @@ export default {
       }
     },
     platformSelectionChange(list) {
-      // this.checkList = list.attachId;
       const arr = [];
-      list.map(item => {
-        arr.push(item.attachId);
-      });
-      this.checkList = arr.length < 1 ? this.checkList : arr;
+      if (list.length) {
+        list.map(item => {
+          arr.push(item.attachId);
+        });
+      } else {
+        arr.splice(0, arr.length);
+      }
+      this.checkList = arr;
     },
     detail (id) {
       console.log(id);
