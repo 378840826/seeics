@@ -82,7 +82,7 @@
            size="mini"
            @click="analysiskeywords()"
            style="margin-left: 30px;"
-          :disabled="formInline.attachId ? false : true">分析</el-button>
+          :disabled="formInline.attachId && formInline.asin ? false : true">分析</el-button>
         </el-form-item>
         <el-form-item>
           <el-popover
@@ -98,13 +98,17 @@
               <el-button size="mini" @click="$refs.popover.doClose()">取消</el-button>
               <el-button type="primary" size="mini" @click="monitoring">确定</el-button>
             </div>
-            <el-button slot="reference" size="mini" :disabled="checkList.length > 0 ? false : true">监控频率</el-button>
+            <el-button 
+              slot="reference" 
+              size="mini" 
+              :disabled="checkList.length > 0 ? false : true" 
+              style="marginLeft: 30px">监控频率</el-button>
           </el-popover>
         </el-form-item>
       </el-form>
       
       <div class="warningtext">
-      {{analyzeNum.usr ? '' : '今日还剩' + analyzeNum.freeTimes + '次免费分析机会，支持爬取关键词还剩' + analyzeNum.number + '个；'}}
+      <!-- {{analyzeNum.usr ? '' : '今日还剩' + analyzeNum.freeTimes + '次免费分析机会，支持爬取关键词还剩' + analyzeNum.number + '个；'}} -->
       </div>
       <el-popover
         placement="bottom-start"
