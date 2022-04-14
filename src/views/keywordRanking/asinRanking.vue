@@ -825,6 +825,11 @@ export default {
     color: rgba(0,0,0,.85);
     word-break: break-word;
   }
+  .el-table .cell {
+    word-break: break-all;
+    line-height: 23px;
+    padding: 0;
+  }
   .el-progress-bar__outer {
     border-radius: 1px;
     width: 100px;
