@@ -137,7 +137,6 @@
         <el-table-column
           type="selection"
           align="center"
-          fixed
           width="50">
         </el-table-column>
         <el-table-column 
@@ -153,7 +152,6 @@
           label="操作"
           width="230"
           align="center"
-          fixed="right"
           show-overflow-tooltip>
            <template slot-scope="scope">
            <div
@@ -540,6 +538,7 @@ export default {
     },
     close(id) {
       this.updateFileName = '';
+      console.log(this.$refs[`popover-${id}`])
       this.$refs[`popover-${id}`].doClose();
     },
     importHide() {
@@ -826,10 +825,6 @@ export default {
     color: rgba(0,0,0,.85);
     word-break: break-word;
   }
-  .el-table .cell {
-    line-height: 23px;
-    padding: 0;
-}
   .el-progress-bar__outer {
     border-radius: 1px;
     width: 100px;
