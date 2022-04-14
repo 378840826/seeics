@@ -650,7 +650,7 @@ export default {
             }
           });
           //清空关键词
-          this.formInline.searchKeyword = '';
+          this.formInline.asin = '';
           
         }).catch(() => {
           this.$message({
@@ -671,7 +671,7 @@ export default {
           }
         });
         //清空关键词
-        this.formInline.searchKeyword = '';
+        this.formInline.asin = '';
       }
     },
     handleSelectionChange(list) {
