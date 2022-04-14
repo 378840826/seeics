@@ -39,21 +39,6 @@
             <div class="importLy">
               <span>选择文件：</span>
               <div>
-                <!-- <el-upload
-                  class="upload-demo"
-                  ref="upload"
-                  :headers="myHeaders"
-                  action="/api/blade-resource/oss/endpoint/put-file-attach"
-                  :on-preview="handlePreview"
-                  :on-remove="handleRemove"
-                  :on-success="success"
-                  :on-change="change"
-                  :show-file-list="false"
-                  >
-                    <el-button slot="trigger" size="mini" type="primary">+选择文件</el-button>
-                    
-                    
-                </el-upload> -->
                 <label style="width: 0px; height: 30px">
                   <span class="selectFile">+选择文件</span>
                   <input
@@ -86,7 +71,7 @@
         </el-form-item>
         <el-form-item>
           <el-popover
-            ref="popover"
+            ref="popovers"
             placement="bottom"
             title="监控频率"
             width="150"
@@ -95,13 +80,13 @@
               <el-radio class="radio" v-for="item in radioOption" :label="item.label" :key="item.label">{{item.title}}</el-radio>
             </el-radio-group>
             <div class="radioBtn">
-              <el-button size="mini" @click="$refs.popover.doClose()">取消</el-button>
+              <el-button size="mini" @click="$refs.popovers.doClose()">取消</el-button>
               <el-button type="primary" size="mini" @click="monitoring">确定</el-button>
             </div>
             <el-button 
               slot="reference" 
               size="mini" 
-              :disabled="checkList.length > 0 ? false : true" 
+              :disabled="checkList.length ? false : true"
               style="marginLeft: 30px">监控频率</el-button>
           </el-popover>
         </el-form-item>
@@ -141,19 +126,37 @@
         <!-- <el-button slot="reference" size="mini">全局筛选</el-button> -->
       </el-popover>
       <div class="avuecrudclass">
-      <avue-crud 
-        :data="data" 
-        :option="option" 
-        v-model="user"
-        :page.sync="page"
-        @size-change="sizeChange"
-        @current-change="currentChange"
-        @sort-change="sortChange"
-        @on-load="getkeywordLists"
-        @selection-change="platformSelectionChange"
-        >
-        <template  slot="menu" slot-scope="scope">
-          <div
+      <el-table
+        ref="multipleTable"
+        :data="data"
+        tooltip-effect="black"
+        style="width: 100%"
+        border
+        emptyText="没有找到相关商品，请重新查询"
+        @selection-change="handleSelectionChange">
+        <el-table-column
+          type="selection"
+          align="center"
+          fixed
+          width="50">
+        </el-table-column>
+        <el-table-column 
+          v-for="item in column"
+          :key="item.prop"
+          :label="item.label"
+          :prop="item.prop"
+          :align="item.align"
+          :sortable="item.sortable"
+          :width="item.width"
+        />
+        <el-table-column
+          label="操作"
+          width="230"
+          align="center"
+          fixed="right"
+          show-overflow-tooltip>
+           <template slot-scope="scope">
+           <div
             v-if="scope.row.status === 'COMPLETED' && scope.row.crawlingProgress === '1.00'" class="derivedresultbtn"
           >
             <div class="export">
@@ -175,25 +178,6 @@
             <div class="importLy">
               <span style="line-height: 30px;">选择文件：</span>
               <div style="width: 200px">
-                <!-- <el-upload
-                  class="upload-demo"
-                  :headers="myHeaders"
-                  :ref="'upload-'+scope.row.id"
-                  action="/api/blade-resource/oss/endpoint/put-file-attach"
-                  :on-preview="handlePreview"
-                  :on-remove="handleRemove"
-                  :on-change="change"
-                  :on-success="updateSuccess"
-                  :show-file-list="false"
-                >
-                    <el-button slot="trigger" size="small">+选择文件</el-button>
-                    <a @click="download">下载模板</a>
-                    <div slot="tip" 
-                      class="el-upload__tip"
-                    >
-                      {{scope.row.originalName || updateFileName || scope.row.searchKeyword +'关键词.xlsx'}}
-                    </div>
-                </el-upload> -->
                 <label style="width: 0px; height: 30px">
                   <span class="selectFile">+选择文件</span>
                   <input
@@ -254,7 +238,20 @@
           >
           </div>
         </template>
-      </avue-crud>
+        </el-table-column>
+      </el-table>
+      <div class="block" style="textAlign: right">
+      <el-pagination
+        background
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="page.currentPage"
+        :page-sizes="page.pageSizes"
+        :page-size="page.pageSize"
+        :layout="page.layout"
+        :total="page.total">
+      </el-pagination>
+      </div>
     </div>
   </el-card>
   <el-dialog
@@ -382,55 +379,33 @@ export default {
         pageSizes: [10, 20, 30, 50],
         //background:false,
       },
-      option: {
-        emptyText: '没有找到相关商品，请重新查询',
-        addBtn: false,
-        border: true,
-        columnBtn: false,
-        refreshBtn: false,
-        saveBtn: false,
-        updateBtn: false,
-        cancelBtn: false,
-        delBtn: false,
-        menu: false,
-        editBtn: false,
-        tip: false,
-        selection: true,
-        align: 'center',
-        menuAlign: 'left',
-        rowKey: 'id',
-        column: [
-          {
-            label: '更新时间',
-            prop: 'searchTime',
-            sortable: true, //排序
-            width: 200,
-            //slot:true
-          },
-          {
-            label: '站点',
-            prop: 'searchCountry',
-            width: 283,
-          },
-          {
-            label: 'ASIN',
-            prop: 'searchKeyword',
-            // width: 700,
-            slot: true,            
-          },
-          {
-            label: '操作',
-            prop: 'menu',
-            align: 'left',
-            width: 230,
-          },
-        ]
-      },
+      column: [
+        {
+          label: '更新时间',
+          prop: 'searchTime',
+          sortable: true, //排序
+          width: 200,
+          align: 'center'
+          //slot:true
+        },
+        {
+          label: '站点',
+          prop: 'searchCountry',
+          width: 283,
+          align: 'center'
+        },
+        {
+          label: 'ASIN',
+          prop: 'searchKeyword',
+          align: 'center'        
+        },
+      ],
       attachForm: {},
     };
   },
   mounted() {
     this.getSelect();
+    this.getkeywordLists();
   },
   methods: {
     monitoring() {
@@ -445,7 +420,7 @@ export default {
             type: 'success',
             message: '修改监控频率成功'
           });
-          this.$refs.popover.doClose();
+          this.$refs.popovers.doClose();
         }
       });
     },
@@ -591,12 +566,14 @@ export default {
       this.getkeywordLists();
     },
     //pagesize变化
-    sizeChange(pageSize){
+    handleSizeChange(pageSize){
       this.page.pageSize = pageSize;
+      this.getkeywordLists();
     },
     //currentpage 变化
-    currentChange(currentPage){
+    handleCurrentChange(currentPage){
       this.page.currentPage = currentPage;  
+      this.getkeywordLists();
     },
     //切换国家
     selectState() {
@@ -698,7 +675,7 @@ export default {
         this.formInline.searchKeyword = '';
       }
     },
-    platformSelectionChange(list) {
+    handleSelectionChange(list) {
       const arr = [];
       if (list.length) {
         list.map(item => {
@@ -783,7 +760,10 @@ export default {
             }
           });
           this.$refs[`popover-${data.id}`].doClose();
-          this.getkeywordLists();
+          this.getSelect(1);
+          setTimeout(() => {
+            this.getkeywordLists();
+          }, 500);
           this.$message({
             type: 'success',
             message: '更新关键词成功!'
@@ -840,6 +820,16 @@ export default {
 <style lang="scss" scoped>
 
 ::v-deep {
+  .el-table th {
+    background-color: #fafafa;
+    padding: 8px 0;
+    color: rgba(0,0,0,.85);
+    word-break: break-word;
+  }
+  .el-table .cell {
+    line-height: 23px;
+    padding: 0;
+}
   .el-progress-bar__outer {
     border-radius: 1px;
     width: 100px;
@@ -853,12 +843,6 @@ export default {
   }
   .avue-crud__menu {
     min-height: 0px;
-  }
-  .el-input__inner {
-    height: 30px;
-    line-height: 30px;
-    width: 160px;
-    font-size: 12px;
   }
   .el-button {
     // height: 30px;
@@ -889,7 +873,14 @@ export default {
     left: 0;
     background: #ffffff;
   }
+  .el-form-item .el-input__inner {
+    height: 30px;
+    line-height: 30px;
+    width: 160px;
+    font-size: 12px;
+  }
 }
+ 
 .avuecrudclass {
   .analysisaginspan {
     display: inline-block;
@@ -930,6 +921,7 @@ export default {
     display: inline-block;
     margin-right: 24px;
     a{
+      font-size: 12px;
       display: inline-block;
       height: 30px;
       line-height: 30px;
@@ -1034,6 +1026,10 @@ export default {
     height: 24px;
     padding: 0 20px;
   }
+}
+.block {
+  text-align: right;
+  padding: 25px 0 0 20px;
 }
 
 </style>
