@@ -76,3 +76,14 @@ export const analyzeDownload = (id) => {
     responseType: 'blob'
   });
 };
+
+//应用全局词频选项
+export const overallOption = (data) => {
+  return request({
+    url: '/api/seeics-analysis/keyword-analyze/save/keyword/count/overall/option',
+    method: 'post',
+    params: {
+      options: data
+    }
+  });
+};

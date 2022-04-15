@@ -49,7 +49,7 @@
             <el-checkbox v-for="item in keywordNums" :label="item.value" :key="item.label">{{item.label}}</el-checkbox>
           </el-checkbox-group>
           <div style="text-align: center;">
-            <el-button size="mini" type="primary" @click="popoverVisible = false, checkedCities = globalChecked" style="height: 24px; margin: 10px; fontSize: 10px; padding: 3px 4px 3px 4px;">全局应用</el-button>
+            <el-button size="mini" type="primary" @click="overallBtn" style="height: 24px; margin: 10px; fontSize: 10px; padding: 3px 4px 3px 4px;">全局应用</el-button>
             <el-button size="mini" @click="popoverVisible = false"  style="height: 24px; margin: 0; fontSize: 10px; padding: 3px 4px 3px 4px;">取消</el-button>
           </div>
           <el-button type="text" slot="reference">词频选项</el-button>
@@ -195,7 +195,7 @@
 </template>
 
 <script>
-import { getkeywordList, analysiskeyword, wordStatistics, download, keyWordReset, keywordOptions, analyzeDownload } from '@/api/keyword/keyword';
+import { getkeywordList, analysiskeyword, wordStatistics, download, keyWordReset, keywordOptions, analyzeDownload, overallOption } from '@/api/keyword/keyword';
 import { downloadFile } from '@/util/util';
 
 export default {
@@ -302,6 +302,14 @@ export default {
     this.getkeywordLists();
   },
   methods: {
+    // 全局选项
+    overallBtn() {
+      this.popoverVisible = false;
+      overallOption(this.globalChecked.join(',') ).then(res => {
+        
+        console.log(res)
+      });
+    },
     handleCheckAllChange(val) {
       this.checkedCities = val ? [1, 2, 3, 4] : [];
       this.isIndeterminate = false;
