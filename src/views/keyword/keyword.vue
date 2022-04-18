@@ -153,19 +153,20 @@
               :visible-arrow= "false"
               trigger="click"
               @click.stop="isShowWhole = false"
-              @show="popoverShow"
+              @show="popoverShow(scope.row.id)"
               @hide="popoverHide"
               >
               <p>分词：
                 <el-checkbox
+                  :ref="`checkbox${scope.row.id}`"
                   v-model="checkAll" 
-                  @change="handleCheckAllChange">全选</el-checkbox>
+                  @change="handleCheckAllChange(!isCheck, scope.row.id)">全选</el-checkbox>
               </p>
               
-              <el-checkbox-group v-model="checkedCities" @change="handleCheckedCitiesChange">
+              <el-checkbox-group v-model="scope.row.optionStr" @change="handleCheckedCitiesChange" :ref="'check' + scope.row.id">
                 <el-checkbox v-for="item in keywordNums" :label="item.value" :key="item.label">{{item.label}}</el-checkbox>
               </el-checkbox-group>
-              <span style="fontSize: 8px; color: red" v-if="checkedCities.length < 1">当前选项为空！默认全局选项</span>
+              <span style="fontSize: 8px; color: red" v-if="checkeds.length < 1">当前选项为空！默认全局选项</span>
               <div style="text-align: center;">
                 <el-button size="mini" type="primary" @click="useBtn(scope.row)" class="popoverBtn" style="margin: 10px;">此处应用</el-button>
                 <el-button size="mini" @click="opent(scope.row.id)" class="popoverBtn">取消</el-button>
@@ -195,7 +196,7 @@
 </template>
 
 <script>
-import { getkeywordList, analysiskeyword, wordStatistics, download, keyWordReset, keywordOptions, analyzeDownload, overallOption } from '@/api/keyword/keyword';
+import { getkeywordList, analysiskeyword, wordStatistics, download, keyWordReset, keywordOptions, analyzeDownload, overallOption, getGlobalOption } from '@/api/keyword/keyword';
 import { downloadFile } from '@/util/util';
 
 export default {
@@ -212,9 +213,10 @@ export default {
       popoverVisible: false, //词频选项框
       globalCheckAll: false,
       checkAll: false,
+      isCheck: false,
       isIndeterminate: true,
-      globalChecked: [1, 2, 3, 4],
-      checkedCities: [1, 2, 3, 4],
+      globalChecked: [1],
+      checkedCities: [4, 1],
       formerChecke: [],
       checkeds: [],
       keywordNums: [
@@ -299,19 +301,37 @@ export default {
     };
   },
   mounted(){  
+    this.getGlobalOption();
     this.getkeywordLists();
   },
   methods: {
+    //获取全局选项
+    getGlobalOption() {
+      getGlobalOption().then(res => {
+        if (res.data.code === 200) {
+          this.globalChecked = res.data.data;
+        }
+      });
+    },
     // 全局选项
     overallBtn() {
       this.popoverVisible = false;
-      overallOption(this.globalChecked.join(',') ).then(res => {
-        
-        console.log(res)
+      overallOption({ combingRules: this.globalChecked }).then(res => {
+        if (res.data.code === 200) {
+          this.getGlobalOption();
+          this.getkeywordLists();
+        }
       });
     },
-    handleCheckAllChange(val) {
-      this.checkedCities = val ? [1, 2, 3, 4] : [];
+    handleCheckAllChange(val, id) {
+      this.isCheck = !this.isCheck;
+      if (this.$refs[`checkbox${id}`].value) {
+        this.$refs[`check${id}`].$children[0].model = [];
+        this.checkeds = [];
+      } else {
+        this.$refs[`check${id}`].$children[0].model = [1, 2, 3, 4];
+        this.checkeds = [1, 2, 3, 4];
+      }
       this.isIndeterminate = false;
     },
     handleCheckedCitiesChange(value) {
@@ -336,11 +356,12 @@ export default {
     useBtn(row) {
       this.$refs[`popover_${row.id}`].doClose();
     },
-    popoverShow() {
-      this.checkAll = this.checkedCities.length === 4 ? true : false;
-      // this.formerChecke = this.checkedCities; 
+    popoverShow(id) {
+      this.checkAll = this.$refs[`check${id}`].$children[0].model.length === 4 ? true : false;
+      this.checkeds = this.data.filter(item => item.id === id)[0].optionStr;
     },
     popoverHide() {
+      // this.checkAll = false;
       // this.checkedCities = this.formerChecke;
     },
     format(percentage) {
@@ -356,18 +377,29 @@ export default {
       //     this.getkeywordLists();
       //   }
       // });
+      const params = [];
+      for (const i of this.data) {
+        if (i.id === row.id) {
+          params.push(i.optionStr);
+        }
+      }
       keywordOptions({
         id: row.id,
-        combingRules: this.checkedCities.sort((a, b) => b - a).join(',') 
-        || this.globalChecked.sort((a, b) => b - a).join(',')
-        || 1,
+        combingRules: this.checkeds.sort((a, b) => b - a).join(',') 
+        || params[0].join(',')
+        || this.globalChecked.join(','),
         isAsc: false,
       }).then( res => {
         if (res.status === 200) {
+          this.getkeywordLists();
           const content = res.data;
           const fileName = `${this.$t(`${row.searchCountry}_analyze_frequency_${row.searchKeyword}`)}.xlsx`;
           downloadFile(content, fileName);
           this.$refs[`popover_${row.id}`].doClose();
+          setTimeout(() => {
+            this.checkeds = [];
+          }, 100)
+          
         }
         // downloadFile(res.data, row.searchKeyword);
       });
@@ -400,7 +432,12 @@ export default {
           this.page.pageSize = res.data.data.page.size;
           this.page.total = res.data.data.page.total;
           //表格数据
-          this.data = res.data.data.page.records;
+          this.data = res.data.data.page.records.map(item => {
+            return {
+              ...item,
+              optionStr: item.optionStr || this.globalChecked
+            };
+          });
           //剩余次数数据
           this.restnum = res.data.data.todayFeeSearchCount;
           //添加成功，清空关键词
