@@ -100,24 +100,7 @@
         ref="filterPopover"
       >
         <el-form :model="filters" ref="filterRef">
-          <!-- <el-form-item><el-input v-model="formInline.asin"/></el-form-item>
-          <el-form-item><el-input/></el-form-item> -->
-          <el-row>
-            <el-col :span="12">
-              <fromitem label="自然排名" :max.sync="filters.limax" :min.sync="filters.limin"  :inputWidth="'100px'"/>
-            </el-col>
-            <el-col :span="12">
-              <fromitem label="自然排名页码" :max.sync="filters.keyMax" :min.sync="filters.keyMin" :inputWidth="'100px'"/>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <fromitem label="广告排名" :max.sync="filters.limax" :min.sync="filters.limin" :inputWidth="'100px'"/>
-            </el-col>
-            <el-col :span="12">
-              <fromitem label="广告排名页码" :max.sync="filters.limax" :min.sync="filters.limin" :inputWidth="'100px'"/>
-            </el-col>
-          </el-row>
+         
         </el-form>
         <div style="textAlign: center">
           <el-button @click="filterBtn" type="primary" size="mini">全局应用</el-button>
@@ -285,12 +268,8 @@
 const toke = JSON.parse(localStorage.getItem('saber-token'));
 import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports, monitoring } from '@/api/ranking/ranking';
 import { downloadFile } from '@/util/util';
-import fromitem from '../../components/fromItem/FromItem.vue';
 export default {
   name: 'asinRanking',
-  components: {
-    fromitem
-  },
   data() {
     return {
       myHeaders: {
@@ -331,19 +310,19 @@ export default {
       radioOption: [
         {
           label: 7,
-          title: '每周自动更新'
+          title: '每7天自动更新'
         },
         {
           label: 14,
-          title: '每2周自动更新'
+          title: '每14天自动更新'
         },
         {
           label: 21,
-          title: '每3周自动更新'
+          title: '每21天自动更新'
         },
         {
           label: 30,
-          title: '每月周自动更新'
+          title: '每30天自动更新'
         },
       ],
       modelRadio: 7,
