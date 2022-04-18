@@ -396,9 +396,9 @@ export default {
           const fileName = `${this.$t(`${row.searchCountry}_analyze_frequency_${row.searchKeyword}`)}.xlsx`;
           downloadFile(content, fileName);
           this.$refs[`popover_${row.id}`].doClose();
-          setTimeout(() => {
-            this.checkeds = [];
-          }, 100)
+          // setTimeout(() => {
+          this.checkeds = [];
+          // }, 100);
           
         }
         // downloadFile(res.data, row.searchKeyword);
