@@ -53,11 +53,11 @@ export const keyWordReset = (id) => {
   });
 };
 
-//词频选项
+//导出词频
 export const keywordOptions = (data) => {
   return request({
     url: '/api/seeics-analysis/keyword-analyze/download/keyword/count',
-    method: 'get',
+    method: 'post',
     params: {
       ...data
     },
@@ -74,5 +74,22 @@ export const analyzeDownload = (id) => {
       id,
     },
     responseType: 'blob'
+  });
+};
+
+//应用全局词频选项
+export const overallOption = (data) => {
+  return request({
+    url: '/api/seeics-analysis/keyword-analyze/save/keyword/count/overall/option',
+    method: 'post',
+    data,
+  });
+};
+
+//获取应用全局选项
+export const getGlobalOption = () => {
+  return request({
+    url: '/api/seeics-analysis/keyword-analyze/get/keyword/count/overall/option',
+    method: 'get'
   });
 };
