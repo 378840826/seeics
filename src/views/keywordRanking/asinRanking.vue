@@ -132,10 +132,18 @@
           :width="item.width"
         />
         <el-table-column
+          label="监控频率"
+          width="200"
+          prop="cycle"
+          align="center">
+          <template slot-scope="scope">
+            <div v-if="scope.row.cycle">每{{scope.row.cycle}}天自动更新</div>
+          </template>
+        </el-table-column>
+        <el-table-column
           label="操作"
           width="230"
-          align="center"
-          show-overflow-tooltip>
+          align="center">
            <template slot-scope="scope">
            <div
             v-if="scope.row.status === 'COMPLETED' && scope.row.crawlingProgress === '1.00'" class="derivedresultbtn"
@@ -368,13 +376,20 @@ export default {
         {
           label: '站点',
           prop: 'searchCountry',
-          width: 283,
+          width: 100,
           align: 'center'
         },
         {
           label: 'ASIN',
           prop: 'searchKeyword',
           align: 'center'        
+        },
+        {
+          label: '关键词模板名称',
+          prop: 'originalName',
+          align: 'center',
+          width: 200,
+          
         },
       ],
       attachForm: {},
@@ -397,6 +412,7 @@ export default {
             type: 'success',
             message: '修改监控频率成功'
           });
+          this.getkeywordLists();
           this.$refs.popovers.doClose();
         }
       });
