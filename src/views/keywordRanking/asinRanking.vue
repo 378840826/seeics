@@ -99,14 +99,15 @@
         placement="bottom-start"
         ref="filterPopover"
       >
+      规则范围：
         <el-form :model="filters" ref="filterRef">
-         
+          <global-filter ref="filters"/>
         </el-form>
         <div style="textAlign: center">
           <el-button @click="filterBtn" type="primary" size="mini">全局应用</el-button>
           <el-button size="mini" @click="$refs.filterPopover.doClose()">取消</el-button>
         </div>
-        <!-- <el-button slot="reference" size="mini">全局筛选</el-button> -->
+        <el-button slot="reference" size="mini">全局筛选</el-button>
       </el-popover>
       <div class="avuecrudclass">
       <el-table
@@ -268,8 +269,12 @@
 const toke = JSON.parse(localStorage.getItem('saber-token'));
 import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports, monitoring } from '@/api/ranking/ranking';
 import { downloadFile } from '@/util/util';
+import globalFilter from '../../components/globalFilter/globalFilter.vue';
 export default {
   name: 'asinRanking',
+  components: {
+    globalFilter
+  },
   data() {
     return {
       myHeaders: {
@@ -405,7 +410,8 @@ export default {
       this.modelRadio = e;
     },
     filterBtn() {
-      console.log(this.filters);
+      // this.$refs.filters.formInline = '广告排名'
+      console.log(this.$refs.filters.filterField());
     },
     importChange() {
       const files = document.getElementById('file').files[0];
