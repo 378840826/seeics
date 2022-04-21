@@ -8,7 +8,8 @@
         <!-- <el-button style="float: right; padding: 3px 0" type="text" @click="remove">操作按钮</el-button> -->
       </div>
       <div>
-          <el-row v-for="formInline in formInline" :key="formInline" style="marginTop: 10px">
+          <el-row v-for="formInline in formInline" :key="formInline" class="row">
+              <el-col style="display: -webkit-inline-box">
               <el-select v-model="formInline.label">
                 <el-option v-for="item in fieldsPage" :key="item.label" :label="item.label" :value="item.value"></el-option>
               </el-select>
@@ -17,9 +18,9 @@
               </el-select>
               <span v-if="formInline.condition === '≥且<'" class="span">
                   <el-input v-model="formInline.minVal"/>
-                  <el-input v-model="formInline.maxVal"/>
+                  <el-input v-model="formInline.maxVal" style="marginRight: 0"/>
               </span>
-              <span v-else-if="formInline.condition === '环比'">
+              <span v-else-if="formInline.condition === '环比'" style="marginRight: 0">
                 <el-select v-model="formInline.chain">
                   <el-option label="上升" value="上升"></el-option>
                   <el-option label="下降" value="下降"></el-option>
@@ -29,10 +30,16 @@
                   <el-option label="百分比" value="百分比"></el-option>
                 </el-select>
                 <span v-if="formInline.vlaueType === '百分比'">%</span>
-                <span class="span"><el-input/></span>
+                <span class="span"><el-input style="marginRight: 0"/></span>
               </span>
-              <span v-else class="span"><el-input v-model="formInline.value"/></span>
-              <el-button v-if="formInline.btn" type="text" :disabled="disabled">添加</el-button>
+              <span v-else class="span"><el-input v-model="formInline.value" style="marginRight: 0"/></span>
+              <div class="icon"><i class="el-icon-error"></i></div>
+              <el-button
+                v-if="formInline.btn" 
+                type="text" 
+                :disabled="disabled"
+                @click="addFiled">添加</el-button>
+            </el-col>
           </el-row>
       </div>
     </el-card>
@@ -212,6 +219,22 @@ export default {
         });
       }
     },
+    addFiled() {
+      if (this.formInline.length < 4) {
+         this.formInline.push({
+          id: 44,
+          label: 'search_result_page_no',
+          condition: '>',
+          chain: '上升',
+          vlaueType: '值',
+          value: '',
+          maxVal: '',
+          minVal: '',
+          btn: true,
+        }) 
+        delete this.formInline[2].btn;
+      }
+    },
     add() {
       if (this.data.length < 4) {
         this.data.push({
@@ -252,13 +275,17 @@ export default {
   watch: {
     formInline: {
       handler(val) {
-        const arr = [];
-        for (let i = 0; i < val.length; i ++) {
-          if (val[i].value || val[i].maxVal && val[i].minVal) {
-             arr.push(val[i])
-          }
+        if(val.length < 4) {
+          const arr = [];
+          for (let i = 0; i < val.length; i ++) {
+            if (val[i].value || val[i].maxVal && val[i].minVal) {
+              arr.push(val[i])
+            }
+           }
+          this.disabled = val.length > arr.length;
+        } else {
+          this.disabled = true;
         }
-        this.disabled = val.length > arr.length;
       },
       deep: true,
       immediate: true
@@ -301,6 +328,22 @@ export default {
    }
    ::v-deep .el-select {
       margin-right: 10px;
+    }
+    .row {
+      margin-top: 10px
+    }
+   .icon {
+      display: -webkit-inline-box;
+      width: 16px;
+      height: 30px;
+      position: relative;
+      .el-icon-error {
+        font-size: 16px;
+        color: red;
+        position: absolute;
+        left: -8px;
+        top: 4px;
+      }
     }
   }
   .box-card {
