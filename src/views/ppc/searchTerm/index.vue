@@ -384,6 +384,7 @@ export default {
         deliveryStatus: '投放状态',
         asin: '批量查询',
         // 筛选的
+        aba: 'ABA排名',
         sales: '销售额',
         spend: 'Spend',
         clicks: 'Clicks',

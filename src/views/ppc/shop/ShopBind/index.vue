@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import { marketplacesOptions, marketplacesRegion } from '../utils';
+import { marketplacesOptions, marketplacesRegion, getOAuthUrl } from '../utils';
 
 export default {
   name: 'ShopBind',
@@ -80,10 +80,10 @@ export default {
     },
   },
 
-  mounted() {
-    console.log('this', this.shopData);
-    console.log('marketplacesRegion', marketplacesRegion);
-  },
+  // mounted() {
+  //   console.log('this', this.shopData);
+  //   console.log('marketplacesRegion', marketplacesRegion);
+  // },
 
   data() {
     return {
@@ -132,7 +132,7 @@ export default {
 
     // 去授权按钮是否禁用
     isDisabledBindBtn() {
-      return !this.form.storeName.trim();
+      return !this.form.storeName.trim() || !this.form.marketplaces.length;
     },
   },
 
@@ -161,46 +161,30 @@ export default {
 
     // 开始店铺授权
     handleBind() {
-      // 判断店铺名称是否有重复
-      const isNameExist = this.judgeNameExist(this.form.storeName.trim(), this.form.marketplaces);
-      if (isNameExist) {
-        this.$message({
-          type: 'error',
-          message: '店铺名称已存在',
-        });
-        return;
-      }
-      this.onOk && this.onOk();
-      window.amazon.Login.setRegion(window.amazon.Login.Region[this.region]);
-      // 沙盒模式
-      window.amazon.Login.setSandboxMode(true);
-      const options = {
-        scope: 'profile',
-        response_type: 'code',
-      };
-      // 跳转登录亚马逊
-      window.amazon.Login.authorize(options, (response) => {
-        console.log('店铺授权 response', response);
-        if (response.error) {
-          alert(`oauth error: ${response.error}`);
-          console.log('oauth error', response);
+      // 是”去授权“时，判断店铺名称是否有重复
+      if (!this.shopData.storeName) {
+        const isNameExist = this.judgeNameExist(this.form.storeName.trim(), this.form.marketplaces);
+        if (isNameExist) {
+          this.$message({
+            type: 'error',
+            message: '店铺名称已存在',
+          });
           return;
         }
-        // 亚马逊登录成功, 请求添加店铺广告授权
-        this.$store.dispatch('bindShop', {
-          authorizeMethod: 'SP',
+      }
+      this.onOk && this.onOk();
+      // 卖家中心url
+      const url = getOAuthUrl(
+        this.form.marketplaces[0],
+        {
           storeName: this.form.storeName.trim(),
           marketplaces: this.form.marketplaces,
-          ...response,
-        }).then(res => {
-          this.$alert(`${res.data.msg}。请给店铺进行广告授权`, '提示', {
-            showClose: false,
-            callback: () => {
-              this.$store.dispatch('getShopList');
-            },
-          });
-        });
-      });
+        },
+        // 沙盒
+        true,
+      );
+      console.log('url', url);
+      window.open(url);
     },
 
     // 确定修改店铺名称

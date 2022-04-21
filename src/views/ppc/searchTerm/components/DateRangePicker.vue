@@ -122,6 +122,8 @@ export default {
   },
 };
 
+// 下拉选项
+// st报表缩减了支持的范围，也无需再支持自定义
 const dropdownOptions = [
   {
     label: '按周选择',
@@ -129,79 +131,98 @@ const dropdownOptions = [
       type: 'calendar',
       value: 'week',
     },
-  }, {
+  },
+  {
     label: '按月选择',
     value: {
       type: 'calendar',
       value: 'month',
     },
-  }, {
+  },
+  {
     label: '按季选择',
     value: {
       type: 'calendar',
       value: 'quarter',
     },
-  }, {
-    label: '上周',
-    value: {
-      type: 'immediate',
-      value: 'lastWeek',
-    },
-  }, {
-    label: '上月',
-    value: {
-      type: 'immediate',
-      value: 'lastMonth',
-    },
-  }, {
+  }, 
+  // {
+  //   label: '上周',
+  //   value: {
+  //     type: 'immediate',
+  //     value: 'lastWeek',
+  //   },
+  // },
+  // {
+  //   label: '上月',
+  //   value: {
+  //     type: 'immediate',
+  //     value: 'lastMonth',
+  //   },
+  // }, 
+  {
     label: '最近7日',
     value: {
       type: 'immediate',
       value: '7',
     },
-  }, {
+  }, 
+  {
+    label: '最近14日',
+    value: {
+      type: 'immediate',
+      value: '14',
+    },
+  }, 
+  {
+    label: '最近21日',
+    value: {
+      type: 'immediate',
+      value: '21',
+    },
+  }, 
+  {
     label: '最近30日',
     value: {
       type: 'immediate',
       value: '30',
     },
-  }, {
+  }, 
+  {
     label: '最近60日',
     value: {
       type: 'immediate',
       value: '60',
     },
-  }, {
+  }, 
+  {
     label: '最近90日',
     value: {
       type: 'immediate',
       value: '90',
     },
-  }, {
-    label: '最近365日',
-    value: {
-      type: 'immediate',
-      value: '365',
-    },
-  }, {
-    label: '今年',
-    value: {
-      type: 'immediate',
-      value: 'thisYear',
-    },
-  }, {
-    label: '去年',
-    value: {
-      type: 'immediate',
-      value: 'lastYear',
-    },
-  }, {
-    label: '自定义',
-    value: {
-      type: 'calendar',
-      value: 'daterange',
-    },
-  },
+  }, 
+  // {
+  //   label: '今年',
+  //   value: {
+  //     type: 'immediate',
+  //     value: 'thisYear',
+  //   },
+  // }, 
+  // {
+  //   label: '去年',
+  //   value: {
+  //     type: 'immediate',
+  //     value: 'lastYear',
+  //   },
+  // }, 
+  // {
+  //   label: '自定义',
+  //   value: {
+  //     type: 'calendar',
+  //     value: 'daterange',
+  //   },
+  // },
 ];
 
 </script>
