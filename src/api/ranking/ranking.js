@@ -95,3 +95,21 @@ export const monitoring = (data) => {
     data,
   });
 };
+
+//批量暂停
+export const batchPause = (data) => {
+  return request({
+    url: '/api/seeics-analysis/keyword-ranking/monitor-stop',
+    method: 'post',
+    data,
+  });
+};
+
+//批量开启
+export const batchStart = (data) => {
+  return request({
+    url: '/api/seeics-analysis/keyword-ranking/monitor-start',
+    method: 'post',
+    data,
+  });
+};
