@@ -180,8 +180,6 @@ export default {
           storeName: this.form.storeName.trim(),
           marketplaces: this.form.marketplaces,
         },
-        // 沙盒
-        true,
       );
       console.log('url', url);
       window.open(url);
