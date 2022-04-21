@@ -142,7 +142,6 @@ export const getOAuthUrl = (marketplace, state) => {
   const applicationId = 'amzn1.sp.solution.23a02eea-8b16-4c81-98c4-74767293b05f';
   const stateJson = encodeURIComponent(JSON.stringify(state));
   const redirect_uri = 'https://www.seeics.com/#/authorize_consent';
-  // 草稿状态添加 &version=beta 进行测试
-  const url = `${sellerCentralUrl}${common}?application_id=${applicationId}&version=beta&redirect_uri=${redirect_uri}&state=${stateJson}`;
+  const url = `${sellerCentralUrl}${common}?application_id=${applicationId}&redirect_uri=${redirect_uri}&state=${stateJson}`;
   return url;
 };
