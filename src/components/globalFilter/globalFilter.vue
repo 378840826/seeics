@@ -32,6 +32,7 @@
                 <span class="span"><el-input/></span>
               </span>
               <span v-else class="span"><el-input v-model="formInline.value"/></span>
+              <el-button v-if="formInline.btn" type="text" disabled>添加</el-button>
           </el-row>
       </div>
     </el-card>
@@ -92,6 +93,7 @@ export default {
           value: '',
           maxVal: '',
           minVal: '',
+          btn: true,
         },
       ],
       condition: [
@@ -110,9 +112,9 @@ export default {
         {
           label: '≤'
         },
-        {
-          label: '环比'
-        },
+        // {
+        //   label: '环比'
+        // },
       ],
       fields: [
         {
@@ -173,11 +175,8 @@ export default {
     };
   },
   mounted() {
-    // this.totalFields = this.fields.splice(1, 0, [...this.fieldsPage]);
     this.totalFields = Array.from(this.fields);
     this.fieldsPage = this.totalFields.splice(1, 4);
-    // console.log(this.filterField(this.formInline));
-    
   },
   methods: {
     filterField() {
@@ -194,6 +193,15 @@ export default {
     sleect(condition, id) {
       if (condition === '≥且<' || condition === '环比') {
         this.formInline = this.formInline.map(item => {
+          if (item.id === id) {
+            item.value = '';
+            item.maxVal = '';
+            item.minVal = '';
+          } 
+          return item;
+        });
+      } else {
+          this.formInline = this.formInline.map(item => {
           if (item.id === id) {
             item.value = '';
             item.maxVal = '';
@@ -238,6 +246,19 @@ export default {
           ...obj
         };
       });
+    }
+  },
+  watch: {
+    formInline: {
+      handler(val) {
+        val.map(item => {
+          if (item.maxVal && item.minVal || item.value) {
+              console.log(item)
+          }
+        })
+      },
+      deep: true,
+      immediate: true
     }
   }
 };
