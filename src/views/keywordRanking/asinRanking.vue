@@ -86,12 +86,23 @@
             <el-button 
               slot="reference" 
               size="mini" 
-              :disabled="checkList.length ? false : true"
+              :disabled="checkList.length && formInline.attachId ? false : true"
               style="marginLeft: 30px">监控频率</el-button>
           </el-popover>
         </el-form-item>
+        <el-form-item>
+          <el-button size="mini" :disabled="checkList.length && formInline.attachId ? false : true" 
+          style="marginLeft: 30px"
+          @click="batchStart"
+          >批量开启</el-button>
+        </el-form-item>
+        <el-form-item>
+          <el-button size="mini" :disabled="checkList.length && pauseCheck.length && formInline.attachId ? false : true" 
+          style="marginLeft: 30px"
+          @click="batchPause"
+          >批量暂停</el-button>
+        </el-form-item>
       </el-form>
-      
       <div class="warningtext">
       <!-- {{analyzeNum.usr ? '' : '今日还剩' + analyzeNum.freeTimes + '次免费分析机会，支持爬取关键词还剩' + analyzeNum.number + '个；'}} -->
       </div>
@@ -182,7 +193,7 @@
                   slot="tip"
                   class="el-upload__tip"
                 >
-                {{scope.row.originalName || updateFileName || scope.row.searchKeyword +'关键词.xlsx'}}
+                {{scope.row.updateFileName || updateFileName || scope.row.searchKeyword +'关键词.xlsx'}}
                 </div>
               </div>
             </div>
@@ -274,7 +285,7 @@
 
 <script>
 const toke = JSON.parse(localStorage.getItem('saber-token'));
-import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports, monitoring } from '@/api/ranking/ranking';
+import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports, monitoring, batchPause, batchStart } from '@/api/ranking/ranking';
 import { downloadFile } from '@/util/util';
 export default {
   name: 'asinRanking',
@@ -344,6 +355,7 @@ export default {
       user: {},
       data: [],
       checkList: [], //选择框
+      pauseCheck: [], //判断选中是否有监控记录
       dialogVisible: false, //两周内是否搜索过弹框
       dialogImport: false,
       desc: false, //排序值
@@ -407,10 +419,10 @@ export default {
         searchCountry: this.formInline.searchCountry,
         searchTopPage: this.formInline.searchTopPage
       }).then(res => {
-        if (res.data.code === 200) {
+        if (res.data.success) {
           this.$message({
             type: 'success',
-            message: '修改监控频率成功'
+            message: '设置监控频率成功'
           });
           this.getkeywordLists();
           this.$refs.popovers.doClose();
@@ -419,6 +431,43 @@ export default {
     },
     radioChange(e) {
       this.modelRadio = e;
+    },
+    //批量暂停
+    batchPause() {
+      batchPause({
+        attachIdList: this.checkList,
+        searchCountry: this.formInline.searchCountry,
+        searchTopPage: this.formInline.searchTopPage
+      }).then(res => {
+        if (res.data.success) {
+          this.$message({
+            type: 'success',
+            message: '监控批量暂停成功'
+          });
+          this.getkeywordLists();
+        }
+      });
+    },
+    //批量开启
+    batchStart() {
+      batchStart({
+        attachIdList: this.checkList,
+        searchCountry: this.formInline.searchCountry,
+        searchTopPage: this.formInline.searchTopPage
+      }).then(res => {
+        if (res.data.success) {
+          this.$message({
+            type: 'success',
+            message: '监控批量开启成功'
+          });
+          this.getkeywordLists();
+        } else {
+          this.$message({
+            type: 'error',
+            message: res.data.msg
+          }); 
+        }
+      });
     },
     filterBtn() {
       console.log(this.filters);
@@ -467,7 +516,7 @@ export default {
       this.data.map(item => {
         if (item.id === id) {
           item.formData = formData;
-          item.originalName = arr.length > 0 ? `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx` : files.name;
+          item.updateFileName = arr.length > 0 ? `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx` : files.name;
         }
       });
       this.updateIsrefresh = this.updateIsrefresh ? false : true;
@@ -533,7 +582,6 @@ export default {
     },
     close(id) {
       this.updateFileName = '';
-      console.log(this.$refs[`popover-${id}`])
       this.$refs[`popover-${id}`].doClose();
     },
     importHide() {
@@ -671,13 +719,20 @@ export default {
     },
     handleSelectionChange(list) {
       const arr = [];
+      const pauseArr = [];
       if (list.length) {
         list.map(item => {
           arr.push(item.attachId);
+          if (item.cycle) {
+            pauseArr.push(item.cycle);
+          }
         });
       } else {
         arr.splice(0, arr.length);
+        pauseArr.splice(0, pauseArr.length);
       }
+      this.modelRadio = pauseArr[0] || 7;
+      this.pauseCheck = pauseArr;
       this.checkList = arr;
     },
     detail (id) {
@@ -750,7 +805,7 @@ export default {
             }
             if (item.id === data.id) {
               delete item.formData;
-              delete item.originalName;
+              delete item.updateFileName;
             }
           });
           this.$refs[`popover-${data.id}`].doClose();
@@ -798,6 +853,7 @@ export default {
       immediate: false,
     },
     'formInline.attachId'() {
+      this.page.currentPage = 1;
       this.getkeywordLists();
     },
   },
