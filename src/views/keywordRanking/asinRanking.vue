@@ -86,18 +86,18 @@
             <el-button 
               slot="reference" 
               size="mini" 
-              :disabled="checkList.length && formInline.attachId ? false : true"
+              :disabled="checkList.length ? false : true"
               style="marginLeft: 30px">监控频率</el-button>
           </el-popover>
         </el-form-item>
         <el-form-item>
-          <el-button size="mini" :disabled="checkList.length && formInline.attachId ? false : true" 
+          <el-button size="mini" :disabled="checkList.length ? false : true" 
           style="marginLeft: 30px"
           @click="batchStart"
           >批量开启</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button size="mini" :disabled="checkList.length && pauseCheck.length && formInline.attachId ? false : true" 
+          <el-button size="mini" :disabled="checkList.length && pauseCheck.length ? false : true" 
           style="marginLeft: 30px"
           @click="batchPause"
           >批量暂停</el-button>
@@ -424,7 +424,6 @@ export default {
             type: 'success',
             message: '设置监控频率成功'
           });
-          this.getkeywordLists();
           this.$refs.popovers.doClose();
         }
       });
