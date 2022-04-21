@@ -9,8 +9,8 @@ export const getList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 export const getParentList = (current, size, params) => {
   return request({
@@ -21,8 +21,8 @@ export const getParentList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 export const getChildList = (current, size, parentId, params) => {
   return request({
@@ -34,8 +34,8 @@ export const getChildList = (current, size, parentId, params) => {
       size,
       parentId: parentId,
     }
-  })
-}
+  });
+};
 
 export const remove = (ids) => {
   return request({
@@ -44,24 +44,24 @@ export const remove = (ids) => {
     params: {
       ids,
     }
-  })
-}
+  });
+};
 
 export const add = (row) => {
   return request({
     url: '/api/blade-system/dict-biz/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const update = (row) => {
   return request({
     url: '/api/blade-system/dict-biz/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 
 export const getDict = (id) => {
@@ -71,19 +71,19 @@ export const getDict = (id) => {
     params: {
       id,
     }
-  })
-}
+  });
+};
 export const getDictTree = () => {
   return request({
     url: '/api/blade-system/dict-biz/tree?code=DICT',
     method: 'get'
-  })
-}
+  });
+};
 
 export const getDictionary = (params) => {
   return request({
     url: '/api/blade-system/dict-biz/dictionary',
     method: 'get',
     params,
-  })
-}
+  });
+};

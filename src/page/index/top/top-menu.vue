@@ -22,48 +22,48 @@
 </template>
 
 <script>
-  import {mapGetters} from "vuex";
+import { mapGetters } from 'vuex';
 
-  export default {
-    name: "top-menu",
-    data() {
-      return {
-        itemHome: {
-          name: '首页',
-          source: 'el-icon-menu',
-        },
-        activeIndex: "0",
-        items: [],
-      };
+export default {
+  name: 'top-menu',
+  data() {
+    return {
+      itemHome: {
+        name: '首页',
+        source: 'el-icon-menu',
+      },
+      activeIndex: '0',
+      items: [],
+    };
+  },
+  inject: ['index'],
+  created() {
+    this.getMenu();
+  },
+  computed: {
+    ...mapGetters(['tagCurrent', 'menu'])
+  },
+  methods: {
+    openHome(itemHome) {
+      this.index.openMenu(itemHome);
+      this.$router.push({
+        path: this.$router.$avueRouter.getPath({ name: itemHome.name, src: '' }, {})
+      });
     },
-    inject: ["index"],
-    created() {
-      this.getMenu();
+    openMenu(item) {
+      this.index.openMenu(item);
     },
-    computed: {
-      ...mapGetters(["tagCurrent", "menu"])
+    getMenu() {
+      this.$store.dispatch('GetTopMenu').then(res => {
+        this.items = res;
+      });
     },
-    methods: {
-      openHome(itemHome) {
-        this.index.openMenu(itemHome);
-        this.$router.push({
-          path: this.$router.$avueRouter.getPath({name: itemHome.name, src: ''}, {})
-        });
-      },
-      openMenu(item) {
-        this.index.openMenu(item)
-      },
-      getMenu() {
-        this.$store.dispatch("GetTopMenu").then(res => {
-          this.items = res;
-        });
-      },
-      generateTitle(item) {
-        return this.$router.$avueRouter.generateTitle(
-          item.name,
-          (item.meta || {}).i18n
-        );
-      },
-    }
-  };
+    generateTitle(item) {
+      return this.$router.$avueRouter.generateTitle(
+        item.name,
+        (item.meta || {}).i18n
+      );
+    },
+  }
+};
 </script>

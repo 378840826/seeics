@@ -1,7 +1,7 @@
-import Mock from 'mockjs'
+import Mock from 'mockjs';
 
 function getFakeList() {
-  const json = {code: 200, success: true, msg: '操作成功'};
+  const json = { code: 200, success: true, msg: '操作成功' };
   const list = [];
   list.push(
     {
@@ -31,7 +31,7 @@ function getFakeList() {
 }
 
 function getFakeDetail() {
-  const json = {code: 200, success: true, msg: '操作成功'};
+  const json = { code: 200, success: true, msg: '操作成功' };
   json.data = {
     id: '1',
     paramName: '是否开启注册功能',
@@ -43,11 +43,13 @@ function getFakeDetail() {
 }
 
 function fakeSuccess() {
-  return {code: 200, success: true, msg: '操作成功'};
+  return { code: 200, success: true, msg: '操作成功' };
 }
 
-export default ({mock}) => {
-  if (!mock) return;
+export default ({ mock }) => {
+  if (!mock) {
+    return; 
+  }
   Mock.mock(/\/api\/blade-system\/param\/list/, 'get', getFakeList);
 
   Mock.mock(/\/api\/blade-system\/param\/detail/, 'get', getFakeDetail);
@@ -56,4 +58,4 @@ export default ({mock}) => {
 
   Mock.mock(/\/api\/blade-system\/param\/remove/, 'post', fakeSuccess);
 
-}
+};

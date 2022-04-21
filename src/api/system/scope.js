@@ -9,8 +9,8 @@ export const getListDataScope = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 export const removeDataScope = (ids) => {
   return request({
@@ -19,24 +19,24 @@ export const removeDataScope = (ids) => {
     params: {
       ids,
     }
-  })
-}
+  });
+};
 
 export const addDataScope = (row) => {
   return request({
     url: '/api/blade-system/data-scope/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const updateDataScope = (row) => {
   return request({
     url: '/api/blade-system/data-scope/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const getMenuDataScope = (id) => {
   return request({
@@ -45,8 +45,8 @@ export const getMenuDataScope = (id) => {
     params: {
       id,
     }
-  })
-}
+  });
+};
 
 export const getListApiScope = (current, size, params) => {
   return request({
@@ -57,8 +57,8 @@ export const getListApiScope = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 export const removeApiScope = (ids) => {
   return request({
@@ -67,24 +67,24 @@ export const removeApiScope = (ids) => {
     params: {
       ids,
     }
-  })
-}
+  });
+};
 
 export const addApiScope = (row) => {
   return request({
     url: '/api/blade-system/api-scope/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const updateApiScope = (row) => {
   return request({
     url: '/api/blade-system/api-scope/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const getMenuApiScope = (id) => {
   return request({
@@ -93,5 +93,5 @@ export const getMenuApiScope = (id) => {
     params: {
       id,
     }
-  })
-}
+  });
+};

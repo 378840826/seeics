@@ -1,14 +1,14 @@
 export default {
   tip: '提示',
-  title: 'Saber企业级开发平台',
+  title: '思意数据',
   logoutTip: '退出系统, 是否继续?',
   submitText: '确定',
   cancelText: '取消',
   search: '请输入搜索内容',
   menuTip: '没有发现菜单',
   wel: {
-    info: '早安，Smallwei，Avuex一款超乎你想象的框架！',
-    dept: '我是avue团队下的一个部门-哈皮部门-哈皮职位',
+    info: '思意数据',
+    dept: '思意数据',
     team: '团队内排名',
     project: '项目访问',
     count: '项目数',
@@ -49,8 +49,8 @@ export default {
   },
   route: {
     info: '个人信息',
-    website: 'bladex官网',
-    avuexwebsite: 'avuex官网',
+    website: '思意数据',
+    avuexwebsite: '思意数据',
     dashboard: '首页',
     more: '更多',
     tags: '标签',
@@ -67,7 +67,7 @@ export default {
   },
   login: {
     title: '登录 ',
-    info: 'BladeX 企业级开发平台',
+    info: '思意数据',
     tenantId: '请输入租户ID',
     username: '请输入账号',
     password: '请输入密码',
@@ -105,4 +105,4 @@ export default {
     closeOthers: '关闭其它',
     closeAll: '关闭所有'
   }
-}
+};

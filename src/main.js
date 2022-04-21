@@ -7,7 +7,7 @@ import './permission'; // 权限
 import './error'; // 日志
 import './cache';//页面缓存
 import store from './store';
-import {loadStyle} from './util/util'
+import { loadStyle } from './util/util';
 import * as urls from '@/config/env';
 import Element from 'element-ui';
 import {

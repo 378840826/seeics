@@ -9,11 +9,11 @@
 </template>
 
 <script>
-  export default {
-    methods: {
-      handleNewError() {
+export default {
+  methods: {
+    handleNewError() {
         window.console.log(a); // eslint-disable-line
-      }
     }
-  };
+  }
+};
 </script>

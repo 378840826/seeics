@@ -1,6 +1,6 @@
 module.exports = {
   //路径前缀
-  publicPath: "/",
+  publicPath: '/',
   lintOnSave: true,
   productionSourceMap: false,
   chainWebpack: (config) => {
@@ -26,7 +26,8 @@ module.exports = {
     proxy: {
       '/api': {
         //本地服务接口地址
-        target: 'http://localhost',
+        target: 'http://8.129.51.192:8000',
+        // target: 'http://47.107.124.227:8000',
         //远程演示服务地址,可用于直接启动项目
         //target: 'https://saber.bladex.vip/api',
         ws: true,

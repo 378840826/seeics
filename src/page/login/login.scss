@@ -1,0 +1,370 @@
+.login-container {
+  min-width: 100%;
+  min-height: 100%;
+  margin: 0 auto;
+  background: url("/img/bg/loginBgbig.png") no-repeat center;
+  background-size:100% 100%;
+  position: relative;
+}
+.center-container {
+  width: 1218px;
+  margin: 0 auto;
+  height: 100%;
+}
+.logodiv {
+  width: 1218px;
+  margin: 0 auto;
+  padding-top: 30px;
+}
+.main-container {
+  margin-top: 180px;
+  display: flex;
+  justify-content: center;
+}
+.login-border {
+  width: 760px;
+  height: 400px;
+  display: flex;
+  background: #fff;
+}
+.main-left{
+  width: 320px;
+  height: 400px;
+  background: linear-gradient(0deg, #123150, #005F8C);
+  border-radius: 4px 0px 0px 4px;
+  text-align: center;
+  width: 320px;
+}
+.title {
+  //width: 40px;
+  //height: 11px;
+  font-size: 24px;
+  //font-family: Microsoft YaHei;
+  font-weight: bold;
+  color: #00FFFF;
+  //line-height: 70px;
+  margin-top: 70px;
+}
+.subtitle {
+  //width: 77px;
+  //height: 8px;
+  font-size: 14px;
+  //font-family: Microsoft YaHei;
+  font-weight: 400;
+  color: #00FFFF;
+  margin-top: 12px;
+  margin-bottom: 40px;
+  //line-height: 70px;
+}
+.main-right {
+  padding: 30px 60px;
+  width: 440px;
+  box-sizing: border-box;
+}
+
+
+.user-container {
+  .sendagainspan {
+    color: #419EFF;
+    display: inline-block;
+    margin-left: 10px;
+    font-size: 14px;
+    line-height: 14px;
+
+    &:hover{
+      cursor: pointer;
+    }
+  }
+  .el-input__inner {
+    padding: 0 30px;
+    height: 34px;
+  }
+
+  .el-button {
+    width: 100%;
+    height: 34px;
+    padding: 0;
+    font-size: 14px;
+    line-height: 34px;
+  }
+
+  .el-form-item {
+    height: 35px;
+  }
+  .el-col{
+    margin: 0;
+  }
+
+  .aspan{
+    float: right;
+    color: #419EFF;
+  }
+
+  .inactivespan {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 400;
+    color: #606266;
+    line-height: 14px;
+  }
+
+  a{
+    color: #419EFF;
+  }
+
+  img {
+    border: 1px solid #DCDFE5;
+    height: 33px;
+    /* margin: 0 auto; */
+    /* margin: 4px 10px; */
+    float: right;
+    margin: 2px 0;
+    border-radius: 4px;
+  }
+}
+
+#wxContainer{
+  .qrcode .lightBorder {
+    width: 180px;
+  }
+}
+
+.forgetpsw-container {
+  .el-form{
+    margin-top: 90px;
+  }
+  img {
+    border: 1px solid #DCDFE5;
+    height: 38px;
+    /* margin: 0 auto; */
+    /* margin: 4px 10px; */
+    float: right;
+    //margin: 4px 0;
+    border-radius: 4px;
+  }
+  .el-button {
+    width: 100%;
+    height: 40px;
+    padding: 0;
+    font-size: 14px;
+    line-height: 40px;
+  }
+
+}
+
+.regsuccess-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 20px;
+  font-weight: 400;
+  img{
+    width: 30px;
+    margin-right: 16px;
+  }
+  a{
+    color: #419EFF;
+  } 
+  .bottomtext {
+    position: absolute;
+    bottom: 0px;
+    font-size: 14px;
+    font-weight: 400;
+  }
+  .sendagin{
+    color: #419EFF;
+  }
+}
+
+.advicetext {
+  text-align: center;
+  color: #fff;
+  font-size: 14px;
+  font-family: Microsoft YaHei;
+  font-weight: 400;
+  color: #FFFFFF;
+  line-height: 14px;
+  margin-top: 20px;
+}
+.footer{
+  text-align: center;
+  position: absolute;
+  bottom: 20px;
+  color: #fff;
+  width: 100%;
+  font-size: 14px;
+  font-family: Microsoft YaHei;
+  font-weight: 400;
+  color: #D7E7FF;
+}
+//重置密码
+.setupnewpsw-container {
+  min-width: 100%;
+  min-height: 100%;
+  background-color: #fff;
+  margin:  0 auto;
+  position: relative;
+
+  .setupnewpsw-center {
+    width: 1366px;
+    margin: 0 auto;
+
+    .logo {
+      width: 100%;
+      margin: 0 auto;
+      padding-top: 30px;
+      padding-bottom: 220px;
+    }
+    .centerdiv{
+      width: 1366px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .setupnewpsw-form {
+      height: 300px;
+      width: 460px;
+      box-shadow: 0px 1px 10px 0px rgba(230, 230, 230, 0.75);
+      border-radius: 2px;
+      text-align: center;
+      position: relative;
+    }
+
+    .tipstext {
+      position: absolute;
+      bottom: 10px;
+      font-size: 14px;
+    }
+
+    .bluetext{
+      color: #419EFF;
+
+      &:hover{
+        cursor: pointer;
+      }
+    }
+
+    .wechatres-boder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;     
+    }
+
+    .flexdiv {
+      display: flex;
+      line-height: 30px;
+      font-size: 16px;
+
+      img{
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+      }
+
+      a {
+        color: #419EFF;
+      }
+    }
+
+    .setupnewpsw-header {
+      height: 80px;
+      text-align: center;
+      line-height: 80px;
+      border-bottom: 1px solid #DCDFE5;
+      font-size: 18px;
+      font-weight: bold;
+      color: #000000;
+    }
+    .form-main {
+      padding: 30px 80px;
+    }
+    .el-input__inner{
+      height: 35px;
+    }
+
+    .el-button{
+      height: 35px;
+      width: 100%;
+    }
+    .setupnewpsw-tips {
+      text-align: center;
+      font-size: 14px;
+      font-weight: 400;
+      color: #606266;
+      line-height: 14px;
+      margin-top: 20px;
+    }
+  }
+  .footer{
+    font-size: 14px;
+    font-weight: 400;
+    color: #606266;
+    line-height: 35px;
+  }
+}
+.activatesuccess-container {
+  min-width: 100%;
+  min-height: 100%;
+  background-color: #fff;
+  margin:  0 auto;
+  position: relative;
+
+  .activatesuccess-main {
+    width: 1366px;
+    margin: 0 auto;
+
+    .logo {
+      width: 100%;
+      margin: 0 auto;
+      padding-top: 30px;
+      padding-bottom: 220px;
+    }
+
+    .activatesuccess-center {
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .activatesuccess-boder {
+        height: 300px;
+        width: 460px;
+      }
+      .flexcenter {
+        display: flex;
+        justify-content: center;
+      }
+
+      img{
+        width: 54px;
+        height: 54px;
+      }
+      .successtext{
+        font-size: 30px;
+        font-weight: bold;
+        color: #000000;
+        line-height: 54px;
+        margin-left: 32px;
+      }
+      .jumptext {
+        width: 100%;
+        text-align: center;
+        margin-top: 30px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #606266;
+        line-height: 24px;
+      }
+      .errortext {
+        color: #F04343; 
+      }
+    }
+  }
+
+
+}
+

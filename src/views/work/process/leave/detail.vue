@@ -59,50 +59,50 @@
 </template>
 
 <script>
-  import {historyFlowList, leaveDetail} from "@/api/work/process";
+import { historyFlowList, leaveDetail } from '@/api/work/process';
 
-  export default {
-    data() {
-      return {
-        businessId: '',
-        processInstanceId: '',
-        src: '',
-        flowList: [],
-        form: {
-          flow:{
-            assigneeName:'',
-          },
-          startTime: '',
-          endTime: '',
-          reason: '',
+export default {
+  data() {
+    return {
+      businessId: '',
+      processInstanceId: '',
+      src: '',
+      flowList: [],
+      form: {
+        flow: {
+          assigneeName: '',
+        },
+        startTime: '',
+        endTime: '',
+        reason: '',
+      }
+    };
+  },
+  created() {
+    this.init();
+  },
+  methods: {
+    init() {
+      this.processInstanceId = this.$route.params.processInstanceId;
+      this.businessId = this.$route.params.businessId;
+      this.src = `/api/blade-flow/process/diagram-view?processInstanceId=${this.$route.params.processInstanceId}&t=${new Date().getTime()}`;
+      historyFlowList(this.processInstanceId).then(res => {
+        const data = res.data;
+        if (data.success) {
+          this.flowList = data.data;
         }
-      }
+      });
+      leaveDetail(this.businessId).then(res => {
+        const data = res.data;
+        if (data.success) {
+          this.form = data.data;
+        }
+      });
     },
-    created() {
-      this.init();
-    },
-    methods: {
-      init() {
-        this.processInstanceId = this.$route.params.processInstanceId;
-        this.businessId = this.$route.params.businessId;
-        this.src = `/api/blade-flow/process/diagram-view?processInstanceId=${this.$route.params.processInstanceId}&t=${new Date().getTime()}`;
-        historyFlowList(this.processInstanceId).then(res => {
-          const data = res.data;
-          if (data.success) {
-            this.flowList = data.data;
-          }
-        })
-        leaveDetail(this.businessId).then(res => {
-          const data = res.data;
-          if (data.success) {
-            this.form = data.data;
-          }
-        })
-      },
-      handleCancel() {
-        this.$router.$avueRouter.closeTag();
-        this.$router.push({path: `/work/start`});
-      }
+    handleCancel() {
+      this.$router.$avueRouter.closeTag();
+      this.$router.push({ path: `/work/start` });
     }
   }
+};
 </script>

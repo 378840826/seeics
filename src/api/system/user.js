@@ -10,8 +10,8 @@ export const getList = (current, size, params, deptId) => {
       size,
       deptId,
     }
-  })
-}
+  });
+};
 
 export const remove = (ids) => {
   return request({
@@ -20,24 +20,24 @@ export const remove = (ids) => {
     params: {
       ids,
     }
-  })
-}
+  });
+};
 
 export const add = (row) => {
   return request({
     url: '/api/blade-user/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const update = (row) => {
   return request({
     url: '/api/blade-user/update',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const updatePlatform = (userId, userType, userExt) => {
   return request({
@@ -48,8 +48,8 @@ export const updatePlatform = (userId, userType, userExt) => {
       userType,
       userExt,
     }
-  })
-}
+  });
+};
 
 export const getUser = (id) => {
   return request({
@@ -58,8 +58,8 @@ export const getUser = (id) => {
     params: {
       id,
     }
-  })
-}
+  });
+};
 
 export const getUserPlatform = (id) => {
   return request({
@@ -68,15 +68,15 @@ export const getUserPlatform = (id) => {
     params: {
       id,
     }
-  })
-}
+  });
+};
 
 export const getUserInfo = () => {
   return request({
     url: '/api/blade-user/info',
     method: 'get',
-  })
-}
+  });
+};
 
 export const resetPassword = (userIds) => {
   return request({
@@ -85,8 +85,8 @@ export const resetPassword = (userIds) => {
     params: {
       userIds,
     }
-  })
-}
+  });
+};
 
 export const updatePassword = (oldPassword, newPassword, newPassword1) => {
   return request({
@@ -97,16 +97,16 @@ export const updatePassword = (oldPassword, newPassword, newPassword1) => {
       newPassword,
       newPassword1,
     }
-  })
-}
+  });
+};
 
 export const updateInfo = (row) => {
   return request({
     url: '/api/blade-user/update-info',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const grant = (userIds, roleIds) => {
   return request({
@@ -116,5 +116,5 @@ export const grant = (userIds, roleIds) => {
       userIds,
       roleIds,
     }
-  })
-}
+  });
+};

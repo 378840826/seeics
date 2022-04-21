@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import store from './store'
+import store from './store';
 
 Vue.config.errorHandler = function (err, vm, info) {
 
@@ -21,5 +21,5 @@ Vue.config.errorHandler = function (err, vm, info) {
       window.console.log(err);
       window.console.groupEnd();
     }
-  })
-}
+  });
+};

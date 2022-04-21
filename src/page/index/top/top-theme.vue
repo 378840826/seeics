@@ -26,74 +26,74 @@
 </template>
 
 <script>
-import { setTheme } from "@/util/util";
-import { mapGetters } from "vuex";
+import { setTheme } from '@/util/util';
+import { mapGetters } from 'vuex';
 export default {
   data () {
     return {
       box: false,
-      text: "",
+      text: '',
       list: [
         {
-          name: "默认主题",
-          value: "default"
+          name: '默认主题',
+          value: 'default'
         },
         {
-          name: "白色主题",
-          value: "theme-white"
+          name: '白色主题',
+          value: 'theme-white'
         },
         {
-          name: "黑色主题",
-          value: "theme-dark"
+          name: '黑色主题',
+          value: 'theme-dark'
         },
         {
-          name: "炫彩主题",
-          value: "theme-star"
+          name: '炫彩主题',
+          value: 'theme-star'
         },
         {
-          name: "智能主题",
-          value: "theme-bule"
+          name: '智能主题',
+          value: 'theme-bule'
         },
         {
-          name: "iview主题",
-          value: "theme-iview"
+          name: 'iview主题',
+          value: 'theme-iview'
         },
         {
-          name: "vip主题",
-          value: "theme-vip"
+          name: 'vip主题',
+          value: 'theme-vip'
         },
         {
-          name: "cool主题",
-          value: "theme-cool"
+          name: 'cool主题',
+          value: 'theme-cool'
         },
         {
-          name: "d2主题",
-          value: "theme-d2"
+          name: 'd2主题',
+          value: 'theme-d2'
         },
         {
-          name: "hey主题",
-          value: "theme-hey"
+          name: 'hey主题',
+          value: 'theme-hey'
         },
         {
-          name: "lte主题",
-          value: "theme-lte"
+          name: 'lte主题',
+          value: 'theme-lte'
         }
       ]
     };
   },
   watch: {
     text: function (val) {
-      this.$store.commit("SET_THEME_NAME", val);
+      this.$store.commit('SET_THEME_NAME', val);
       setTheme(val);
     }
   },
   computed: {
-    ...mapGetters(["themeName"])
+    ...mapGetters(['themeName'])
   },
   mounted () {
     this.text = this.themeName;
     if (!this.text) {
-      this.text = "";
+      this.text = '';
     }
   },
   methods: {

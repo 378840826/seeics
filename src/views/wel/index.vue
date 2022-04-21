@@ -1,5 +1,7 @@
 <template>
   <div>
+    功能暂未开放
+    <!-- 
     <el-row>
       <el-col :span="24">
         <third-register></third-register>
@@ -656,29 +658,31 @@
 
       </el-col>
     </el-row>
+    -->
   </div>
+  
 </template>
 
 <script>
-  import {mapGetters} from "vuex";
+import { mapGetters } from 'vuex';
 
-  export default {
-    name: "wel",
-    data() {
-      return {
-        activeNames: ['1', '2', '3', '5'],
-        logActiveNames: ['24']
-      };
-    },
-    computed: {
-      ...mapGetters(["userInfo"]),
-    },
-    methods: {
-      handleChange(val) {
-        window.console.log(val);
-      }
-    },
-  };
+export default {
+  name: 'wel',
+  data() {
+    return {
+      activeNames: ['1', '2', '3', '5'],
+      logActiveNames: ['24']
+    };
+  },
+  computed: {
+    ...mapGetters(['userInfo']),
+  },
+  methods: {
+    handleChange(val) {
+      window.console.log(val);
+    }
+  },
+};
 </script>
 
 <style>

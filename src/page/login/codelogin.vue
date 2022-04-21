@@ -41,10 +41,10 @@
 </template>
 
 <script>
-import { isvalidatemobile } from "@/util/validate";
-import { mapGetters } from "vuex";
+import { isvalidatemobile } from '@/util/validate';
+import { mapGetters } from 'vuex';
 export default {
-  name: "codelogin",
+  name: 'codelogin',
   data() {
     const validatePhone = (rule, value, callback) => {
       if (isvalidatemobile(value)[0]) {
@@ -55,22 +55,22 @@ export default {
     };
     const validateCode = (rule, value, callback) => {
       if (value.length !== 4) {
-        callback(new Error("请输入4位数的验证码"));
+        callback(new Error('请输入4位数的验证码'));
       } else {
         callback();
       }
     };
     return {
-      msgText: "",
-      msgTime: "",
+      msgText: '',
+      msgTime: '',
       msgKey: false,
       loginForm: {
-        phone: "",
-        code: ""
+        phone: '',
+        code: ''
       },
       loginRules: {
-        phone: [{ required: true, trigger: "blur", validator: validatePhone }],
-        code: [{ required: true, trigger: "blur", validator: validateCode }]
+        phone: [{ required: true, trigger: 'blur', validator: validatePhone }],
+        code: [{ required: true, trigger: 'blur', validator: validateCode }]
       }
     };
   },
@@ -78,13 +78,13 @@ export default {
     this.msgText = this.config.MSGINIT;
     this.msgTime = this.config.MSGTIME;
   },
-  mounted() {},
+  // mounted() {},
   computed: {
-    ...mapGetters(["tagWel"]),
+    ...mapGetters(['tagWel']),
     config() {
       return {
-        MSGINIT: this.$t("login.msgText"),
-        MSGSCUCCESS: this.$t("login.msgSuccess"),
+        MSGINIT: this.$t('login.msgText'),
+        MSGSCUCCESS: this.$t('login.msgSuccess'),
         MSGTIME: 60
       };
     }
@@ -92,7 +92,9 @@ export default {
   props: [],
   methods: {
     handleSend() {
-      if (this.msgKey) return;
+      if (this.msgKey) {
+        return; 
+      }
       this.msgText = this.msgTime + this.config.MSGSCUCCESS;
       this.msgKey = true;
       const time = setInterval(() => {
@@ -109,7 +111,7 @@ export default {
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          this.$store.dispatch("LoginByPhone", this.loginForm).then(() => {
+          this.$store.dispatch('LoginByPhone', this.loginForm).then(() => {
             this.$router.push({ path: this.tagWel.value });
           });
         }

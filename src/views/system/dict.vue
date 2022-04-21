@@ -111,9 +111,9 @@ import {
   add,
   getDict,
   getDictTree
-} from "@/api/system/dict";
-import {optionParent, optionChild} from "@/option/system/dict";
-import {mapGetters} from "vuex";
+} from '@/api/system/dict';
+import { optionParent, optionChild } from '@/option/system/dict';
+import { mapGetters } from 'vuex';
 
 export default {
   data() {
@@ -146,7 +146,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["userInfo", "permission"]),
+    ...mapGetters(['userInfo', 'permission']),
     permissionList() {
       return {
         addBtn: this.vaildData(this.permission.dict_add, false),
@@ -156,11 +156,11 @@ export default {
       };
     },
     ids() {
-      let ids = [];
+      const ids = [];
       this.selectionList.forEach(ele => {
         ids.push(ele.id);
       });
-      return ids.join(",");
+      return ids.join(',');
     }
   },
   mounted() {
@@ -169,16 +169,16 @@ export default {
   methods: {
     initData() {
       getDictTree().then(res => {
-        const column = this.findObject(this.optionChild.column, "parentId");
+        const column = this.findObject(this.optionChild.column, 'parentId');
         column.dicData = res.data.data;
       });
     },
     handleAdd(row) {
-      this.formChild.dictValue = "";
-      this.formChild.dictKey = "";
+      this.formChild.dictValue = '';
+      this.formChild.dictKey = '';
       this.formChild.sort = 0;
       this.formChild.isSealed = 0;
-      this.formChild.remark = "";
+      this.formChild.remark = '';
       this.formChild.parentId = row.id;
       this.$refs.crudChild.rowAdd();
     },
@@ -190,8 +190,8 @@ export default {
       add(form).then(() => {
         this.onLoadParent(this.pageParent);
         this.$message({
-          type: "success",
-          message: "操作成功!"
+          type: 'success',
+          message: '操作成功!'
         });
         done();
       }, error => {
@@ -203,8 +203,8 @@ export default {
       update(row).then(() => {
         this.onLoadParent(this.pageParent);
         this.$message({
-          type: "success",
-          message: "操作成功!"
+          type: 'success',
+          message: '操作成功!'
         });
         this.onLoadChild(this.pageChild);
         done();
@@ -214,10 +214,10 @@ export default {
       });
     },
     rowDel(row) {
-      this.$confirm("确定将选择数据删除?", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
+      this.$confirm('确定将选择数据删除?', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
         .then(() => {
           return remove(row.id);
@@ -225,8 +225,8 @@ export default {
         .then(() => {
           this.onLoadParent(this.pageParent);
           this.$message({
-            type: "success",
-            message: "操作成功!"
+            type: 'success',
+            message: '操作成功!'
           });
         });
     },
@@ -235,9 +235,9 @@ export default {
       this.parentId = row.id;
       this.dictValue = row.dictValue;
 
-      const code = this.findObject(this.optionChild.column, "code");
+      const code = this.findObject(this.optionChild.column, 'code');
       code.value = row.code;
-      const parentId = this.findObject(this.optionChild.column, "parentId");
+      const parentId = this.findObject(this.optionChild.column, 'parentId');
       parentId.value = row.id;
 
       this.box = true;
@@ -262,13 +262,13 @@ export default {
     },
     handleDelete() {
       if (this.selectionList.length === 0) {
-        this.$message.warning("请选择至少一条数据");
+        this.$message.warning('请选择至少一条数据');
         return;
       }
-      this.$confirm("确定将选择数据删除?", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
+      this.$confirm('确定将选择数据删除?', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
         .then(() => {
           return remove(this.ids);
@@ -276,14 +276,14 @@ export default {
         .then(() => {
           this.onLoadParent(this.pageParent);
           this.$message({
-            type: "success",
-            message: "操作成功!"
+            type: 'success',
+            message: '操作成功!'
           });
           this.$refs.crud.toggleSelection();
         });
     },
     beforeOpen(done, type) {
-      if (["edit", "view"].includes(type)) {
+      if (['edit', 'view'].includes(type)) {
         getDict(this.formParent.id).then(res => {
           this.formParent = res.data.data;
         });
@@ -303,8 +303,8 @@ export default {
       add(row).then(() => {
         this.onLoadChild(this.pageChild);
         this.$message({
-          type: "success",
-          message: "操作成功!"
+          type: 'success',
+          message: '操作成功!'
         });
         done();
       }, error => {
@@ -316,8 +316,8 @@ export default {
       update(row).then(() => {
         this.onLoadChild(this.pageChild);
         this.$message({
-          type: "success",
-          message: "操作成功!"
+          type: 'success',
+          message: '操作成功!'
         });
         done();
       }, error => {
@@ -326,10 +326,10 @@ export default {
       });
     },
     rowDelChild(row) {
-      this.$confirm("确定将选择数据删除?", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
+      this.$confirm('确定将选择数据删除?', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
         .then(() => {
           return remove(row.id);
@@ -337,8 +337,8 @@ export default {
         .then(() => {
           this.onLoadChild(this.pageChild);
           this.$message({
-            type: "success",
-            message: "操作成功!"
+            type: 'success',
+            message: '操作成功!'
           });
         });
     },
@@ -361,13 +361,13 @@ export default {
     },
     handleDeleteChild() {
       if (this.selectionList.length === 0) {
-        this.$message.warning("请选择至少一条数据");
+        this.$message.warning('请选择至少一条数据');
         return;
       }
-      this.$confirm("确定将选择数据删除?", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
+      this.$confirm('确定将选择数据删除?', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
         .then(() => {
           return remove(this.ids);
@@ -375,17 +375,17 @@ export default {
         .then(() => {
           this.onLoadChild(this.pageChild);
           this.$message({
-            type: "success",
-            message: "操作成功!"
+            type: 'success',
+            message: '操作成功!'
           });
           this.$refs.crudChild.toggleSelection();
         });
     },
     beforeOpenChild(done, type) {
-      if (["add", "edit"].includes(type)) {
+      if (['add', 'edit'].includes(type)) {
         this.initData();
       }
-      if (["edit", "view"].includes(type)) {
+      if (['edit', 'view'].includes(type)) {
         getDict(this.formChild.id).then(res => {
           this.formChild = res.data.data;
         });
@@ -395,7 +395,7 @@ export default {
     beforeCloseChild(done) {
       this.$refs.crudChild.value.parentId = this.parentId;
       this.$refs.crudChild.option.column.filter(item => {
-        if (item.prop === "parentId") {
+        if (item.prop === 'parentId') {
           item.value = this.parentId;
         }
       });

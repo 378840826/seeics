@@ -6,4 +6,4 @@ export default {
     children: 'children',
     isOpen: 'isOpen'
   }
-}
+};

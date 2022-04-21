@@ -33,93 +33,93 @@
 </template>
 
 <script>
-  import config from './sidebar/config.js'
-  import {mapGetters} from "vuex";
+import config from './sidebar/config.js';
+import { mapGetters } from 'vuex';
 
-  export default {
-    data() {
-      return {
-        config: config,
-        value: "",
-        menus: [],
-        menuList: []
-      }
+export default {
+  data() {
+    return {
+      config: config,
+      value: '',
+      menus: [],
+      menuList: []
+    };
+  },
+  created() {
+    this.getMenuList();
+  },
+  watch: {
+    value() {
+      this.querySearch();
     },
-    created() {
+    menu() {
       this.getMenuList();
+    }
+  },
+  computed: {
+    labelKey() {
+      return this.website.menu.props.label || this.config.propsDefault.label;
     },
-    watch: {
-      value() {
-        this.querySearch();
-      },
-      menu() {
-        this.getMenuList();
-      }
+    pathKey() {
+      return this.website.menu.props.path || this.config.propsDefault.path;
     },
-    computed: {
-      labelKey() {
-        return this.website.menu.props.label || this.config.propsDefault.label;
-      },
-      pathKey() {
-        return this.website.menu.props.path || this.config.propsDefault.path;
-      },
-      iconKey() {
-        return this.website.menu.props.icon || this.config.propsDefault.icon;
-      },
-      childrenKey() {
-        return (
-          this.website.menu.props.children || this.config.propsDefault.children
-        );
-      },
-      ...mapGetters(["menu", "website"])
+    iconKey() {
+      return this.website.menu.props.icon || this.config.propsDefault.icon;
     },
-    methods: {
-      handleEsc() {
-        this.$parent.isSearch = false;
-      },
-      getMenuList() {
-        const findMenu = list => {
-          for (let i = 0; i < list.length; i++) {
-            const ele = Object.assign({}, list[i]);
-            if (this.validatenull(ele[this.childrenKey])) {
-              this.menuList.push(ele);
-            } else {
-              findMenu(ele[this.childrenKey]);
-            }
+    childrenKey() {
+      return (
+        this.website.menu.props.children || this.config.propsDefault.children
+      );
+    },
+    ...mapGetters(['menu', 'website'])
+  },
+  methods: {
+    handleEsc() {
+      this.$parent.isSearch = false;
+    },
+    getMenuList() {
+      const findMenu = list => {
+        for (let i = 0; i < list.length; i++) {
+          const ele = Object.assign({}, list[i]);
+          if (this.validatenull(ele[this.childrenKey])) {
+            this.menuList.push(ele);
+          } else {
+            findMenu(ele[this.childrenKey]);
           }
-        };
-        this.menuList = [];
-        findMenu(this.menu);
-        this.menus = this.menuList;
-      },
-      querySearch() {
-        var restaurants = this.menuList;
-        var queryString = this.value
-        this.menus = queryString
-          ? this.menuList.filter(this.createFilter(queryString))
-          : restaurants;
-      },
-      createFilter(queryString) {
-        return restaurant => {
-          return (
-            restaurant.name.toLowerCase().indexOf(queryString.toLowerCase()) ===
+        }
+      };
+      this.menuList = [];
+      findMenu(this.menu);
+      this.menus = this.menuList;
+    },
+    querySearch() {
+      const restaurants = this.menuList;
+      const queryString = this.value;
+      this.menus = queryString
+        ? this.menuList.filter(this.createFilter(queryString))
+        : restaurants;
+    },
+    createFilter(queryString) {
+      return restaurant => {
+        return (
+          restaurant.name.toLowerCase().indexOf(queryString.toLowerCase()) ===
             0
-          );
-        };
-      },
-      handleSelect(item) {
-        this.handleEsc();
-        this.value = "";
-        this.$router.push({
-          path: this.$router.$avueRouter.getPath({
-            name: item[this.labelKey],
-            src: item[this.pathKey]
-          }, item.meta),
-          query: item.query
-        });
-      }
+        );
+      };
+    },
+    handleSelect(item) {
+      this.handleEsc();
+      this.value = '';
+      this.$router.push({
+        path: this.$router.$avueRouter.getPath({
+          name: item[this.labelKey],
+          src: item[this.pathKey]
+        }, item.meta),
+        query: item.query
+      });
     }
   }
+};
 </script>
 
 <style lang="scss" scoped>

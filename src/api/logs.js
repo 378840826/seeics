@@ -8,8 +8,8 @@ export const getUsualList = (current, size) => {
       current,
       size
     }
-  })
-}
+  });
+};
 
 export const getApiList = (current, size) => {
   return request({
@@ -19,8 +19,8 @@ export const getApiList = (current, size) => {
       current,
       size
     }
-  })
-}
+  });
+};
 
 export const getErrorList = (current, size) => {
   return request({
@@ -30,8 +30,8 @@ export const getErrorList = (current, size) => {
       current,
       size
     }
-  })
-}
+  });
+};
 
 
 export const getUsualLogs = (id) => {
@@ -41,8 +41,8 @@ export const getUsualLogs = (id) => {
     params: {
       id,
     }
-  })
-}
+  });
+};
 export const getApiLogs = (id) => {
   return request({
     url: '/api/blade-log/api/detail',
@@ -50,8 +50,8 @@ export const getApiLogs = (id) => {
     params: {
       id,
     }
-  })
-}
+  });
+};
 export const getErrorLogs = (id) => {
   return request({
     url: '/api/blade-log/error/detail',
@@ -59,6 +59,6 @@ export const getErrorLogs = (id) => {
     params: {
       id,
     }
-  })
-}
+  });
+};
 

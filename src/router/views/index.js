@@ -1,4 +1,4 @@
-import Layout from '@/page/index/'
+import Layout from '@/page/index/';
 
 export default [{
   path: '/wel',
@@ -23,6 +23,20 @@ export default [{
       import( /* webpackChunkName: "views" */ '@/views/wel/dashboard')
   }]
 }, {
+  path: '/ppc',
+  component: Layout,
+  children: [
+    {
+      path: '/ppc/shop',
+      name: '我的店铺',
+      component: () => import('@/views/ppc/shop/ShopList'),
+    }, {
+      path: '/ppc/search-term',
+      name: 'Search Term报表',
+      component: () => import('@/views/ppc/searchTerm'),
+    },
+  ],
+}, {
   path: '/test',
   component: Layout,
   redirect: '/test/index',
@@ -36,6 +50,59 @@ export default [{
       import( /* webpackChunkName: "views" */ '@/views/util/test')
   }]
 }, {
+  path: '/keyword',
+  component: Layout,
+  redirect: '/keyword/index',
+  children: [{
+    path: 'index',
+    name: '关键词分析',
+    meta: {
+      i18n: 'keyword'
+    },
+    component: () =>
+      import( /* webpackChunkName: "views" */ '@/views/keyword/keyword')
+  },
+  // {
+  //   path: 'detail',
+  //   name: '关键词分析详情',
+  //   meta: {
+  //     i18n: 'detail'
+  //   },
+  //   component: () => {
+  //     import('@/views/keyword/keywordDetail')
+  //   },
+  // }
+  ]
+},
+{
+  path: '/keywordDetail',
+  component: Layout,
+  redirect: '/keywordDetail/index',
+  children: [{
+    path: 'index',
+    name: '关键词分析详情',
+    meta: {
+      i18n: 'keyword'
+    },
+    component: () => 
+      import(/* webpackChunkName: "views" */ '@/views/keyword/keywordDetail')
+  }]
+}, 
+{
+  path: '/contact',
+  component: Layout,
+  //redirect: '/contact/index',
+  children: [{
+    path: '/',
+    name: '联系客服',
+    meta: {
+      i18n: 'contact'
+    },
+    component: () => 
+      import(/* webpackChunkName: "views" */ '@/views/contactCustomer/index')
+  }]
+},
+{
   path: '/dict-horizontal',
   component: Layout,
   redirect: '/dict-horizontal/index',
@@ -103,4 +170,30 @@ export default [{
     component: () =>
       import( /* webpackChunkName: "views" */ '@/views/work/process/leave/detail')
   }]
-}]
+}, {
+  path: '/listAnalyze',
+  component: Layout,
+  redirect: '/listAnalyze/index',
+  children: [{
+    path: 'index',
+    name: '榜单分析',
+    meta: {
+      i18n: 'listAnalyze'
+    },
+    component: () =>
+      import(/* webpackChunkName: "views" */ '@/views/listAnalyze/listAnalyze')
+  }]
+}, {
+  path: '/keywordRanking',
+  component: Layout,
+  redirect: '/keywordRanking/index',
+  children: [{
+    path: 'index',
+    name: 'ASIN关键词排名',
+    meta: {
+      i18n: 'keywordRanking'
+    },
+    component: () => 
+    import(/* webpackChunkName: "views" */ '@/views/keywordRanking/asinRanking')
+  }]
+}];

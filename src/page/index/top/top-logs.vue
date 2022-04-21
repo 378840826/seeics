@@ -15,20 +15,20 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import logs from "@/page/logs/index";
+import { mapGetters } from 'vuex';
+import logs from '@/page/logs/index';
 export default {
-  name: "top-logs",
+  name: 'top-logs',
   components: { logs },
   data() {
     return {
       box: false
     };
   },
-  created() {},
-  mounted() {},
+  // created() {},
+  // mounted() {},
   computed: {
-    ...mapGetters(["logsFlag", "logsLen"])
+    ...mapGetters(['logsFlag', 'logsLen'])
   },
   props: [],
   methods: {

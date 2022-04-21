@@ -9,8 +9,8 @@ export const getList = (current, size, params) => {
       current,
       size
     }
-  })
-}
+  });
+};
 
 export const build = (ids) => {
   return request({
@@ -20,8 +20,8 @@ export const build = (ids) => {
       ids,
       system: 'saber'
     }
-  })
-}
+  });
+};
 export const remove = (ids) => {
   return request({
     url: '/api/blade-develop/code/remove',
@@ -29,24 +29,24 @@ export const remove = (ids) => {
     params: {
       ids,
     }
-  })
-}
+  });
+};
 
 export const add = (row) => {
   return request({
     url: '/api/blade-develop/code/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const update = (row) => {
   return request({
     url: '/api/blade-develop/code/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const copy = (id) => {
   return request({
@@ -55,8 +55,8 @@ export const copy = (id) => {
     params: {
       id,
     }
-  })
-}
+  });
+};
 
 export const getCode = (id) => {
   return request({
@@ -65,5 +65,5 @@ export const getCode = (id) => {
     params: {
       id,
     }
-  })
-}
+  });
+};

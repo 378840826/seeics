@@ -9,8 +9,8 @@ export const getList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 export const getDetail = (id) => {
   return request({
@@ -19,8 +19,8 @@ export const getDetail = (id) => {
     params: {
       id
     }
-  })
-}
+  });
+};
 
 export const remove = (ids) => {
   return request({
@@ -29,22 +29,44 @@ export const remove = (ids) => {
     params: {
       ids,
     }
-  })
-}
+  });
+};
 
 export const add = (row) => {
   return request({
     url: '/api/blade-resource/attach/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const update = (row) => {
   return request({
     url: '/api/blade-resource/attach/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
+//设置默认模板
+export const defaultTemplate = (data) => {
+  return request({
+    url: '/api/blade-system/param/default',
+    method: 'post',
+    params: {
+      ...data
+    },
+  });
+};
+
+//附件下载
+export const download = (data) => {
+  return request({
+    url: '/api/blade-resource/attach/download',
+    method: 'get',
+    responseType: 'blob',
+    params: {
+      ...data
+    }
+  });
+};

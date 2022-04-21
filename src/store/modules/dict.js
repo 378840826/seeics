@@ -1,21 +1,21 @@
-import {getStore, setStore} from '@/util/store'
+import { getStore, setStore } from '@/util/store';
 
-import {getDictionary} from '@/api/system/dict'
+import { getDictionary } from '@/api/system/dict';
 
 const dict = {
   state: {
-    flowRoutes: getStore({name: 'flowRoutes'}) || {},
+    flowRoutes: getStore({ name: 'flowRoutes' }) || {},
   },
   actions: {
-    FlowRoutes({commit}) {
+    FlowRoutes({ commit }) {
       return new Promise((resolve, reject) => {
-        getDictionary({code: 'flow'}).then(res => {
+        getDictionary({ code: 'flow' }).then(res => {
           commit('SET_FLOW_ROUTES', res.data.data);
           resolve();
         }).catch(error => {
-          reject(error)
-        })
-      })
+          reject(error);
+        });
+      });
     },
   },
   mutations: {
@@ -26,7 +26,7 @@ const dict = {
           routeValue: item.remark,
         };
       });
-      setStore({name: 'flowRoutes', content: state.flowRoutes})
+      setStore({ name: 'flowRoutes', content: state.flowRoutes });
     },
   }
 

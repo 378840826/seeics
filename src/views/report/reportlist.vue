@@ -49,8 +49,8 @@
 </template>
 
 <script>
-import {getList, remove} from "@/api/report/report";
-import {mapGetters} from "vuex";
+import { getList, remove } from '@/api/report/report';
+import { mapGetters } from 'vuex';
 
 export default {
   data() {
@@ -77,18 +77,18 @@ export default {
         dialogClickModal: false,
         column: [
           {
-            label: "文件名",
-            prop: "name",
+            label: '文件名',
+            prop: 'name',
             search: true,
             slot: true,
           },
           {
-            label: "创建时间",
-            prop: "createTime",
+            label: '创建时间',
+            prop: 'createTime',
           },
           {
-            label: "更新时间",
-            prop: "updateTime",
+            label: '更新时间',
+            prop: 'updateTime',
           }
         ]
       },
@@ -96,7 +96,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["userInfo", "permission"]),
+    ...mapGetters(['userInfo', 'permission']),
     permissionList() {
       return {
         addBtn: false,
@@ -106,25 +106,25 @@ export default {
       };
     },
     ids() {
-      let ids = [];
+      const ids = [];
       this.selectionList.forEach(ele => {
         ids.push(ele.id);
       });
-      return ids.join(",");
+      return ids.join(',');
     }
   },
   methods: {
     handlePreview(name) {
-      this.$router.push({path: `/myiframe/urlPath?name=preview-${name}&src=${this.website.reportUrl}/preview?_u=blade-${name}`});
+      this.$router.push({ path: `/myiframe/urlPath?name=preview-${name}&src=${this.website.reportUrl}/preview?_u=blade-${name}` });
     },
     handleDesign(name) {
-      this.$router.push({path: `/myiframe/urlPath?name=designer-${name}&src=${this.website.reportUrl}/designer?_u=blade-${name}`});
+      this.$router.push({ path: `/myiframe/urlPath?name=designer-${name}&src=${this.website.reportUrl}/designer?_u=blade-${name}` });
     },
     rowDel(row) {
-      this.$confirm("确定将选择数据删除?", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
+      this.$confirm('确定将选择数据删除?', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
         .then(() => {
           return remove(row.id);
@@ -132,8 +132,8 @@ export default {
         .then(() => {
           this.onLoad(this.page);
           this.$message({
-            type: "success",
-            message: "操作成功!"
+            type: 'success',
+            message: '操作成功!'
           });
         });
     },
@@ -156,13 +156,13 @@ export default {
     },
     handleDelete() {
       if (this.selectionList.length === 0) {
-        this.$message.warning("请选择至少一条数据");
+        this.$message.warning('请选择至少一条数据');
         return;
       }
-      this.$confirm("确定将选择数据删除?", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
+      this.$confirm('确定将选择数据删除?', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
         .then(() => {
           return remove(this.ids);
@@ -170,8 +170,8 @@ export default {
         .then(() => {
           this.onLoad(this.page);
           this.$message({
-            type: "success",
-            message: "操作成功!"
+            type: 'success',
+            message: '操作成功!'
           });
           this.$refs.crud.toggleSelection();
         });

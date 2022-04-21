@@ -22,7 +22,7 @@
 
 export default window.$crudCommon({
   data() {
-    return {}
+    return {};
   },
   computed: {
     permissionList() {
@@ -38,7 +38,7 @@ export default window.$crudCommon({
 }, {
   //模块路径
   name: 'system/param',
-})
+});
 </script>
 
 <style>

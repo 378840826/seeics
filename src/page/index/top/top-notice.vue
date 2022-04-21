@@ -25,7 +25,7 @@
 </template>
 
 <script>
-let list = [{
+const list = [{
   img: '/img/bg/vip1.png',
   title: '史蒂夫·乔布斯 关注了你',
   subtitle: '05-08 15:08',
@@ -51,7 +51,7 @@ let list = [{
   tag: '已完成'
 }];
 export default {
-  name: "top-notice",
+  name: 'top-notice',
   data () {
     return {
       activeName: 'first',
@@ -65,18 +65,18 @@ export default {
         },
       },
       data: list,
-    }
+    };
   },
-  created () {
+  // created () {
 
-  },
+  // },
   methods: {
     pageChange (page, done) {
       setTimeout(() => {
-        this.$message.success('页码' + page)
+        this.$message.success(`页码${ page}`);
         this.data = this.data.concat(list);
         done();
-      }, 1000)
+      }, 1000);
 
     },
   }

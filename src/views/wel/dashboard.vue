@@ -136,14 +136,14 @@
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        width: 200,
-        height: 120,
-      }
-    }
+export default {
+  data() {
+    return {
+      width: 200,
+      height: 120,
+    };
   }
+};
 </script>
 
 <style lang="scss">

@@ -1,15 +1,15 @@
-import {validatenull} from './validate'
+import { validatenull } from './validate';
 //表单序列化
 export const serialize = data => {
-  let list = [];
+  const list = [];
   Object.keys(data).forEach(ele => {
-    list.push(`${ele}=${data[ele]}`)
-  })
+    list.push(`${ele}=${data[ele]}`);
+  });
   return list.join('&');
 };
 export const getObjType = obj => {
-  var toString = Object.prototype.toString;
-  var map = {
+  const toString = Object.prototype.toString;
+  const map = {
     '[object Boolean]': 'boolean',
     '[object Number]': 'number',
     '[object String]': 'string',
@@ -27,14 +27,14 @@ export const getObjType = obj => {
   return map[toString.call(obj)];
 };
 export const getViewDom = () => {
-  return window.document.getElementById('avue-view').getElementsByClassName('el-scrollbar__wrap')[0]
-}
+  return window.document.getElementById('avue-view').getElementsByClassName('el-scrollbar__wrap')[0];
+};
 /**
  * 对象深拷贝
  */
 export const deepClone = data => {
-  var type = getObjType(data);
-  var obj;
+  const type = getObjType(data);
+  let obj;
   if (type === 'array') {
     obj = [];
   } else if (type === 'object') {
@@ -44,11 +44,11 @@ export const deepClone = data => {
     return data;
   }
   if (type === 'array') {
-    for (var i = 0, len = data.length; i < len; i++) {
+    for (let i = 0, len = data.length; i < len; i++) {
       obj.push(deepClone(data[i]));
     }
   } else if (type === 'object') {
-    for (var key in data) {
+    for (const key in data) {
       obj[key] = deepClone(data[key]);
     }
   }
@@ -59,7 +59,7 @@ export const deepClone = data => {
  */
 export const toggleGrayMode = (status) => {
   if (status) {
-    document.body.className = document.body.className + ' grayMode';
+    document.body.className = `${document.body.className } grayMode`;
   } else {
     document.body.className = document.body.className.replace(' grayMode', '');
   }
@@ -69,27 +69,27 @@ export const toggleGrayMode = (status) => {
  */
 export const setTheme = (name) => {
   document.body.className = name;
-}
+};
 
 /**
  * 加密处理
  */
 export const encryption = (params) => {
-  let {
+  const {
     data,
     type,
     param,
     key
   } = params;
-  let result = JSON.parse(JSON.stringify(data));
+  const result = JSON.parse(JSON.stringify(data));
   if (type == 'Base64') {
     param.forEach(ele => {
       result[ele] = btoa(result[ele]);
-    })
+    });
   } else if (type == 'Aes') {
     param.forEach(ele => {
       result[ele] = window.CryptoJS.AES.encrypt(result[ele], key).toString();
-    })
+    });
 
   }
   return result;
@@ -111,19 +111,19 @@ export const fullscreenToggel = () => {
  */
 export const listenfullscreen = (callback) => {
   function listen() {
-    callback()
+    callback();
   }
 
-  document.addEventListener("fullscreenchange", function () {
+  document.addEventListener('fullscreenchange', function () {
     listen();
   });
-  document.addEventListener("mozfullscreenchange", function () {
+  document.addEventListener('mozfullscreenchange', function () {
     listen();
   });
-  document.addEventListener("webkitfullscreenchange", function () {
+  document.addEventListener('webkitfullscreenchange', function () {
     listen();
   });
-  document.addEventListener("msfullscreenchange", function () {
+  document.addEventListener('msfullscreenchange', function () {
     listen();
   });
 };
@@ -131,9 +131,9 @@ export const listenfullscreen = (callback) => {
  * 浏览器判断是否全屏
  */
 export const fullscreenEnable = () => {
-  var isFullscreen = document.isFullScreen || document.mozIsFullScreen || document.webkitIsFullScreen
+  const isFullscreen = document.isFullScreen || document.mozIsFullScreen || document.webkitIsFullScreen;
   return isFullscreen;
-}
+};
 
 /**
  * 浏览器全屏
@@ -169,11 +169,11 @@ export const findParent = (menu, id) => {
       for (let j = 0; j < menu[i].children.length; j++) {
         if (menu[i].children[j].id == id) {
           return menu[i];
-        } else {
-          if (menu[i].children[j].children.length != 0) {
-            return findParent(menu[i].children[j].children, id);
-          }
+        } 
+        if (menu[i].children[j].children.length != 0) {
+          return findParent(menu[i].children[j].children, id);
         }
+        
       }
     }
   }
@@ -199,8 +199,8 @@ export const loadStyle = url => {
  */
 export const diff = (obj1, obj2) => {
   delete obj1.close;
-  var o1 = obj1 instanceof Object;
-  var o2 = obj2 instanceof Object;
+  const o1 = obj1 instanceof Object;
+  const o2 = obj2 instanceof Object;
   if (!o1 || !o2) { /*  判断不是对象  */
     return obj1 === obj2;
   }
@@ -210,9 +210,9 @@ export const diff = (obj1, obj2) => {
     //Object.keys() 返回一个由对象的自身可枚举属性(key值)组成的数组,例如：数组返回下表：let arr = ["a", "b", "c"];console.log(Object.keys(arr))->0,1,2;
   }
 
-  for (var attr in obj1) {
-    var t1 = obj1[attr] instanceof Object;
-    var t2 = obj2[attr] instanceof Object;
+  for (const attr in obj1) {
+    const t1 = obj1[attr] instanceof Object;
+    const t2 = obj2[attr] instanceof Object;
     if (t1 && t2) {
       return diff(obj1[attr], obj2[attr]);
     } else if (obj1[attr] !== obj2[attr]) {
@@ -220,14 +220,16 @@ export const diff = (obj1, obj2) => {
     }
   }
   return true;
-}
+};
 /**
  * 根据字典的value显示label
  */
 export const findByvalue = (dic, value) => {
   let result = '';
-  if (validatenull(dic)) return value;
-  if (typeof (value) == 'string' || typeof (value) == 'number' || typeof (value) == 'boolean') {
+  if (validatenull(dic)) {
+    return value; 
+  }
+  if (typeof (value) === 'string' || typeof (value) === 'number' || typeof (value) === 'boolean') {
     let index = 0;
     index = findArray(dic, value);
     if (index != -1) {
@@ -267,7 +269,9 @@ export const findArray = (dic, value) => {
 export const randomLenNum = (len, date) => {
   let random = '';
   random = Math.ceil(Math.random() * 100000000000000).toString().substr(0, len ? len : 4);
-  if (date) random = random + Date.now();
+  if (date) {
+    random = random + Date.now(); 
+  }
   return random;
 };
 /**
@@ -275,39 +279,41 @@ export const randomLenNum = (len, date) => {
  */
 export const openWindow = (url, title, w, h) => {
   // Fixes dual-screen position                            Most browsers       Firefox
-  const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : screen.left
-  const dualScreenTop = window.screenTop !== undefined ? window.screenTop : screen.top
+  const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : screen.left;
+  const dualScreenTop = window.screenTop !== undefined ? window.screenTop : screen.top;
 
-  const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width
-  const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height
+  const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+  const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
 
-  const left = ((width / 2) - (w / 2)) + dualScreenLeft
-  const top = ((height / 2) - (h / 2)) + dualScreenTop
-  const newWindow = window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=yes, copyhistory=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left)
+  const left = ((width / 2) - (w / 2)) + dualScreenLeft;
+  const top = ((height / 2) - (h / 2)) + dualScreenTop;
+  const newWindow = window.open(url, title, `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=yes, copyhistory=no, width=${ w }, height=${ h }, top=${ top }, left=${ left}`);
 
   // Puts focus on the newWindow
   if (window.focus) {
-    newWindow.focus()
+    newWindow.focus();
   }
-}
+};
 
 /**
  * 获取顶部地址栏地址
  */
 export const getTopUrl = () => {
-  return window.location.href.split("/#/")[0];
-}
+  return window.location.href.split('/#/')[0];
+};
 
 /**
  * 获取url参数
  * @param name 参数名
  */
 export const getQueryString = (name) => {
-  let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
-  let r = window.location.search.substr(1).match(reg);
-  if (r != null) return unescape(decodeURI(r[2]));
+  const reg = new RegExp(`(^|&)${ name }=([^&]*)(&|$)`, 'i');
+  const r = window.location.search.substr(1).match(reg);
+  if (r != null) {
+    return unescape(decodeURI(r[2])); 
+  }
   return null;
-}
+};
 
 /**
  * 下载文件
@@ -337,7 +343,7 @@ export const downloadFileBlob = (path, name) => {
       URL.revokeObjectURL(url);
     }
   };
-}
+};
 
 /**
  * 下载文件
@@ -364,4 +370,26 @@ export const downloadFileBase64 = (path, name) => {
       };
     }
   };
-}
+};
+
+/**
+ * 导出
+ * @param {Blob} blob - blob文件
+ * @param {String} fileName -文件名(带后缀名 默认xls)
+ */
+export const downloadFile = (blob, fileName) => {
+  const blobs = new Blob([blob], { type: 'application/vnd.ms-excel' });
+  if ('download' in document.createElement('a')) { //非IE下载
+    const a = document.createElement('a');
+    a.download = fileName;
+    a.style.display = 'none';
+    a.href = URL.createObjectURL(blobs);
+    a.setAttribute('download', fileName);
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(a.href);
+    document.body.removeChild(a);
+  } else { //IE10+下载
+    navigator.msSaveBlob(blobs, fileName);
+  }
+};

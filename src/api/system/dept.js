@@ -9,8 +9,8 @@ export const getList = (current, size, params) => {
       current,
       size,
     }
-  })
-}
+  });
+};
 
 export const getLazyList = (parentId, params) => {
   return request({
@@ -20,8 +20,8 @@ export const getLazyList = (parentId, params) => {
       ...params,
       parentId
     }
-  })
-}
+  });
+};
 
 export const remove = (ids) => {
   return request({
@@ -30,24 +30,24 @@ export const remove = (ids) => {
     params: {
       ids,
     }
-  })
-}
+  });
+};
 
 export const add = (row) => {
   return request({
     url: '/api/blade-system/dept/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const update = (row) => {
   return request({
     url: '/api/blade-system/dept/submit',
     method: 'post',
     data: row
-  })
-}
+  });
+};
 
 export const getDept = (id) => {
   return request({
@@ -56,8 +56,8 @@ export const getDept = (id) => {
     params: {
       id,
     }
-  })
-}
+  });
+};
 
 export const getDeptTree = (tenantId) => {
   return request({
@@ -66,8 +66,8 @@ export const getDeptTree = (tenantId) => {
     params: {
       tenantId,
     }
-  })
-}
+  });
+};
 
 export const getDeptLazyTree = (parentId) => {
   return request({
@@ -76,6 +76,6 @@ export const getDeptLazyTree = (parentId) => {
     params: {
       parentId
     }
-  })
-}
+  });
+};
 

@@ -17,15 +17,15 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters } from 'vuex';
 export default {
-  name: "logo",
+  name: 'logo',
   data() {
     return {};
   },
-  created() {},
+  // created() {},
   computed: {
-    ...mapGetters(["website", "keyCollapse"])
+    ...mapGetters(['website', 'keyCollapse'])
   },
   methods: {}
 };
