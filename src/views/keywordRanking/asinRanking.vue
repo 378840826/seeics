@@ -69,42 +69,37 @@
            style="margin-left: 30px;"
           :disabled="formInline.attachId && formInline.asin ? false : true">分析</el-button>
         </el-form-item>
-        <el-form-item>
-          <el-popover
-            ref="popovers"
-            placement="bottom"
-            title="监控频率"
-            width="150"
-            trigger="click">
-            <el-radio-group v-model="modelRadio" @change="radioChange">
-              <el-radio class="radio" v-for="item in radioOption" :label="item.label" :key="item.label">{{item.title}}</el-radio>
-            </el-radio-group>
-            <div class="radioBtn">
-              <el-button size="mini" @click="$refs.popovers.doClose()">取消</el-button>
-              <el-button type="primary" size="mini" @click="monitoring">确定</el-button>
-            </div>
-            <el-button 
-              slot="reference" 
-              size="mini" 
-              :disabled="checkList.length && formInline.attachId ? false : true"
-              style="marginLeft: 30px">监控频率</el-button>
-          </el-popover>
-        </el-form-item>
-        <el-form-item>
-          <el-button size="mini" :disabled="checkList.length && formInline.attachId ? false : true" 
-          style="marginLeft: 30px"
-          @click="batchStart"
-          >批量开启</el-button>
-        </el-form-item>
-        <el-form-item>
-          <el-button size="mini" :disabled="checkList.length && pauseCheck.length && formInline.attachId ? false : true" 
-          style="marginLeft: 30px"
-          @click="batchPause"
-          >批量暂停</el-button>
-        </el-form-item>
       </el-form>
       <div class="warningtext">
       <!-- {{analyzeNum.usr ? '' : '今日还剩' + analyzeNum.freeTimes + '次免费分析机会，支持爬取关键词还剩' + analyzeNum.number + '个；'}} -->
+      </div>
+      <div style="marginBottom: 10px">
+        <el-popover
+          ref="popovers"
+          placement="bottom-start"
+          title="监控频率"
+          width="150"
+          trigger="click">
+          <el-radio-group v-model="modelRadio" @change="radioChange">
+            <el-radio class="radio" v-for="item in radioOption" :label="item.label" :key="item.label">{{item.title}}</el-radio>
+          </el-radio-group>
+          <div class="radioBtn">
+            <el-button size="mini" @click="$refs.popovers.doClose()">取消</el-button>
+            <el-button type="primary" size="mini" @click="monitoring">确定</el-button>
+          </div>
+          <el-button 
+            slot="reference" 
+            size="mini" 
+            :disabled="checkList.length ? false : true">监控频率</el-button>
+        </el-popover>
+        <el-button size="mini" :disabled="checkList.length ? false : true" 
+          style="marginLeft: 30px"
+          @click="batchStart"
+        >批量开启</el-button>
+        <el-button size="mini" :disabled="checkList.length && pauseCheck.length ? false : true" 
+          style="marginLeft: 30px"
+          @click="batchPause"
+        >批量暂停</el-button>
       </div>
       <el-popover
         placement="bottom-start"
@@ -424,7 +419,6 @@ export default {
             type: 'success',
             message: '设置监控频率成功'
           });
-          this.getkeywordLists();
           this.$refs.popovers.doClose();
         }
       });
