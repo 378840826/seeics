@@ -32,7 +32,7 @@
                 <span class="span"><el-input/></span>
               </span>
               <span v-else class="span"><el-input v-model="formInline.value"/></span>
-              <el-button v-if="formInline.btn" type="text" disabled>添加</el-button>
+              <el-button v-if="formInline.btn" type="text" :disabled="disabled">添加</el-button>
           </el-row>
       </div>
     </el-card>
@@ -172,6 +172,7 @@ export default {
       ],
       totalFields: [],
       fieldsPage: [],
+      disabled: true,
     };
   },
   mounted() {
@@ -251,11 +252,13 @@ export default {
   watch: {
     formInline: {
       handler(val) {
-        val.map(item => {
-          if (item.maxVal && item.minVal || item.value) {
-              console.log(item)
+        const arr = [];
+        for (let i = 0; i < val.length; i ++) {
+          if (val[i].value || val[i].maxVal && val[i].minVal) {
+             arr.push(val[i])
           }
-        })
+        }
+        this.disabled = val.length > arr.length;
       },
       deep: true,
       immediate: true
