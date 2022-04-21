@@ -136,15 +136,13 @@ export const urls = {
 };
 
 // 获取店铺授权登录的 url
-export const getOAuthUrl = (marketplace, state, applyBetaVersion) => {
+export const getOAuthUrl = (marketplace, state) => {
   const sellerCentralUrl = urls[marketplace];
   const common = '/apps/authorize/consent';
   const applicationId = 'amzn1.sp.solution.23a02eea-8b16-4c81-98c4-74767293b05f';
   const stateJson = encodeURIComponent(JSON.stringify(state));
-  const redirect_uri = 'http://localhost:1888/#/authorize_consent';
-  const url = `${sellerCentralUrl}${common}?application_id=${applicationId}&redirect_uri=${redirect_uri}&state=${stateJson}`;
-  if (applyBetaVersion) {
-    return `${url}&version=beta`;
-  }
+  const redirect_uri = 'https://www.seeics.com/#/authorize_consent';
+  // 草稿状态添加 &version=beta 进行测试
+  const url = `${sellerCentralUrl}${common}?application_id=${applicationId}&version=beta&redirect_uri=${redirect_uri}&state=${stateJson}`;
   return url;
 };
