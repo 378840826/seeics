@@ -77,6 +77,11 @@ export default [{
   }
 },
 {
+  path: '/authorize_consent',
+  name: '店铺授权结果',
+  component: () => import('@/views/ppc/shop/AuthorizeConsent'),
+},
+{
   path: '/404',
   component: () =>
       import( /* webpackChunkName: "page" */ '@/components/error-page/404'),

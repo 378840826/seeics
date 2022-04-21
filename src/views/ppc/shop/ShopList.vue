@@ -219,7 +219,7 @@ const addAmazonSdk = () => {
   amazonRoot.id = 'amazon-root';
   document.body.appendChild(amazonRoot);
   window.onAmazonLoginReady = function () {
-    window.amazon.Login.setClientId('amzn1.application-oa2-client.564a42b3c07c442b8b99a53419425f92');
+    window.amazon.Login.setClientId('amzn1.application-oa2-client.2ff7990ca97a467d823cd77832577b90');
   };
   (function (document) {
     const a = document.createElement('script');

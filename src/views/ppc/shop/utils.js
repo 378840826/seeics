@@ -49,6 +49,10 @@ export const marketplacesOptions = [
         label: 'PL波兰',
       },
       {
+        value: 'EG',
+        label: 'EG埃及',
+      },
+      {
         value: 'NL',
         label: 'NL荷兰',
       },
@@ -103,3 +107,44 @@ export const marketplacesRegion = (() => {
   });
   return result;
 })();
+
+// 卖家中心 url
+export const urls = {
+  // 北美 North America
+  CA:	'https://sellercentral.amazon.ca',
+  US:	'https://sellercentral.amazon.com',
+  MX:	'https://sellercentral.amazon.com.mx',
+  BR:	'https://sellercentral.amazon.com.br',
+  // 欧洲 Europe
+  ES: 'https://sellercentral-europe.amazon.com',
+  UK: 'https://sellercentral-europe.amazon.com',
+  FR: 'https://sellercentral-europe.amazon.com',
+  NL: 'https://sellercentral.amazon.nl',
+  DE: 'https://sellercentral-europe.amazon.com',
+  IT: 'https://sellercentral-europe.amazon.com',
+  SE: 'https://sellercentral.amazon.se',
+  PL: 'https://sellercentral.amazon.pl',
+  EG: 'https://sellercentral.amazon.eg',
+  TR: 'https://sellercentral.amazon.com.tr',
+  SA: 'https://sellercentral.amazon.com.sa',
+  AE: 'https://sellercentral.amazon.ae',
+  IN: 'https://sellercentral.amazon.in',
+  // 远东 Far East
+  SG: 'https://sellercentral.amazon.sg',
+  AU: 'https://sellercentral.amazon.com.au',
+  JP: 'https://sellercentral.amazon.co.jp',
+};
+
+// 获取店铺授权登录的 url
+export const getOAuthUrl = (marketplace, state, applyBetaVersion) => {
+  const sellerCentralUrl = urls[marketplace];
+  const common = '/apps/authorize/consent';
+  const applicationId = 'amzn1.sp.solution.23a02eea-8b16-4c81-98c4-74767293b05f';
+  const stateJson = encodeURIComponent(JSON.stringify(state));
+  const redirect_uri = 'http://localhost:1888/#/authorize_consent';
+  const url = `${sellerCentralUrl}${common}?application_id=${applicationId}&redirect_uri=${redirect_uri}&state=${stateJson}`;
+  if (applyBetaVersion) {
+    return `${url}&version=beta`;
+  }
+  return url;
+};
