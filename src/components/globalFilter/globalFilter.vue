@@ -33,7 +33,7 @@
                 <span class="span"><el-input style="marginRight: 0"/></span>
               </span>
               <span v-else class="span"><el-input v-model="formInline.value" style="marginRight: 0"/></span>
-              <div class="icon"><i class="el-icon-error"></i></div>
+              <div class="icon"><i class="el-icon-error" @click="deleteBtn(formInline.id)"></i></div>
               <el-button
                 v-if="formInline.btn" 
                 type="text" 
@@ -232,8 +232,13 @@ export default {
           minVal: '',
           btn: true,
         }) 
-        delete this.formInline[2].btn;
+        delete this.formInline[this.formInline.length - 2].btn;
       }
+    },
+    deleteBtn(id) {
+      this.formInline = this.formInline.filter(item => id !== item.id);
+      Object.assign(this.formInline[this.formInline.length - 1], {btn: true})
+    //   console.log()
     },
     add() {
       if (this.data.length < 4) {
