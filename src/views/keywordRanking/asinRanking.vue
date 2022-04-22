@@ -392,7 +392,7 @@ export default {
           align: 'center'        
         },
         {
-          label: '关键词模板名称',
+          label: '关键词模板名',
           prop: 'originalName',
           align: 'center',
           width: 200,
