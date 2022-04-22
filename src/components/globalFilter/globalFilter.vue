@@ -260,22 +260,33 @@ export default {
       }
     },
     remove(key) {
-      const idx = this.data.findIndex(item => item.key === key);
-      this.data.splice(idx, 1);
-      this.data = this.data.map(item => {
-        let obj = {};
-        if (item.key >= key) {
-          obj = {
-            ...item,
-            key: item.key - 1,
-            id: item.id - 1,
-          };
-        }
-        return {
-          ...item,
-          ...obj
-        };
-      });
+    //   const idx = this.data.findIndex(item => item.key === key);
+    //   console.log(idx)
+    //   this.data.splice(idx, 1);
+    //   this.data = this.data.map(item => {
+    //     let obj = {};
+    //     if (item.key >= key) {
+    //       obj = {
+    //         ...item,
+    //         key: item.key - 1,
+    //         id: item.id - 1,
+    //       };
+    //     }
+    //     return {
+    //       ...item,
+    //       ...obj
+    //     };
+    //   });
+      if (this.data.length > 1) {
+         this.data = this.data.filter(item => item.key !== key);
+         this.data.forEach(item => {
+            if (item.key > key) {
+            item.key -= 1,
+            item.id -=1
+            }
+         }) 
+      }
+      
     }
   },
   watch: {
