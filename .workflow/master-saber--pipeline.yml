@@ -2,7 +2,7 @@ version: '1.0'
 name: master-saber--pipeline
 displayName: master-saber--pipeline
 triggers:
-  trigger: manual
+  trigger: auto
   push:
     branches:
       include:
