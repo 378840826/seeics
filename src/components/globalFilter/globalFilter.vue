@@ -9,7 +9,7 @@
       </div>
       <div>
           <el-row v-for="formInline in formInline" :key="formInline" class="row">
-              <el-col style="display: -webkit-inline-box">
+              <el-col class="col">
               <el-select v-model="formInline.label">
                 <el-option v-for="item in fieldsPage" :key="item.label" :label="item.label" :value="item.value"></el-option>
               </el-select>
@@ -38,7 +38,7 @@
                 v-if="formInline.btn" 
                 type="text" 
                 :disabled="disabled"
-                @click="addFiled">添加</el-button>
+                @click="addFiled(formInline.id)">添加</el-button>
             </el-col>
           </el-row>
       </div>
@@ -219,10 +219,10 @@ export default {
         });
       }
     },
-    addFiled() {
+    addFiled(id) {
       if (this.formInline.length < 4) {
          this.formInline.push({
-          id: 44,
+          id: id + 11,
           label: 'search_result_page_no',
           condition: '>',
           chain: '上升',
@@ -236,9 +236,14 @@ export default {
       }
     },
     deleteBtn(id) {
-      this.formInline = this.formInline.filter(item => id !== item.id);
+     if (this.formInline.length === 1) return;
+     this.formInline = this.formInline.filter(item => item.id !== id);
+     this.formInline.forEach(item => {
+         if (item.id > id) {
+            item.id -= 11;
+         }
+     })
       Object.assign(this.formInline[this.formInline.length - 1], {btn: true})
-    //   console.log()
     },
     add() {
       if (this.data.length < 4) {
@@ -255,11 +260,7 @@ export default {
       }
     },
     remove(key) {
-      const idx = this.data.findIndex(item => {
-        if (item.key === key) {
-          return true;
-        }
-      });
+      const idx = this.data.findIndex(item => item.key === key);
       this.data.splice(idx, 1);
       this.data = this.data.map(item => {
         let obj = {};
@@ -336,6 +337,9 @@ export default {
     }
     .row {
       margin-top: 10px
+    }
+    .col {
+      display: -webkit-inline-box
     }
    .icon {
       display: -webkit-inline-box;
