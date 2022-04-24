@@ -300,7 +300,7 @@ export default {
       const region = marketplacesRegion[this.authorizeState.shop.marketplace];
       window.amazon.Login.setRegion(window.amazon.Login.Region[region]);
       // 沙盒模式
-      window.amazon.Login.setSandboxMode(true);
+      // window.amazon.Login.setSandboxMode(true);
       // 跳转登录亚马逊
       window.amazon.Login.authorize(options, (response) => {
         console.log('广告授权 response', response);
