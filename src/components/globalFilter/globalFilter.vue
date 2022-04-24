@@ -259,20 +259,20 @@ export default {
           }
         }
       }
-      let obj = {}
+      let obj = {};
       arr.map(item => {
         if (item.condition === '≥且<' && (item.minVal && item.maxVal)) {
-            obj = {
-              ...obj,
-             [item.label] : `and ${item.label}<${item.maxVal}and ${item.label}>${item.minVal}`
-            }
+          obj = {
+            ...obj,
+            [item.label]: `and ${item.label}<${item.maxVal}and ${item.label}>${item.minVal}`
+          };
         } else if (item.value) {
-            obj = {
-              ...obj,
-              [item.label]: `and ${item.label}${item.condition}${item.value}`
-            }
+          obj = {
+            ...obj,
+            [item.label]: `and ${item.label}${item.condition}${item.value}`
+          };
         }
-      })
+      });
       return obj;
     },
     getFileld() {
@@ -282,7 +282,7 @@ export default {
         res.push(obj);
       }
       this.data.map(item => {
-        let arr = this.filterField(item.formInline);
+        const arr = this.filterField(item.formInline);
         if (Object.keys(arr).length !== 0) {
           res.push(arr);
         }
@@ -300,7 +300,7 @@ export default {
           return item;
         });
       } else {
-          this.formInline = this.formInline.map(item => {
+        this.formInline = this.formInline.map(item => {
           if (item.id === id) {
             item.value = '';
             item.maxVal = '';
@@ -312,9 +312,9 @@ export default {
     },
     addFiled(id, dataId) {
       if (dataId) {
-        let maxId = this.data[dataId -1].formInline[this.data[dataId -1].formInline.length - 1].id;
-        if (this.data[dataId -1].formInline.length < 4) {
-          this.data[dataId -1].formInline.push({
+        const maxId = this.data[dataId - 1].formInline[this.data[dataId - 1].formInline.length - 1].id;
+        if (this.data[dataId - 1].formInline.length < 4) {
+          this.data[dataId - 1].formInline.push({
             id: maxId + 11,
             label: 'search_result_page_no',
             condition: '>',
@@ -324,13 +324,13 @@ export default {
             maxVal: '',
             minVal: '',
             btn: true,
-            })
-          delete this.data[dataId -1].formInline[this.data[dataId -1].formInline.length - 2].btn;
+          });
+          delete this.data[dataId - 1].formInline[this.data[dataId - 1].formInline.length - 2].btn;
         }
         return;
       }
       if (this.formInline.length < 4) {
-         this.formInline.push({
+        this.formInline.push({
           id: id + 11,
           label: 'search_result_page_no',
           condition: '>',
@@ -340,57 +340,61 @@ export default {
           maxVal: '',
           minVal: '',
           btn: true,
-        }) 
+        });
         delete this.formInline[this.formInline.length - 2].btn;
       }
     },
     deleteBtn(id, dataId) {
       if (dataId) {
-        if (this.data[dataId - 1].formInline.length ===1) return;
+        if (this.data[dataId - 1].formInline.length === 1) {
+          return;
+        }
         this.data[dataId - 1].formInline = this.data[dataId - 1].formInline.filter(item => item.id !== id);
         this.data[dataId - 1].formInline.forEach(item => {
           if (item.id > id) {
-             item.id -= 11;
+            item.id -= 11;
           }
         });
-        Object.assign(this.data[dataId - 1].formInline[this.data[dataId - 1].formInline.length - 1], {btn: true});
+        Object.assign(this.data[dataId - 1].formInline[this.data[dataId - 1].formInline.length - 1], { btn: true });
         return;
-       }
-      if (this.formInline.length === 1) return;
+      }
+      if (this.formInline.length === 1) {
+        return;
+      }
       this.formInline = this.formInline.filter(item => item.id !== id);
       this.formInline.forEach(item => {
         if (item.id > id) {
-            item.id -= 11;
+          item.id -= 11;
         }
       });
-      Object.assign(this.formInline[this.formInline.length - 1], {btn: true});
+      Object.assign(this.formInline[this.formInline.length - 1], { btn: true });
     },
     add() {
       const maxId = this.data[this.data.length - 1].formInline[this.data[this.data.length - 1].formInline.length - 1].id + 11;
       const arr = [];
       for (let i = 0; i < 3; i ++) {
-          arr.push({
-            id: maxId + 11,
-            label: 'search_result_page_no',
-            condition: '>',
-            chain: '上升',
-            vlaueType :'值',
-            value: '',
-            maxVal: '',
-            minVal: '',
-          })
+        arr.push({
+          id: maxId + 11,
+          label: 'search_result_page_no',
+          condition: '>',
+          chain: '上升',
+          vlaueType: '值',
+          value: '',
+          maxVal: '',
+          minVal: '',
+        });
       }
-      let res = [];
+      const res = [];
       let num = maxId;
       for (let i = 0; i < arr.length; i ++) {
-        res.push(num += 11)
+        res.push(num += 11);
       }
       arr.forEach((item, index) => {
-          arr[index].id = res[index]
-          if (index === 2) {
-            item.btn = true;
-          }
-      })
+        arr[index].id = res[index];
+        if (index === 2) {
+          item.btn = true;
+        }
+      });
       if (this.data.length < 4) {
         this.data.push({
           id: this.data.length + 1,
@@ -409,23 +413,23 @@ export default {
         this.data = this.data.filter(item => item.key !== key);
         this.data.forEach(item => {
           if (item.key > key) {
-            item.key -= 1,
-            item.id -=1
+            item.key -= 1;
+            item.id -= 1;
           }
-        }) 
+        });
       }
     }
   },
   watch: {
     formInline: {
       handler(val) {
-        if(val.length < 4) {
+        if (val.length < 4) {
           const arr = [];
           for (let i = 0; i < val.length; i ++) {
             if (val[i].value || val[i].maxVal && val[i].minVal) {
-              arr.push(val[i])
+              arr.push(val[i]);
             }
-           }
+          }
           this.disabled = val.length > arr.length;
         } else {
           this.disabled = true;
@@ -436,33 +440,33 @@ export default {
     },
     data: {
       handler(val) {
-       this.data.forEach((item, i) => {
+        this.data.forEach((item) => {
           const arr = [];
           if (item.formInline.length < 4) {
             this.addDisabled = true;
             for (let i = 0; i < item.formInline.length; i ++) {
-                if (item.formInline[i].value || item.formInline[i].maxVal && item.formInline[i].minVal) {
-                arr.push(item.formInline[i])
-                }
+              if (item.formInline[i].value || item.formInline[i].maxVal && item.formInline[i].minVal) {
+                arr.push(item.formInline[i]);
+              }
             }
-            if(item.formInline.length === arr.length) {
-                item.disabled = false;
+            if (item.formInline.length === arr.length) {
+              item.disabled = false;
             } else {
-                item.disabled = true;
+              item.disabled = true;
             }
           } else {
             item.disabled = true;
             if (item.formInline.length === 4) {
               this.addDisabled = true;
-              for (let key in item.formInline[3]) {
-                if (key === 'value' && item.formInline[3][key] || key === 'maxVal' &&  'minVal' && item.formInline[3][key]) {
+              for (const key in item.formInline[3]) {
+                if (key === 'value' && item.formInline[3][key] || key === 'maxVal' && 'minVal' && item.formInline[3][key]) {
                   this.addDisabled = false;
                 } 
               }
             }
           }
         });
-        this.data
+        this.data;
       },
       deep: true,
       immediate: true,
