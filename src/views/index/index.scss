@@ -1,95 +1,224 @@
+.index-container {
+  overflow-y: scroll;
+}
+
 .top-container {
-  min-width: 100%;
+  min-width: 1366px;
   min-height: 545px;
   background: #070A11;
-  margin: 0 auto;
+  display: flex;
+  justify-content: center;
 }
+
 .top-center {
   width: 1366px;
-  margin: 0 auto;
-  height: 545px;
-  position: relative;
-  //background: url("/img/bg/indexbg.png") no-repeat right;
+  display: flex;
+
   .left-text {
-    //height: 300px;
     width: 350px;
-    position: absolute;
-    top: 40px;
-    left: 210px;
-    z-index: 10;
-
-    img {
-      position: absolute;
-      left: 0px;
-      top: 0;
-    }
-
+    margin-top: 40px;
+    
     .title {
       font-size: 48px;
       font-weight: bold;
       color: #FFFFFF;
       line-height: 48px;
       margin-top: 130px;
-      margin-bottom: 32px;
     }
 
     .subtitle {
+      margin: 32px 0;
       font-size: 24px;
       font-weight: 400;
       color: #FFFFFF;
       line-height: 28px;
     }
+
     .el-button {
       font-size: 16px;
       margin-top: 24px;
     }
   }
-
-  img {
-    position: absolute;
-    right: 56px;
-    top: 0;
-  }
 }
 
 .center-container {
-  margin: 0 auto;
-  min-width: 100%
+  min-width: 1366px;
 }
+
 .center-center {
-  width: 1366px;
-  margin: 0 auto;
-  padding: 40px 0px 0 210px;
-  box-sizing: border-box; 
-  line-height: 50px;
-  
-  .el-input__inner {
-    border: 1px solid #DCDFE5;
-    border-radius: 2px 0px 0px 2px;
-    height: 50px;
-  }
-  .siteselect {
+  width: 100%;
+  margin-top: 40px;
+
+  ::v-deep {
     .el-input__inner {
-      width: 148px;  
+      border: 1px solid #DCDFE5;
+      border-radius: 2px 0px 0px 2px;
+      height: 50px;
     }
   }
+  
+  .siteselect {
+    ::v-deep {
+      .el-input__inner {
+        width: 148px;  
+      }
+    }   
+  }
+
   .keywordinput{
     width: 420px;
     margin-left: -11px;
   }
+
   .el-button {
     padding: 17px 40px;
     margin-right: 30px;
   }
+
   .pageselect {
     width: 100px;
     margin-right: 3px;
   }
 }
-.index-container{
+
+.index-container {
   position: relative;
   height: 100%;
+
   .footer{
     color: #070A11;
+  }
+}
+
+//功能说明
+.functionalSpecifications {
+  .functionaltitle {
+    text-align: center;
+    font-size: 32px;
+    //font-family: Microsoft YaHei;
+    font-weight: bold;
+    color: #C2C2C2;
+    line-height: 35px;
+    margin: 35px 0;
+  }
+
+  .Intelligentad {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .adtitle {
+    font-size: 24px;
+    //font-family: Microsoft YaHei;
+    font-weight: bold;
+    color: #1A1A1A;
+    //line-height: 70px;
+    margin-top: 150px;
+    margin-bottom: 30px;
+  }
+  .adsubtitle {
+    font-size: 16px;
+    color: #555;
+    height: 44px;
+    line-height: 44px;
+  }
+  .el-button {
+    font-size: 16px;
+    margin-top: 24px;
+  }
+
+  .faq {
+    min-width: 1366px;
+   
+    .faqtitle {
+      width: 100%;
+      text-align: center;
+      color: #c1c1c1;
+      font-size: 32px;
+      height: 90px;
+      line-height: 90px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .daqinstructions {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .leftdiv {
+      width: 40%;
+    }
+
+    .smalltitle {
+      margin-top: 60px;
+      color: #222;
+      font-size: 24px;
+      text-align: left;
+    }
+
+    .smallsubtitle {
+      color: #555;
+      font-size: 14px;
+      text-align: left;
+      line-height: 29px;
+      margin-top: 21px;
+    }
+  }
+
+  .footerindex {
+    min-width: 1366px;
+    padding: 30px 0;
+    font-size: 14px;
+    color: #666666;
+
+    .privacynotice {
+      display: flex;
+      margin-bottom: 30px;
+
+      span {
+        display: inline-block;
+      }
+
+      .firstspan {
+        width: 100px;
+        margin-right: 25px;
+        border-right: 1px solid #D2D2D2;
+      }
+    }
+  }
+
+  ::v-deep {
+    .el-tabs__nav-scroll {
+      display: flex;
+      overflow: hidden;
+      justify-content: space-around;
+    }
+
+    .el-tabs__item {
+      width: 300px;
+      font-size: 18px;
+      color: #666666;
+    }
+
+    .el-tabs__active-bar {
+      width: 80px !important;
+      margin: 0 -3px;
+    }
+  }
+}
+//隐私策略
+.privacydialog {
+  height: 600px;
+  overflow-y: scroll;
+  .intervaltext {
+    margin-top: 30px;
+  }
+
+  .title1 {
+    margin-top: 30px;
+    line-height: 30px;
+    font-size: 16px;
+    color: #1a1a1a;
   }
 }
