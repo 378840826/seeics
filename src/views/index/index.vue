@@ -120,7 +120,7 @@
                 思意尊重并保护所有卖家的个人隐私权，会严格保证每一位用户数据的安全不被侵犯， 绝不会通过出卖或利用用户数据来进行直接或间接的牟利。 根据国家相关规定，私自泄露用户数据的行为将会受到法律严惩
               </div>
               <div class="smalltitle">使用会造成账号的关联吗？</div>
-              <div class="smallsubtitle">不会的。思意通过Amazon官方提供MWS接口获取数据和管理店铺，不存在账号关联的问题</div>
+              <div class="smallsubtitle">不会的。思意通过Amazon官方提供SP-API接口获取数据和管理店铺，不存在账号关联的问题</div>
               <div class="smalltitle">有没有使用说明书？</div>
               <div class="smallsubtitle">有的，注册之后，请点击页面上的帮助按钮获取使用说明书。</div>
             </div>
@@ -208,9 +208,13 @@
         <div>我们的隐私权政策可能变更，本文顶部显示更新时间。</div>
         <h3>7.如何联系我们</h3>
         <div>如对本政策内容有任何疑问、意见或建议，您可通过管理员邮箱（ wailin08@qq.com ）或技术支持邮箱（ support@seeics.com ）与我们联系， 我们将在7天内回复您的请求</div>
+        <div class="buttoncss">
+          <el-button type="primary" @click="privacydialogVisible=false">OK,我了解了</el-button>
+        </div>
+        
       </div>
 
-    </el-dialog>  
+    </el-dialog>
   </div>
 </template>
 

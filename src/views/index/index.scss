@@ -209,7 +209,7 @@
 }
 //隐私策略
 .privacydialog {
-  height: 600px;
+  height: 500px;
   overflow-y: scroll;
   .intervaltext {
     margin-top: 30px;
@@ -220,5 +220,11 @@
     line-height: 30px;
     font-size: 16px;
     color: #1a1a1a;
+  }
+  .buttoncss {
+    width: 100%;
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
   }
 }
