@@ -411,7 +411,7 @@ export default {
     },
     filterBtn() {
       // this.$refs.filters.formInline = '广告排名'
-      console.log(this.$refs.filters.filterField());
+      console.log(this.$refs.filters.getFileld());
     },
     importChange() {
       const files = document.getElementById('file').files[0];
