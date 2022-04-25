@@ -144,6 +144,7 @@
           align="center">
           <template slot-scope="scope">
             <div v-if="scope.row.cycle">每{{scope.row.cycle}}天自动更新</div>
+            <div class="monitorTime">{{scope.row.monitorTime}}</div>
           </template>
         </el-table-column>
         <el-table-column
@@ -1076,5 +1077,7 @@ export default {
   text-align: right;
   padding: 25px 0 0 20px;
 }
-
+.monitorTime {
+  font-size: 10px;
+}
 </style>
