@@ -418,10 +418,11 @@ export default {
       });
     },
     filterEcho() {
+      this.is = true;
       filterEcho().then(res => {
         if (res.data.code === 200) {
           this.filterecho = res.data.data;
-          this.is = true;
+          
         }
       });
     },

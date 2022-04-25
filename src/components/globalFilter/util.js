@@ -83,19 +83,33 @@ export const filterField = (Array) => {
       }
     }
   }
-  let obj = {};
+  const obj = { item: [] };
   arr.map(item => {
     if (item.condition === '≥且<' && (item.minVal && item.maxVal)) {
-      obj = {
-        ...obj,
-        [item.label]: `and ${item.label}<${item.maxVal}and ${item.label}>${item.minVal}`
-      };
+      // obj = {
+      //   ...obj,
+      //   [item.label]: `and ${item.label}<${item.maxVal}and ${item.label}>${item.minVal}`
+      // };
+      obj.item.push({
+        subruleName: item.label,
+        symbol: item.condition,
+        maximum: item.maxVal,
+        minimum: item.minVal,
+        statement: `and ${item.label}<${item.maxVal} and ${item.label}>${item.minVal}`
+      });
     } else if (item.value) {
-      obj = {
-        ...obj,
-        [item.label]: `and ${item.label}${item.condition}${item.value}`
-      };
+      // obj = {
+      //   ...obj,
+      //   [item.label]: `and ${item.label}${item.condition}${item.value}`
+      // };
+      obj.item.push({
+        subruleName: item.label,
+        symbol: item.condition,
+        value: item.value,
+        statement: `and ${item.label}${item.condition}${item.value}`
+      });
     }
   });
+  // console.log(obj)
   return obj;
 };
