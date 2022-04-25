@@ -421,7 +421,7 @@ export default {
       filterEcho().then(res => {
         if (res.data.code === 200) {
           this.filterecho = res.data.data;
-          this.is = true
+          this.is = true;
         }
       });
     },
