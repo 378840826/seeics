@@ -14,7 +14,7 @@
                 <el-option v-for="item in fieldsPage" :key="item.label" :label="item.label" :value="item.value"></el-option>
               </el-select>
               <el-select v-model="formInline.condition" class="condition" @change="select(condition, formInline.id)">
-                <el-option v-for="item in condition" :key="item.label" :label="item.label" :value="item.label"/>
+                <el-option v-for="item in condition" :key="item.label" :label="item.label" :value="item.value"/>
               </el-select>
               <span v-if="formInline.condition === '≥且<'" class="span">
                   <el-input v-model="formInline.minVal"/>
@@ -56,7 +56,7 @@
                 <el-option v-for="item in fieldsPage" :key="item.label" :label="item.label" :value="item.value"></el-option>
               </el-select>
               <el-select v-model="formInline.condition" class="condition" @change="sonSleect(formInline.condition, formInline.id)">
-                <el-option v-for="item in condition" :key="item.label" :label="item.label" :value="item.label"/>
+                <el-option v-for="item in condition" :key="item.label" :label="item.label" :value="item.value"/>
               </el-select>
               <span v-if="formInline.condition === '≥且<'" class="span">
                   <el-input v-model="formInline.minVal"/>
@@ -180,19 +180,24 @@ export default {
       ],
       condition: [
         {
-          label: '≥且<'
+          label: '≥且<',
+          value: '≥且<',
         },
         {
-          label: '>'
+          label: '>',
+          value: '>'
         },
         {
-          label: '≥'
+          label: '≥',
+          value: '>='
         },
         {
-          label: '<'
+          label: '<',
+          value: '<'
         },
         {
-          label: '≤'
+          label: '≤',
+          value: '<='
         },
         // {
         //   label: '环比'
@@ -287,6 +292,7 @@ export default {
       });
       return res;
     },
+
     labelSelect(id) {
       this.formInline = resetValue(this.formInline, id);
     },
