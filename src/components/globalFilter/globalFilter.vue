@@ -1,6 +1,6 @@
 <template>
-  <div class="filterBox">
-    <el-card class="box-card" shadow="never">
+  <div class="filterBox" :style="{width: screenWidth/2 + 'px'}">
+    <el-card class="box-card" shadow="never" >
       <div slot="header" class="clearfix">
           <span style="fontSize: 14px; fontWeight: 600; marginRight: 30px">子规则1</span>
         <span style="fontSize: 12px;">规则内指标之间关系为且</span>
@@ -10,10 +10,10 @@
       <div>
           <el-row v-for="formInline in formInline" :key="formInline" class="row">
               <el-col class="col">
-              <el-select v-model="formInline.label">
+              <el-select v-model="formInline.label" @change="labelSelect(formInline.id)">
                 <el-option v-for="item in fieldsPage" :key="item.label" :label="item.label" :value="item.value"></el-option>
               </el-select>
-              <el-select v-model="formInline.condition" class="condition" @change="sleect(formInline.condition, formInline.id)">
+              <el-select v-model="formInline.condition" class="condition" @change="select(condition, formInline.id)">
                 <el-option v-for="item in condition" :key="item.label" :label="item.label" :value="item.label"/>
               </el-select>
               <span v-if="formInline.condition === '≥且<'" class="span">
@@ -43,18 +43,19 @@
           </el-row>
       </div>
     </el-card>
+    <div v-if="data.length" class="Or">或</div>
     <el-card v-for="item in data" :key="item.id" class="box-card" shadow="never" style="marginTop: 10px">
       <div slot="header" class="clearfix">
           <span style="fontSize: 14px; fontWeight: 600; marginRight: 30px">子规则{{item.key + 1}}</span>
         <span style="fontSize: 12px;">规则内指标之间关系为且</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="remove(item.key)">操作按钮</el-button>
+        <el-button style="float: right; padding: 0 0" type="danger" @click="remove(item.key)" icon="el-icon-close"></el-button>
       </div>
       <el-row v-for="formInline in item.formInline" :key="formInline" class="row">
               <el-col class="col">
-              <el-select v-model="formInline.label">
+              <el-select v-model="formInline.label" @change="sonLabelSelect(item.id, formInline.id)">
                 <el-option v-for="item in fieldsPage" :key="item.label" :label="item.label" :value="item.value"></el-option>
               </el-select>
-              <el-select v-model="formInline.condition" class="condition" @change="sleect(formInline.condition, formInline.id)">
+              <el-select v-model="formInline.condition" class="condition" @change="sonSleect(formInline.condition, formInline.id)">
                 <el-option v-for="item in condition" :key="item.label" :label="item.label" :value="item.label"/>
               </el-select>
               <span v-if="formInline.condition === '≥且<'" class="span">
@@ -83,54 +84,65 @@
             </el-col>
         </el-row>
     </el-card>
-    <el-button style="width: 100%; margin: 10px 0" @click="add" type="primary" size="mini" :disabled="addDisabled">+添加子规则</el-button>
+    <el-button 
+      style="width: 100%; margin: 10px 0" 
+      @click="add" 
+      type="primary" 
+      size="mini"
+      :disabled="addDisabled"
+      >+添加子规则</el-button>
   </div>
-</template>
+</template>reset
 
 <script>
-import { time } from 'echarts';
-
+import { filterField, emptySelect, resetValue, addFiled} from './util'
 export default {
   name: 'globalFilter',
+  props: {
+    filterecho: {
+      type: Array,
+      default: []
+    }
+  },
   data() {
     return {
       data: [
-        {
-          id: 1,
-          key: 1,
-          formInline:[
-            {
-              id: 55,
-              label: 'search_result_page_no',
-              condition: '>',
-              chain: '上升',
-              vlaueType: '值',
-              value: '',
-              maxVal: '',
-              minVal: '',
-            },
-            {
-              id: 66,
-              label: 'search_result_page_no',
-              condition: '>',
-              chain: '上升',
-              vlaueType: '值',
-              value: '',
-              maxVal: '',
-              minVal: '',
-            },
-            {
-              id: 77,
-              label: 'search_result_page_no',
-              condition: '>',
-              chain: '上升',
-              vlaueType: '值',
-              value: '',
-              maxVal: '',
-              minVal: '',
-              btn: true,
-           }]
-        }
+        // {
+        //   id: 1,
+        //   key: 1,
+        //   formInline: [
+        //     {
+        //       id: 55,
+        //       label: 'search_result_page_no',
+        //       condition: '>',
+        //       chain: '上升',
+        //       vlaueType: '值',
+        //       value: '',
+        //       maxVal: '',
+        //       minVal: '',
+        //     },
+        //     {
+        //       id: 66,
+        //       label: 'search_result_page_no',
+        //       condition: '>',
+        //       chain: '上升',
+        //       vlaueType: '值',
+        //       value: '',
+        //       maxVal: '',
+        //       minVal: '',
+        //     },
+        //     {
+        //       id: 77,
+        //       label: 'search_result_page_no',
+        //       condition: '>',
+        //       chain: '上升',
+        //       vlaueType: '值',
+        //       value: '',
+        //       maxVal: '',
+        //       minVal: '',
+        //       btn: true,
+        //     }]
+        // }
       ],
       formInline: [
         {
@@ -142,28 +154,29 @@ export default {
           value: '',
           maxVal: '',
           minVal: '',
-        },
-        {
-          id: 22,
-          label: 'search_result_page_no',
-          condition: '>',
-          chain: '上升',
-          vlaueType: '值',
-          value: '',
-          maxVal: '',
-          minVal: '',
-        },
-        {
-          id: 33,
-          label: 'search_result_page_no',
-          condition: '>',
-          chain: '上升',
-          vlaueType: '值',
-          value: '',
-          maxVal: '',
-          minVal: '',
           btn: true,
         },
+        // {
+        //   id: 22,
+        //   label: 'search_result_page_no',
+        //   condition: '>',
+        //   chain: '上升',
+        //   vlaueType: '值',
+        //   value: '',
+        //   maxVal: '',
+        //   minVal: '',
+        // },
+        // {
+        //   id: 33,
+        //   label: 'search_result_page_no',
+        //   condition: '>',
+        //   chain: '上升',
+        //   vlaueType: '值',
+        //   value: '',
+        //   maxVal: '',
+        //   minVal: '',
+        //   btn: true,
+        // },
       ],
       condition: [
         {
@@ -243,105 +256,61 @@ export default {
       fieldsPage: [],
       disabled: true,
       addDisabled: true,
+      screenWidth: document.body.clientWidth,
     };
   },
   mounted() {
     this.totalFields = Array.from(this.fields);
     this.fieldsPage = this.totalFields.splice(1, 4);
+    console.log(this.filterecho)
+    
+  },
+  updated() {
+    window.onresize = () => {
+      return (() => {
+        this.screenWidth = document.body.clientWidth;
+      })();
+    };
   },
   methods: {
-    filterField(a) {
-      const arr = JSON.parse(JSON.stringify(a));
-      for (let i = 0; i < arr.length; i ++) {
-        for (const key in arr[i]) {
-          if (arr[i][key] === '') {
-            delete arr[i][key];
-          }
-        }
-      }
-      let obj = {};
-      arr.map(item => {
-        if (item.condition === '≥且<' && (item.minVal && item.maxVal)) {
-          obj = {
-            ...obj,
-            [item.label]: `and ${item.label}<${item.maxVal}and ${item.label}>${item.minVal}`
-          };
-        } else if (item.value) {
-          obj = {
-            ...obj,
-            [item.label]: `and ${item.label}${item.condition}${item.value}`
-          };
-        }
-      });
-      return obj;
-    },
     getFileld() {
-      const obj = this.filterField(this.formInline);
+      const obj = filterField(this.formInline);
       const res = [];
       if (Object.keys(obj).length !== 0) {
         res.push(obj);
       }
       this.data.map(item => {
-        const arr = this.filterField(item.formInline);
+        const arr = filterField(item.formInline);
         if (Object.keys(arr).length !== 0) {
           res.push(arr);
         }
       });
       return res;
     },
-    sleect(condition, id) {
-      if (condition === '≥且<' || condition === '环比') {
-        this.formInline = this.formInline.map(item => {
-          if (item.id === id) {
-            item.value = '';
-            item.maxVal = '';
-            item.minVal = '';
-          } 
-          return item;
-        });
-      } else {
-        this.formInline = this.formInline.map(item => {
-          if (item.id === id) {
-            item.value = '';
-            item.maxVal = '';
-            item.minVal = '';
-          } 
-          return item;
-        });
-      }
+    labelSelect(id) {
+      this.formInline = resetValue(this.formInline, id);
+    },
+    sonLabelSelect(dataId, id) {
+      this.data[dataId - 1].formInline = resetValue(this.data[dataId - 1].formInline, id);
+    },
+    select(condition, id) {
+      this.formInline = emptySelect(this.formInline, condition, id);
+    },
+    sonSleect(condition, id) {
+      this.data.forEach(item => {
+        item.formInline = emptySelect(item.formInline, condition, id);
+      });
     },
     addFiled(id, dataId) {
       if (dataId) {
-        const maxId = this.data[dataId - 1].formInline[this.data[dataId - 1].formInline.length - 1].id;
+        const maxId = this.data[dataId - 1].formInline[this.data[dataId - 1].formInline.length - 1].id; //获取最后一位id
         if (this.data[dataId - 1].formInline.length < 4) {
-          this.data[dataId - 1].formInline.push({
-            id: maxId + 11,
-            label: 'search_result_page_no',
-            condition: '>',
-            chain: '上升',
-            vlaueType: '值',
-            value: '',
-            maxVal: '',
-            minVal: '',
-            btn: true,
-          });
-          delete this.data[dataId - 1].formInline[this.data[dataId - 1].formInline.length - 2].btn;
+          addFiled(this.data[dataId - 1].formInline, maxId);
         }
         return;
       }
       if (this.formInline.length < 4) {
-        this.formInline.push({
-          id: id + 11,
-          label: 'search_result_page_no',
-          condition: '>',
-          chain: '上升',
-          vlaueType: '值',
-          value: '',
-          maxVal: '',
-          minVal: '',
-          btn: true,
-        });
-        delete this.formInline[this.formInline.length - 2].btn;
+        addFiled(this.formInline, id);
       }
     },
     deleteBtn(id, dataId) {
@@ -370,9 +339,9 @@ export default {
       Object.assign(this.formInline[this.formInline.length - 1], { btn: true });
     },
     add() {
-      const maxId = this.data[this.data.length - 1].formInline[this.data[this.data.length - 1].formInline.length - 1].id + 11;
+      const maxId = this.data.length && this.data[this.data.length - 1].formInline[this.data[this.data.length - 1].formInline.length - 1].id || 44;
       const arr = [];
-      for (let i = 0; i < 3; i ++) {
+      for (let i = 0; i < 1; i ++) {
         arr.push({
           id: maxId + 11,
           label: 'search_result_page_no',
@@ -382,6 +351,7 @@ export default {
           value: '',
           maxVal: '',
           minVal: '',
+          btn: true
         });
       }
       const res = [];
@@ -389,12 +359,6 @@ export default {
       for (let i = 0; i < arr.length; i ++) {
         res.push(num += 11);
       }
-      arr.forEach((item, index) => {
-        arr[index].id = res[index];
-        if (index === 2) {
-          item.btn = true;
-        }
-      });
       if (this.data.length < 4) {
         this.data.push({
           id: this.data.length + 1,
@@ -409,15 +373,13 @@ export default {
       }
     },
     remove(key) {
-      if (this.data.length > 1) {
-        this.data = this.data.filter(item => item.key !== key);
-        this.data.forEach(item => {
-          if (item.key > key) {
-            item.key -= 1;
-            item.id -= 1;
-          }
-        });
-      }
+      this.data = this.data.filter(item => item.key !== key);
+      this.data.forEach(item => {
+        if (item.key > key) {
+          item.key -= 1;
+          item.id -= 1;
+        }
+      });
     }
   },
   watch: {
@@ -433,6 +395,10 @@ export default {
           this.disabled = val.length > arr.length;
         } else {
           this.disabled = true;
+          const idx = val.length - 1;
+          if (val[idx].value || val[idx].maxVal && val[idx].minVal) {
+              this.addDisabled = false
+          }
         }
       },
       deep: true,
@@ -470,7 +436,7 @@ export default {
       },
       deep: true,
       immediate: true,
-    }
+    },
   }
 };
 </script>
@@ -531,7 +497,15 @@ export default {
     }
   }
   .box-card {
-    width: 1000px;
+    width: 100%;
     background-color: #f2f2f2;
+  }
+  .Or {
+    border: 1px #ccc solid;
+    padding: 5px;
+    border-radius: 10px;
+    text-align: center;
+    width: 50px;
+    margin: 5px;
   }
 </style>

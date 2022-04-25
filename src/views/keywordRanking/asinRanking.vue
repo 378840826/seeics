@@ -100,14 +100,13 @@
         ref="filterPopover"
       >
       规则范围：
-        <el-form :model="filters" ref="filterRef">
-          <global-filter ref="filters"/>
-        </el-form>
+          <global-filter v-if="is" ref="filters" :filterecho="filterecho"/>
         <div style="textAlign: center">
           <el-button @click="filterBtn" type="primary" size="mini">全局应用</el-button>
           <el-button size="mini" @click="$refs.filterPopover.doClose()">取消</el-button>
+          <el-button size="mini" @click="$refs.filterPopover.doClose()">清空</el-button>
         </div>
-        <el-button slot="reference" size="mini">全局筛选</el-button>
+        <el-button slot="reference" size="mini" @click="filterEcho">全局筛选</el-button>
       </el-popover>
       <div class="avuecrudclass">
       <el-table
@@ -267,7 +266,7 @@
 
 <script>
 const toke = JSON.parse(localStorage.getItem('saber-token'));
-import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports, monitoring } from '@/api/ranking/ranking';
+import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports, monitoring, filter, filterEcho } from '@/api/ranking/ranking';
 import { downloadFile } from '@/util/util';
 import globalFilter from '../../components/globalFilter/globalFilter.vue';
 export default {
@@ -383,6 +382,8 @@ export default {
         },
       ],
       attachForm: {},
+      filterecho: [],
+      is: false
     };
   },
   mounted() {
@@ -412,6 +413,17 @@ export default {
     filterBtn() {
       // this.$refs.filters.formInline = '广告排名'
       console.log(this.$refs.filters.getFileld());
+      filter(this.$refs.filters.getFileld()).then(res => {
+        console.log(res)
+      });
+    },
+    filterEcho() {
+      filterEcho().then(res => {
+        if (res.data.code === 200) {
+          this.filterecho = res.data.data;
+          this.is = true
+        }
+      });
     },
     importChange() {
       const files = document.getElementById('file').files[0];
@@ -1016,5 +1028,14 @@ export default {
   text-align: right;
   padding: 25px 0 0 20px;
 }
-
+::v-deep .el-popper {
+    color: aqua;
+}
+ .wrapPopover {
+  // padding: 10px !important;
+  // font-size: 10px !important;
+  // border: none !important;
+  // background-color: rgba(3, 56, 106, 0.75) !important;
+  width: 100% !important;
+}
 </style>

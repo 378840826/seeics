@@ -95,3 +95,20 @@ export const monitoring = (data) => {
     data,
   });
 };
+
+//全局筛选
+export const filter = (data) => {
+  return request({
+    url: '/api/seeics-analysis/keyword-ranking/global-filter',
+    method: 'post',
+    data,
+  });
+};
+
+//全局筛选回显
+export const filterEcho = () => {
+  return request({
+    url: '/api/seeics-analysis/keyword-ranking/global-filter-details',
+    method: 'post'
+  });
+};
