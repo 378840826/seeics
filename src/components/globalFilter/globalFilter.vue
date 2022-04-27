@@ -168,13 +168,14 @@ export default {
   mounted() {
     //回显
     this.filterecho.length && this.filterecho[0].item.length && this.emptyFileld(this.filterecho);
-  },
-  updated() {
     window.onresize = () => {
       return (() => {
         this.screenWidth = document.body.clientWidth;
       })();
     };
+  },
+  updated() {
+    
   },
   methods: {
     emptyFileld(empty) {
