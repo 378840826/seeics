@@ -21,7 +21,7 @@
               <el-select v-model="formInline.condition" class="condition" @change="select(condition, formInline.id)">
                 <el-option v-for="item in condition" :key="item.label" :label="item.label" :value="item.value"/>
               </el-select>
-              <span v-if="formInline.condition === '≥且<'" class="span">
+              <span v-if="formInline.condition == '≥且<'" class="span">
                   <el-input v-model="formInline.minVal"/>
                   <el-input v-model="formInline.maxVal" style="marginRight: 0"/>
               </span>
@@ -122,7 +122,7 @@ export default {
         {
           id: new Date().getTime(),
           label: '',
-          condition: '>',
+          condition: '&gt;',
           chain: '上升',
           vlaueType: '值',
           value: '',
@@ -138,19 +138,19 @@ export default {
         },
         {
           label: '>',
-          value: '>'
+          value: '&gt;'
         },
         {
           label: '≥',
-          value: '>='
+          value: '&ge;'
         },
         {
           label: '<',
-          value: '<'
+          value: '&lt;'
         },
         {
           label: '≤',
-          value: '<='
+          value: '&le;'
         },
         // {
         //   label: '环比'
@@ -166,6 +166,7 @@ export default {
     };
   },
   mounted() {
+    console.log(this.formInline[0].condition === '&ge;且&lt;')
     //回显
     this.filterecho.length && this.filterecho[0].item.length && this.emptyFileld(this.filterecho);
     window.onresize = () => {
@@ -289,7 +290,7 @@ export default {
         arr.push({
           id: new Date().getTime(),
           label: '',
-          condition: '>',
+          condition: '&gt;',
           chain: '上升',
           vlaueType: '值',
           value: '',

@@ -10,7 +10,7 @@ export const resetValue = (arr, id) => {
       item.value = '';
       item.maxVal = '';
       item.minVal = '';
-      item.condition = '>';
+      item.condition = '&gt;';
     }
   });
   return arr;
@@ -57,7 +57,7 @@ export const addFiled = (arr) => {
   res.push({
     id: new Date().getTime(),
     label: '',
-    condition: '>',
+    condition: '&gt;',
     chain: '上升',
     vlaueType: '值',
     value: '',
