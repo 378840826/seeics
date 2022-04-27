@@ -10,8 +10,13 @@
       <div>
           <el-row v-for="formInline in formInline" :key="formInline" class="row">
               <el-col class="col">
-              <el-select v-model="formInline.label" @change="labelSelect(formInline.id)">
-                <el-option v-for="item in fieldsPage" :key="item.label" :label="item.label" :value="item.value"></el-option>
+              <el-select v-model="formInline.label" @change="labelSelect(formInline.id, formInline.label)">
+                <el-option 
+                  v-for="item in fieldsPage" 
+                  :key="item.label" :label="item.label" 
+                  :value="item.value"
+                  :disabled="item.disabled"
+                  ></el-option>
               </el-select>
               <el-select v-model="formInline.condition" class="condition" @change="select(condition, formInline.id)">
                 <el-option v-for="item in condition" :key="item.label" :label="item.label" :value="item.value"/>
@@ -53,7 +58,12 @@
       <el-row v-for="formInline in item.formInline" :key="formInline" class="row">
               <el-col class="col">
               <el-select v-model="formInline.label" @change="sonLabelSelect(item.id, formInline.id)">
-                <el-option v-for="item in fieldsPage" :key="item.label" :label="item.label" :value="item.value"></el-option>
+                <el-option 
+                  v-for="item in item.fieldsPage" 
+                  :key="item.label" :label="item.label" 
+                  :value="item.value"
+                  :disabled="item.disabled"
+                ></el-option>
               </el-select>
               <el-select v-model="formInline.condition" class="condition" @change="sonSleect(formInline.condition, formInline.id)">
                 <el-option v-for="item in condition" :key="item.label" :label="item.label" :value="item.value"/>
@@ -92,10 +102,11 @@
       :disabled="addDisabled"
       >+添加子规则</el-button>
   </div>
-</template>reset
+</template>
 
 <script>
-import { filterField, emptySelect, resetValue, addFiled} from './util'
+import { filterField, emptySelect, resetValue, addFiled} from './util';
+import { fields } from './filed';
 export default {
   name: 'globalFilter',
   props: {
@@ -106,48 +117,11 @@ export default {
   },
   data() {
     return {
-      data: [
-        // {
-        //   id: 1,
-        //   key: 1,
-        //   formInline: [
-        //     {
-        //       id: 55,
-        //       label: 'search_result_page_no',
-        //       condition: '>',
-        //       chain: '上升',
-        //       vlaueType: '值',
-        //       value: '',
-        //       maxVal: '',
-        //       minVal: '',
-        //     },
-        //     {
-        //       id: 66,
-        //       label: 'search_result_page_no',
-        //       condition: '>',
-        //       chain: '上升',
-        //       vlaueType: '值',
-        //       value: '',
-        //       maxVal: '',
-        //       minVal: '',
-        //     },
-        //     {
-        //       id: 77,
-        //       label: 'search_result_page_no',
-        //       condition: '>',
-        //       chain: '上升',
-        //       vlaueType: '值',
-        //       value: '',
-        //       maxVal: '',
-        //       minVal: '',
-        //       btn: true,
-        //     }]
-        // }
-      ],
+      data: [],
       formInline: [
         {
-          id: 11,
-          label: 'search_result_page_no',
+          id: new Date().getTime(),
+          label: '',
           condition: '>',
           chain: '上升',
           vlaueType: '值',
@@ -156,27 +130,6 @@ export default {
           minVal: '',
           btn: true,
         },
-        // {
-        //   id: 22,
-        //   label: 'search_result_page_no',
-        //   condition: '>',
-        //   chain: '上升',
-        //   vlaueType: '值',
-        //   value: '',
-        //   maxVal: '',
-        //   minVal: '',
-        // },
-        // {
-        //   id: 33,
-        //   label: 'search_result_page_no',
-        //   condition: '>',
-        //   chain: '上升',
-        //   vlaueType: '值',
-        //   value: '',
-        //   maxVal: '',
-        //   minVal: '',
-        //   btn: true,
-        // },
       ],
       condition: [
         {
@@ -203,72 +156,18 @@ export default {
         //   label: '环比'
         // },
       ],
-      fields: [
-        {
-          label: 'ABA排名'
-        },
-        {
-          label: '自然排名',
-          value: 'search_result_page_no'
-        },
-        {
-          label: '自然排名页码',
-          value: 'search_result_page'
-        },
-        {
-          label: '广告排名',
-          value: 'advertise_result_page_no'
-        },
-        {
-          label: '广告排名页码',
-          value: 'advertise_result_page'
-        },
-        {
-          label: '销售额'
-        },
-        {
-          label: '订单量'
-        },
-        {
-          label: 'Impressions'
-        },
-        {
-          label: 'Clicks'
-        },
-        {
-          label: 'CPC'
-        },
-        {
-          label: 'CPA'
-        },
-        {
-          label: 'Spend'
-        },
-        {
-          label: 'CTR'
-        },
-        {
-          label: 'ACoS'
-        },
-        {
-          label: 'RoAS'
-        },
-        {
-          label: '转化率'
-        },
-      ],
+     
       totalFields: [],
-      fieldsPage: [],
+      fieldsPage: JSON.parse(JSON.stringify(fields.fieldsPage)),
       disabled: true,
       addDisabled: true,
       screenWidth: document.body.clientWidth,
+      fieldsPageLen: 1,
     };
   },
   mounted() {
-    this.totalFields = Array.from(this.fields);
-    this.fieldsPage = this.totalFields.splice(1, 4);
-    console.log(this.filterecho)
-    
+    //回显
+    this.filterecho.length && this.filterecho[0].item.length && this.emptyFileld(this.filterecho);
   },
   updated() {
     window.onresize = () => {
@@ -278,6 +177,43 @@ export default {
     };
   },
   methods: {
+    emptyFileld(empty) {
+      this.formInline = empty[0].item.map(item => {
+        let obj = {};
+        obj = {
+            id: item.id,
+            label: item.subruleName,
+            condition: item.symbol,
+            value: item.value,
+            maxVal: item.maximum,
+            minVal: item.minimum
+          }
+        return obj;
+      });
+      this.formInline[this.formInline.length - 1].btn = true;
+      empty.map((item, idx) => {
+        if (idx !== 0) {
+          this.data.push({
+            id: idx,
+            key: idx,
+            formInline: item.item.map(s => {
+              let obj = {};
+              obj = {
+                id: s.id,
+                label: s.subruleName,
+                condition: s.symbol,
+                value: s.value,
+                maxVal: s.maximum,
+                minVal: s.minimum
+              }
+              return obj
+            }),
+            fieldsPage: JSON.parse(JSON.stringify(fields.fieldsPage)),
+          });
+          this.data[idx - 1].formInline[this.data[idx - 1].formInline.length - 1].btn = true;
+        }
+      });
+    },
     getFileld() {
       const obj = filterField(this.formInline);
       const res = [];
@@ -293,7 +229,7 @@ export default {
       return res;
     },
 
-    labelSelect(id) {
+    labelSelect(id, val) {
       this.formInline = resetValue(this.formInline, id);
     },
     sonLabelSelect(dataId, id) {
@@ -309,14 +245,15 @@ export default {
     },
     addFiled(id, dataId) {
       if (dataId) {
-        const maxId = this.data[dataId - 1].formInline[this.data[dataId - 1].formInline.length - 1].id; //获取最后一位id
+        // const maxId = this.data[dataId - 1].formInline[this.data[dataId - 1].formInline.length - 1].id; //获取最后一位id
         if (this.data[dataId - 1].formInline.length < 4) {
-          addFiled(this.data[dataId - 1].formInline, maxId);
+          addFiled(this.data[dataId - 1].formInline);
         }
         return;
-      }
-      if (this.formInline.length < 4) {
-        addFiled(this.formInline, id);
+      }  
+      if (this.fieldsPage.length > this.fieldsPageLen) {
+        this.fieldsPageLen ++
+        addFiled(this.formInline);
       }
     },
     deleteBtn(id, dataId) {
@@ -325,32 +262,32 @@ export default {
           return;
         }
         this.data[dataId - 1].formInline = this.data[dataId - 1].formInline.filter(item => item.id !== id);
-        this.data[dataId - 1].formInline.forEach(item => {
-          if (item.id > id) {
-            item.id -= 11;
-          }
-        });
+        // this.data[dataId - 1].formInline.forEach(item => {
+        //   if (item.id > id) {
+        //     item.id -= 11;
+        //   }
+        // });
         Object.assign(this.data[dataId - 1].formInline[this.data[dataId - 1].formInline.length - 1], { btn: true });
         return;
       }
       if (this.formInline.length === 1) {
         return;
       }
+      this.fieldsPageLen --
       this.formInline = this.formInline.filter(item => item.id !== id);
-      this.formInline.forEach(item => {
-        if (item.id > id) {
-          item.id -= 11;
-        }
-      });
+      // this.formInline.forEach(item => {
+      //   if (item.id > id) {
+      //     item.id -= 11;
+      //   }
+      // });
       Object.assign(this.formInline[this.formInline.length - 1], { btn: true });
     },
     add() {
-      const maxId = this.data.length && this.data[this.data.length - 1].formInline[this.data[this.data.length - 1].formInline.length - 1].id || 44;
       const arr = [];
       for (let i = 0; i < 1; i ++) {
         arr.push({
-          id: maxId + 11,
-          label: 'search_result_page_no',
+          id: new Date().getTime(),
+          label: '',
           condition: '>',
           chain: '上升',
           vlaueType: '值',
@@ -360,16 +297,12 @@ export default {
           btn: true
         });
       }
-      const res = [];
-      let num = maxId;
-      for (let i = 0; i < arr.length; i ++) {
-        res.push(num += 11);
-      }
       if (this.data.length < 4) {
         this.data.push({
           id: this.data.length + 1,
           key: this.data.length + 1,
-          formInline: arr
+          formInline: arr,
+          fieldsPage: JSON.parse(JSON.stringify(fields.fieldsPage)),
         });
       } else {
         this.$message({
@@ -393,14 +326,30 @@ export default {
       handler(val) {
         if (val.length < 4) {
           const arr = [];
+          const arrs = [];
           for (let i = 0; i < val.length; i ++) {
+            if (val[i].label) {
+              arrs.push(val[i].label);
+            }
             if (val[i].value || val[i].maxVal && val[i].minVal) {
               arr.push(val[i]);
+              this.addDisabled = false
+            } else {
+              this.addDisabled = true
             }
           }
           this.disabled = val.length > arr.length;
+          this.fieldsPage.forEach(item => {
+            if ([...arrs].includes(item.value)) {
+              item.disabled = true;
+            } else {
+              item.disabled = false
+            }
+          })
+
         } else {
           this.disabled = true;
+          this.addDisabled = true;
           const idx = val.length - 1;
           if (val[idx].value || val[idx].maxVal && val[idx].minVal) {
               this.addDisabled = false
@@ -414,11 +363,18 @@ export default {
       handler(val) {
         this.data.forEach((item) => {
           const arr = [];
+          const arrs = [];
           if (item.formInline.length < 4) {
             this.addDisabled = true;
             for (let i = 0; i < item.formInline.length; i ++) {
+              if (item.formInline[i].label) {
+                arrs.push(item.formInline[i].label);
+              }
               if (item.formInline[i].value || item.formInline[i].maxVal && item.formInline[i].minVal) {
                 arr.push(item.formInline[i]);
+                this.addDisabled = false
+              } else {
+                this.addDisabled = true
               }
             }
             if (item.formInline.length === arr.length) {
@@ -426,6 +382,14 @@ export default {
             } else {
               item.disabled = true;
             }
+            item.fieldsPage.forEach(item => {
+              if ([...arrs].includes(item.value)) {
+                item.disabled = true;
+              } else {
+                item.disabled = false
+              }
+              return item
+            });
           } else {
             item.disabled = true;
             if (item.formInline.length === 4) {
@@ -436,9 +400,8 @@ export default {
                 } 
               }
             }
-          }
+         }
         });
-        this.data;
       },
       deep: true,
       immediate: true,

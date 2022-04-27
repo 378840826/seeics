@@ -52,11 +52,11 @@ export const emptySelect = (arr, condition, id) => {
  * @param {Number} id 每个规则中最大的id
  * @returns 
  */
-export const addFiled = (arr, id) => {
+export const addFiled = (arr) => {
   const res = arr;
   res.push({
-    id: id + 11,
-    label: 'search_result_page_no',
+    id: new Date().getTime(),
+    label: '',
     condition: '>',
     chain: '上升',
     vlaueType: '值',
@@ -91,11 +91,12 @@ export const filterField = (Array) => {
       //   [item.label]: `and ${item.label}<${item.maxVal}and ${item.label}>${item.minVal}`
       // };
       obj.item.push({
+        id: item.id,
         subruleName: item.label,
         symbol: item.condition,
         maximum: item.maxVal,
         minimum: item.minVal,
-        statement: `and ${item.label}<${item.maxVal} and ${item.label}>${item.minVal}`
+        statement: `and ${item.label}>${item.minVal} and ${item.label}<${item.maxVal}`
       });
     } else if (item.value) {
       // obj = {
@@ -103,6 +104,7 @@ export const filterField = (Array) => {
       //   [item.label]: `and ${item.label}${item.condition}${item.value}`
       // };
       obj.item.push({
+        id: item.id,
         subruleName: item.label,
         symbol: item.condition,
         value: item.value,
