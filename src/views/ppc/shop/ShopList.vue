@@ -315,6 +315,8 @@ export default {
             type: 'success',
             message: res.data.msg || '操作成功',
           });
+          this.authorizeState.visible = false;
+          this.getShopList();
         });
       });
     },
@@ -335,7 +337,7 @@ export default {
               message: res.data.msg || '操作成功',
             });
           }, error => {
-            window.console.log(error);
+            window.console.log('取消广告授权 error', error, row);
           });
         }
       });
