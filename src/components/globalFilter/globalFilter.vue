@@ -247,7 +247,6 @@ export default {
     },
     addFiled(id, dataId) {
       if (dataId) {
-        // const maxId = this.data[dataId - 1].formInline[this.data[dataId - 1].formInline.length - 1].id; //获取最后一位id
         if (this.data[dataId - 1].formInline.length < 4) {
           addFiled(this.data[dataId - 1].formInline);
         }
@@ -264,11 +263,6 @@ export default {
           return;
         }
         this.data[dataId - 1].formInline = this.data[dataId - 1].formInline.filter(item => item.id !== id);
-        // this.data[dataId - 1].formInline.forEach(item => {
-        //   if (item.id > id) {
-        //     item.id -= 11;
-        //   }
-        // });
         Object.assign(this.data[dataId - 1].formInline[this.data[dataId - 1].formInline.length - 1], { btn: true });
         return;
       }
@@ -277,11 +271,6 @@ export default {
       }
       this.fieldsPageLen --
       this.formInline = this.formInline.filter(item => item.id !== id);
-      // this.formInline.forEach(item => {
-      //   if (item.id > id) {
-      //     item.id -= 11;
-      //   }
-      // });
       Object.assign(this.formInline[this.formInline.length - 1], { btn: true });
     },
     add() {
@@ -326,37 +315,30 @@ export default {
   watch: {
     formInline: {
       handler(val) {
-        if (val.length < 4) {
+        if (fields.fieldsPage.length) {
           const arr = [];
           const arrs = [];
           for (let i = 0; i < val.length; i ++) {
             if (val[i].label) {
               arrs.push(val[i].label);
             }
-            if (val[i].value || val[i].maxVal && val[i].minVal) {
+            if (val[i].value && val[i].label || val[i].label && val[i].maxVal && val[i].minVal) {
               arr.push(val[i]);
-              this.addDisabled = false
+              this.addDisabled = false;
             } else {
-              this.addDisabled = true
+              this.addDisabled = true;
             }
           }
-          this.disabled = val.length > arr.length;
+          this.disabled = fields.fieldsPage.length === val.length ? fields.fieldsPage.length === val.length : val.length > arr.length;
+          this.addDisabled = val.length > arr.length;
           this.fieldsPage.forEach(item => {
             if ([...arrs].includes(item.value)) {
               item.disabled = true;
             } else {
-              item.disabled = false
+              item.disabled = false;
             }
-          })
-
-        } else {
-          this.disabled = true;
-          this.addDisabled = true;
-          const idx = val.length - 1;
-          if (val[idx].value || val[idx].maxVal && val[idx].minVal) {
-              this.addDisabled = false
-          }
-        }
+          });
+        } 
       },
       deep: true,
       immediate: true,
@@ -366,17 +348,17 @@ export default {
         this.data.forEach((item) => {
           const arr = [];
           const arrs = [];
-          if (item.formInline.length < 4) {
+          if (item.formInline.length) {
             this.addDisabled = true;
             for (let i = 0; i < item.formInline.length; i ++) {
               if (item.formInline[i].label) {
                 arrs.push(item.formInline[i].label);
               }
-              if (item.formInline[i].value || item.formInline[i].maxVal && item.formInline[i].minVal) {
+              if (item.formInline[i].value && item.formInline[i].label || item.formInline[i].label && item.formInline[i].maxVal && item.formInline[i].minVal) {
                 arr.push(item.formInline[i]);
-                this.addDisabled = false
+                this.addDisabled = false;
               } else {
-                this.addDisabled = true
+                this.addDisabled = true;
               }
             }
             if (item.formInline.length === arr.length) {
@@ -384,25 +366,19 @@ export default {
             } else {
               item.disabled = true;
             }
+            if (item.formInline.length === fields.fieldsPage.length) {
+              item.disabled = true;
+            }
             item.fieldsPage.forEach(item => {
               if ([...arrs].includes(item.value)) {
                 item.disabled = true;
               } else {
-                item.disabled = false
+                item.disabled = false;
               }
-              return item
+              return item;
             });
-          } else {
-            item.disabled = true;
-            if (item.formInline.length === 4) {
-              this.addDisabled = true;
-              for (const key in item.formInline[3]) {
-                if (key === 'value' && item.formInline[3][key] || key === 'maxVal' && 'minVal' && item.formInline[3][key]) {
-                  this.addDisabled = false;
-                } 
-              }
-            }
-         }
+            this.addDisabled = item.formInline.length > arr.length;
+          }
         });
       },
       deep: true,
