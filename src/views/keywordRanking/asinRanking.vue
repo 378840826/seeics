@@ -104,15 +104,16 @@
       <el-popover
         placement="bottom-start"
         ref="filterPopover"
+        @hide="filterHide"
       >
-        <el-form :model="filters" ref="filterRef">
-         
-        </el-form>
+      规则范围：
+          <global-filter v-if="isFilter" ref="filters" :filterecho="filterecho"/>
         <div style="textAlign: center">
           <el-button @click="filterBtn" type="primary" size="mini">全局应用</el-button>
           <el-button size="mini" @click="$refs.filterPopover.doClose()">取消</el-button>
+          <el-button size="mini" @click="empty">清空</el-button>
         </div>
-        <!-- <el-button slot="reference" size="mini">全局筛选</el-button> -->
+        <el-button slot="reference" size="mini" @click="filterEcho">全局筛选</el-button>
       </el-popover>
       <div class="avuecrudclass">
       <el-table
@@ -281,10 +282,14 @@
 
 <script>
 const toke = JSON.parse(localStorage.getItem('saber-token'));
-import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports, monitoring, batchPause, batchStart } from '@/api/ranking/ranking';
+import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports, monitoring, batchPause, batchStart, filter, filterEcho, empty } from '@/api/ranking/ranking';
 import { downloadFile } from '@/util/util';
+import globalFilter from '../../components/globalFilter/globalFilter.vue';
 export default {
   name: 'asinRanking',
+  components: {
+    globalFilter
+  },
   data() {
     return {
       myHeaders: {
@@ -401,6 +406,8 @@ export default {
         },
       ],
       attachForm: {},
+      filterecho: [],
+      isFilter: false
     };
   },
   mounted() {
@@ -465,7 +472,43 @@ export default {
       });
     },
     filterBtn() {
-      console.log(this.filters);
+      filter(this.$refs.filters.getFileld()).then(res => {
+        if (res.data.code === 200) {
+          this.getkeywordLists();
+          this.$refs.filterPopover.doClose(); 
+        }
+      });
+    },
+    filterEcho() {
+      // this.isFilter = true;
+      filterEcho().then(res => {
+        if (res.data.code === 200) {
+          this.filterecho = res.data.data;
+          this.isFilter = true;
+        }
+      }).catch(() => {
+        this.isFilter = true;
+      });
+    },
+    filterHide() {
+      setTimeout(() => {
+        this.isFilter = false;
+      }, 200);
+    },
+    empty() {
+      filter([{
+        id: null,
+        subruleName: null,
+        symbol: null,
+        maximum: null,
+        minimum: null,
+        statement: null
+      }]).then(res => {
+        if (res.data.code === 200) {
+          this.getkeywordLists();
+          this.$refs.filterPopover.doClose();
+        }
+      });
     },
     importChange() {
       const files = document.getElementById('file').files[0];
@@ -761,6 +804,23 @@ export default {
       this.$refs[`btn_${row.id}`].$el.style.display = 'block';
       exportKeyword(row.id).then(res => {
         if (res.status === 200) {
+          if (res.data.type === 'application/json') {
+            // 说明是普通对象数据，读取信息
+            const fileReader = new FileReader();
+            fileReader.onloadend = () => {
+              const jsonData = JSON.parse(fileReader.result);
+              // 后台信息
+              if (!jsonData.data) {
+                this.$message({
+                  type: 'error',
+                  message: jsonData.msg
+                });
+              }
+            };
+            fileReader.readAsText(res.data);
+            this.$refs[`btn_${row.id}`].$el.style.display = 'none';
+            return;
+          }
           const content = res.data;
           const fileName = `${this.$t(`${row.searchCountry}_rank_${row.searchKeyword}`) }.xlsx`;
           downloadFile(content, fileName);
@@ -1077,7 +1137,14 @@ export default {
   text-align: right;
   padding: 25px 0 0 20px;
 }
-.monitorTime {
-  font-size: 10px;
+::v-deep .el-popper {
+    color: aqua;
+}
+ .wrapPopover {
+  // padding: 10px !important;
+  // font-size: 10px !important;
+  // border: none !important;
+  // background-color: rgba(3, 56, 106, 0.75) !important;
+  width: 100% !important;
 }
 </style>
