@@ -330,7 +330,7 @@ export default {
             } else {
               this.addDisabled = true;
             }
-            if (val[i].minVal+1 > val[i].maxVal+1) {
+            if (Number(val[i].minVal) > Number(val[i].maxVal)) {
               val[i].msg = true;
             } else {
               val[i].msg = false;
@@ -367,7 +367,7 @@ export default {
               } else {
                 this.addDisabled = true;
               }
-               if (item.formInline[i].minVal > item.formInline[i].maxVal) {
+               if (Number(item.formInline[i].minVal) > Number(item.formInline[i].maxVal)) {
                   item.formInline[i].msg = true;
                 } else {
                   item.formInline[i].msg = false;
