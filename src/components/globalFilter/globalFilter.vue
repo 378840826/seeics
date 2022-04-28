@@ -181,21 +181,6 @@ export default {
     
   },
   methods: {
-     verify(scope){
-
-      for (const value of scope) {
-        console.log(this.inputnumZZ(value))
-
-      }
-    },
-     inputnumZZ(val){
-      val = val.toString()
-      let num = val.replace(/[^\d]/g, "")
-      if (num.length > 9) {
-        num = num.slice(0, 9);
-      }//清除"数字"和"."以及"-"以外的字符;
-      return num
-    },
     emptyFileld(empty) {
       this.formInline = empty[0].item.map(item => {
         let obj = {};
@@ -396,8 +381,6 @@ export default {
             if (item.formInline.length === fields.fieldsPage.length) {
               item.disabled = true;
             }
-           
-            console.log(item.formInline)
             item.fieldsPage.forEach(item => {
               if ([...arrs].includes(item.value)) {
                 item.disabled = true;

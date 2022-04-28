@@ -92,7 +92,7 @@ export const filterField = (Array) => {
         symbol: item.condition,
         maximum: item.maxVal,
         minimum: item.minVal,
-        statement: `and ${item.label}&gt;${item.minVal} and ${item.label}&lt;${item.maxVal}`
+        statement: `and ${item.label}&gt;=${item.minVal} and ${item.label}&lt;${item.maxVal}`
       });
     } else if (item.value) {
       obj.item.push({
