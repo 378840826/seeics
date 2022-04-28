@@ -75,6 +75,20 @@
       </div>
       <div style="marginBottom: 10px">
         <el-popover
+          placement="bottom-start"
+          ref="filterPopover"
+          @hide="filterHide"
+        >
+        规则范围：
+            <global-filter v-if="isFilter" ref="filters" :filterecho="filterecho"/>
+          <div style="textAlign: center">
+            <el-button @click="filterBtn" type="primary" size="mini">全局应用</el-button>
+            <el-button size="mini" @click="$refs.filterPopover.doClose()">取消</el-button>
+            <el-button size="mini" @click="empty">清空</el-button>
+          </div>
+          <el-button slot="reference" size="mini" @click="filterEcho" style="marginRight: 30px">全局筛选</el-button>
+        </el-popover>
+        <el-popover
           ref="popovers"
           placement="bottom-start"
           title="监控频率"
@@ -101,20 +115,6 @@
           @click="batchPause"
         >批量暂停</el-button>
       </div>
-      <el-popover
-        placement="bottom-start"
-        ref="filterPopover"
-        @hide="filterHide"
-      >
-      规则范围：
-          <global-filter v-if="isFilter" ref="filters" :filterecho="filterecho"/>
-        <div style="textAlign: center">
-          <el-button @click="filterBtn" type="primary" size="mini">全局应用</el-button>
-          <el-button size="mini" @click="$refs.filterPopover.doClose()">取消</el-button>
-          <el-button size="mini" @click="empty">清空</el-button>
-        </div>
-        <el-button slot="reference" size="mini" @click="filterEcho">全局筛选</el-button>
-      </el-popover>
       <div class="avuecrudclass">
       <el-table
         ref="multipleTable"
