@@ -22,8 +22,9 @@
                 <el-option v-for="item in condition" :key="item.label" :label="item.label" :value="item.value"/>
               </el-select>
               <span v-if="formInline.condition == '≥且<'" class="span">
-                  <el-input v-model="formInline.minVal"/>
-                  <el-input v-model="formInline.maxVal" style="marginRight: 0"/>
+                  <el-input v-model="formInline.minVal" min="1" type="number" placeholder="min"/>
+                  <el-input v-model="formInline.maxVal" min="1" type="number" placeholder="max" style="marginRight: 0"/>
+                  
               </span>
               <span v-else-if="formInline.condition === '环比'" style="marginRight: 0">
                 <el-select v-model="formInline.chain">
@@ -35,16 +36,17 @@
                   <el-option label="百分比" value="百分比"></el-option>
                 </el-select>
                 <span v-if="formInline.vlaueType === '百分比'">%</span>
-                <span class="span"><el-input style="marginRight: 0"/></span>
+                <span class="span"><el-input type="number" style="marginRight: 0"/></span>
               </span>
-              <span v-else class="span"><el-input v-model="formInline.value" style="marginRight: 0"/></span>
+              <span v-else class="span"><el-input v-model="formInline.value" min="1" type="number" style="marginRight: 0"/></span>
               <div class="icon"><i class="el-icon-error" @click="deleteBtn(formInline.id)"></i></div>
               <el-button
                 v-if="formInline.btn" 
                 type="text" 
                 :disabled="disabled"
-                @click="addFiled(formInline.id)">添加</el-button>
+                @click="addFiled(formInline.id)">添加</el-button>  
             </el-col>
+            <div v-if="formInline.msg" class="message" :style="{width: screenWidth/4 + 'px'}">最大值必须大于最小值</div>
           </el-row>
       </div>
     </el-card>
@@ -69,8 +71,8 @@
                 <el-option v-for="item in condition" :key="item.label" :label="item.label" :value="item.value"/>
               </el-select>
               <span v-if="formInline.condition === '≥且<'" class="span">
-                  <el-input v-model="formInline.minVal"/>
-                  <el-input v-model="formInline.maxVal" style="marginRight: 0"/>
+                  <el-input v-model="formInline.minVal"  min="1" type="number"/>
+                  <el-input v-model="formInline.maxVal"  min="1" type="number" style="marginRight: 0"/>
               </span>
               <span v-else-if="formInline.condition === '环比'" style="marginRight: 0">
                 <el-select v-model="formInline.chain">
@@ -82,9 +84,9 @@
                   <el-option label="百分比" value="百分比"></el-option>
                 </el-select>
                 <span v-if="formInline.vlaueType === '百分比'">%</span>
-                <span class="span"><el-input style="marginRight: 0"/></span>
+                <span class="span"><el-input  min="1" type="number" style="marginRight: 0"/></span>
               </span>
-              <span v-else class="span"><el-input v-model="formInline.value" style="marginRight: 0"/></span>
+              <span v-else class="span"><el-input v-model="formInline.value"  min="1" type="number" style="marginRight: 0"/></span>
               <div class="icon"><i class="el-icon-error" @click="deleteBtn(formInline.id, item.id)"></i></div>
               <el-button
                 v-if="formInline.btn" 
@@ -92,6 +94,7 @@
                 :disabled="item.disabled"
                 @click="addFiled(formInline.id, item.id)">添加</el-button>
             </el-col>
+            <div v-if="formInline.msg" class="message" :style="{width: screenWidth/4 + 'px'}">最大值必须大于最小值</div>
         </el-row>
     </el-card>
     <el-button 
@@ -142,7 +145,7 @@ export default {
         },
         {
           label: '≥',
-          value: '&ge;'
+          value: '&gt;='
         },
         {
           label: '<',
@@ -150,7 +153,7 @@ export default {
         },
         {
           label: '≤',
-          value: '&le;'
+          value: '&lt;='
         },
         // {
         //   label: '环比'
@@ -166,7 +169,6 @@ export default {
     };
   },
   mounted() {
-    console.log(this.formInline[0].condition === '&ge;且&lt;')
     //回显
     this.filterecho.length && this.filterecho[0].item.length && this.emptyFileld(this.filterecho);
     window.onresize = () => {
@@ -179,6 +181,21 @@ export default {
     
   },
   methods: {
+     verify(scope){
+
+      for (const value of scope) {
+        console.log(this.inputnumZZ(value))
+
+      }
+    },
+     inputnumZZ(val){
+      val = val.toString()
+      let num = val.replace(/[^\d]/g, "")
+      if (num.length > 9) {
+        num = num.slice(0, 9);
+      }//清除"数字"和"."以及"-"以外的字符;
+      return num
+    },
     emptyFileld(empty) {
       this.formInline = empty[0].item.map(item => {
         let obj = {};
@@ -328,6 +345,11 @@ export default {
             } else {
               this.addDisabled = true;
             }
+            if (val[i].minVal+1 > val[i].maxVal+1) {
+              val[i].msg = true;
+            } else {
+              val[i].msg = false;
+            }
           }
           this.disabled = fields.fieldsPage.length === val.length ? fields.fieldsPage.length === val.length : val.length > arr.length;
           this.addDisabled = val.length > arr.length;
@@ -360,6 +382,11 @@ export default {
               } else {
                 this.addDisabled = true;
               }
+               if (item.formInline[i].minVal > item.formInline[i].maxVal) {
+                  item.formInline[i].msg = true;
+                } else {
+                  item.formInline[i].msg = false;
+                }
             }
             if (item.formInline.length === arr.length) {
               item.disabled = false;
@@ -369,6 +396,8 @@ export default {
             if (item.formInline.length === fields.fieldsPage.length) {
               item.disabled = true;
             }
+           
+            console.log(item.formInline)
             item.fieldsPage.forEach(item => {
               if ([...arrs].includes(item.value)) {
                 item.disabled = true;
@@ -417,14 +446,18 @@ export default {
         padding: 0 15px;
         height: 30px;
     }
-   ::v-deep .el-input__icon {
-       line-height: 30px;
-   }
-   ::v-deep .el-select {
+    .el-input::-webkit-outer-spin-button,
+    .el-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+    ::v-deep .el-input__icon {
+      line-height: 30px;
+    }
+    ::v-deep .el-select {
       margin-right: 10px;
     }
     .row {
-      margin-top: 10px
+      // margin-top: 10px
     }
     .col {
       display: -webkit-inline-box
@@ -454,5 +487,11 @@ export default {
     text-align: center;
     width: 50px;
     margin: 5px;
+  }
+  .message {
+    max-width: 495px;
+    color: red;
+    text-align: end;
+    font-size: 10px;
   }
 </style>
