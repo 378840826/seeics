@@ -4,9 +4,22 @@
     <!-- 日期 -->
     <div class="date-bar">
       <div class="update_time">
-        更新时间: 2017-10-08 01:23:45 PM PDT (太平洋)
+        更新时间: {{ reportUpdateTime }}
       </div>
-      <DateRangePicker />
+      <div>
+        <span class="cycleTitle">筛选周期：</span>
+       <el-select
+          v-model="form.cycleType"
+          :size="size"
+        >
+          <el-option label="最近7天" value="7" />
+          <el-option label="最近14天" value="14" />
+          <el-option label="最近21天" value="21" />
+          <el-option label="最近30天" value="30" />
+          <el-option label="最近60天" value="60" />
+          <el-option label="最近90天" value="90" />
+        </el-select>
+      </div>
     </div>
 
     <!-- 查询和筛选 -->
@@ -14,7 +27,7 @@
       <div class="search">
         <!-- 店铺站点:  -->
         <el-select
-          v-model="form.shop"
+          v-model="form.mwsStoreId"
           filterable
           placeholder="请选择店铺"
           :size="size"
@@ -28,7 +41,7 @@
         </el-select>
         <!-- 广告活动:  -->
         <avue-select
-          v-model="form.campaigns"
+          v-model="form.campaginIds"
           :dic="campaignList"
           :size="size"
           all
@@ -42,7 +55,7 @@
         />
         <!-- 广告组:  -->
         <avue-select
-          v-model="form.groups"
+          v-model="form.groupIds"
           :dic="groupList"
           :size="size"
           all
@@ -56,7 +69,7 @@
         />
         
         <el-autocomplete
-          v-model="form.queryKeyword"
+          v-model="form.searchKeyword"
           :fetch-suggestions="searchQueryKwAsync"
           :size="size"
           placeholder="搜索搜索词"
@@ -67,7 +80,7 @@
         />
 
         <el-autocomplete
-          v-model="form.putKeyword"
+          v-model="form.launchKeyword"
           :fetch-suggestions="searchPutKwAsync"
           :size="size"
           placeholder="搜索投放词"
@@ -80,10 +93,11 @@
         <el-select
           v-model="form.deliveryStatus"
           placeholder="投放状态"
-          clearable :size="size"
+          clearable
+          :size="size"
         >
-          <el-option label="已投放" value="alreadyLive" />
-          <el-option label="未投放" value="noAlready" />
+          <el-option label="已投放" value="1" />
+          <el-option label="未投放" value="0" />
         </el-select>
 
         <el-popover
@@ -91,12 +105,12 @@
           width="200"
           trigger="click"
         >
-        <el-button slot="reference" :size="size">批量查询</el-button>
+        <el-button slot="reference" :size="size">ASIN批量查询</el-button>
           <div>
             <el-input
               class="asin-textarea"
-              v-model="form.asin"
-              placeholder="支持ASIN、MSKU混合批量查询，最多20个商品，换行间隔；搜索ASIN，找到ASIN相关的关键词"
+              v-model="form.asinMskuKeyword"
+              placeholder="支持ASIN批量查询，搜索ASIN，找到ASIN相关的关键词；最多20个ASIN，换行间隔；"
               type="textarea"
               :rows="10"
               @input="handleTextAreaInput"
@@ -127,13 +141,13 @@
             v-show="isCollapseExpand"
             label="转化率(%)：" 
             :valueFilter="strToMoneyStr"
-            v-model="form.filter.conversionsRate"
+            v-model="form.filter.conversion"
           />
           <RangeInput
             v-show="isCollapseExpand"
             label="销售额：" 
             :valueFilter="strToMoneyStr"
-            v-model="form.filter.sales"
+            v-model="form.filter.salesVolume"
           />
           <RangeInput
             v-show="isCollapseExpand"
@@ -162,7 +176,7 @@
           <RangeInput
             v-show="isCollapseExpand"
             label="RoAS：" 
-            :valueFilter="strToMoneyStr"
+            :valueFilter="strTo4Str"
             v-model="form.filter.roas"
           />
         </div>
@@ -196,12 +210,14 @@
             type="info"
             @close="handleTagClose(tag.key)"
           >
-            {{tag.name}}：<span class="tag-value">{{tag.value}}</span>
+            {{tag.name}}
+            <template v-if="['转化率', 'CTR', 'ACoS'].includes(tag.name)">(%)</template>
+            ：<span class="tag-value">{{tag.value}}</span>
           </el-tag>
         </div>
         <div class="form-footer-btns">
           <el-button @click="handleSave" size="mini">保存偏好</el-button>
-          <el-button type="primary" @click="handleSubmit" size="mini">确 定</el-button>
+          <el-button type="primary" :loading="submitLoading" @click="handleSubmit" size="mini">确 定</el-button>
           <el-button type="text" @click="handleEmpty" size="mini">清空</el-button>
         </div>
       </div>
@@ -214,37 +230,91 @@
       @on-load="getTableData"
       @row-del="handleDelte"
       :page.sync="tablePageOption"
-      @current-change="handleCurrentChange"
-      @size-change="handleSizeChange"
+      @current-change="handleCurrentPageChange"
+      @size-change="handlePageSizeChange"
+      :table-loading="tableLoading"
     >
 
-      <template slot-scope="{row}" slot="store">
-        <span v-for="(item, index) in row.store" :key="item">
+    <!-- 店铺站点 -->
+      <template slot-scope="{row}" slot="marketplaceVoList">
+        <span v-for="(item, index) in row.marketplaceVoList" :key="item">
           <template v-if="index === 0">
-            {{ item }}
+            {{ item.marketplace }}-{{ item.storeName }}
           </template>
           <template v-else>
-            、 {{ item }}
+            、 {{ item.marketplace }}-{{ item.storeName }}
           </template>
         </span>
       </template>
 
+      <!-- 筛选条件 -->
+       <template slot-scope="{row}" slot="filterConditionVo">
+        <div class="filter_condition_col-container">
+          <el-tag
+            v-for="(val, key) in row.filterConditionVoShow"
+            :key="key"
+            type="info"
+          >
+            <!-- 广告活动数组和广告组数组 -->
+            <el-tooltip
+              v-if="['广告活动', '广告组'].includes(filterKeyToNameDict[key])"
+              effect="dark"
+              placement="top-start"
+            >
+              <template slot="content">
+                <div v-for="v in val" :key="v">
+                  {{ v }}、
+                </div>
+              </template>
+              <span >
+                {{ filterKeyToNameDict[key] }}: 
+                {{ getFilterConditionVoArrShow(val) }}
+              </span>
+            </el-tooltip>
+            <!-- 批量查询限制长度 -->
+            <el-tooltip
+              v-else-if="key === 'asinMskuKeyword'"
+              effect="dark"
+              :content="val"
+              placement="top-start"
+            >
+              <span class="asinMskuKeywordTagShow">
+                {{ filterKeyToNameDict[key] }}: 
+                <span>{{ val }}</span>
+              </span>
+            </el-tooltip>
+            <span v-else>
+              {{ filterKeyToNameDict[key] }}
+              <template v-if="['转化率', 'CTR', 'ACoS'].includes(filterKeyToNameDict[key])">(%)</template>
+              : {{ val }}
+            </span>
+          </el-tag>
+        </div>
+      </template>
+
+      <!-- 操作 -->
       <template slot-scope="{row}" slot="menu">
         <div class="table-menu">
-          <div class="table-menu-btns">
-            <el-button
-              v-if="!row.success"
-              :size="size"
-              type="info"
-              disabled
-              class="btn-result"
-            >生成失败</el-button>
-           <template v-else>
-              <el-button class="btn-result" :size="size" type="primary">导出筛选结果</el-button>
-              <el-button class="btn-result" :size="size" type="primary">关键词排名</el-button>
-            </template>
-          </div>
-            <el-button type="text">重新筛选</el-button>
+          <el-button
+            type="primary"
+            class="btn-result"
+            :size="size"
+            icon="el-icon-download"
+            @click="handleDownload(row.id)"
+          >导出结果</el-button>
+          <!-- <el-button
+            v-if="row.filterConditionVo.asinMskuKeyword"
+            type="primary"
+            class="btn-result"
+            :size="size"
+          >关键词排名</el-button>
+           <el-button
+            v-else
+            type="info"
+            disabled
+            class="btn-disabled"
+            :size="size"
+          >关键词排名</el-button> -->
         </div>
       </template>
       
@@ -255,15 +325,26 @@
 import {
   queryCampaigns,
   queryGroups,
-  queryPutKeywordList,
-  queryQueryKeywordList,
   savePreference,
   queryPreference,
   querySearchTermList,
+  querySearchTerm,
+  queryGroupKeywordList,
+  downloadReport,
 } from '@/api/ppc/searchTerm';
 import RangeInput from './components/RangeInput';
 import DateRangePicker from './components/DateRangePicker';
-import { strToMoneyStr } from '@/util/numberString';
+import { strToMoneyStr, strTo4Str } from '@/util/numberString';
+import {
+  changeFilterType,
+  getFilterConditionVoShow,
+  rangeFilterKeyToNameDict,
+  filterKeyToNameDict,
+  deliveryStatusDict,
+  changeFilterTypeToObj,
+  getFilterConditionVoArrShow,
+  downloadATag,
+} from './utils';
 
 // 表格配置
 const tableOption = {
@@ -275,16 +356,19 @@ const tableOption = {
   cellBtn: true,
   refreshBtn: false,
   columnBtn: false,
+  menuWidth: 140,
   column: [
     {
       label: '更新时间',
-      prop: 'updateTime',
+      prop: 'modifyTime',
+      width: 160,
     }, {
       label: '店铺站点',
-      prop: 'store',
+      prop: 'marketplaceVoList',
     }, {
       label: '筛选条件',
-      prop: 'filterCondition',
+      prop: 'filterConditionVo',
+      width: window.screen.width * 0.5,
     },
   ],
 };
@@ -298,26 +382,30 @@ export default {
   },
 
   created() {
+    this.filterKeyToNameDict = filterKeyToNameDict;
+    // 加载偏好
     this.getPreference();
-    if (!this.shopList.length) {
-      this.$store.dispatch('getShopList');
-    }
+    // 加载店铺
+    !this.shopList.length && this.$store.dispatch('getShopList');
   },
 
   data() {
     return {
+      tableLoading: false,
+      submitLoading: false,
       tableData: [],
       tableOption,
       tablePageOption: { 
         total: 100,
         currentPage: 1, 
-        pageSize: 20,
+        pageSize: 50,
         pageSizes: [20, 50, 100],
       },
+      reportUpdateTime: '正在查询...',
       // 组件 size
       size: 'small',
       // 筛选折叠面板
-      isCollapseExpand: true,
+      isCollapseExpand: false,
       // 请求供选择的关键词的 flag，用于避免不必要的请求
       flagGetKeywordList: {
         put: false,
@@ -334,24 +422,25 @@ export default {
       allGroups: [],
       // 需要提交的数据
       form: {
-        shop: '',
-        campaigns: [],
-        groups: [],
+        cycleType: '30',
+        mwsStoreId: '',
+        campaginIds: [],
+        groupIds: [],
         // 投放词
-        putKeyword: '',
+        launchKeyword: '',
         // 搜索词
-        queryKeyword: '',
+        searchKeyword: '',
         // 投放状态
         deliveryStatus: '',
         // 批量 asin 和 sku
-        asin: '',
+        asinMskuKeyword: '',
         // 筛选
         filter: {
-          sales: { min: '', max: '' },
+          salesVolume: { min: '', max: '' },
           spend: { min: '', max: '' },
           clicks: { min: '', max: '' },
           aba: { min: '', max: '' },
-          conversionsRate: { min: '', max: '' },
+          conversion: { min: '', max: '' },
           orderNum: { min: '', max: '' },
           acos: { min: '', max: '' },
           ctr: { min: '', max: '' },
@@ -371,37 +460,26 @@ export default {
 
     // 广告活动、广告组下拉框无数据时候的提示
     noDataText() {
-      if (this.form.shop === '') {
+      if (this.form.mwsStoreId === '') {
         return '请先选择店铺';
       }
       return '当前状态下无数据';
     },
 
+    // 筛选条件面包屑
     tags() {
-      const keyToNameDict = {
-        putKeyword: '投放词',
-        queryKeyword: '搜索词',
+      const tagsDict = {
+        ...rangeFilterKeyToNameDict,
+        launchKeyword: '投放词',
+        searchKeyword: '搜索词',
         deliveryStatus: '投放状态',
-        asin: '批量查询',
-        // 筛选的
-        aba: 'ABA排名',
-        sales: '销售额',
-        spend: 'Spend',
-        clicks: 'Clicks',
-        conversionsRate: '转化率',
-        orderNum: '订单量',
-        acos: 'ACoS',
-        ctr: 'CTR',
-        cpc: 'CPC',
-        roas: 'RoAS',
-        cpa: 'CPA',
-        impressions: 'Impressions',
+        asinMskuKeyword: '批量查询',
       };
-      const keys = Object.keys(keyToNameDict);
+      const keys = Object.keys(tagsDict);
       const result = [];
       keys.forEach(key => {
-        const name = keyToNameDict[key];
-        if (['putKeyword', 'queryKeyword', 'asin'].includes(key)) {
+        const name = tagsDict[key];
+        if (['launchKeyword', 'searchKeyword', 'asinMskuKeyword'].includes(key)) {
           // 关键词的
           const val = this.form[key];
           val && result.push({
@@ -412,18 +490,14 @@ export default {
         } else if (key === 'deliveryStatus') {
           // 投放状态的
           const val = this.form[key];
-          const dict = { alreadyLive: '已投放', noAlready: '未投放' };
           val && result.push({
             name,
             key,
-            value: dict[val],
+            value: deliveryStatusDict[val],
           });
         } else {
           // 筛选的
           const val = this.form.filter[key];
-          if (val === undefined) {
-            console.log('val', key, this.form.filter);
-          }
           (val.min || val.max) && result.push({
             name,
             key,
@@ -437,88 +511,127 @@ export default {
 
   methods: {
     strToMoneyStr,
+    strTo4Str,
+    getFilterConditionVoArrShow,
 
     getTableData() {
+      this.tableLoading = true;
       const params = {
         current: this.tablePageOption.currentPage, 
         size: this.tablePageOption.pageSize, 
       };
       querySearchTermList(params).then(res => {
-        this.tableData = res.data.records;
-        this.tablePageOption.total = res.data.total;
-        this.tablePageOption.currentPage = res.data.current;
-        this.tablePageOption.pageSize = res.data.size;
+        this.tableData = res.data.data.page.records.map(item => ({
+          ...item,
+          filterConditionVoShow: getFilterConditionVoShow(item.filterConditionVo),
+        }));
+        this.reportUpdateTime = res.data.data.reportUpdateTime;
+        this.tablePageOption.total = res.data.data.page.total;
+        this.tablePageOption.currentPage = res.data.data.page.current;
+        this.tablePageOption.pageSize = res.data.data.page.size;
       }, err => {
-        console.log('queryCampaigns err', err);
+        console.error('querySearchTermList err', err);
+      }).finally(() => {
+        this.tableLoading = false;
       });
     },
 
-    handleCurrentChange(current) {
+    handleCurrentPageChange(current) {
       this.tablePageOption.currentPage = current;
-      console.log('current', current);
     },
 
-    handleSizeChange(size) {
+    handlePageSizeChange(size) {
       this.tablePageOption.pageSize = size;
-      console.log('size', size);
     },
 
+    // 高级筛选收起/展开
     handleCollapseExpand() {
       this.isCollapseExpand = !this.isCollapseExpand;
     },
 
-    getCampaignList(storeId) {
-      queryCampaigns(storeId).then(res => {
-        const list = res.data.map(item => ({
+    getCampaignList(adStoreIds) {
+      queryCampaigns(adStoreIds).then(res => {
+        const list = res.data.data.records.map(item => ({
           ...item,
           label: item.name,
-          value: item.id,
+          value: item.campaignId,
         }));
         this.campaignList = [...list];
         this.allCampaigns = [...list];
       }, err => {
-        console.log('queryCampaigns err', err);
+        console.error('queryCampaigns err', err);
       });
     },
 
-    getGroupList(storeId) {
-      queryGroups(storeId).then(res => { 
-        const list = res.data.map(item => ({
+    getGroupList(adStoreIds) {
+      queryGroups(adStoreIds).then(res => {
+        const list = res.data.data.records.map(item => ({
           ...item,
           label: item.name,
-          value: item.id,
+          value: item.groupId,
         }));
         this.groupList = [...list];
         this.allGroups = [...list];
       }, err => {
-        console.log('queryGroups err', err);
+        console.error('queryGroups err', err);
       });
     },
 
-    getPutKeywordList() {
-      queryPutKeywordList(this.form.groups).then(res => {
-        this.putKeywordList = res.data;
+    // 获取广告组下的搜索词或投放词
+    getGroupKeywordList(type) {
+      const typeDict = {
+        // 搜索词
+        '1': 'queryKeywordList',
+        // 投放词
+        '2': 'putKeywordList',
+      };
+      const params = {
+        groupIds: this.form.groupIds,
+        keywordType: type,
+      };
+      queryGroupKeywordList(params).then(res => {
+        this[typeDict[type]] = res.data.data.records;
       }, err => {
-        console.log('err', err);
+        console.error('queryGroupKeywordList err', err);
       });
     },
 
-    getQueryKeywordList() {
-      queryQueryKeywordList(this.form.groups).then(res => {
-        this.queryKeywordList = res.data;
-      }, err => {
-        console.log('err', err);
-      });
-    },
-
+    // 加载偏好
     getPreference() {
       queryPreference().then(res => {
+        // 投放状态和周期拿出来不需要处理
+        const deliveryStatus = res.data.data.deliveryStatus || '';
+        const cycleType = res.data.data.cycleType || '30';
+        delete res.data.data.deliveryStatus;
+        delete res.data.data.cycleType;
+        // 高级筛选的转为 this.data 中的格式
+        const formatResData = changeFilterTypeToObj(res.data.data);
         this.form = {
           ...this.form,
-          ...res.data,
+          cycleType: String(cycleType),
+          deliveryStatus,
+          filter: {
+            ...this.form.filter,
+            ...formatResData,
+          }
         };
       }, err => {
-        console.log('err', err);
+        console.error('queryPreference err', err);
+      });
+    },
+
+    // 保存偏好
+    handleSave() {
+      const filterData = changeFilterType(this.form.filter);
+      const data = {
+        deliveryStatus: this.form.deliveryStatus,
+        ...filterData,
+        cycleType: this.form.cycleType,
+      };
+      savePreference(data).then(res => {
+        this.$message.success(res.data.msg);
+      }, err => {
+        console.error('savePreference err', err);
       });
     },
 
@@ -528,8 +641,9 @@ export default {
         return;
       }
       // 输入框为空时，且已选择广告组时，请求关键词列表。
-      if (!this.form.putKeyword && this.form.groups.length) {
-        this.getPutKeywordList();
+      if (!this.form.launchKeyword && this.form.groupIds.length) {
+        // 2 是投放词参数
+        this.getGroupKeywordList('2');
         // 请求后设 flag 为 false
         this.flagGetKeywordList.put = false;
       }
@@ -541,8 +655,9 @@ export default {
         return;
       }
       // 输入框为空时，且已选择广告组时，请求关键词列表。
-      if (!this.form.queryKeyword && this.form.groups.length) {
-        this.getQueryKeywordList();
+      if (!this.form.searchKeyword && this.form.groupIds.length) {
+        // 1 是搜索词参数
+        this.getGroupKeywordList('1');
         // 请求后设 flag 为 false
         this.flagGetKeywordList.query = false;
       }
@@ -572,19 +687,19 @@ export default {
 
     // 批量搜索输入框输入
     handleTextAreaInput(value) {
-      const maxLines = 2;
+      const maxLines = 20;
       let valueArr = value.split(/\r\n|\r|\n/);
       // 超过行数时截取
       if (valueArr.length > maxLines) {
         valueArr = valueArr.slice(0, maxLines);
         value = valueArr.join('\n');
-        this.form.asin = value;
+        this.form.asinMskuKeyword = value;
       }
     },
 
     handleEmpty() {
       const keys = Object.keys(this.form.filter);
-      keys.push('putKeyword', 'queryKeyword', 'deliveryStatus', 'asin');
+      keys.push('launchKeyword', 'searchKeyword', 'deliveryStatus', 'asinMskuKeyword');
       keys.forEach(key => {
         if (typeof this.form[key] === 'string') {
           this.form[key] = '';
@@ -596,22 +711,8 @@ export default {
       });
     },
 
-    // 保存偏好
-    handleSave() {
-      const data = {
-        deliveryStatus: this.form.deliveryStatus,
-        filter: this.form.filter,
-      };
-      console.log('保存偏好', data);
-      savePreference(data).then(res => {
-        this.$message.success(res.data.msg);
-      }, err => {
-        console.log('err', err);
-      });
-    },
-
     handleTagClose(key) {
-      if (['putKeyword', 'queryKeyword', 'deliveryStatus', 'asin'].includes(key)) {
+      if (['launchKeyword', 'searchKeyword', 'deliveryStatus', 'asinMskuKeyword'].includes(key)) {
         this.form[key] = '';
       } else {
         // 筛选
@@ -620,25 +721,101 @@ export default {
       }
     },
 
+    // 获取以换行符分隔的批量输入的 asin 信息
+    getInputBatchAsin(batchAsinString) {
+      let status = 'success';
+      const asinString = batchAsinString.trim();
+      const errorAsins = [];
+      const successAsins = [];
+      const filterReg = /^B0[A-Z0-9]{8}$/;
+      const list = asinString.split(/[\n+|\\,+]/);
+      for (let i = 0; i < list.length; i++) {
+        const asin = list[i].trim();
+        if (asin !== '') {
+          if (!filterReg.test(asin)) {
+            errorAsins.push(asin);
+            status = 'error';
+          } else {
+            successAsins.push(asin);
+          }
+        }
+      }
+      return {
+        status,
+        successAsins,
+        errorAsins,
+      };
+    },
+
     handleSubmit() {
-      console.log('handleSubmit', JSON.parse(JSON.stringify(this.form)));
+      if (this.form.mwsStoreId === '') {
+        this.$message.warning('请选择店铺');
+        return;
+      }
+      // 检查 ASIN 格式
+      let asinList = [];
+      const asinMskuKeyword = this.form.asinMskuKeyword.trim();
+      if (asinMskuKeyword !== '') {
+        const { status, successAsins, errorAsins } = this.getInputBatchAsin(asinMskuKeyword);
+        // 有错误的 asin
+        if (status === 'error') {
+          this.$message.warning(`ASIN: ${errorAsins[0]} 格式输入有误，请重新输入`);
+          return;
+        }
+        asinList = successAsins;
+      }
+      this.submitLoading = true;
+      const filterData = changeFilterType(this.form.filter);
+      const params = {
+        ...this.form,
+        ...filterData,
+        mwsStoreIds: [this.form.mwsStoreId],
+        asinMskuKeyword: Array.from(new Set(asinList)).join('\n'),
+      };
+      delete params.filter;
+      delete params.mwsStoreId;
+      querySearchTerm(params).then(res => {
+        this.$message.success(res.data.msg);
+        this.getTableData();
+      }).finally(() => {
+        this.submitLoading = false;
+      });
+    },
+
+    // 导出
+    handleDownload(id) {
+      downloadReport(id)
+        .catch(err => {
+          console.error('导出失败', err);
+          return err;
+        })
+        .then(res => {
+          const blobUrl = window.URL.createObjectURL(res.data);
+          const fileName = res.headers['content-disposition'].split(';')[1].split('filename=')[1];
+          downloadATag(blobUrl, window.decodeURIComponent(fileName));
+        })
+        .catch(err => {
+          console.error('导出发生错误', err);
+        });
     },
   },
 
   watch: {
-    'form.shop'(storeId) {
+    'form.mwsStoreId'(mwsStoreId) {
       // 增加判断是避免初始化请求店铺数据时 watch 到变化
-      if (this.form.campaigns.length) {
-        this.form.campaigns = [];
+      if (this.form.campaginIds.length) {
+        this.form.campaginIds = [];
       }
-      if (this.form.groups.length) {
-        this.form.groups = [];
+      if (this.form.groupIds.length) {
+        this.form.groupIds = [];
       }
-      this.getCampaignList(storeId);
-      this.getGroupList(storeId);
+      // 通过 mwsStoreId 找到 adStoreId， 目前不支持多店铺同时筛选
+      const adStoreId = this.shopList.find(shop => shop.id === mwsStoreId).adStoreId;
+      this.getCampaignList({ adStoreIds: [adStoreId] });
+      this.getGroupList({ adStoreIds: [adStoreId] });
     },
 
-    'form.campaigns'(ids) {
+    'form.campaginIds'(ids) {
       if (ids.length === 0) {
         this.groupList = this.allGroups;
         return;
@@ -646,7 +823,7 @@ export default {
       this.groupList = this.allGroups.filter(item => ids.includes(item.campaignId));
     },
 
-    'form.groups'(groupIds) {
+    'form.groupIds'(groupIds) {
       // 更新 flag 为 true，表示需要请求广告组关键词列表
       this.flagGetKeywordList.put = true;
       this.flagGetKeywordList.query = true;
@@ -659,12 +836,12 @@ export default {
       }
       // 选中广告组后，如果没有选中广告活动，则把广告活动列表限制为当前广告组的广告活动
       // 如果有选中广告活动，则在上面的基础上，把已选中的广告活动也加进去
-      const selectedGroups = groupIds.map(id => this.groupList.find(group => group.id === id));
+      const selectedGroups = groupIds.map(id => this.groupList.find(group => group.groupId === id));
       // 选中的广告组的广告活动id
       const selectedGroupsCampaignIds = [...new Set(selectedGroups.map(group => group.campaignId))];
       // 通过广告活动 id 找出过滤出广告活动列表
       const selectedGroupsCampaigns = selectedGroupsCampaignIds.map(id => {
-        return this.allCampaigns.find(cam => cam.id === id);
+        return this.allCampaigns.find(cam => cam.campaignId === id);
       });
       this.campaignList = selectedGroupsCampaigns;
     },
@@ -675,4 +852,22 @@ export default {
 
 <style lang="scss" scoped>
   @import "./index.scss";
+</style>
+
+<style lang="scss">
+  // 广告活动、广告组 avue-select 的下拉框
+  .el-select-dropdown.el-popper.is-multiple {
+    li.el-select-dropdown__item {
+      max-width: 400px;
+      line-height: 20px;
+      padding: 6px 20px;
+      white-space: normal;
+      word-break: break-all;
+
+      span {
+        padding: 0;
+        line-height: 20px;
+      }
+    }
+  }
 </style>
