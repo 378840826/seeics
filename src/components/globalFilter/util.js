@@ -52,11 +52,11 @@ export const emptySelect = (arr, condition, id) => {
  * @param {Number} id 每个规则中最大的id
  * @returns 
  */
-export const addFiled = (arr) => {
+export const addFiled = (arr, labels) => {
   const res = arr;
   res.push({
     id: new Date().getTime(),
-    label: '',
+    label: labels,
     condition: '&gt;',
     chain: '上升',
     vlaueType: '值',

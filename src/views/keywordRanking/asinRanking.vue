@@ -80,9 +80,9 @@
           @hide="filterHide"
         >
         规则范围：
-            <global-filter v-if="isFilter" ref="filters" :filterecho="filterecho"/>
+            <global-filter v-if="isFilter" ref="filters" :filterecho="filterecho" fields="fieldsPage" v-model="filterSubmit"/>
           <div style="textAlign: center">
-            <el-button @click="filterBtn" type="primary" size="mini">全局应用</el-button>
+            <el-button @click="filterBtn" type="primary" size="mini" :disabled="filterSubmit">全局应用</el-button>
             <el-button size="mini" @click="$refs.filterPopover.doClose()">取消</el-button>
             <el-button size="mini" @click="empty">清空</el-button>
           </div>
@@ -407,7 +407,8 @@ export default {
       ],
       attachForm: {},
       filterecho: [],
-      isFilter: false
+      isFilter: false,
+      filterSubmit: false
     };
   },
   mounted() {

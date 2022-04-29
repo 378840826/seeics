@@ -116,7 +116,16 @@ export default {
     filterecho: {
       type: Array,
       default: []
-    }
+    },
+    fields: {
+      type: String,
+      default: 'tatolFileds'
+    } ,
+    
+  },
+  model: {
+    prop: "value",
+    event: "change"
   },
   data() {
     return {
@@ -124,7 +133,7 @@ export default {
       formInline: [
         {
           id: new Date().getTime(),
-          label: '',
+          label: 'search_result_page_no',
           condition: '&gt;',
           chain: '上升',
           vlaueType: '值',
@@ -161,11 +170,11 @@ export default {
       ],
      
       totalFields: [],
-      fieldsPage: JSON.parse(JSON.stringify(fields.fieldsPage)),
+      fieldsPage: JSON.parse(JSON.stringify(fields[this.fields])),
       disabled: true,
       addDisabled: true,
       screenWidth: document.body.clientWidth,
-      fieldsPageLen: 1,
+      ruleLen: 1, //规则1条件长度
     };
   },
   mounted() {
@@ -176,9 +185,10 @@ export default {
         this.screenWidth = document.body.clientWidth;
       })();
     };
+    
   },
   updated() {
-    
+
   },
   methods: {
     emptyFileld(empty) {
@@ -200,6 +210,7 @@ export default {
           this.data.push({
             id: idx,
             key: idx,
+            ruleLen: idx,
             formInline: item.item.map(s => {
               let obj = {};
               obj = {
@@ -212,11 +223,15 @@ export default {
               }
               return obj
             }),
-            fieldsPage: JSON.parse(JSON.stringify(fields.fieldsPage)),
+            fieldsPage: JSON.parse(JSON.stringify(fields[this.fields])),
           });
           this.data[idx - 1].formInline[this.data[idx - 1].formInline.length - 1].btn = true;
         }
       });
+    },
+    labelFilter(arr) {
+      let arrs = arr.filter(item => !item.disabled)
+      return arrs[0] && arrs[0].value || '';
     },
     getFileld() {
       const obj = filterField(this.formInline);
@@ -249,14 +264,16 @@ export default {
     },
     addFiled(id, dataId) {
       if (dataId) {
-        if (this.data[dataId - 1].formInline.length < 4) {
-          addFiled(this.data[dataId - 1].formInline);
+        if (this.data[dataId - 1].formInline.length > this.data[dataId - 1].ruleLen ) {
+          this.data[dataId - 1].ruleLen ++
+          addFiled(this.data[dataId - 1].formInline, this.labelFilter(this.data[dataId - 1].fieldsPage));
         }
+        
         return;
       }  
-      if (this.fieldsPage.length > this.fieldsPageLen) {
-        this.fieldsPageLen ++
-        addFiled(this.formInline);
+      if (this.fieldsPage.length > this.ruleLen) {
+        this.ruleLen ++
+        addFiled(this.formInline, this.labelFilter(this.fieldsPage));
       }
     },
     deleteBtn(id, dataId) {
@@ -266,12 +283,13 @@ export default {
         }
         this.data[dataId - 1].formInline = this.data[dataId - 1].formInline.filter(item => item.id !== id);
         Object.assign(this.data[dataId - 1].formInline[this.data[dataId - 1].formInline.length - 1], { btn: true });
+        this.data[dataId - 1].ruleLen --
         return;
       }
       if (this.formInline.length === 1) {
         return;
       }
-      this.fieldsPageLen --
+      this.ruleLen --
       this.formInline = this.formInline.filter(item => item.id !== id);
       Object.assign(this.formInline[this.formInline.length - 1], { btn: true });
     },
@@ -280,7 +298,7 @@ export default {
       for (let i = 0; i < 1; i ++) {
         arr.push({
           id: new Date().getTime(),
-          label: '',
+          label: this.fieldsPage[0].value || '',
           condition: '&gt;',
           chain: '上升',
           vlaueType: '值',
@@ -294,8 +312,9 @@ export default {
         this.data.push({
           id: this.data.length + 1,
           key: this.data.length + 1,
+          ruleLen: 0,
           formInline: arr,
-          fieldsPage: JSON.parse(JSON.stringify(fields.fieldsPage)),
+          fieldsPage: JSON.parse(JSON.stringify(fields[this.fields])),
         });
       } else {
         this.$message({
@@ -317,7 +336,7 @@ export default {
   watch: {
     formInline: {
       handler(val) {
-        if (fields.fieldsPage.length) {
+        if (this.fieldsPage.length) {
           const arr = [];
           const arrs = [];
           for (let i = 0; i < val.length; i ++) {
@@ -326,8 +345,10 @@ export default {
             }
             if (val[i].value && val[i].label || val[i].label && val[i].maxVal && val[i].minVal) {
               arr.push(val[i]);
+              this.$emit("change", false);
               this.addDisabled = false;
             } else {
+              this.$emit("change", true);
               this.addDisabled = true;
             }
             if (Number(val[i].minVal) > Number(val[i].maxVal)) {
@@ -336,8 +357,9 @@ export default {
               val[i].msg = false;
             }
           }
-          this.disabled = fields.fieldsPage.length === val.length ? fields.fieldsPage.length === val.length : val.length > arr.length;
+          this.disabled = this.fieldsPage.length === val.length ? this.fieldsPage.length === val.length : val.length > arr.length;
           this.addDisabled = val.length > arr.length;
+          this.$emit("change", val.length > arr.length);
           this.fieldsPage.forEach(item => {
             if ([...arrs].includes(item.value)) {
               item.disabled = true;
@@ -363,8 +385,10 @@ export default {
               }
               if (item.formInline[i].value && item.formInline[i].label || item.formInline[i].label && item.formInline[i].maxVal && item.formInline[i].minVal) {
                 arr.push(item.formInline[i]);
+                this.$emit("change", false);
                 this.addDisabled = false;
               } else {
+                this.$emit("change", true);
                 this.addDisabled = true;
               }
                if (Number(item.formInline[i].minVal) > Number(item.formInline[i].maxVal)) {
@@ -378,7 +402,7 @@ export default {
             } else {
               item.disabled = true;
             }
-            if (item.formInline.length === fields.fieldsPage.length) {
+            if (item.formInline.length === this.fieldsPage.length) {
               item.disabled = true;
             }
             item.fieldsPage.forEach(item => {
@@ -389,6 +413,7 @@ export default {
               }
               return item;
             });
+            this.$emit("change", item.formInline.length > arr.length);
             this.addDisabled = item.formInline.length > arr.length;
           }
         });
