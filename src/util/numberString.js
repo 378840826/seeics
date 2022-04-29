@@ -25,3 +25,23 @@ export const strToMoneyStr = function (value) {
   }
   return newValue;
 };
+
+// 字符串格式化为 4 位小数 的字符串
+export const strTo4Str = function (value) {
+  // 删除数字和小数点以外的字符
+  let newValue = value.replace(/[^\d.]/g, '');
+  // 只保留第一个小数点
+  // newValue = newValue.replace(/\.{2,}/g, '.');
+  newValue = newValue.replace('.', '$#$').replace(/\./g, '').replace('$#$', '.');
+  // 保留 4 位小数
+  newValue = newValue.replace(/^(-)*(\d+)\.(\d\d\d\d).*$/, '$1$2.$3');
+  // 去掉整数部分前导的 0
+  if (newValue.indexOf('.') < 0 && newValue !== '') {
+    newValue = String(parseFloat(newValue));
+  }
+  // 第一位不能为小数点
+  if (newValue.indexOf('.') === 0) {
+    newValue = '0.';
+  }
+  return newValue;
+};

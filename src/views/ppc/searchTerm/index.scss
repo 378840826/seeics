@@ -15,6 +15,13 @@
         line-height: 22px;
         height: 24px;
       }
+
+      .tag-value {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
 
     & > * {
@@ -24,6 +31,8 @@
 
   // 广告活动和广告组选择器
   .avue-select {
+    width: 200px;
+
     ::v-deep {
       .el-tag {
         display: inline-flex;
@@ -97,9 +106,10 @@
   border-bottom: 1px solid #eee;
 }
 
-.update_time {
+.update_time,
+.cycleTitle {
   color: #888;
-  font-size: 14px
+  font-size: 14px;
 }
 
 .tag-value {
@@ -112,15 +122,50 @@
 
 .table-menu {
   display: flex;
-  justify-content: space-around;
-  align-items: start;
-
-  .table-menu-btns {
-    width: 120px;
-  }
+  flex-direction: column;
+  align-items: center;
 
   .btn-result {
     width: 100px;
     margin: 2px;
+    background-color: #409EFF;
+    border-radius: 3px;
+
+    a {
+      display: block;
+      color: #fff;
+      padding: 4px;
+    }
   }
+
+  .btn-disabled {
+    width: 100px;
+    margin: 2px;
+    border-radius: 3px;
+  }
+}
+
+.filter_condition_col-container {
+  display: flex;
+  flex-wrap: wrap;
+  
+  ::v-deep {
+    .el-tag {
+      margin-bottom: 6px;
+      line-height: 22px;
+      height: 24px;
+    }
+  }
+  
+  & > * {
+    margin-right: 6px;
+  }
+}
+
+.asinMskuKeywordTagShow {
+  display: inline-block;
+  max-width: 150px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
