@@ -183,7 +183,10 @@ export default {
   },
   mounted() {
     //回显
-    this.filterecho.length && this.filterecho[0].item.length && this.emptyFileld(this.filterecho);
+    this.filterecho.length && this.filterecho[0].item.length < 1 && this.$emit('change', true);
+    this.filterecho.length && this.filterecho[0].item.length 
+      ? this.emptyFileld(this.filterecho) 
+      : this.addDisabled = true;
     window.onresize = () => {
       return (() => {
         this.screenWidth = document.body.clientWidth;
