@@ -50,13 +50,14 @@ export const emptySelect = (arr, condition, id) => {
  * 字段添加
  * @param {Array} arr
  * @param {Number} id 每个规则中最大的id
+ * @param {String} label 没有被选中过的字段
  * @returns 
  */
-export const addFiled = (arr, labels) => {
+export const addFiled = (arr, label) => {
   const res = arr;
   res.push({
     id: new Date().getTime(),
-    label: labels,
+    label: label,
     condition: '&gt;',
     chain: '上升',
     vlaueType: '值',
