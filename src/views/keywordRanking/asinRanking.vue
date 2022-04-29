@@ -78,6 +78,8 @@
           placement="bottom-start"
           ref="filterPopover"
           @hide="filterHide"
+
+          trigger="manual"
         >
         规则范围：
             <global-filter v-if="isFilter" ref="filters" :filterecho="filterecho" fields="fieldsPage" v-model="filterSubmit"/>
@@ -482,6 +484,7 @@ export default {
     },
     filterEcho() {
       // this.isFilter = true;
+      this.$refs.filterPopover.doShow();
       filterEcho().then(res => {
         if (res.data.code === 200) {
           this.filterecho = res.data.data;

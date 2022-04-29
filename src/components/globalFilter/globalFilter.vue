@@ -50,53 +50,55 @@
           </el-row>
       </div>
     </el-card>
-    <div v-if="data.length" class="Or">或</div>
-    <el-card v-for="item in data" :key="item.id" class="box-card" shadow="never" style="marginTop: 10px">
-      <div slot="header" class="clearfix">
-          <span style="fontSize: 14px; fontWeight: 600; marginRight: 30px">子规则{{item.key + 1}}</span>
-        <span style="fontSize: 12px;">规则内指标之间关系为且</span>
-        <el-button style="float: right; padding: 0 0" type="danger" @click="remove(item.key)" icon="el-icon-close"></el-button>
-      </div>
-      <el-row v-for="formInline in item.formInline" :key="formInline" class="row">
-              <el-col class="col">
-              <el-select v-model="formInline.label" @change="sonLabelSelect(item.id, formInline.id)">
-                <el-option 
-                  v-for="item in item.fieldsPage" 
-                  :key="item.label" :label="item.label" 
-                  :value="item.value"
+    <div  v-for="item in data" :key="item.id">
+      <div class="Or">或</div>
+      <el-card class="box-card" shadow="never">
+        <div slot="header" class="clearfix">
+            <span style="fontSize: 14px; fontWeight: 600; marginRight: 30px">子规则{{item.key + 1}}</span>
+          <span style="fontSize: 12px;">规则内指标之间关系为且</span>
+          <el-button style="float: right; padding: 0 0" type="danger" @click="remove(item.key)" icon="el-icon-close"></el-button>
+        </div>
+        <el-row v-for="formInline in item.formInline" :key="formInline" class="row">
+                <el-col class="col">
+                <el-select v-model="formInline.label" @change="sonLabelSelect(item.id, formInline.id)">
+                  <el-option 
+                    v-for="item in item.fieldsPage" 
+                    :key="item.label" :label="item.label" 
+                    :value="item.value"
+                    :disabled="item.disabled"
+                  ></el-option>
+                </el-select>
+                <el-select v-model="formInline.condition" class="condition" @change="sonSleect(formInline.condition, formInline.id)">
+                  <el-option v-for="item in condition" :key="item.label" :label="item.label" :value="item.value"/>
+                </el-select>
+                <span v-if="formInline.condition === '≥且<'" class="span">
+                    <el-input v-model="formInline.minVal"  min="1" type="number"/>
+                    <el-input v-model="formInline.maxVal"  min="1" type="number" style="marginRight: 0"/>
+                </span>
+                <span v-else-if="formInline.condition === '环比'" style="marginRight: 0">
+                  <el-select v-model="formInline.chain">
+                    <el-option label="上升" value="上升"></el-option>
+                    <el-option label="下降" value="下降"></el-option>
+                  </el-select>
+                  <el-select v-model="formInline.vlaueType" class="condition">
+                    <el-option label="值" value="值"></el-option>
+                    <el-option label="百分比" value="百分比"></el-option>
+                  </el-select>
+                  <span v-if="formInline.vlaueType === '百分比'">%</span>
+                  <span class="span"><el-input  min="1" type="number" style="marginRight: 0"/></span>
+                </span>
+                <span v-else class="span"><el-input v-model="formInline.value"  min="1" type="number" style="marginRight: 0"/></span>
+                <div class="icon"><i class="el-icon-error" @click="deleteBtn(formInline.id, item.id)"></i></div>
+                <el-button
+                  v-if="formInline.btn" 
+                  type="text" 
                   :disabled="item.disabled"
-                ></el-option>
-              </el-select>
-              <el-select v-model="formInline.condition" class="condition" @change="sonSleect(formInline.condition, formInline.id)">
-                <el-option v-for="item in condition" :key="item.label" :label="item.label" :value="item.value"/>
-              </el-select>
-              <span v-if="formInline.condition === '≥且<'" class="span">
-                  <el-input v-model="formInline.minVal"  min="1" type="number"/>
-                  <el-input v-model="formInline.maxVal"  min="1" type="number" style="marginRight: 0"/>
-              </span>
-              <span v-else-if="formInline.condition === '环比'" style="marginRight: 0">
-                <el-select v-model="formInline.chain">
-                  <el-option label="上升" value="上升"></el-option>
-                  <el-option label="下降" value="下降"></el-option>
-                </el-select>
-                <el-select v-model="formInline.vlaueType" class="condition">
-                  <el-option label="值" value="值"></el-option>
-                  <el-option label="百分比" value="百分比"></el-option>
-                </el-select>
-                <span v-if="formInline.vlaueType === '百分比'">%</span>
-                <span class="span"><el-input  min="1" type="number" style="marginRight: 0"/></span>
-              </span>
-              <span v-else class="span"><el-input v-model="formInline.value"  min="1" type="number" style="marginRight: 0"/></span>
-              <div class="icon"><i class="el-icon-error" @click="deleteBtn(formInline.id, item.id)"></i></div>
-              <el-button
-                v-if="formInline.btn" 
-                type="text" 
-                :disabled="item.disabled"
-                @click="addFiled(formInline.id, item.id)">添加</el-button>
-            </el-col>
-            <div v-if="formInline.msg" class="message" :style="{width: screenWidth/4 + 'px'}">最大值必须大于最小值</div>
-        </el-row>
-    </el-card>
+                  @click="addFiled(formInline.id, item.id)">添加</el-button>
+              </el-col>
+              <div v-if="formInline.msg" class="message" :style="{width: screenWidth/4 + 'px'}">最大值必须大于最小值</div>
+          </el-row>
+      </el-card>
+    </div>
     <el-button 
       style="width: 100%; margin: 10px 0" 
       @click="add" 
@@ -210,7 +212,7 @@ export default {
           this.data.push({
             id: idx,
             key: idx,
-            ruleLen: idx,
+            ruleLen: 0,
             formInline: item.item.map(s => {
               let obj = {};
               obj = {
@@ -490,7 +492,7 @@ export default {
   }
   .Or {
     border: 1px #ccc solid;
-    padding: 5px;
+    padding: 0;
     border-radius: 10px;
     text-align: center;
     width: 50px;
