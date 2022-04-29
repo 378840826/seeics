@@ -85,7 +85,7 @@ export const filterField = (Array) => {
   }
   const obj = { item: [] };
   arr.map(item => {
-    if (item.condition === '≥且<' && (item.minVal && item.maxVal)) {
+    if (item.condition === '≥且<' && (item.minVal && item.maxVal) && item.label) {
       obj.item.push({
         id: item.id,
         subruleName: item.label,
@@ -94,7 +94,7 @@ export const filterField = (Array) => {
         minimum: item.minVal,
         statement: `and ${item.label}&gt;=${item.minVal} and ${item.label}&lt;${item.maxVal}`
       });
-    } else if (item.value) {
+    } else if (item.value && item.label) {
       obj.item.push({
         id: item.id,
         subruleName: item.label,
