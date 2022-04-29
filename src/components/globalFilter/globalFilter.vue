@@ -124,12 +124,12 @@ export default {
     fields: {
       type: String,
       default: 'tatolFileds'
-    } ,
+    },
     
   },
   model: {
-    prop: "value",
-    event: "change"
+    prop: 'value',
+    event: 'change'
   },
   data() {
     return {
@@ -191,21 +191,18 @@ export default {
     };
     
   },
-  updated() {
-
-  },
   methods: {
     emptyFileld(empty) {
       this.formInline = empty[0].item.map(item => {
         let obj = {};
         obj = {
-            id: item.id,
-            label: item.subruleName,
-            condition: item.symbol,
-            value: item.value,
-            maxVal: item.maximum,
-            minVal: item.minimum
-          }
+          id: item.id,
+          label: item.subruleName,
+          condition: item.symbol,
+          value: item.value,
+          maxVal: item.maximum,
+          minVal: item.minimum
+        };
         return obj;
       });
       this.formInline[this.formInline.length - 1].btn = true;
@@ -224,8 +221,8 @@ export default {
                 value: s.value,
                 maxVal: s.maximum,
                 minVal: s.minimum
-              }
-              return obj
+              };
+              return obj;
             }),
             fieldsPage: JSON.parse(JSON.stringify(fields[this.fields])),
           });
@@ -234,7 +231,7 @@ export default {
       });
     },
     labelFilter(arr) {
-      let arrs = arr.filter(item => !item.disabled)
+      const arrs = arr.filter(item => !item.disabled);
       return arrs[0] && arrs[0].value || '';
     },
     
@@ -270,14 +267,14 @@ export default {
     addFiled(id, dataId) {
       if (dataId) {
         if (this.data[dataId - 1].formInline.length > this.data[dataId - 1].ruleLen ) {
-          this.data[dataId - 1].ruleLen ++
+          this.data[dataId - 1].ruleLen ++;
           addFiled(this.data[dataId - 1].formInline, this.labelFilter(this.data[dataId - 1].fieldsPage));
         }
         
         return;
       }  
       if (this.fieldsPage.length > this.ruleLen) {
-        this.ruleLen ++
+        this.ruleLen ++;
         addFiled(this.formInline, this.labelFilter(this.fieldsPage));
       }
     },
@@ -288,13 +285,13 @@ export default {
         }
         this.data[dataId - 1].formInline = this.data[dataId - 1].formInline.filter(item => item.id !== id);
         Object.assign(this.data[dataId - 1].formInline[this.data[dataId - 1].formInline.length - 1], { btn: true });
-        this.data[dataId - 1].ruleLen --
+        this.data[dataId - 1].ruleLen --;
         return;
       }
       if (this.formInline.length === 1) {
         return;
       }
-      this.ruleLen --
+      this.ruleLen --;
       this.formInline = this.formInline.filter(item => item.id !== id);
       Object.assign(this.formInline[this.formInline.length - 1], { btn: true });
     },
@@ -345,36 +342,35 @@ export default {
           const arr = [];
           const arrs = [];
           for (let i = 0; i < val.length; i ++) {
-            console.log(integer(val[i].value), val[i].value)
             if (val[i].label) {
               arrs.push(val[i].label);
             }
             if (val[i].value && val[i].label || val[i].label && val[i].maxVal && val[i].minVal) {
               arr.push(val[i]);
-              this.$emit("change", false);
+              this.$emit('change', false);
               this.addDisabled = false;
             } else {
-              this.$emit("change", true);
+              this.$emit('change', true);
               this.addDisabled = true;
             }
             
             if (Number(val[i].minVal) > Number(val[i].maxVal)) {
-              this.$emit("change", true);
+              this.$emit('change', true);
               this.addDisabled = true;
               this.disabled = true;
               val[i].msg = true;
-            } else if(Number(val[i].minVal) < 0 
+            } else if (Number(val[i].minVal) < 0 
               || integer(val[i].minVal) 
               || Number(val[i].maxVal) < 0 
               || integer(val[i].maxVal) 
               || Number(val[i].value) < 0 
               || integer(val[i].value)) {
-              this.$emit("change", true);
+              this.$emit('change', true);
               this.addDisabled = true;
               this.disabled = true;
               val[i].integer = true;
             } else {
-              this.$emit("change", false);
+              this.$emit('change', false);
               this.addDisabled = false;
               this.disabled = false;
               val[i].msg = false;
@@ -382,14 +378,14 @@ export default {
             }
           }
           this.disabled = this.fieldsPage.length === val.length ? this.fieldsPage.length === val.length : val.length > arr.length;
-          this.$emit("change", val.length > arr.length);
+          this.$emit('change', val.length > arr.length);
           this.addDisabled = val.length > arr.length;
           if (val.filter(item => item.msg).length) {
-            this.$emit("change", true);
+            this.$emit('change', true);
             this.addDisabled = true;
             this.disabled = true;
           } else if (val.filter(item => item.integer).length) {
-            this.$emit("change", true);
+            this.$emit('change', true);
             this.addDisabled = true;
             this.disabled = true;
           }
@@ -419,39 +415,40 @@ export default {
               }
               if (item.formInline[i].value && item.formInline[i].label || item.formInline[i].label && item.formInline[i].maxVal && item.formInline[i].minVal) {
                 arr.push(item.formInline[i]);
-                this.$emit("change", false);
+                this.$emit('change', false);
                 this.addDisabled = false;
               } else {
-                this.$emit("change", true);
+                this.$emit('change', true);
                 this.addDisabled = true;
               }
-               if (Number(item.formInline[i].minVal) > Number(item.formInline[i].maxVal)) {
-                 this.$emit("change", false);
-                  item.formInline[i].msg = true;
-                  this.addDisabled = true;
-                  return res.push(true)
-                } else if ( Number(item.formInline[i].minVal) < 0 
-                  || integer(item.formInline[i].minVal) 
-                  || Number(item.formInline[i].maxVal) < 0 
-                  || integer(item.formInline[i].maxVal)  
-                  || Number(item.formInline[i].value) < 0 
-                  || integer(item.formInline[i].value) ) {
-                  this.$emit("change", false);
-                  item.formInline[i].integer = true;
-                  this.addDisabled = true;
-                  return res.push(true)
-                } else {
-                  this.$emit("change", true);
-                  item.formInline[i].msg = false;
-                  item.formInline[i].integer = false;
-                  this.addDisabled = false;
-                }
+              if (Number(item.formInline[i].minVal) > Number(item.formInline[i].maxVal)) {
+                this.$emit('change', false);
+                item.formInline[i].msg = true;
+                this.addDisabled = true;
+                return res.push(true);
+              } else if ( Number(item.formInline[i].minVal) < 0 
+                || integer(item.formInline[i].minVal) 
+                || Number(item.formInline[i].maxVal) < 0 
+                || integer(item.formInline[i].maxVal)  
+                || Number(item.formInline[i].value) < 0 
+                || integer(item.formInline[i].value) ) {
+                this.$emit('change', false);
+                item.formInline[i].integer = true;
+                this.addDisabled = true;
+                return res.push(true);
+              // eslint-disable-next-line no-else-return
+              } else {
+                this.$emit('change', true);
+                item.formInline[i].msg = false;
+                item.formInline[i].integer = false;
+                this.addDisabled = false;
+              }
             }
             if (item.formInline.length === arr.length) {
-              this.$emit("change", false);
+              this.$emit('change', false);
               item.disabled = false;
             } else {
-              this.$emit("change", true);
+              this.$emit('change', true);
               item.disabled = true;
             }
             if (item.formInline.length === this.fieldsPage.length) {
@@ -473,10 +470,10 @@ export default {
             //   this.$emit("change", true);
             //   this.addDisabled = true;
             // }
-            res.push(item.formInline.length > arr.length)
+            res.push(item.formInline.length > arr.length);
           }
         });
-        this.$emit("change", res.filter(item => item)[0]);
+        this.$emit('change', res.filter(item => item)[0]);
         this.addDisabled = res.filter(item => item)[0];
       },
       deep: true,
