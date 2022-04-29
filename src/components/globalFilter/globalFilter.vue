@@ -47,7 +47,7 @@
                 @click="addFiled(formInline.id)">添加</el-button>  
             </el-col>
             <div v-if="formInline.msg" class="message" :style="{width: screenWidth/4 + 'px'}">最大值必须大于最小值</div>
-            <div v-else-if="formInline.integer" class="integer" :style="{width: screenWidth/4 + 'px'}">值不能为负数</div>
+            <div v-else-if="formInline.integer" class="integer" :style="{width: screenWidth/4 + 'px'}">请输入正整数</div>
           </el-row>
       </div>
     </el-card>
@@ -97,7 +97,7 @@
                   @click="addFiled(formInline.id, item.id)">添加</el-button>
               </el-col>
               <div v-if="formInline.msg" class="message" :style="{width: screenWidth/4 + 'px'}">最大值必须大于最小值</div>
-              <div v-else-if="formInline.integer" class="integer" :style="{width: screenWidth/4 + 'px'}">值不能为负数</div>
+              <div v-else-if="formInline.integer" class="integer" :style="{width: screenWidth/4 + 'px'}">请输入正整数</div>
           </el-row>
       </el-card>
     </div>
@@ -112,7 +112,7 @@
 </template>
 
 <script>
-import { filterField, emptySelect, resetValue, addFiled} from './util';
+import { filterField, emptySelect, resetValue, addFiled, integer} from './util';
 import { fields } from './filed';
 export default {
   name: 'globalFilter',
@@ -237,6 +237,7 @@ export default {
       let arrs = arr.filter(item => !item.disabled)
       return arrs[0] && arrs[0].value || '';
     },
+    
     getFileld() {
       const obj = filterField(this.formInline);
       const res = [];
@@ -344,6 +345,7 @@ export default {
           const arr = [];
           const arrs = [];
           for (let i = 0; i < val.length; i ++) {
+            console.log(integer(val[i].value), val[i].value)
             if (val[i].label) {
               arrs.push(val[i].label);
             }
@@ -361,7 +363,12 @@ export default {
               this.addDisabled = true;
               this.disabled = true;
               val[i].msg = true;
-            } else if(Number(val[i].minVal) < 0 || Number(val[i].maxVal) < 0 || Number(val[i].value) < 0) {
+            } else if(Number(val[i].minVal) < 0 
+              || integer(val[i].minVal) 
+              || Number(val[i].maxVal) < 0 
+              || integer(val[i].maxVal) 
+              || Number(val[i].value) < 0 
+              || integer(val[i].value)) {
               this.$emit("change", true);
               this.addDisabled = true;
               this.disabled = true;
@@ -423,7 +430,12 @@ export default {
                   item.formInline[i].msg = true;
                   this.addDisabled = true;
                   return res.push(true)
-                } else if ( Number(item.formInline[i].minVal) < 0 || Number(item.formInline[i].maxVal) < 0|| Number(item.formInline[i].value) < 0) {
+                } else if ( Number(item.formInline[i].minVal) < 0 
+                  || integer(item.formInline[i].minVal) 
+                  || Number(item.formInline[i].maxVal) < 0 
+                  || integer(item.formInline[i].maxVal)  
+                  || Number(item.formInline[i].value) < 0 
+                  || integer(item.formInline[i].value) ) {
                   this.$emit("change", false);
                   item.formInline[i].integer = true;
                   this.addDisabled = true;

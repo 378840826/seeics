@@ -107,3 +107,13 @@ export const filterField = (Array) => {
   });
   return obj;
 };
+
+//判断正整数
+export const integer = (str) => {
+  for (const key in str) {
+    if (str[key] === '.') {
+      return true;
+    }
+  }
+  return false;
+};
