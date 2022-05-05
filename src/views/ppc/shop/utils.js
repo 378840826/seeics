@@ -141,7 +141,7 @@ export const getOAuthUrl = (marketplace, state) => {
   const common = '/apps/authorize/consent';
   const applicationId = 'amzn1.sp.solution.23a02eea-8b16-4c81-98c4-74767293b05f';
   const stateJson = encodeURIComponent(JSON.stringify(state));
-  const redirect_uri = 'https://www.seeics.com/#/authorize_consent';
+  const redirect_uri = 'https://www.seeics.com/authorize_consent';
   const url = `${sellerCentralUrl}${common}?application_id=${applicationId}&redirect_uri=${redirect_uri}&state=${stateJson}`;
   return url;
 };
