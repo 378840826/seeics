@@ -17,7 +17,7 @@ Vue.use(VueRouter);
 //创建路由
 export const createRouter = () => new VueRouter({
   routes: [...PageRouter, ...ViewsRouter],
-  // mode: 'history',
+  mode: 'history',
 });
 const Router = createRouter(); // 获得 route 实例
 // 初始化和注册 AvueRouter
