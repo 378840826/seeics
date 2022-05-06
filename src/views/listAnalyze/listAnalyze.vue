@@ -192,9 +192,9 @@ export default {
           disabled: true,
         },
         {
-          value: 7,
+          value: 'DE',
           label: '德国',
-          disabled: true,
+          // disabled: true,
         }
       ],
       formInline: {
@@ -363,6 +363,14 @@ export default {
       },
       deep: true,
     },
+    'formInline.searchCountry': {
+      handler() {
+        this.nodehad.childNodes = []; //把存起来的node的子节点清空，不然会界面会出现重复树！
+        this.treeLoad(this.nodehad, this.resolvehad);
+        this.getAnalyzeLists();
+      }
+    },
+    deep: true,
   },
   methods: {
     treeLoad (node, resolve, text) {
@@ -373,7 +381,11 @@ export default {
       } else {
         this.parentId = node.data.id;
       }
-      analyzeTree({ parentId: this.parentId, deptCategory: text || this.formInline.deptCategory }).then(res => {
+      analyzeTree({
+        parentId: this.parentId, 
+        deptCategory: text || this.formInline.deptCategory, 
+        country: this.formInline.searchCountry 
+      }).then(res => {
         if (res.data.success && text) {
           this.$refs[`btn_${text}`][0].icon = '';
           this.btnDisabled = false;
@@ -474,9 +486,9 @@ export default {
     },
     //清除定时器
     clearTimer() {
-		  clearTimeout(this.timer);
-	    this.timer = null;
-	  },
+      clearTimeout(this.timer);
+      this.timer = null;
+    },
     //词频分析
     wordStatistics(id) {
       keyWordAnalyze(id).then(res => {
