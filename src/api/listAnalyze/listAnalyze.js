@@ -77,13 +77,30 @@ export const analyzeDownload = (id) => {
 };
 
 //导出词频
-export const wordFrequency = (id) => {
+export const wordFrequency = (data) => {
   return request({
-    url: '/api/seeics-analysis/list-analyze/word-frequency/download',
-    method: 'get',
+    url: '/api/seeics-analysis/list-analyze/download/list-analyze/count',
+    method: 'post',
     params: {
-      id
+      ...data
     },
     responseType: 'blob'
+  });
+};
+
+//应用全局词频选项
+export const overallOption = (data) => {
+  return request({
+    url: '/api/seeics-analysis/list-analyze/save/list-analyze/count/overall/option',
+    method: 'post',
+    data,
+  });
+};
+
+//获取应用全局选项
+export const getGlobalOption = () => {
+  return request({
+    url: '/api/seeics-analysis/list-analyze/get/list-analyze/count/overall/option',
+    method: 'get'
   });
 };
