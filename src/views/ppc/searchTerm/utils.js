@@ -114,7 +114,7 @@ export function changeFilterType(filterData) {
     // 检查高级筛选的 min max 大小
     // min max 都不为空才需要检查
     if (!invalidVals.includes(filterData[key].min) && !invalidVals.includes(filterData[key].max)) {
-      if (filterData[key].min > filterData[key].max) {
+      if (Number(filterData[key].min) > Number(filterData[key].max)) {
         return {
           status: 'error',
           msg: `${rangeFilterKeyToNameDict[key]} 最大值必须大于最小值`,
