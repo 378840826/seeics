@@ -61,7 +61,6 @@ export function getUnitDateRange(date, type = 'week') {
       d.endOf('week').add(1, 'days').format(format),
     ];
   } else {
-    console.log('type', type, d.startOf(type).format(format));
     result = [
       d.startOf(type).format(format),
       d.endOf(type).format(format),
@@ -106,21 +105,29 @@ export function getDateRange(key) {
   return dates;
 }
 
-// 筛选参数转换为 xxMin xxMax 模式
+// 筛选参数转换为 xxMin xxMax 模式, 并检查 min <= max
 export function changeFilterType(filterData) {
-  if (!filterData) {
-    return;
-  }
   const resultObj = {};
   const keys = Object.keys(filterData);
-  keys.forEach(key => {
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    // 检查高级筛选的 min max 大小
+    // min max 都不为空才需要检查
+    if (!invalidVals.includes(filterData[key].min) && !invalidVals.includes(filterData[key].max)) {
+      if (filterData[key].min > filterData[key].max) {
+        return {
+          status: 'error',
+          msg: `${rangeFilterKeyToNameDict[key]} 最大值必须大于最小值`,
+        };
+      }
+    }
     if (!invalidVals.includes(filterData[key].min)) {
       resultObj[`${key}Min`] = filterData[key].min;
     }
     if (!invalidVals.includes(filterData[key].max)) {
       resultObj[`${key}Max`] = filterData[key].max;
     }
-  });
+  }
   return resultObj;
 }
 
@@ -195,4 +202,19 @@ export const downloadATag = (blobUrl, fileName) => {
   a.download = `${fileName}`;
   a.href = blobUrl;
   a.click();
+};
+
+// 失焦时触发 input 事件（用于临时解决广告活动、广告组的 avue-select 的搜索匹配 bug）
+export const addBlurTriggerInputEvent = (selector) => {
+  const nodeList = window.document.querySelectorAll(selector);
+  for (let i = 0; i < nodeList.length; i++) {
+    const dom = nodeList[i];
+    dom.addEventListener('blur', function () {
+      setTimeout(() => {
+        dom.value = ' ';
+        const event = new InputEvent('input');
+        dom.dispatchEvent(event);
+      }, 0);
+    });
+  }
 };

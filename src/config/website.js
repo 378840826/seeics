@@ -17,6 +17,11 @@ export default {
   tokenHeader: 'Blade-Auth',
   //http的status默认放行列表
   statusWhiteList: [],
+  // axios 请求 response 拦截的路由放行列表
+  urlWhiteList: [
+    // st报表导出
+    '/api/seeics-analysis/searchTerm/download',
+  ],
   //配置首页不可关闭
   isFirstPage: false,
   fistPage: {
