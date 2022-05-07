@@ -40,11 +40,14 @@ export const queryPreference = () => {
   });
 };
 
-export const querySearchTermList = params => {
+export const querySearchTermList = data => {
   return request({
     url: '/api/seeics-analysis/searchTerm/list',
-    method: 'get',
-    params,
+    method: 'post',
+    params: data,
+    data: {
+      identicalRecordId: data.identicalRecordId,
+    },
   });
 };
 
@@ -58,8 +61,9 @@ export const querySearchTerm = data => {
 
 export const downloadReport = id => {
   return request({
-    url: `/api/seeics-analysis/searchTerm/download/${id}`,
+    url: '/api/seeics-analysis/searchTerm/download',
     method: 'get',
+    params: { id },
     responseType: 'blob',
   });
 };

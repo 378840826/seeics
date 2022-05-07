@@ -51,7 +51,7 @@
           tags
           placeholder="请选择广告活动"
           :no-data-text="noDataText"
-          class="avue-select"
+          class="avue-select seeics-avue-select"
         />
         <!-- 广告组:  -->
         <avue-select
@@ -65,9 +65,9 @@
           tags
           placeholder="请选择广告组"
           :no-data-text="noDataText"
-          class="avue-select"
+          class="avue-select seeics-avue-select"
         />
-        
+
         <el-autocomplete
           v-model="form.searchKeyword"
           :fetch-suggestions="searchQueryKwAsync"
@@ -227,7 +227,7 @@
     <avue-crud
       :data="tableData"
       :option="tableOption"
-      @on-load="getTableData"
+      @on-load="getTableData()"
       @row-del="handleDelte"
       :page.sync="tablePageOption"
       @current-change="handleCurrentPageChange"
@@ -344,6 +344,7 @@ import {
   changeFilterTypeToObj,
   getFilterConditionVoArrShow,
   downloadATag,
+  addBlurTriggerInputEvent,
 } from './utils';
 
 // 表格配置
@@ -389,6 +390,11 @@ export default {
     !this.shopList.length && this.$store.dispatch('getShopList');
   },
 
+  mounted() {
+    // 临时解决 avue-select 组件的搜索 bug
+    addBlurTriggerInputEvent('.seeics-avue-select input');
+  },
+
   data() {
     return {
       tableLoading: false,
@@ -414,7 +420,7 @@ export default {
       // 供选择的投放词、搜索词
       putKeywordList: [],
       queryKeywordList: [],
-      // 显示的广告活动、广告组
+      // 显示的广告活动、广告组（广告活动、广告组选中时，需要筛选出对应的父子关系）
       campaignList: [],
       groupList: [],
       // 全店的广告活动、广告组
@@ -514,11 +520,12 @@ export default {
     strTo4Str,
     getFilterConditionVoArrShow,
 
-    getTableData() {
+    getTableData(identicalRecordId) {
       this.tableLoading = true;
       const params = {
         current: this.tablePageOption.currentPage, 
         size: this.tablePageOption.pageSize, 
+        identicalRecordId,
       };
       querySearchTermList(params).then(res => {
         this.tableData = res.data.data.page.records.map(item => ({
@@ -623,6 +630,10 @@ export default {
     // 保存偏好
     handleSave() {
       const filterData = changeFilterType(this.form.filter);
+      if (filterData.status === 'error') {
+        this.$message.error(filterData.msg);
+        return;
+      }
       const data = {
         deliveryStatus: this.form.deliveryStatus,
         ...filterData,
@@ -747,6 +758,42 @@ export default {
       };
     },
 
+    // 提交查询（相同条件时，可选择是否提交，递归调用）
+    submitQuerySearchTerm(params) {
+      // 边界条件 强制查询
+      if (params.ignoreIdentical) {
+        querySearchTerm(params).then(res => {
+          this.$message.success(res.data.msg);
+          this.getTableData(params.identicalRecordId);
+        }).finally(() => {
+          this.submitLoading = false;
+        });
+        return;
+      }
+      querySearchTerm(params).then(res => {
+        const { data: { searchSuccess, identicalRecordId } } = res.data;
+        // 列表中已有相同条件的筛选结果时
+        if (searchSuccess === false) {
+          this.$confirm('相同一天内已经发起过查询，确定重复查询？', '提示', {
+            type: 'warning',
+            confirmButtonText: '是',
+            callback: action => {
+              if (action !== 'confirm') {
+                return;
+              }
+              // 强制查询
+              this.submitQuerySearchTerm({ ...params, ignoreIdentical: true, identicalRecordId });
+            }
+          });
+        } else {
+          this.$message.success(res.data.msg);
+          this.getTableData();
+        }
+      }).finally(() => {
+        this.submitLoading = false;
+      });
+    },
+
     handleSubmit() {
       if (this.form.mwsStoreId === '') {
         this.$message.warning('请选择店铺');
@@ -764,8 +811,12 @@ export default {
         }
         asinList = successAsins;
       }
-      this.submitLoading = true;
       const filterData = changeFilterType(this.form.filter);
+      if (filterData.status === 'error') {
+        this.$message.error(filterData.msg);
+        return;
+      }
+      this.submitLoading = true;
       const params = {
         ...this.form,
         ...filterData,
@@ -774,28 +825,28 @@ export default {
       };
       delete params.filter;
       delete params.mwsStoreId;
-      querySearchTerm(params).then(res => {
-        this.$message.success(res.data.msg);
-        this.getTableData();
-      }).finally(() => {
-        this.submitLoading = false;
-      });
+      this.submitQuerySearchTerm(params);
     },
 
     // 导出
     handleDownload(id) {
       downloadReport(id)
         .catch(err => {
-          console.error('导出失败', err);
+          console.error('导出失败:', err);
           return err;
         })
         .then(res => {
+          // 如果没有返回文件
+          if (res.headers['content-type'].includes('application/json')) {
+            this.$message.error('匹配不到结果，请修改筛选条件');
+            return;
+          }
           const blobUrl = window.URL.createObjectURL(res.data);
           const fileName = res.headers['content-disposition'].split(';')[1].split('filename=')[1];
           downloadATag(blobUrl, window.decodeURIComponent(fileName));
         })
         .catch(err => {
-          console.error('导出发生错误', err);
+          console.error('导出发生错误:', err);
         });
     },
   },
@@ -869,5 +920,11 @@ export default {
         line-height: 20px;
       }
     }
+  }
+
+  // 筛选条件 tag 的 tooltip 限制高度
+  .el-tooltip__popper.is-dark {
+    max-height: 300px;
+    overflow: auto;
   }
 </style>
