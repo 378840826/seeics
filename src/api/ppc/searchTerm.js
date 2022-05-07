@@ -2,7 +2,7 @@ import request from '@/router/axios';
 
 export const queryCampaigns = data => {
   return request({
-    url: '/api/seeics-analysis/ppc/campaigns',
+    url: '/api/seeics-ad/campaign/list',
     method: 'post',
     data,
   });
@@ -10,25 +10,16 @@ export const queryCampaigns = data => {
 
 export const queryGroups = data => {
   return request({
-    url: '/api/seeics-analysis/ppc/groups',
+    url: '/api/seeics-ad/group/list',
     method: 'post',
     data,
   });
 };
 
-export const queryPutKeywordList = data => {
-  console.log('请求投放词', data);
+// 获取广告组下的搜索词或者投放词
+export const queryGroupKeywordList = data => {
   return request({
-    url: '/api/seeics-analysis/ppc/st/put-keyword',
-    method: 'post',
-    data,
-  });
-};
-
-export const queryQueryKeywordList = data => {
-  console.log('请求搜索词', data);
-  return request({
-    url: '/api/seeics-analysis/ppc/st/query-keyword',
+    url: '/api/seeics-analysis/searchTerm/queryKeywordList',
     method: 'post',
     data,
   });
@@ -36,7 +27,7 @@ export const queryQueryKeywordList = data => {
 
 export const savePreference = data => {
   return request({
-    url: '/api/seeics-analysis/ppc/st/save-preference',
+    url: '/api/seeics-analysis/searchTerm/savePreference',
     method: 'post',
     data,
   });
@@ -44,14 +35,35 @@ export const savePreference = data => {
 
 export const queryPreference = () => {
   return request({
-    url: '/api/seeics-analysis/ppc/st/preference',
+    url: '/api/seeics-analysis/searchTerm/queryPreference',
     method: 'get',
   });
 };
 
-export const querySearchTermList = () => {
+export const querySearchTermList = data => {
   return request({
-    url: '/api/seeics-analysis/ppc/st/list',
+    url: '/api/seeics-analysis/searchTerm/list',
+    method: 'post',
+    params: data,
+    data: {
+      identicalRecordId: data.identicalRecordId,
+    },
+  });
+};
+
+export const querySearchTerm = data => {
+  return request({
+    url: '/api/seeics-analysis/searchTerm/search',
+    method: 'post',
+    data,
+  });
+};
+
+export const downloadReport = id => {
+  return request({
+    url: '/api/seeics-analysis/searchTerm/download',
     method: 'get',
+    params: { id },
+    responseType: 'blob',
   });
 };

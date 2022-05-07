@@ -1,4 +1,5 @@
-<!-- 日期范围选择器 -->
+<!-- 日期范围选择器 未完成-->
+<!-- st报表需求变更，这个组件 st 报表不再需要 -->
 <template>
   <div class="container">
 
@@ -88,8 +89,9 @@ export default {
   },
 
   watch: {
-    elDatePickerTypeSelected(a) {
-      console.log('elDatePickerTypeSelected', a, this.popperClass);
+    dates(d) {
+      console.log('DateRangePicker dates:', d);
+      this.$emit('input', d);
     },
   },
 
@@ -123,7 +125,6 @@ export default {
 };
 
 // 下拉选项
-// st报表缩减了支持的范围，也无需再支持自定义
 const dropdownOptions = [
   {
     label: '按周选择',
@@ -146,20 +147,20 @@ const dropdownOptions = [
       value: 'quarter',
     },
   }, 
-  // {
-  //   label: '上周',
-  //   value: {
-  //     type: 'immediate',
-  //     value: 'lastWeek',
-  //   },
-  // },
-  // {
-  //   label: '上月',
-  //   value: {
-  //     type: 'immediate',
-  //     value: 'lastMonth',
-  //   },
-  // }, 
+  {
+    label: '上周',
+    value: {
+      type: 'immediate',
+      value: 'lastWeek',
+    },
+  },
+  {
+    label: '上月',
+    value: {
+      type: 'immediate',
+      value: 'lastMonth',
+    },
+  }, 
   {
     label: '最近7日',
     value: {
@@ -202,27 +203,27 @@ const dropdownOptions = [
       value: '90',
     },
   }, 
-  // {
-  //   label: '今年',
-  //   value: {
-  //     type: 'immediate',
-  //     value: 'thisYear',
-  //   },
-  // }, 
-  // {
-  //   label: '去年',
-  //   value: {
-  //     type: 'immediate',
-  //     value: 'lastYear',
-  //   },
-  // }, 
-  // {
-  //   label: '自定义',
-  //   value: {
-  //     type: 'calendar',
-  //     value: 'daterange',
-  //   },
-  // },
+  {
+    label: '今年',
+    value: {
+      type: 'immediate',
+      value: 'thisYear',
+    },
+  }, 
+  {
+    label: '去年',
+    value: {
+      type: 'immediate',
+      value: 'lastYear',
+    },
+  }, 
+  {
+    label: '自定义',
+    value: {
+      type: 'calendar',
+      value: 'daterange',
+    },
+  },
 ];
 
 </script>

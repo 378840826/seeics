@@ -36,6 +36,17 @@ export default class func {
     return false;
   }
 
+
+  /**
+   * 返回数据类型
+   * @param data
+   * @returns {string}
+   */
+  static getDataType(data) {
+    const original = Object.prototype.toString.call(data);
+    return original.split(' ').pop().slice(0, -1);
+  }
+
   /**
    * 强转int型
    * @param val
