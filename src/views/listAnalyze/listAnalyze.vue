@@ -19,7 +19,13 @@
         </el-select>
         </el-form-item>
       <!-- </div> -->
-          <avue-tree class="box" ref="tree" :option="treeOption" :data="treeData" @node-click="nodeClick">
+          <avue-tree 
+            class="box" 
+            ref="tree" 
+            :option="treeOption" 
+            :data="treeData" 
+            @node-click="nodeClick"
+          >
             <span class="custom-tree-node" slot-scope="{ node, data }">
               <span :id="data.id">{{ data.title }}</span>
             </span>
@@ -43,7 +49,7 @@
             </el-row>   
             <el-row style="marginTop: 20px">
               <el-form-item v-model="formInline.searchKeyword">
-                <el-col :span="15" class="searchBox">
+                <el-col :span="18" class="searchBox">
                   <el-autocomplete
                     :popper-append-to-body="false"
                     placeholder="输入分类名称，快速定位分类"
@@ -74,21 +80,52 @@
                     width="100"
                     trigger="click"
                     @click.stop="isShowWhole = false"
-                  
+                    @show="globalCheckAll = globalChecked.length ===  4 ? true : false"
                     v-model="popoverVisible">
                     <p>分词：
                       <el-checkbox
                         v-model="globalCheckAll" 
-                        @change="globalHandleCheckAllChange">全选</el-checkbox>
+                        @change="globalHandleCheckAllChange"
+                      >
+                        全选
+                      </el-checkbox>
                     </p>
-                    <el-checkbox-group v-model="globalChecked" @change="globalHandleCheckedCitiesChange">
-                      <el-checkbox v-for="item in keywordNums" :label="item.value" :key="item.label">{{item.label}}</el-checkbox>
+                    <el-checkbox-group 
+                      v-model="globalChecked" 
+                      @change="globalHandleCheckedCitiesChange"
+                    >
+                      <el-checkbox 
+                        v-for="item in keywordNums" 
+                        :label="item.value" 
+                        :key="item.label"
+                      >
+                        {{item.label}}
+                      </el-checkbox>
                     </el-checkbox-group>
                     <div style="text-align: center;">
-                      <el-button size="mini" type="primary" @click="overallBtn" style="height: 24px; margin: 10px; fontSize: 10px; padding: 3px 4px 3px 4px;">全局应用</el-button>
-                      <el-button size="mini" @click="popoverVisible = false"  style="height: 24px; margin: 0; fontSize: 10px; padding: 3px 4px 3px 4px;">取消</el-button>
+                      <el-button 
+                        size="mini" 
+                        type="primary" 
+                        @click="overallBtn" 
+                        class="popoverBtn margin"
+                      >
+                        全局应用
+                      </el-button>
+                      <el-button 
+                        size="mini" 
+                        @click="popoverVisible = false"  
+                        class="popoverBtn"
+                      >
+                        取消
+                      </el-button>
                     </div>
-                    <el-button type="text" slot="reference">词频选项</el-button>
+                    <el-button 
+                      type="text" 
+                      slot="reference"
+                      class="globalSelect"
+                    >
+                      词频选项
+                    </el-button>
                   </el-popover>
                 </el-col>
               </el-form-item>
@@ -111,21 +148,35 @@
                 <div>{{scope}}</div>
               </template> -->
               <template  slot="menu" slot-scope="scope">
-                <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn">
+                <div 
+                  v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" 
+                  class="derivedresultbtn"
+                >
                   <a @click="analyzeDownload(scope.row)">导出分析结果</a>
-                  <span class="analysisaginspan" @click="analysiskeywords(scope.row, scope.row.crawlingCompleteTime)">重新分析</span>
+                  <span 
+                    class="analysisaginspan" 
+                    @click="analysiskeywords(scope.row, scope.row.crawlingCompleteTime)"
+                  >
+                    重新分析
+                  </span>
                   <div>
                     <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
                   </div>
                 </div>
-                <div v-else-if="scope.row.status === 'ANALYZE_FAILED'" class="derivedresultbtn">
+                <div 
+                  v-else-if="scope.row.status === 'ANALYZE_FAILED'" 
+                  class="derivedresultbtn"
+                >
                   <el-button type="info" class="failBtn">分析失败</el-button>
                   <span class="analysisaginspan" @click="analysiskeywords(scope.row)">重试</span>
                   <div>
                     <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
                   </div>
                 </div>
-                <div v-else-if="scope.row.status === 'COMPLETED' && !scope.row.excelUrl" class="derivedresultbtn">
+                <div 
+                  v-else-if="scope.row.status === 'COMPLETED' && !scope.row.excelUrl" 
+                  class="derivedresultbtn"
+                >
                   <el-button type="info" class="failBtn">分析失败</el-button>
                   <span  class="analysisaginspan" @click="analysiskeywords(scope.row)">重试</span>
                   <div>
@@ -133,22 +184,25 @@
                   </div>
                   <div>
                     <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
-                  </div>
-                              
+                  </div>          
                 </div>
                 <div v-else class="derivedresultbtn">
-                  <el-progress :percentage="scope.row.progress*100" :format="format" :text-inside="true" :stroke-width="30"></el-progress>
+                  <el-progress 
+                    :percentage="scope.row.progress*100" 
+                    :format="format" 
+                    :text-inside="true" 
+                    :stroke-width="30"
+                  ></el-progress>
                   <div>
                     <span class="erroecolor">{{scope.row.failurePromptStr}}</span>
                   </div>
                 </div> 
-                <div v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" class="derivedresultbtn" style="marginTop: 5px">
-                  <div  v-if="scope.row.wordFrequencyProgress === null && scope.row.wordFrequencyProgress !== '1.00'">
-                    <a v-if="!scope.row.loading" @click="wordStatistics(scope.row.id)" >生成标题词频 <i :class="scope.row.loading ? 'el-icon-loading' : ''"></i></a>
-                    <a v-else>生成标题词频 <i :class="'el-icon-loading'"></i></a>
-                  </div>
-                  <el-progress v-else-if="scope.row.wordFrequencyProgress !== '1.00'" :percentage="scope.row.wordFrequencyProgress*100" :format="wordFormat" :text-inside="true" :stroke-width="30"></el-progress>
-                  <a v-else @click="wordFrequency(scope.row)">导出标题词频</a>
+                <div 
+                  v-if="scope.row.status === 'COMPLETED' && scope.row.excelUrl" 
+                  class="derivedresultbtn" 
+                  style="marginTop: 5px"
+                >
+                  <a @click="wordFrequency(scope.row)">导出标题词频</a>
                   <el-popover
                     :ref="'popover_'+scope.row.id"
                     placement="bottom"
@@ -166,15 +220,49 @@
                         @change="handleCheckAllChange(!isCheck, scope.row.id)">全选</el-checkbox>
                     </p>
                     
-                    <el-checkbox-group v-model="scope.row.optionStr" @change="handleCheckedCitiesChange" :ref="'check' + scope.row.id">
-                      <el-checkbox v-for="item in keywordNums" :label="item.value" :key="item.label">{{item.label}}</el-checkbox>
+                    <el-checkbox-group 
+                      v-model="scope.row.optionStr" 
+                      @change="handleCheckedCitiesChange" 
+                      :ref="'check' + scope.row.id"
+                    >
+                      <el-checkbox 
+                        v-for="item in keywordNums" 
+                        :label="item.value" 
+                        :key="item.label"
+                      >
+                        {{item.label}}
+                      </el-checkbox>
                     </el-checkbox-group>
-                    <span style="fontSize: 8px; color: red" v-if="checkeds.length < 1">当前选项为空！默认全局选项</span>
+                    <span
+                      style="fontSize: 8px; color: red"
+                      v-if="checkeds.length < 1"
+                    >
+                      当前选项为空！默认全局选项
+                    </span>
                     <div style="text-align: center;">
-                      <el-button size="mini" type="primary" @click="useBtn(scope.row)" class="popoverBtn" style="margin: 10px;">此处应用</el-button>
-                      <el-button size="mini" @click="opent(scope.row.id)" class="popoverBtn">取消</el-button>
+                      <el-button 
+                        size="mini" 
+                        type="primary" 
+                        @click="useBtn(scope.row)" 
+                        class="popoverBtn margin"
+                      >
+                        此处应用
+                      </el-button>
+                      <el-button 
+                        size="mini" 
+                        @click="opent(scope.row.id)" 
+                        class="popoverBtn"
+                      >
+                        取消
+                      </el-button>
                     </div>
-                    <span class="analysisaginspan" type="text" slot="reference" style="margin: 0">修改词频选项</span>
+                    <span 
+                      class="analysisaginspan"
+                      type="text" 
+                      slot="reference" 
+                    >
+                      修改词频选项
+                    </span>
               </el-popover>
                   <!-- <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span> -->
               </div>
@@ -208,7 +296,6 @@ import {
   analyzeSearch,
   analyzePage,
   analyze,
-  keyWordAnalyze,
   download,
   analyzeDownload,
   wordFrequency,
@@ -620,15 +707,6 @@ export default {
       clearTimeout(this.timer);
       this.timer = null;
     },
-    //词频分析
-    wordStatistics(id) {
-      keyWordAnalyze(id).then(res => {
-        this.id = id;
-        if (res.status === 200) {
-          this.getAnalyzeLists();
-        }
-      });
-    },
     //重新分析
     analysiskeywords(row, time){
       //判断次数
@@ -915,7 +993,7 @@ export default {
   }
   .searchBox {
     .autocomplete {
-      width: 55%;
+      width: 45%;
       margin-right: 10px;
     }
     .box2 {
@@ -1008,5 +1086,21 @@ export default {
   }
   .download {
     margin: 0 0px 0 30px;
+  }
+  .globalSelect {
+    margin: 0 0px 0 30px;
+  }
+  .popoverBtn {
+    height: 24px;
+    margin: 0;
+    font-size: 10px;
+    padding: 3px 4px 3px 4px;
+  }
+  .el-checkbox-group {
+    font-size: 0;
+    margin: -10px 0px 0px 47px;
+  }
+  .margin {
+    margin: 10px;
   }
 </style>
