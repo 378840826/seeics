@@ -69,6 +69,27 @@
                     :disabled="disabled"
                     @click="analyze">搜索</el-button>
                     <el-button class="download" size="mini" @click="download">下载可视化模板</el-button>
+                    <el-popover
+                    placement="bottom"
+                    width="100"
+                    trigger="click"
+                    @click.stop="isShowWhole = false"
+                  
+                    v-model="popoverVisible">
+                    <p>分词：
+                      <el-checkbox
+                        v-model="globalCheckAll" 
+                        @change="globalHandleCheckAllChange">全选</el-checkbox>
+                    </p>
+                    <el-checkbox-group v-model="globalChecked" @change="globalHandleCheckedCitiesChange">
+                      <el-checkbox v-for="item in keywordNums" :label="item.value" :key="item.label">{{item.label}}</el-checkbox>
+                    </el-checkbox-group>
+                    <div style="text-align: center;">
+                      <el-button size="mini" type="primary" @click="overallBtn" style="height: 24px; margin: 10px; fontSize: 10px; padding: 3px 4px 3px 4px;">全局应用</el-button>
+                      <el-button size="mini" @click="popoverVisible = false"  style="height: 24px; margin: 0; fontSize: 10px; padding: 3px 4px 3px 4px;">取消</el-button>
+                    </div>
+                    <el-button type="text" slot="reference">词频选项</el-button>
+                  </el-popover>
                 </el-col>
               </el-form-item>
               <div class="warningtext" v-show="visible">没有搜索到相关分类</div>
@@ -128,6 +149,33 @@
                   </div>
                   <el-progress v-else-if="scope.row.wordFrequencyProgress !== '1.00'" :percentage="scope.row.wordFrequencyProgress*100" :format="wordFormat" :text-inside="true" :stroke-width="30"></el-progress>
                   <a v-else @click="wordFrequency(scope.row)">导出标题词频</a>
+                  <el-popover
+                    :ref="'popover_'+scope.row.id"
+                    placement="bottom"
+                    width="100"
+                    :visible-arrow= "false"
+                    trigger="click"
+                    @click.stop="isShowWhole = false"
+                    @show="popoverShow(scope.row.id)"
+                    @hide="popoverHide"
+                    >
+                    <p>分词：
+                      <el-checkbox
+                        :ref="`checkbox${scope.row.id}`"
+                        v-model="checkAll" 
+                        @change="handleCheckAllChange(!isCheck, scope.row.id)">全选</el-checkbox>
+                    </p>
+                    
+                    <el-checkbox-group v-model="scope.row.optionStr" @change="handleCheckedCitiesChange" :ref="'check' + scope.row.id">
+                      <el-checkbox v-for="item in keywordNums" :label="item.value" :key="item.label">{{item.label}}</el-checkbox>
+                    </el-checkbox-group>
+                    <span style="fontSize: 8px; color: red" v-if="checkeds.length < 1">当前选项为空！默认全局选项</span>
+                    <div style="text-align: center;">
+                      <el-button size="mini" type="primary" @click="useBtn(scope.row)" class="popoverBtn" style="margin: 10px;">此处应用</el-button>
+                      <el-button size="mini" @click="opent(scope.row.id)" class="popoverBtn">取消</el-button>
+                    </div>
+                    <span class="analysisaginspan" type="text" slot="reference" style="margin: 0">修改词频选项</span>
+              </el-popover>
                   <!-- <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span> -->
               </div>
               </template>
@@ -155,7 +203,18 @@
 </template>
 
 <script>
-import { analyzeTree, analyzeSearch, analyzePage, analyze, keyWordAnalyze, download, analyzeDownload, wordFrequency } from '@/api/listAnalyze/listAnalyze';
+import { 
+  analyzeTree,
+  analyzeSearch,
+  analyzePage,
+  analyze,
+  keyWordAnalyze,
+  download,
+  analyzeDownload,
+  wordFrequency,
+  overallOption,
+  getGlobalOption 
+} from '@/api/listAnalyze/listAnalyze';
 import { downloadFile } from '@/util/util';
 export default {
   data() {
@@ -324,11 +383,36 @@ export default {
       visible: false,
       disabled: true,
       btnDisabled: false,
+      popoverVisible: false, //词频选项框
+      globalCheckAll: false,
+      checkAll: false,
+      globalChecked: [1],
+      checkeds: [],
+      isIndeterminate: true,
+      keywordNums: [
+        { 
+          value: 1,
+          label: '1个单词' 
+        },
+        {
+          value: 2,
+          label: '2个单词'
+        }, 
+        { 
+          value: 3, 
+          label: '3个单词' 
+        }, 
+        { 
+          value: 4, 
+          label: '4个单词' 
+        }
+      ],
     };
   },
   mounted() {
     const box = document.querySelector('.box');
     box.scrollTo(0, 0);
+    this.getGlobalOption();
   },
   watch: {
     results: {
@@ -365,6 +449,61 @@ export default {
     },
   },
   methods: {
+    //获取全局选项
+    getGlobalOption() {
+      getGlobalOption().then(res => {
+        if (res.data.code === 200) {
+          this.globalChecked = res.data.data;
+        }
+      });
+    },
+    // 全局选项
+    overallBtn() {
+      this.popoverVisible = false;
+      overallOption({ combingRules: this.globalChecked }).then(res => {
+        if (res.data.code === 200) {
+          this.getGlobalOption();
+          this.getkeywordLists();
+        }
+      });
+    },
+    handleCheckAllChange(val, id) {
+      this.isCheck = !this.isCheck;
+      if (this.$refs[`checkbox${id}`].value) {
+        this.$refs[`check${id}`].$children[0].model = [];
+        this.checkeds = [];
+      } else {
+        this.$refs[`check${id}`].$children[0].model = [1, 2, 3, 4];
+        this.checkeds = [1, 2, 3, 4];
+      }
+      this.isIndeterminate = false;
+    },
+    handleCheckedCitiesChange(value) {
+      this.checkeds = value;
+      const checkedCount = value.length;
+      this.checkAll = checkedCount === this.keywordNums.length;
+      this.isIndeterminate = checkedCount > 0 && checkedCount < this.keywordNums.length;
+    },
+    globalHandleCheckAllChange(val) {
+      this.globalChecked = val ? [1, 2, 3, 4] : [];
+      this.isIndeterminate = false;
+    },
+    globalHandleCheckedCitiesChange(value) {
+      const checkedCount = value.length;
+      this.globalCheckAll = checkedCount === this.keywordNums.length;
+      this.isIndeterminate = checkedCount > 0 && checkedCount < this.keywordNums.length;
+    },
+    opent(id) {
+      // this.checkedCities = this.formerChecke;
+      this.$refs[`popover_${id}`].doClose();
+    },
+    useBtn(row) {
+      this.$refs[`popover_${row.id}`].doClose();
+    },
+    popoverShow(id) {
+      this.checkAll = this.$refs[`check${id}`].$children[0].model.length === 4 ? true : false;
+      this.checkeds = this.data.filter(item => item.id === id)[0].optionStr;
+    },
     treeLoad (node, resolve, text) {
       if (node.level === 0) {
         this.parentId = 0;
@@ -423,8 +562,12 @@ export default {
           this.page.currentPage = res.data.data.page.current;
           this.page.pageSize = res.data.data.page.size;
           this.page.total = res.data.data.page.total;
-          //表格数据
-          this.data = res.data.data.page.records;
+          this.data = res.data.data.page.records.map(item => {
+            return {
+              ...item,
+              optionStr: item.optionStr || this.globalChecked
+            };
+          });
           //添加成功，清空关键词
           // this.formInline.searchKeyword = ''; 
         }
@@ -474,9 +617,9 @@ export default {
     },
     //清除定时器
     clearTimer() {
-		  clearTimeout(this.timer);
-	    this.timer = null;
-	  },
+      clearTimeout(this.timer);
+      this.timer = null;
+    },
     //词频分析
     wordStatistics(id) {
       keyWordAnalyze(id).then(res => {
@@ -671,10 +814,31 @@ export default {
     },
     //导出词频
     wordFrequency(row) {
-      wordFrequency(row.id).then(res => {
-        const content = res.data;
-        const fileName = `${this.$t(`${row.searchCountry}_list_frequency_${row.searchKeyword}`) }.xlsx`;
-        downloadFile(content, fileName);
+      const params = [];
+      for (const i of this.data) {
+        if (i.id === row.id) {
+          params.push(i.optionStr);
+        }
+      }
+      wordFrequency({
+        id: row.id,
+        combingRules: this.checkeds.sort((a, b) => b - a).join(',') 
+        || params[0].join(',')
+        || this.globalChecked.join(','),
+        isAsc: false,
+      }).then( res => {
+        if (res.status === 200) {
+          this.getAnalyzeLists();
+          const content = res.data;
+          const fileName = `${this.$t(`${row.searchCountry}_analyze_frequency_${row.searchKeyword}`)}.xlsx`;
+          downloadFile(content, fileName);
+          this.$refs[`popover_${row.id}`].doClose();
+          // setTimeout(() => {
+          this.checkeds = [];
+          // }, 100);
+          
+        }
+        // downloadFile(res.data, row.searchKeyword);
       });
     },
     //导出分析
