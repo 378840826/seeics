@@ -49,7 +49,7 @@
             <el-checkbox v-for="item in keywordNums" :label="item.value" :key="item.label">{{item.label}}</el-checkbox>
           </el-checkbox-group>
           <div style="text-align: center;">
-            <el-button size="mini" type="primary" @click="overallBtn" style="height: 24px; margin: 10px; fontSize: 10px; padding: 3px 4px 3px 4px;">全局应用</el-button>
+            <el-button size="mini" type="primary" @click="overallBtn" style="height: 24px; margin: 10px; fontSize: 10px; padding: 3px 4px 3px 4px;" :disabled="globalChecked.length ? false : true">全局应用</el-button>
             <el-button size="mini" @click="popoverVisible = false"  style="height: 24px; margin: 0; fontSize: 10px; padding: 3px 4px 3px 4px;">取消</el-button>
           </div>
           <el-button type="text" slot="reference">词频选项</el-button>
@@ -168,7 +168,7 @@
               </el-checkbox-group>
               <span style="fontSize: 8px; color: red" v-if="checkeds.length < 1">当前选项为空！默认全局选项</span>
               <div style="text-align: center;">
-                <el-button size="mini" type="primary" @click="useBtn(scope.row)" class="popoverBtn" style="margin: 10px;">此处应用</el-button>
+                <el-button size="mini" type="primary" @click="useBtn(scope.row)" class="popoverBtn" style="margin: 10px;" :disabled="checkeds.length < 1 ? true : false">此处应用</el-button>
                 <el-button size="mini" @click="opent(scope.row.id)" class="popoverBtn">取消</el-button>
               </div>
               <span class="analysisaginspan" type="text" slot="reference" style="margin: 0">修改词频选项</span>

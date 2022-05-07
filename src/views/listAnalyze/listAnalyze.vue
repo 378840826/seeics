@@ -108,6 +108,7 @@
                         type="primary" 
                         @click="overallBtn" 
                         class="popoverBtn margin"
+                        :disabled="globalChecked.length ? false : true"
                       >
                         全局应用
                       </el-button>
@@ -245,6 +246,7 @@
                         type="primary" 
                         @click="useBtn(scope.row)" 
                         class="popoverBtn margin"
+                        :disabled="checkeds.length < 1 ? true : false"
                       >
                         此处应用
                       </el-button>
@@ -560,7 +562,7 @@ export default {
       overallOption({ combingRules: this.globalChecked }).then(res => {
         if (res.data.code === 200) {
           this.getGlobalOption();
-          this.getkeywordLists();
+          this.getAnalyzeLists();
         }
       });
     },
