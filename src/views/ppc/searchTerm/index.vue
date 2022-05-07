@@ -361,7 +361,7 @@ const tableOption = {
   column: [
     {
       label: '更新时间',
-      prop: 'modifyTime',
+      prop: 'searchTime',
       width: 160,
     }, {
       label: '店铺站点',
