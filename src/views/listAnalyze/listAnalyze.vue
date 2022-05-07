@@ -355,6 +355,7 @@ export default {
           this.analyzeData.url = '';
           this.analyzeData.fullName = '';
           this.analyzeData.searchKeyword = '';
+          this.treeOption.defaultExpandedKeys = [];
         } else if (val === 'Any Department') {
           this.disabled = true;
         } else if (val !== this.analyzeData.searchKeyword) {
@@ -365,12 +366,13 @@ export default {
     },
     'formInline.searchCountry': {
       handler() {
+        this.formInline.searchKeyword = '';
         this.nodehad.childNodes = []; //把存起来的node的子节点清空，不然会界面会出现重复树！
         this.treeLoad(this.nodehad, this.resolvehad);
         this.getAnalyzeLists();
-      }
+      },
+      deep: true,
     },
-    deep: true,
   },
   methods: {
     treeLoad (node, resolve, text) {
@@ -614,6 +616,8 @@ export default {
         });
         
         // this.restaurants = [];
+      } else {
+        cb([]);
       }
     },
     handleSelect(val) {
