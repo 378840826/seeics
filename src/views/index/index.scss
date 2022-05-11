@@ -3,7 +3,7 @@
 }
 
 .top-container {
-  min-width: 1366px;
+  min-width: 1220px;
   min-height: 545px;
   background: #070A11;
   display: flex;
@@ -11,7 +11,7 @@
 }
 
 .top-center {
-  width: 1366px;
+  width: 1220px;
   display: flex;
 
   .left-text {
@@ -42,11 +42,11 @@
 }
 
 .center-container {
-  min-width: 1366px;
+  min-width: 1220px;
 }
 
 .center-center {
-  width: 100%;
+  width: 1220px;
   margin-top: 40px;
 
   ::v-deep {
@@ -92,6 +92,15 @@
 
 //功能说明
 .functionalSpecifications {
+  img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .rightimg {
+    width: 840px;
+  }
+
   .functionaltitle {
     text-align: center;
     font-size: 32px;
@@ -111,25 +120,27 @@
   .adtitle {
     font-size: 24px;
     //font-family: Microsoft YaHei;
-    font-weight: bold;
+    //font-weight: bold;
     color: #1A1A1A;
     //line-height: 70px;
-    margin-top: 150px;
-    margin-bottom: 30px;
+    margin-top: 54px;
+    margin-bottom: 33px;
   }
+
   .adsubtitle {
     font-size: 16px;
     color: #555;
     height: 44px;
     line-height: 44px;
   }
+
   .el-button {
     font-size: 16px;
-    margin-top: 24px;
+    margin-top: 100px;
   }
 
   .faq {
-    min-width: 1366px;
+    min-width: 1220px;
    
     .faqtitle {
       width: 100%;
@@ -167,7 +178,7 @@
   }
 
   .footerindex {
-    min-width: 1366px;
+    min-width: 1220px;
     padding: 30px 0;
     font-size: 14px;
     color: #666666;
@@ -196,14 +207,17 @@
     }
 
     .el-tabs__item {
-      width: 300px;
+      text-align: center;
+      width: 305px;
       font-size: 18px;
       color: #666666;
+      padding:0;
+      margin: 0;
     }
 
     .el-tabs__active-bar {
       width: 80px !important;
-      margin: 0 -3px;
+      margin: 0 113px;
     }
   }
 }

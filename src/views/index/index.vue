@@ -55,7 +55,9 @@
                   <el-button type="primary" @click="tokeywordindex">立即免费体验</el-button>
                 </div>  
               </div>
-                <img src="/img/indexmarketsales.png">              
+              <div class="rightimg">
+                <img src="/img/indexmarketsales.png">
+              </div>                        
             </div>        
           </el-tab-pane>
           <el-tab-pane label="ASIN动态" name="second">
@@ -69,7 +71,10 @@
                   <el-button type="primary" @click="tokeywordindex">立即免费体验</el-button>
                 </div>  
               </div>
-                <img src="/img/indexasin.png">              
+              <div class="rightimg">
+                <img src="/img/indexasin.png">
+              </div>
+                              
             </div>      
           </el-tab-pane>
           <el-tab-pane label="智能调价" name="third">
@@ -83,7 +88,9 @@
                   <el-button type="primary" @click="tokeywordindex">立即免费体验</el-button>
                 </div>  
               </div>
-                <img src="/img/indexsmartprice.png">              
+              <div class="rightimg">
+                <img src="/img/indexsmartprice.png">            
+              </div>                          
             </div>      
           </el-tab-pane>
           <el-tab-pane label="智能广告" name="fourth">
@@ -97,7 +104,9 @@
                   <el-button type="primary" @click="tokeywordindex">立即免费体验</el-button>
                 </div>  
               </div>
-                <img src="/img/intelligentad.png">              
+              <div class="rightimg">
+                <img src="/img/intelligentad.png">            
+              </div>                          
             </div>
           </el-tab-pane>
         </el-tabs>
