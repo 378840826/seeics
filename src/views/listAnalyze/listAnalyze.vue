@@ -315,6 +315,11 @@ export default {
           disabled: false,
         },
         {
+          value: 'DE',
+          label: '德国',
+          // disabled: true,
+        },
+        {
           value: 2,
           label: '加拿大',
           disabled: true,
@@ -339,11 +344,6 @@ export default {
           label: '西班牙',
           disabled: true,
         },
-        {
-          value: 'DE',
-          label: '德国',
-          // disabled: true,
-        }
       ],
       formInline: {
         searchCountry: 'US',
