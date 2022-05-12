@@ -12,7 +12,7 @@
     <div class="form-container">
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="店铺名称" prop="storeName">
-          <el-input clearable v-model="form.storeName" placeholder="用于卖家区分各店铺" />
+          <el-input clearable v-model="form.storeName" placeholder="用于卖家区分各店铺，店铺名称长度1-20字" />
         </el-form-item>
         <el-form-item label="地区站点" prop="marketplaces">
           <el-select

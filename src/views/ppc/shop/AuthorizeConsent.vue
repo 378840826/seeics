@@ -64,7 +64,7 @@ export default {
         raw: query,
       }).then(res => {
         this.success = true;
-        this.msg = `${res.data.msg || '绑定成功'}。请给店铺进行广告授权`;
+        this.msg = `${res.data.data || '绑定成功'}。请给店铺进行广告授权`;
       }, err => {
         console.error('添加绑定店铺失败: ', err);
         this.msg = '绑定店铺失败! 请稍后重试';
