@@ -1,13 +1,12 @@
 <template>
-  <div class="filterBox" :style="{width: screenWidth/2 + 'px'}">
+  <div class="filterBox" style="width: 100%">
     <el-card class="box-card" shadow="never" >
       <div slot="header" class="clearfix">
-          <span style="fontSize: 14px; fontWeight: 600; marginRight: 30px">子规则1</span>
+        <span style="fontSize: 14px; fontWeight: 600; marginRight: 30px">子规则1</span>
         <span style="fontSize: 12px;">规则内指标之间关系为且</span>
-        
-        <!-- <el-button style="float: right; padding: 3px 0" type="text" @click="remove">操作按钮</el-button> -->
       </div>
       <div>
+          <div>过去<el-select class="condition"/>天的<el-select class="condition"/></div>
           <el-row v-for="formInline in formInline" :key="formInline" class="row">
               <el-col class="col">
               <el-select v-model="formInline.label" @change="labelSelect(formInline.id, formInline.label)">
@@ -24,7 +23,6 @@
               <span v-if="formInline.condition == '≥且<'" class="span">
                   <el-input v-model="formInline.minVal" min="1" type="number" placeholder="min"/>
                   <el-input v-model="formInline.maxVal" min="1" type="number" placeholder="max" style="marginRight: 0"/>
-                  
               </span>
               <span v-else-if="formInline.condition === '环比'" style="marginRight: 0">
                 <el-select v-model="formInline.chain">
@@ -38,8 +36,12 @@
                 <span v-if="formInline.vlaueType === '百分比'">%</span>
                 <span class="span"><el-input type="number" style="marginRight: 0"/></span>
               </span>
-              <span v-else class="span"><el-input v-model="formInline.value" min="1" type="number" style="marginRight: 0"/></span>
-              <div class="icon"><i class="el-icon-error" @click="deleteBtn(formInline.id)"></i></div>
+              <span v-else class="span">
+                <el-input v-model="formInline.value" min="1" type="number" style="marginRight: 0"/>
+              </span>
+              <div class="icon">
+                <i class="el-icon-error" @click="deleteBtn(formInline.id)"></i>
+              </div>
               <el-button
                 v-if="formInline.btn" 
                 type="text" 
@@ -57,7 +59,12 @@
         <div slot="header" class="clearfix">
             <span style="fontSize: 14px; fontWeight: 600; marginRight: 30px">子规则{{item.key + 1}}</span>
           <span style="fontSize: 12px;">规则内指标之间关系为且</span>
-          <el-button style="float: right; padding: 0 0" type="danger" @click="remove(item.key)" icon="el-icon-close"></el-button>
+          <el-button 
+            style="float: right; padding: 0 0" 
+            type="danger" 
+            @click="remove(item.key)" 
+            icon="el-icon-close"
+          ></el-button>
         </div>
         <el-row v-for="formInline in item.formInline" :key="formInline" class="row">
                 <el-col class="col">
@@ -69,7 +76,11 @@
                     :disabled="item.disabled"
                   ></el-option>
                 </el-select>
-                <el-select v-model="formInline.condition" class="condition" @change="sonSleect(formInline.condition, formInline.id)">
+                <el-select 
+                  v-model="formInline.condition" 
+                  class="condition" 
+                  @change="sonSleect(formInline.condition, formInline.id)"
+                >
                   <el-option v-for="item in condition" :key="item.label" :label="item.label" :value="item.value"/>
                 </el-select>
                 <span v-if="formInline.condition === '≥且<'" class="span">
@@ -88,8 +99,12 @@
                   <span v-if="formInline.vlaueType === '百分比'">%</span>
                   <span class="span"><el-input  min="1" type="number" style="marginRight: 0"/></span>
                 </span>
-                <span v-else class="span"><el-input v-model="formInline.value"  min="1" type="number" style="marginRight: 0"/></span>
-                <div class="icon"><i class="el-icon-error" @click="deleteBtn(formInline.id, item.id)"></i></div>
+                <span v-else class="span">
+                  <el-input v-model="formInline.value"  min="1" type="number" style="marginRight: 0"/>
+                </span>
+                <div class="icon">
+                  <i class="el-icon-error" @click="deleteBtn(formInline.id, item.id)"></i>
+                </div>
                 <el-button
                   v-if="formInline.btn" 
                   type="text" 
@@ -112,7 +127,7 @@
 </template>
 
 <script>
-import { filterField, emptySelect, resetValue, addFiled, integer} from './util';
+import { filterField, emptySelect, resetValue, addFiled, integer } from './util';
 import { fields } from './filed';
 export default {
   name: 'globalFilter',
