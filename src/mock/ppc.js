@@ -22,10 +22,13 @@ export default ({ mock }) => {
         'timezone': 'America/Los_Angeles',
         'currency': '￥',
         'tokenInvalid': false,
+        'dataSync': false,
         'email': 'Ktxy6u6tmXwf@lindafeng.com',
         'bindAdStore': true,
         'adStoreId': '1434823005936205825',
         'createTime': '2021-02-02 02:02:02',
+        // 'refreshExpiresIn': '2022-02-02 10:02:02',
+        'refreshExpiresIn': '2022-05-12 10:02:02',
       }, {
         'id': '2',
         'userId': '1341696907904458754',
@@ -36,10 +39,12 @@ export default ({ mock }) => {
         'timezone': 'America/Los_Angeles',
         'currency': '￥',
         'tokenInvalid': true,
+        'dataSync': true,
         'email': 'Ktxy6u6tmXwf@lindafeng.com',
         'bindAdStore': true,
         'adStoreId': '1434823005936205825',
         'createTime': '2021-05-02 02:02:02',
+        'refreshExpiresIn': '2022-05-02 02:02:02',
       }, {
         'id': '3',
         'userId': '1341696907904458754',
@@ -50,16 +55,23 @@ export default ({ mock }) => {
         'timezone': 'America/Los_Angeles',
         'currency': '$',
         'tokenInvalid': true,
+        'dataSync': true,
         'email': 'Ktxy6u6tmXwf@lindafeng.com',
         'bindAdStore': false,
         'adStoreId': '1434823005936205826',
         'createTime': '2022-02-02 02:02:02',
+        'refreshExpiresIn': '2023-02-02 02:02:02',
       }
     ]
   });
 
   // 修改店铺名称
   Mock.mock('/api/seeics-mws/store/modify/name', 'post', {
+    msg: '修改成功',
+  });
+
+  // 修改店铺同步开关
+  Mock.mock('/api/seeics-mws/seeics-mws/store/modify/dataSync', 'post', {
     msg: '修改成功',
   });
 

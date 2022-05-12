@@ -48,7 +48,6 @@ export default {
   methods: {
     bind() {
       const query = this.$route.query;
-      console.log('query:', query);
       if (!query.spapi_oauth_code) {
         this.loading = false;
         this.msg = '没有授权数据!';

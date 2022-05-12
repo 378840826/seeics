@@ -6,7 +6,8 @@
         <span class="warn">防止店铺关联</span>，请在
         <span class="warn">常用环境</span>下操作
       </div>
-      <div>2. 授权成功后，您可以在其他任何地⽅登录系统查看店铺数据</div>
+      <div>2. 授权后，将会授权整个区域内所有国家的店铺（如果在亚马逊后台有开通店铺），这是亚马逊的同步机制决定的</div>
+      <div>3. 授权成功后，您可以在其他任何地⽅登录系统查看店铺数据</div>
     </div>
     <div class="form-container">
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
@@ -80,11 +81,6 @@ export default {
     },
   },
 
-  // mounted() {
-  //   console.log('this', this.shopData);
-  //   console.log('marketplacesRegion', marketplacesRegion);
-  // },
-
   data() {
     return {
       marketplacesOptions,
@@ -132,7 +128,9 @@ export default {
 
     // 去授权按钮是否禁用
     isDisabledBindBtn() {
-      return !this.form.storeName.trim() || !this.form.marketplaces.length;
+      return !this.form.storeName.trim() 
+          || this.form.storeName.trim().length > 20 
+          || !this.form.marketplaces.length;
     },
   },
 
@@ -181,7 +179,6 @@ export default {
           marketplaces: this.form.marketplaces,
         },
       );
-      console.log('url', url);
       window.open(url);
     },
 

@@ -24,7 +24,6 @@ export const unbind = data => {
 };
 
 export const updateName = data => {
-  console.log('updateName', data);
   return request({
     url: '/api/seeics-mws/store/modify/name',
     method: 'post',
@@ -47,3 +46,13 @@ export const cancelAuthorize = data => {
     data,
   });
 };
+
+// 改变同步开关
+export const changeSync = data => {
+  return request({
+    url: '/api/seeics-mws/seeics-mws/store/modify/dataSync',
+    method: 'post',
+    data,
+  });
+};
+
