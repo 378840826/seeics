@@ -152,13 +152,15 @@ export default ({ mock }) => {
 
   // 加载偏好
   Mock.mock('/api/seeics-analysis/searchTerm/queryPreference', 'get', {
-    deliveryStatus: '1',
-    salesVolumeMin: '1000',
-    conversionMin: '10',
-    conversionMax: '20',
-    clicksMin: '12',
-    clicksMax: '234324',
-    abaMax: '123',
+    data: {
+      deliveryStatus: '1',
+      salesVolumeMin: '1000',
+      conversionMin: '10',
+      conversionMax: '20',
+      clicksMin: '12',
+      clicksMax: '234324',
+      abaMax: '123',
+    },
   });
 
   // 保存偏好
@@ -167,53 +169,68 @@ export default ({ mock }) => {
   });
 
   // 获取 st 列表
-  Mock.mock('/api/seeics-analysis/searchTerm/list', 'get', {
-    total: 100,
-    current: 2,
-    size: 20,
-    reportUpdateTime: '2022-02-02 02:02:02',
-    records: [
-      {
-        id: '1',
-        modifyTime: '2022-02-02 22:22:22',
-        marketplaceVoList: [
-          { storeName: '店铺1', marketplace: 'US' },
-          { storeName: '店铺2', marketplace: 'DE' },
+  Mock.mock('/api/seeics-analysis/searchTerm/list', 'post', {
+    data: {
+      page: {
+        total: 100,
+        current: 2,
+        size: 20,
+        reportUpdateTime: '2022-02-02 02:02:02',
+        records: [
+          {
+            id: '1',
+            modifyTime: '2022-02-02 22:22:22',
+            marketplaceVoList: [
+              { storeName: '店铺1', marketplace: 'US' },
+              { storeName: '店铺2', marketplace: 'DE' },
+            ],
+            filterConditionVo: {
+              launchKeyword: '投放词-1',
+              searchKeyword: '搜索词-1',
+              asinMskuKeyword: 'B000000000 B000000000 B000000000 B000000000 B000000000',
+              deliveryStatus: '1',
+              cycleType: 30,
+              abaMin: 10,
+              abaMax: 20,
+              conversionMin: 30,
+              campaignNameList: ['广告活动-1', '广告活动-2', '广告活动-3广告活动-3广告活动-3广告活动-3广告活动-3', '广告活动-4'],
+              groupNameList: ['广告组-1', '广告组-2', '广告组-3', '广告组-4'],
+            },
+          }, {
+            id: '2',
+            modifyTime: '2022-02-02 22:22:22',
+            marketplaceVoList: [
+              { storeName: '店铺1', marketplace: 'US' },
+            ],
+            filterConditionVo: {
+              launchKeyword: '投放词-2',
+              searchKeyword: '搜索词-2',
+              asinMskuKeyword: 'B000000000',
+              deliveryStatus: '0',
+              cycleType: 7,
+              abaMax: 20,
+              conversionMin: 30,
+              groupNameList: ['广告组-1'],
+            },
+          },
         ],
-        filterConditionVo: {
-          launchKeyword: '投放词-1',
-          searchKeyword: '搜索词-1',
-          asinMskuKeyword: 'B000000000 B000000000 B000000000 B000000000 B000000000',
-          deliveryStatus: '1',
-          cycleType: 30,
-          abaMin: 10,
-          abaMax: 20,
-          conversionMin: 30,
-          campaignNameList: ['广告活动-1', '广告活动-2', '广告活动-3广告活动-3广告活动-3广告活动-3广告活动-3', '广告活动-4'],
-          groupNameList: ['广告组-1', '广告组-2', '广告组-3', '广告组-4'],
-        },
-      }, {
-        id: '2',
-        modifyTime: '2022-02-02 22:22:22',
-        marketplaceVoList: [
-          { storeName: '店铺1', marketplace: 'US' },
-        ],
-        filterConditionVo: {
-          launchKeyword: '投放词-2',
-          searchKeyword: '搜索词-2',
-          asinMskuKeyword: 'B000000000',
-          deliveryStatus: '0',
-          cycleType: 7,
-          abaMax: 20,
-          conversionMin: 30,
-          groupNameList: ['广告组-1'],
-        },
       },
-    ],
+    },
   });
 
   // 确定筛选
   Mock.mock('/api/seeics-analysis/searchTerm/search', 'post', {
+    data: { searchSuccess: true },
     msg: '筛选成功',
+  });
+
+  // 筛选记录结果中的搜索词
+  Mock.mock('/api/seeics-analysis/searchTerm/querySearchKeywordListFromSearchTerm', 'get', {
+    data: ['搜索词1', '搜索词2', '搜索词3'],
+  });
+
+  // 生成 ASIN关键词排名
+  Mock.mock('/api/seeics-analysis/keyword-ranking/jump', 'post', {
+    msg: '成功',
   });
 };
