@@ -11,6 +11,8 @@ const shop = {
 
   mutations: {
     saveList(state, list) {
+      // 按店铺名称排序
+      list.sort((a, b) => a.storeName.localeCompare(b.storeName));
       state.list = list;
     },
 

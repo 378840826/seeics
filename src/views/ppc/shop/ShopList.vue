@@ -385,22 +385,32 @@ export default {
       this.editShopData = {};
     },
 
-    handleClickSync(row, sync) {
-      this.$confirm('确定暂停同步？', {
-        type: 'warning',
-        callback: action => {
-          if (action !== 'confirm') {
-            return;
-          }
-          this.tableLoading = true;
-          const _this = this;
-          this.$store.dispatch('setSyncSwitch', { ...row, dataSync: sync }).then(r => {
-            this.$message.success(r.data.msg || '操作成功');
-          }).finally(() => {
-            _this.tableLoading = false;
-          });
-        }
+    // 开启/关闭 店铺同步开关
+    setSync(row) {
+      this.tableLoading = true;
+      const _this = this;
+      this.$store.dispatch('setSyncSwitch', row).then(r => {
+        this.$message.success(r.data.msg || '操作成功');
+      }).finally(() => {
+        _this.tableLoading = false;
       });
+    },
+
+    // 点击同步开关
+    handleClickSync(row, sync) {
+      if (sync === false) {
+        this.$confirm('确定暂停同步？', {
+          type: 'warning',
+          callback: action => {
+            if (action !== 'confirm') {
+              return;
+            }
+            this.setSync({ ...row, dataSync: sync });
+          }
+        });
+      } else {
+        this.setSync({ ...row, dataSync: sync });
+      }
     },
   },
 };
