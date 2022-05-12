@@ -529,7 +529,9 @@ export default {
           this.analyzeData.fullName = '';
           this.analyzeData.searchKeyword = '';
           this.treeOption.defaultExpandedKeys = [];
-        } else if (val === 'Any Department' || val === 'Alle Kategorien') {
+        } else if (val === 'Any Department') {
+          this.disabled = true;
+        } else if (val === 'Alle Kategorien') {
           this.disabled = true;
         } else if (val !== this.analyzeData.searchKeyword) {
           this.disabled = true;
@@ -793,7 +795,7 @@ export default {
       }
     },
     nodeClick(node) {
-      if (node.title !== 'Any Department' || 'Alle Kategorien') {
+      if (node.title !== 'Any Department' && node.title !== 'Alle Kategorien') {
         this.formInline.searchKeyword = node.title;
         this.analyzeData.url = node.url;
         this.analyzeData.fullName = node.fullName;
@@ -819,7 +821,9 @@ export default {
           ...this.formInline,
           searchKeyword: queryString
         }).then( res => {
-          if (res.data.data.length > 0 && res.data.data[0].fullName !== 'Any Department' || 'Alle Kategorien') {
+          if (res.data.data.length > 0 
+              && res.data.data[0].fullName !== 'Any Department' 
+              && res.data.data[0].fullName !== 'Alle Kategorien') {
             this.visible = false;
             // this.disabled = true;
             this.restaurants = res.data.data.map( itme => {
