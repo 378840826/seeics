@@ -1,4 +1,10 @@
 import { validatenull } from './validate';
+
+// log
+export const log = function () {
+  console.log.apply(console, JSON.parse(JSON.stringify([...arguments])));
+};
+
 //表单序列化
 export const serialize = data => {
   const list = [];

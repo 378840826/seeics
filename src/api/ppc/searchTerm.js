@@ -67,3 +67,21 @@ export const downloadReport = id => {
     responseType: 'blob',
   });
 };
+
+// 查询一条筛选记录结果中的搜索词
+export const querySearchKeyword = params => {
+  return request({
+    url: '/api/seeics-analysis/searchTerm/querySearchKeywordListFromSearchTerm',
+    method: 'get',
+    params,
+  });
+};
+
+// 生成 ASIN关键词排名
+export const createAsinKeyworkRanking = data => {
+  return request({
+    url: '/api/seeics-analysis/keyword-ranking/jump',
+    method: 'post',
+    data,
+  });
+};
