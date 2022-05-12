@@ -2,7 +2,7 @@
  * 绑定的店铺列表
  */
 import Vue from 'vue';
-import { getList, updateName, unbind, cancelAuthorize, bind, authorize } from '@/api/ppc/shop';
+import { getList, updateName, unbind, cancelAuthorize, bind, authorize, changeSync } from '@/api/ppc/shop';
 
 const shop = {
   state: {
@@ -102,6 +102,21 @@ const shop = {
       });
     },
 
+    // 改变同步开关
+    setSyncSwitch({ commit }, payload) {
+      return new Promise((resolve, reject) => {
+        const params = {
+          storeId: payload.id,
+          dataSync: payload.dataSync,
+        };
+        changeSync(params).then(r => {
+          commit('updateList', { ...payload });
+          resolve(r);
+        }).catch(error => {
+          reject(error);
+        });
+      });
+    },
   },
 };
 
