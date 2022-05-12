@@ -302,19 +302,12 @@
             icon="el-icon-download"
             @click="handleDownload(row.id)"
           >导出结果</el-button>
-          <!-- <el-button
-            v-if="row.filterConditionVo.asinMskuKeyword"
+          <el-button
             type="primary"
             class="btn-result"
             :size="size"
+            @click="handleClickKwRanking(row)"
           >关键词排名</el-button>
-           <el-button
-            v-else
-            type="info"
-            disabled
-            class="btn-disabled"
-            :size="size"
-          >关键词排名</el-button> -->
         </div>
       </template>
       
@@ -331,10 +324,13 @@ import {
   querySearchTerm,
   queryGroupKeywordList,
   downloadReport,
+  querySearchKeyword,
+  createAsinKeyworkRanking,
 } from '@/api/ppc/searchTerm';
 import RangeInput from './components/RangeInput';
 import DateRangePicker from './components/DateRangePicker';
 import { strToMoneyStr, strTo4Str } from '@/util/numberString';
+// import { log } from '@/util/util';
 import {
   changeFilterType,
   getFilterConditionVoShow,
@@ -848,6 +844,37 @@ export default {
         .catch(err => {
           console.error('导出发生错误:', err);
         });
+    },
+
+    // 点击关键词排名
+    handleClickKwRanking(row) {
+      // 查询筛选结果中是否有搜索词，如果没有则不允许跳转
+      if (!row.filterConditionVo.asinMskuKeyword) {
+        this.$message.error('筛选条件中没有ASIN');
+        return;
+      }
+      const {
+        id,
+        marketplaceVoList,
+        filterConditionVo: { asinMskuKeyword },
+      } = row;
+      querySearchKeyword({ recordId: id }).then(res => {
+        const list = res.data.data;
+        if (!list || list.length === 0) {
+          this.$message.error('筛选结果中没有搜索词');
+          return;
+        }
+        const params = {
+          searchCountry: marketplaceVoList[0].marketplace,
+          storeName: marketplaceVoList[0].storeName,
+          asinList: asinMskuKeyword.split('\n'),
+          searchKeywordList: list,
+        };
+        createAsinKeyworkRanking(params).then(() => {
+          this.$message.success('添加ASIN关键词排名成功');
+          this.$router.push('/keywordRanking/index');
+        });
+      });
     },
   },
 
