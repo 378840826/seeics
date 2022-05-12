@@ -16,14 +16,14 @@
         >添加店铺</el-button>
       </template>
 
-      <template slot="tokenInvalid" slot-scope="{ row }">
-        <span v-if="row.tokenInvalid"  class="error">暂停同步</span>
+      <template slot="dataSync" slot-scope="{ row }">
+        <span v-if="!row.dataSync"  class="error">暂停同步</span>
         <span v-else>正常同步</span>
       </template>
 
       <template slot="createTime" slot-scope="{ row }">
         <div>{{ row.createTime}}</div>
-        <span v-if="row.validityDays <= 0" class="error">
+        <span v-if="row.validityDays < 0" class="error">
           <i class="el-icon-error" />
           授权已过期，请更新授权(编辑-更新授权)
         </span>
@@ -31,7 +31,6 @@
           <i class="el-icon-warning" />
           {{ row.validityDays }}天后过期，请及时更新授权
         </span>
-
       </template>
 
       <template slot="bindAdStore" slot-scope="{ row }">
@@ -50,23 +49,43 @@
       </template>
 
       <template slot-scope="{row,index}" slot="menu">
-        <el-button
-          type="primary"
-          icon="el-icon-edit"
-          size="small"
-          plain
-          @click="handleClickEditBtn(row, index)"
-        >
-          编辑
-        </el-button>
-        <el-button type="danger"
-          icon="el-icon-delete"
-          size="small"
-          plain
-          @click.stop="handelDelte(row)"
-        >
-          解绑
-        </el-button>
+        <div class="table-menu">
+          <el-button
+            v-if="row.dataSync"
+            type="danger"
+            size="small"
+            plain
+            @click="handleClickSync(row, !row.dataSync)"
+          >
+            暂停同步
+          </el-button>
+          <el-button
+            v-else
+            type="primary"
+            size="small"
+            plain
+            @click="handleClickSync(row, !row.dataSync)"
+          >
+            同步
+          </el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-edit"
+            size="small"
+            plain
+            @click="handleClickEditBtn(row, index)"
+          >
+            编辑
+          </el-button>
+          <el-button type="danger"
+            icon="el-icon-delete"
+            size="small"
+            plain
+            @click.stop="handelDelte(row)"
+          >
+            解绑
+          </el-button>
+        </div>
       </template>
     </avue-crud>
 
@@ -148,6 +167,7 @@ const tableOption = {
   refreshBtn: false,
   columnBtn: false,
   height: 'calc(100vh - 200px)',
+  menuWidth: 300,
   column: [
     {
       label: '站点',
@@ -174,27 +194,9 @@ const tableOption = {
       prop: 'sellerId',
       disabled: true,
       editDisplay: false,
-    },
-    // {
-    //   label: 'MWS Auth Token',
-    //   prop: 'token',
-    //   rules: [{
-    //     validator: (_, value, callback) => {
-    //       const token = value.replace(/(^\s*)|(\s*$)/g, '');
-    //       if (token === '') {
-    //         callback(new Error('请输入MWS Auth Token'));
-    //       } else if (token.length > 100) {
-    //         callback(new Error('MWS Auth Token最多100个字符'));
-    //       } else {
-    //         callback();
-    //       }
-    //     },
-    //     trigger: 'blur',
-    //   }],
-    // },
-    {
+    }, {
       label: '店铺状态',
-      prop: 'tokenInvalid',
+      prop: 'dataSync',
       align: 'center',
       disabled: true,
       editDisplay: false,
@@ -255,13 +257,20 @@ export default {
 
   computed: {
     list() {
-      // 计算过期时间
+      // 计算店铺授权到期天数
       const list = this.$store.state.shop.list;
       list.forEach(shop => {
-        if (shop.createTime) {
-          const createTime = shop.createTime ? dayjs(shop.createTime) : null;
+        if (shop.refreshExpiresIn) {
+          const refreshExpiresIn = shop.refreshExpiresIn ? dayjs(shop.refreshExpiresIn) : null;
+          const expires = dayjs(refreshExpiresIn);
           const nowDate = dayjs();
-          const validityDays = dayjs(createTime).add(1, 'year').diff(nowDate, 'day');
+          // 距离到期的天数
+          let validityDays = expires.diff(nowDate, 'day');
+          // 如个是今天到期，判断是否已经到期
+          if (validityDays === 0 && expires.isBefore(nowDate)) {
+            // 如果已经到期，设到期天数为 -1
+            validityDays = validityDays - 1;
+          }
           shop.validityDays = validityDays;
         }
       });
@@ -301,7 +310,6 @@ export default {
       window.amazon.Login.setRegion(window.amazon.Login.Region[region]);
       // 跳转登录亚马逊
       window.amazon.Login.authorize(options, (response) => {
-        console.log('广告授权 response', response);
         if (response.error) {
           alert(`oauth error: ${response.error}`);
           return;
@@ -376,6 +384,24 @@ export default {
       this.bindShopVisible = false;
       this.editShopData = {};
     },
+
+    handleClickSync(row, sync) {
+      this.$confirm('确定暂停同步？', {
+        type: 'warning',
+        callback: action => {
+          if (action !== 'confirm') {
+            return;
+          }
+          this.tableLoading = true;
+          const _this = this;
+          this.$store.dispatch('setSyncSwitch', { ...row, dataSync: sync }).then(r => {
+            this.$message.success(r.data.msg || '操作成功');
+          }).finally(() => {
+            _this.tableLoading = false;
+          });
+        }
+      });
+    },
   },
 };
 </script>
@@ -410,4 +436,10 @@ export default {
 .checked_ip {
   margin-top: 10px;
 }
+
+.table-menu {
+  display: flex;
+  justify-content: center;
+}
+
 </style>
