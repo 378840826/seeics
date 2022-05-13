@@ -33,40 +33,70 @@
           :size="size"
         >
           <el-option
-            v-for="item in shopList"
+            v-for="item in effectiveShopList"
             :key="item.id"
             :label="`${item.marketplace}-${item.storeName}`"
             :value="item.id"
           />
         </el-select>
-        <!-- 广告活动:  -->
-        <avue-select
+
+        <!-- 广告活动 -->
+        <el-select
           v-model="form.campaginIds"
-          :dic="campaignList"
-          :size="size"
-          all
-          multiple
-          filterable
-          clearable
-          tags
           placeholder="请选择广告活动"
-          :no-data-text="noDataText"
-          class="avue-select seeics-avue-select"
-        />
-        <!-- 广告组:  -->
-        <avue-select
-          v-model="form.groupIds"
-          :dic="groupList"
-          :size="size"
-          all
-          multiple
           filterable
+          multiple
           clearable
           tags
-          placeholder="请选择广告组"
+          collapse-tags
           :no-data-text="noDataText"
-          class="avue-select seeics-avue-select"
-        />
+          :size="size"
+          class="select"
+          popper-class="seeics-st-select"
+          @clear="handleClearCamSelect"
+        >
+          <div class="seeics-st-check_all">
+            <el-checkbox
+              v-model="campaignCheckedAll"
+              @change="handleCamCheckAllChange"
+            >全选</el-checkbox>
+          </div>
+          <el-option
+            v-for="item in campaignList"
+            :key="item.campaignId"
+            :label="item.name"
+            :value="item.campaignId"
+          />
+        </el-select>
+
+        <!-- 广告组 -->
+        <el-select
+          v-model="form.groupIds"
+          placeholder="请选择广告组"
+          filterable
+          multiple
+          clearable
+          tags
+          collapse-tags
+          :no-data-text="noDataText"
+          :size="size"
+          class="select"
+          popper-class="seeics-st-select"
+          @clear="handleClearGroupSelect"
+        >
+          <div class="seeics-st-check_all">
+            <el-checkbox
+              v-model="groupCheckedAll"
+              @change="handleGroupCheckAllChange"
+            >全选</el-checkbox>
+          </div>
+          <el-option
+            v-for="item in groupList"
+            :key="item.groupId"
+            :label="item.name"
+            :value="item.groupId"
+          />
+        </el-select>
 
         <el-autocomplete
           v-model="form.searchKeyword"
@@ -340,7 +370,6 @@ import {
   changeFilterTypeToObj,
   getFilterConditionVoArrShow,
   downloadATag,
-  addBlurTriggerInputEvent,
 } from './utils';
 
 // 表格配置
@@ -386,11 +415,6 @@ export default {
     !this.shopList.length && this.$store.dispatch('getShopList');
   },
 
-  mounted() {
-    // 临时解决 avue-select 组件的搜索 bug
-    addBlurTriggerInputEvent('.seeics-avue-select input');
-  },
-
   data() {
     return {
       tableLoading: false,
@@ -419,6 +443,9 @@ export default {
       // 显示的广告活动、广告组（广告活动、广告组选中时，需要筛选出对应的父子关系）
       campaignList: [],
       groupList: [],
+      // 是否全选
+      campaignCheckedAll: false,
+      groupCheckedAll: false,
       // 全店的广告活动、广告组
       allCampaigns: [],
       allGroups: [],
@@ -458,6 +485,11 @@ export default {
   computed: {
     shopList() {
       return this.$store.state.shop.list;
+    },
+
+    // 有效的店铺（授权了广告并且店铺绑定在有效期内的。 其实过了有效期也能用）
+    effectiveShopList() {
+      return this.shopList.filter(item => item.adStoreId && !item.tokenInvalid);
     },
 
     // 广告活动、广告组下拉框无数据时候的提示
@@ -578,6 +610,34 @@ export default {
       }, err => {
         console.error('queryGroups err', err);
       });
+    },
+
+    // 广告活动全选
+    handleCamCheckAllChange(checked) {
+      if (checked) {
+        this.form.campaginIds = this.campaignList.map(item => item.campaignId);
+      } else {
+        this.form.campaginIds = [];
+      }
+    },
+
+    // 广告组全选
+    handleGroupCheckAllChange(checked) {
+      if (checked) {
+        this.form.groupIds = this.groupList.map(item => item.groupId);
+      } else {
+        this.form.groupIds = [];
+      }
+    },
+
+    // 清空广告活动选择
+    handleClearCamSelect() {
+      this.campaignCheckedAll = false;
+    },
+
+    // 清空广告组选择
+    handleClearGroupSelect() {
+      this.groupCheckedAll = false;
     },
 
     // 获取广告组下的搜索词或投放词
@@ -895,10 +955,17 @@ export default {
 
     'form.campaginIds'(ids) {
       if (ids.length === 0) {
+        this.campaignCheckedAll = false;
         this.groupList = this.allGroups;
         return;
       }
       this.groupList = this.allGroups.filter(item => ids.includes(item.campaignId));
+      // 全选框
+      if (ids.length === this.campaignList.length) {
+        this.campaignCheckedAll = true;
+      } else {
+        this.campaignCheckedAll = false;
+      }
     },
 
     'form.groupIds'(groupIds) {
@@ -922,6 +989,12 @@ export default {
         return this.allCampaigns.find(cam => cam.campaignId === id);
       });
       this.campaignList = selectedGroupsCampaigns;
+      // 全选框
+      if (groupIds.length === this.groupList.length) {
+        this.groupCheckedAll = true;
+      } else {
+        this.groupCheckedAll = false;
+      }
     },
   },
 
@@ -933,8 +1006,14 @@ export default {
 </style>
 
 <style lang="scss">
-  // 广告活动、广告组 avue-select 的下拉框
-  .el-select-dropdown.el-popper.is-multiple {
+  // 广告活动、广告组 select 的下拉框
+  .seeics-st-select.el-select-dropdown.el-popper.is-multiple {
+    .seeics-st-check_all {
+      padding: 3px 10px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
     li.el-select-dropdown__item {
       max-width: 400px;
       line-height: 20px;
