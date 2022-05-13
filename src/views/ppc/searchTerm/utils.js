@@ -204,17 +204,3 @@ export const downloadATag = (blobUrl, fileName) => {
   a.click();
 };
 
-// 失焦时触发 input 事件（用于临时解决广告活动、广告组的 avue-select 的搜索匹配 bug）
-export const addBlurTriggerInputEvent = (selector) => {
-  const nodeList = window.document.querySelectorAll(selector);
-  for (let i = 0; i < nodeList.length; i++) {
-    const dom = nodeList[i];
-    dom.addEventListener('blur', function () {
-      setTimeout(() => {
-        dom.value = ' ';
-        const event = new InputEvent('input');
-        dom.dispatchEvent(event);
-      }, 0);
-    });
-  }
-};

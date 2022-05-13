@@ -58,7 +58,7 @@ export default ({ mock }) => {
         'dataSync': true,
         'email': 'Ktxy6u6tmXwf@lindafeng.com',
         'bindAdStore': false,
-        'adStoreId': '1434823005936205826',
+        'adStoreId': null,
         'createTime': '2022-02-02 02:02:02',
         'refreshExpiresIn': '2023-02-02 02:02:02',
       }
