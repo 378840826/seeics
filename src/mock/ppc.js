@@ -9,11 +9,11 @@ export default ({ mock }) => {
   }
 
   // 店铺列表
-  Mock.mock('/api/seeics-mws/store/list', 'get', {
+  Mock.mock(RegExp('/api/seeics-mws/store/list' + '.*?'), 'get', {
     // list: [],
     data: [
       {
-        'id': '1',
+        'id': '1525058887367471105',
         'userId': '1341696907904458754',
         'storeName': 'droking',
         'marketplace': 'US',
@@ -30,7 +30,7 @@ export default ({ mock }) => {
         // 'refreshExpiresIn': '2022-02-02 10:02:02',
         'refreshExpiresIn': '2022-05-12 10:02:02',
       }, {
-        'id': '2',
+        'id': '2525058887367471105',
         'userId': '1341696907904458754',
         'storeName': 'DROK',
         'marketplace': 'CA',
@@ -46,7 +46,7 @@ export default ({ mock }) => {
         'createTime': '2021-05-02 02:02:02',
         'refreshExpiresIn': '2022-05-02 02:02:02',
       }, {
-        'id': '3',
+        'id': '3525058887367471105',
         'userId': '1341696907904458754',
         'storeName': 'Enpoint',
         'marketplace': 'UK',

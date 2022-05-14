@@ -412,7 +412,8 @@ export default {
     // 加载偏好
     this.getPreference();
     // 加载店铺
-    !this.shopList.length && this.$store.dispatch('getShopList');
+    // !this.shopList.length && this.$store.dispatch('getShopList');
+    this.$store.dispatch('getShopList');
   },
 
   data() {
@@ -487,9 +488,9 @@ export default {
       return this.$store.state.shop.list;
     },
 
-    // 有效的店铺（授权了广告并且店铺绑定在有效期内的。 其实过了有效期也能用）
+    // 有效的店铺（授权了广告并且店铺绑定在有效期内的店铺开关是开启的。 其实过了有效期也能用）
     effectiveShopList() {
-      return this.shopList.filter(item => item.adStoreId && !item.tokenInvalid);
+      return this.shopList.filter(item => item.dataSync);
     },
 
     // 广告活动、广告组下拉框无数据时候的提示

@@ -29,9 +29,9 @@ const shop = {
 
   actions: {
     // 获取店铺列表
-    getShopList({ commit }) {
+    getShopList({ commit }, payload) {
       return new Promise((resolve, reject) => {
-        getList().then(r => {
+        getList(payload).then(r => {
           commit('saveList', r.data.data);
           resolve();
         }).catch(error => {
@@ -55,7 +55,7 @@ const shop = {
     // 取消广告授权
     cancelAdAuthorize({ commit }, payload) {
       return new Promise((resolve, reject) => {
-        cancelAuthorize({ storeId: Number(payload.id) }).then(r => {
+        cancelAuthorize({ storeId: payload.id }).then(r => {
           commit('updateList', payload);
           resolve(r);
         }).catch(error => {
