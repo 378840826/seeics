@@ -982,14 +982,17 @@ export default {
       }
       // 选中广告组后，如果没有选中广告活动，则把广告活动列表限制为当前广告组的广告活动
       // 如果有选中广告活动，则在上面的基础上，把已选中的广告活动也加进去
-      const selectedGroups = groupIds.map(id => this.groupList.find(group => group.groupId === id));
-      // 选中的广告组的广告活动id
-      const selectedGroupsCampaignIds = [...new Set(selectedGroups.map(group => group.campaignId))];
-      // 通过广告活动 id 找出过滤出广告活动列表
-      const selectedGroupsCampaigns = selectedGroupsCampaignIds.map(id => {
-        return this.allCampaigns.find(cam => cam.campaignId === id);
-      });
-      this.campaignList = selectedGroupsCampaigns;
+      // 判断广告活动列表有数据才执行，有时会请求不到数据
+      if (this.allCampaigns && this.allCampaigns.length > 0) {
+        const selectedGroups = groupIds.map(id => this.groupList.find(group => group.groupId === id));
+        // 选中的广告组的广告活动id
+        const selectedGroupsCampaignIds = [...new Set(selectedGroups.map(group => group.campaignId))];
+        // 通过广告活动 id 找出过滤出广告活动列表
+        const selectedGroupsCampaigns = selectedGroupsCampaignIds.map(id => {
+          return this.allCampaigns.find(cam => cam.campaignId === id);
+        });
+        this.campaignList = selectedGroupsCampaigns;
+      }
       // 全选框
       if (groupIds.length === this.groupList.length) {
         this.groupCheckedAll = true;
