@@ -286,7 +286,8 @@ export default {
     getShopList() {
       this.tableLoading = true;
       const _this = this;
-      this.$store.dispatch('getShopList').finally(() => {
+      // filterByUser 获取当前账号绑定的店铺
+      this.$store.dispatch('getShopList', { filterByUser: true }).finally(() => {
         _this.tableLoading = false;
       });
     },

@@ -1,9 +1,10 @@
 import request from '@/router/axios';
 
-export const getList = () => {
+export const getList = params => {
   return request({
     url: '/api/seeics-mws/store/list',
     method: 'get',
+    params,
   });
 };
 
