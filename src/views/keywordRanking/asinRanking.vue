@@ -285,7 +285,7 @@
 <script>
 const toke = JSON.parse(localStorage.getItem('saber-token'));
 import { getkeywordList, analysiskeyword, wordStatistics, download, exportKeyword, selectFile, analyzeItme, updateKeyword, imports, monitoring, batchPause, batchStart, filter, filterEcho, empty } from '@/api/ranking/ranking';
-import { downloadFile } from '@/util/util';
+import { downloadFile, setPageSetup, getPageSetup } from '@/util/util';
 import globalFilter from '../../components/globalFilter/globalFilter.vue';
 export default {
   name: 'asinRanking',
@@ -375,8 +375,8 @@ export default {
         //pagerCount: 5,
         currentPage: 1,
         layout: 'total, sizes, prev, pager, next, jumper',
-        pageSize: 10,
-        pageSizes: [10, 20, 30, 50],
+        pageSize: getPageSetup(this.$router.history.current.path) || 10,
+        pageSizes: [10, 20, 30, 50, 100],
         //background:false,
       },
       column: [
@@ -915,6 +915,13 @@ export default {
       this.page.currentPage = 1;
       this.getkeywordLists();
     },
+    'page.pageSize': {
+      handler(val) {
+        setPageSetup(this.$router.history.current.path, val);
+        
+      },
+      deep: true
+    }
   },
   beforeDestroy(){
     this.timer && this.clearTimer();
