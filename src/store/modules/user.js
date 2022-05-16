@@ -2,7 +2,7 @@ import { setToken, setRefreshToken, removeToken, removeRefreshToken } from '@/ut
 import { Message } from 'element-ui';
 import { setStore, getStore } from '@/util/store';
 import { isURL, validatenull } from '@/util/validate';
-import { deepClone, getTopUrl } from '@/util/util';
+import { deepClone, getTopUrl, removePageSetup } from '@/util/util';
 import website from '@/config/website';
 import { loginByUsername, loginBySocial, getUserInfo, logout, refreshToken, getButtons } from '@/api/user';
 import { getTopMenu, getRoutes } from '@/api/system/menu';
@@ -115,6 +115,7 @@ const user = {
             commit('DEL_ALL_TAG');
             commit('CLEAR_LOCK');
             //提示登录成功
+            removePageSetup();
             Message({
               message: '登录成功',
               type: 'success'
@@ -155,6 +156,7 @@ const user = {
             commit('SET_USER_INFO', data);
             commit('DEL_ALL_TAG');
             commit('CLEAR_LOCK');
+            removePageSetup();
             if (!data.user_id) {
               const topUrl = getTopUrl();
               const redirectUrl = '/blade-auth/oauth/redirect/';
