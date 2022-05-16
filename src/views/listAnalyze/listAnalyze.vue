@@ -304,7 +304,7 @@ import {
   overallOption,
   getGlobalOption 
 } from '@/api/listAnalyze/listAnalyze';
-import { downloadFile } from '@/util/util';
+import { downloadFile, setPageSetup, getPageSetup } from '@/util/util';
 export default {
   data() {
     return {
@@ -417,8 +417,8 @@ export default {
         //pagerCount: 5,
         currentPage: 1,
         layout: 'total, sizes, prev, pager, next, jumper',
-        pageSize: 10,
-        pageSizes: [10, 20, 30, 50],
+        pageSize: getPageSetup(this.$router.history.current.path) || 10,
+        pageSizes: [10, 20, 30, 50, 100],
         //background:false,
       },
       option: {
@@ -548,6 +548,12 @@ export default {
       },
       deep: true,
     },
+    'page.pageSize': {
+      handler(val) {
+        setPageSetup(this.$router.history.current.path, val);
+      },
+      deep: true
+    }
   },
   methods: {
     //获取全局选项

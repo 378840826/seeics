@@ -1,3 +1,4 @@
+
 import { validatenull } from './validate';
 
 // log
@@ -398,4 +399,47 @@ export const downloadFile = (blob, fileName) => {
   } else { //IE10+下载
     navigator.msSaveBlob(blobs, fileName);
   }
+};
+
+/**
+ * 存储页码数量配置
+ * @param {String} path 模块路径
+ * @param {Nunber} num 
+ */
+export const setPageSetup = (path, num) => {
+  let arr = JSON.parse(localStorage.getItem('page-setup')) || [];
+  arr.forEach(item => {
+    if (item.path === path && item.size !== num) {
+      item.size = num;
+    } 
+    return item;
+  });
+  arr.push({
+    size: num,
+    path
+  });
+  const obj = {};
+  arr = arr.reduce(function(item, next) {
+    obj[next.path] ? '' : obj[next.path] = true && item.push(next);
+    return item;
+  }, []);
+  localStorage.setItem('page-setup', JSON.stringify(arr));
+};
+
+/**
+ * 获取模块的页码数量
+ * @param {String} path 路径
+ * @returns 
+ */
+export const getPageSetup = (path) => {
+  const arr = JSON.parse(localStorage.getItem('page-setup')) || [];
+  const res = arr.filter(item => item.path === path)[0] || null;
+  return res && res.size;
+};
+
+/**
+ * 删除存储配置
+ */
+export const removePageSetup = () => {
+  localStorage.removeItem('page-setup');
 };

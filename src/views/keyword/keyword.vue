@@ -197,7 +197,7 @@
 
 <script>
 import { getkeywordList, analysiskeyword, wordStatistics, download, keyWordReset, keywordOptions, analyzeDownload, overallOption, getGlobalOption } from '@/api/keyword/keyword';
-import { downloadFile } from '@/util/util';
+import { downloadFile, setPageSetup, getPageSetup } from '@/util/util';
 
 export default {
  
@@ -252,8 +252,8 @@ export default {
         //pagerCount: 5,
         currentPage: 1,
         layout: 'total, sizes, prev, pager, next, jumper',
-        pageSize: 10,
-        pageSizes: [10, 20, 30, 50],
+        pageSize: getPageSetup(this.$router.history.current.path) || 10,
+        pageSizes: [10, 20, 30, 50, 100],
         //background:false,
       },
       option: {
@@ -618,6 +618,12 @@ export default {
       deep: true,
       immediate: false,
     },
+    'page.pageSize': {
+      handler(val) {
+        setPageSetup(this.$router.history.current.path, val);
+      },
+      deep: true
+    }
   },
   beforeDestroy(){
     this.timer && this.clearTimer();
