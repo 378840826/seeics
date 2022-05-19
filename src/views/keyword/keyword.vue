@@ -13,6 +13,7 @@
             <el-option label="德国" value="DE"></el-option>
             <el-option label="日本" value="JP"></el-option>
             <el-option label="西班牙" value="ES"></el-option>
+            <el-option label="澳洲" value="AU"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item  class="inputclass">
