@@ -24,6 +24,7 @@
         placeholder="请选择站点"
         :size="componentsSize"
         @change="getTableData()"
+        class="select-marketplace"
       >
         <el-option
           v-for="item in filterOptions.marketplaceList"
@@ -35,11 +36,13 @@
 
       <!-- 广告活动类型 -->
       <el-select
-        v-model="form.campaignType"
+        v-model="form.campaignTypeList"
         placeholder="广告类型"
         :size="componentsSize"
         @change="getTableData()"
         clearable
+        multiple
+        class="select-multiple"
       >
         <el-option
           v-for="item in filterOptions.campaignTypeList"
@@ -51,11 +54,14 @@
 
       <!-- 投放方式 -->
       <el-select
-        v-model="form.targetingType"
+        v-model="form.targetingTypeList"
         placeholder="投放方式"
         :size="componentsSize"
         @change="getTableData()"
         clearable
+        multiple
+        collapse-tags
+        class="select-multiple"
       >
         <el-option
           v-for="item in filterOptions.targetingTypeList"
@@ -140,7 +146,7 @@
           <template slot-scope="scope">{{ stateExtendDict[scope.row.state] }}</template>
         </el-table-column>
 
-        <el-table-column prop="campaignType" label="投放类型" width="120">
+        <el-table-column prop="campaignType" label="广告类型" width="120">
           <template slot-scope="scope">{{ campaignTypeDict[scope.row.campaignType] }}</template>
         </el-table-column>
 
@@ -244,8 +250,8 @@ export default {
         name: '',
         shopName: '',
         marketplace: '',
-        campaignType: '',
-        targetingType: '',
+        campaignTypeList: [],
+        targetingTypeList: [],
         state: '',
       },
       filterOptions: {
@@ -287,6 +293,7 @@ export default {
   created() {
     // 店铺名称
     queryShopNameList().then(res => {
+      this.tableLoading = true;
       const list = res.data.data.sort((a, b) => a.localeCompare(b));
       this.filterOptions.shopNameList = list;
       this.form.shopName = list[0];
@@ -305,8 +312,8 @@ export default {
         name: this.form.name.trim(),
         shopName: this.form.shopName,
         marketplace: this.form.marketplace,
-        campaignTypeList: this.form.campaignType ? [this.form.campaignType] : [],
-        targetingTypeList: this.form.targetingType ? [this.form.targetingType] : [],
+        campaignTypeList: this.form.campaignTypeList,
+        targetingTypeList: this.form.targetingTypeList,
         stateList: this.form.state ? this.form.state.split(',') : [],
         ...this.tablePageOption,
         ...sortParams,
@@ -347,8 +354,8 @@ export default {
         name: '',
         shopName: this.filterOptions.shopNameList[0],
         marketplace: this.filterOptions.marketplaceList[0],
-        campaignType: '',
-        targetingType: '',
+        campaignTypeList: [],
+        targetingTypeList: [],
         state: '',
       };
       this.getTableData();

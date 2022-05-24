@@ -21,8 +21,8 @@ export const campaignTypeDict = {
 export const targetingTypeDict = {
   manual: 'SP-手动投放',
   auto: 'SP-自动投放',
-  T00020: 'SD-受众',
-  T00030: 'SD-商品投放',
+  T00030: 'SD-受众',
+  T00020: 'SD-商品投放',
 };
 
 // 表格排序参数转换（el-ui 自带格式转换为 接口所需格式）

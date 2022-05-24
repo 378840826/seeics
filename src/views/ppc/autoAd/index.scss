@@ -8,13 +8,21 @@
   }
 
   .input-with-select {
-    width: 300px;
+    width: 290px;
 
     ::v-deep {
       .el-input-group__append {
         padding: 0 10px;
       }
     }
+  }
+
+  .select-multiple {
+    width: 210px;
+  }
+
+  .select-marketplace {
+    width: 140px;
   }
 }
 
