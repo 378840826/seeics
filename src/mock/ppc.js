@@ -1,5 +1,5 @@
 /**
- * 广告 
+ * 广告 （店铺和st）
  */
 import Mock, { Random } from 'mockjs';
 

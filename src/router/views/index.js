@@ -31,6 +31,10 @@ export default [{
       name: '我的店铺',
       component: () => import('@/views/ppc/shop/ShopList'),
     }, {
+      path: '/ppc/auto_ad',
+      name: '智能广告',
+      component: () => import('@/views/ppc/autoAd'),
+    }, {
       path: '/ppc/search-term',
       name: 'Search Term报表',
       component: () => import('@/views/ppc/searchTerm'),
