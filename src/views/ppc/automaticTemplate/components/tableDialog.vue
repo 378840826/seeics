@@ -3,19 +3,38 @@
     <el-row>
       <el-col :span="8">
         <div class="search">
-            <el-select style="width: 35%"/>
-            <el-select style="width: 25%"/>
-            <el-select style="width: 35%"/>
+            <el-select v-model="fromInline.shopName" @change="handelShopChange" style="width: 35%">
+              <el-option
+                v-for="item in shopList"
+                :key="item"
+                :value="item"
+                :label="item"
+              />
+            </el-select>
+            <el-select v-model="fromInline.marketplace" style="width: 25%">
+              <el-option
+                v-for="item in marketplaceList"
+                :key="item"
+                :value="item"
+                :label="item"
+              />
+            </el-select>
+            <avue-select
+                v-model="fromInline.state"
+                :dic="stateList"
+                placeholder="请选择"
+                style="width: 35%"
+            />
         </div>
-        <div class="search">
-            <el-input style="width: 50%"/>
-            <el-button size="mini">搜索</el-button>
-            <el-button size="mini">重置</el-button>
+        <div class="search" >
+            <el-input v-model="fromInline.name" style="width: 50%"/>
+            <el-button @click="handleSearch" size="mini">搜索</el-button>
+            <el-button @click="reset" size="mini">重置</el-button>
         </div>
       </el-col>
-      <el-col :span="15" style="marginLeft: 20px">
-          <span>已选中XX个广告活动</span>
-          <el-button type="text">删除所有</el-button>
+      <el-col :span="15" class="table2 pading">
+          <span>已选中{{num}}个广告活动</span>
+          <el-button type="text" @click="handleDelet('all')">删除所有</el-button>
       </el-col>
     </el-row>
     <el-row>
@@ -25,37 +44,86 @@
         :option="option" 
         v-model="user"
         :data="data" 
-        :page.sync="page"
-        @size-change="sizeChange"
-        @current-change="currentChange"
-        @sort-change="sortChange"
-        @on-load="getAnalyzeLists"
+        @selection-change="selectionChange"
+        @on-load="getCampaignList"
+        ref="table1"
       >
     </avue-crud>
     </el-col>
-    <el-col :span="15" style="marginLeft: 20px">
+    <el-col :span="15" class="table2">
       <avue-crud 
-        :option="option" 
+        :option="options" 
         v-model="user"
-        :data="data" 
-        :page.sync="page"
-        @size-change="sizeChange"
-        @current-change="currentChange"
-        @sort-change="sortChange"
-        @on-load="getAnalyzeLists"
+        :data="datas" 
       >
+        <template slot-scope="{row}" slot="meum">
+          <el-button type="text" size="mini" @click="handleDelet(row.campaignId)">删除</el-button>
+        </template>
       </avue-crud>
     </el-col>
     </el-row>
+    <el-pagination
+        background
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="page.currentPage"
+        :page-sizes="page.pageSizes"
+        :page-size="page.pageSize"
+        :layout="page.layout"
+        :total="page.total">
+      </el-pagination>
   </div>
 </template>
 
 <script>
-import { getCampaignList } from '@/api/ppc/automatic';
+import { 
+  getCampaignList,
+  getShopNameList,
+  getMarketplaceList,
+} from '@/api/ppc/automatic';
 export default {
   name: 'tableDialog',
+  props: {
+    automationTemplateId: {
+      type: String,
+      default: ''
+    }
+  },
   data() {
     return {
+      shopList: [], //店铺名称列表
+      fromInline: {
+        shopName: '',
+        marketplace: '',
+        state: 'enabled',
+        name: ''
+      },
+      marketplaceList: [],
+      stateList: [
+        {
+          label: '运行中',
+          value: 'enabled'
+        },
+        // {
+        //   label: '运行中和已暂停',
+        //   value: 2
+        // },
+        {
+          label: '已暂停',
+          value: 'paused'
+        },
+        {
+          label: '已归档',
+          value: 'archived'
+        },
+        {
+          label: '全选',
+          value: 'all'
+        }
+      ],
+      data: [],
+      datas: [],
+      listData: [],
       option: {
         emptyText: '暂无数据',
         addBtn: false,
@@ -71,44 +139,283 @@ export default {
         align: 'center',
         menuAlign: 'left',
         rowKey: 'id',
+        height: 300,
+        selection: true,
+        tip: false,
+        selectable: this.bas,
         column: [
           {
             label: '广告活动',
-            prop: 'recordTime',
+            prop: 'name',
             // sortable: true, //排序
-            // width: 200,
+            // width: 400,
             //slot:true
           },
           {
-            label: '账号',
-            prop: 'searchCountry',
+            label: '店铺名称',
+            prop: 'shopName',
             // width: 283,
           },
           {
             label: '站点',
-            prop: 'searchKeyword',
-            // width:700,
+            prop: 'marketplace',
+            width: 50,
             slot: true,            
           },
          
         ],
       },
+      options: {
+        emptyText: '暂无数据',
+        addBtn: false,
+        border: true,
+        columnBtn: false,
+        refreshBtn: false,
+        saveBtn: false,
+        updateBtn: false,
+        cancelBtn: false,
+        // delBtn: true,
+        menu: false,
+        editBtn: false,
+        align: 'center',
+        menuAlign: 'left',
+        rowKey: 'id',
+        height: 300,
+        column: [
+          {
+            label: '广告活动',
+            prop: 'name',
+          },
+          {
+            label: '店铺名称',
+            prop: 'shopName',
+            // width: 283,
+          },
+          {
+            label: '站点',
+            prop: 'marketplace',
+            // width: 50,
+            slot: true,            
+          },
+          {
+            label: '标签名称',
+            prop: 'searchKeyword',
+            // width: 50,
+            slot: true,            
+          },
+          {
+            label: '操作',
+            prop: 'meum',
+            // width: 50,
+            slot: true,            
+          },
+        ],
+      },
+      page: {
+        total: 0,
+        currentPage: 1,
+        layout: 'total, sizes, prev, pager, next, jumper',
+        pageSize: 10,
+        pageSizes: [10, 20, 30, 50],
+      },
     };
   },
   mounted() {
-    getCampaignList().then(res => {
-        console.log(res)
-    })
-  }
+    console.log(this.$refs.table1)
+    getShopNameList().then(res => {
+      if (res.data.code === 200) {
+        this.shopList = res.data.data;
+        this.fromInline.shopName = res.data.data.length && res.data.data[0];
+      }
+      
+
+    });
+  },
+  computed: {
+    num: (vm) => {
+      return vm.datas.length;
+    },
+    state: (vm) => {
+      const stateList = [];
+      vm.stateList.forEach(item => {
+        if (item.value !== 'all') {
+          stateList.push(item.value);
+        }
+      });
+      return vm.fromInline.state === 'all' ? stateList : [vm.fromInline.state];
+    }
+  },
+  watch: {
+    automationTemplateId: {
+      handler() {
+        for (const key in this.fromInline) {
+          this.fromInline[key] = '';
+        }
+        this.getCampaignList();
+      },
+      deep: true
+    },
+    'fromInline.shopName': {
+      async handler(val) {
+        await getMarketplaceList(val).then(res => {
+          if (res.data.code === 200) {
+            this.marketplaceList = res.data.data;
+            this.fromInline.marketplace = res.data.data.length && res.data.data[0];
+          } 
+        });
+        this.handleSearch();
+      },
+      deep: true
+    }
+  },
+  methods: {
+    bas(row) {
+      if (!row.inCurrentAutomationTemplate) {
+        return true;
+      // eslint-disable-next-line no-else-return
+      } else {
+        return false;
+      }
+    },
+    getFiled() {
+      const detailDtoList = this.datas.map(item => {
+        return {
+          campaignId: item.campaignId,
+          marketplace: item.marketplace
+        };
+      });
+      const params = {
+        id: this.automationTemplateId,
+        detailDtoList
+      };
+      return params;
+    },
+    getCampaignList() {
+      getCampaignList({
+        current: this.page.currentPage,
+        size: this.page.pageSize,
+        automationTemplateId: this.automationTemplateId
+      }).then(res => {
+        if (res.data.code === 200) {
+          this.page.total = res.data.data.total;
+          this.data = res.data.data.records;
+        }
+      });
+    },
+    //pagesize变化
+    handleSizeChange(pageSize) {
+      this.page.pageSize = pageSize;
+      let flag = false;
+      for (const key in this.fromInline) {
+        if (this.fromInline[key]) {
+          flag = true;
+        }
+      }
+      if (flag) {
+        this.handleSearch();
+      } else {
+        this.getCampaignList();
+      }
+    },
+    //currentpage 变化
+    handleCurrentChange(currentPage) {
+      this.page.currentPage = currentPage;  
+      let flag = false;
+      for (const key in this.fromInline) {
+        if (this.fromInline[key]) {
+          flag = true;
+        }
+      }
+      if (flag) {
+        this.handleSearch();
+      } else {
+        this.getCampaignList();
+      }
+    },
+    selectionChange(list) {
+      this.listData = list;
+      const arr = this.datas.length && this.datas.map(item => item.campaignId) || [];
+      list.map(item => {
+        if (!arr.includes(item.campaignId)) {
+          this.datas.unshift(item);
+        }
+      });
+    },
+    handelShopChange(val) {
+      //清空原有选项
+      for (const key in this.fromInline) {
+        if (this.fromInline[key] !== val) {
+          this.fromInline[key] = '';
+        }
+      }
+      this.marketplaceList = [];
+      getMarketplaceList(val).then(res => {
+        if (res.data.code === 200) {
+          this.marketplaceList = res.data.data;
+        } 
+      });
+    },
+    reset() {
+      for (const key in this.fromInline) {
+        this.fromInline[key] = '';
+      }
+      this.marketplaceList = [];
+      this.getCampaignList();
+    },
+    handleSearch() {
+      const params = Object.assign({ 
+        ...this.fromInline,
+        state: this.state,
+        automationTemplateId: this.automationTemplateId
+      }, { current: this.page.currentPage, size: this.page.pageSize });
+      getCampaignList(params).then(res => {
+        if (res.data.code === 200) {
+          this.data = res.data.data.records;
+          this.page.total = res.data.data.total;
+          this.data = res.data.data.records;
+        }
+      });
+    },
+    async handleDelet(id) {
+      if (id !== 'all') {
+        this.datas = this.datas.filter(item => item.campaignId !== id);
+        this.$nextTick(() => {
+          this.listData.forEach(row => {
+            if (row.campaignId === id) {
+              this.$refs.table1.toggleRowSelection(row, false); 
+            }
+          });
+        });
+      } else {
+        this.$nextTick(() => {
+          this.$refs.table1.toggleSelection(this.listData, false); 
+        });
+        this.datas = await [];
+      }
+    }
+  },
 };
 </script>
 <style lang="scss" scoped>
   ::v-deep .avue-crud__menu {
     min-height: 0px;
   }
+  ::v-deep .el-input__icon {
+    line-height: 30px;
+  }
   .search {
       margin-top: 10px;
       display: flex;
       justify-content:space-between;
+  }
+  .table2  {
+    margin-left: 20px; 
+    &.pading {
+      padding: 45px 0px 0px 0px;
+      display: flex;
+      justify-content:space-between;
+      line-height: 40px;
+    }
+   
   }
 </style>

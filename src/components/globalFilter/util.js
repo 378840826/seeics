@@ -69,13 +69,24 @@ export const addFiled = (arr, label) => {
   delete res[res.length - 2].btn;
   return res;
 };
-
+import { fields } from './filed';
+export const filterFiled = (value) => {
+  let res = '';
+  fields['tatolFileds'].map(item => {
+    if (item.value === value) {
+      res = item.label;
+    }
+  });
+  return res;
+};
 /**
  * 拼接字段
  * @param {Array} Array 规则数组
+ * @param {any} day
  * @returns 
  */
-export const filterField = (Array) => {
+
+export const filterField = (Array, day) => {
   const arr = JSON.parse(JSON.stringify(Array));
   for (let i = 0; i < arr.length; i ++) {
     for (const key in arr[i]) {
@@ -84,25 +95,41 @@ export const filterField = (Array) => {
       }
     }
   }
-  const obj = { item: [] };
+  
+  const obj = day ? { 
+    item: [],
+    ...day
+  } : { item: [] };
   arr.map(item => {
+    let flag;
+    if (item.label === 'acos' || item.label === 'ctr' || item.label === '转化率') {
+      flag = true;
+    }
     if (item.condition === '≥且<' && (item.minVal && item.maxVal) && item.label) {
-      obj.item.push({
+      const params = {
         id: item.id,
         subruleName: item.label,
         symbol: item.condition,
         maximum: item.maxVal,
         minimum: item.minVal,
-        statement: `and ${item.label}&gt;=${item.minVal} and ${item.label}&lt;${item.maxVal}`
-      });
+        statement: `and ${item.label}&gt;=${flag ? Number(item.minVal) / 100 : item.minVal} and ${item.label}&lt;${flag ? Number(item.maxVal) / 100 : item.maxVal}`,
+      };
+      const fullName = {
+        fullName: `${filterFiled(item.label)}&gt;=${item.minVal}${filterFiled(item.label)}&lt;${item.maxVal}`
+      };
+      obj.item.push(day ? Object.assign(params, fullName) : params);
     } else if (item.value && item.label) {
-      obj.item.push({
+      const params = {
         id: item.id,
         subruleName: item.label,
         symbol: item.condition,
         value: item.value,
-        statement: `and ${item.label}${item.condition}${item.value}`
-      });
+        statement: `and ${item.label}${item.condition}${flag ? Number(item.value) / 100 : item.value}`,
+      };
+      const fullName = {
+        fullName: `${filterFiled(item.label)}${item.condition}${item.value}`
+      };
+      obj.item.push(day ? Object.assign(params, fullName) : params);
     }
   });
   return obj;

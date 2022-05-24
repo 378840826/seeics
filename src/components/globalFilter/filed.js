@@ -24,6 +24,7 @@ export const fields = {
   tatolFileds: [
     {
       label: 'ABA排名',
+      value: 'aba_rank',
       integer: true
     },
     {
@@ -48,54 +49,58 @@ export const fields = {
     },
     {
       label: '销售额',
-      value: '销售额',
+      value: 'ad_sales',
       integer: false
     },
     {
       label: '订单量',
+      value: 'ad_order_quantity',
       integer: true
     },
     {
       label: 'Impressions',
+      value: 'impressions',
       integer: true
     },
     {
       label: 'Clicks',
+      value: 'clicks',
       integer: true
     },
     {
       label: 'CPC',
-      value: 'CPC',
+      value: 'cpc',
       integer: false
     },
     {
       label: 'CPA',
-      value: 'CPA',
+      value: 'cpa',
       integer: false
     },
     {
       label: 'Spend',
-      value: 'Spend',
+      value: 'spend',
       integer: false
     },
     {
       label: 'CTR',
-      value: 'CTR',
+      value: 'ctr',
       integer: false,
       percentage: true
     },
     {
       label: 'ACoS',
-      value: 'ACoS',
+      value: 'acos',
       integer: false,
       percentage: true
     },
     {
-      label: 'RoAS'
+      label: 'RoAS',
+      value: 'roas'
     },
     {
       label: '转化率',
-      value: '转化率',
+      value: 'conversions_rate',
       integer: false,
       percentage: true
     },

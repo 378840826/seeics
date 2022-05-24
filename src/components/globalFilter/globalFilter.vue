@@ -6,7 +6,7 @@
         <span style="fontSize: 12px;">规则内指标之间关系为且</span>
       </div>
       <div>
-          <div>
+          <div v-if="dateSelect">
             过去
             <el-select 
               class="condition"
@@ -110,14 +110,14 @@
             <el-select 
               class="condition"
               style="marginLeft: 10px"
-              v-model="item.dayVal"
+              v-model="item.days"
             >
              <el-option v-for="item in day" :key="item.value" :value="item.value" :label="item.value"/>
             </el-select>天的
             <el-select 
               class="condition" 
               style="marginLeft: 10px"
-              v-model='item.dailyVal'
+              v-model='item.calculation'
             >
               <el-option v-for="item in daily" :key="item.label" :value="item.label" :label="item.label"/>
             </el-select>
@@ -274,26 +274,26 @@ export default {
       ruleLen: 1, //规则1条件长度
       integerList: [], //非整数存放
       percentageList: [], //百分比后缀存放
-      dayVal: 7,
+      dayVal: '7',
       dailyVal: '总计',
       day: [
         {
-          value: 7
+          value: '7'
         },
         {
-          value: 14
+          value: '14'
         },
         {
-          value: 21
+          value: '21'
         },
         {
-          value: 30
+          value: '30'
         },
         {
-          value: 60
+          value: '60'
         },
         {
-          value: 90
+          value: '90'
         },
       ],
       daily: [
@@ -333,6 +333,8 @@ export default {
   },
   methods: {
     echoFileld(echo) {
+      this.dayVal = this.dateSelect && echo[0].days;
+      this.dailyVal = this.dateSelect && echo[0].calculation;
       this.formInline = echo[0].item.map(item => {
         let obj = {};
         obj = {
@@ -351,6 +353,8 @@ export default {
           this.data.push({
             id: idx,
             key: idx,
+            days: this.dateSelect && item.days,
+            calculation: this.dateSelect && item.calculation,
             ruleLen: 0,
             formInline: item.item.map(s => {
               let obj = {};
@@ -377,13 +381,13 @@ export default {
     },
     //获取字段结构函数
     getFileld() {
-      const obj = filterField(this.formInline);
+      const obj = filterField(this.formInline, this.dateSelect ? { days: this.dayVal, calculation: this.dailyVal } : null);
       const res = [];
       if (Object.keys(obj).length !== 0) {
         res.push(obj);
       }
       this.data.map(item => {
-        const arr = filterField(item.formInline);
+        const arr = filterField(item.formInline, this.dateSelect ? { days: item.days, calculation: item.calculation } : null);
         if (Object.keys(arr).length !== 0) {
           res.push(arr);
         }
@@ -457,8 +461,8 @@ export default {
           ruleLen: 0,
           formInline: arr,
           fieldsPage: JSON.parse(JSON.stringify(fields[this.fields])),
-          dayVal: 7,
-          dailyVal: '总计'
+          days: '7',
+          calculation: '总计'
         });
       } else {
         this.$message({
