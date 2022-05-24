@@ -2,6 +2,7 @@ import user from './user';
 import menu from './menu';
 import oauth from './oauth';
 import param from './param';
+import autoAd from './autoAd';
 import ppc from './ppc';
 
 /**
@@ -19,6 +20,9 @@ menu(options);
 oauth(options);
 
 param(options);
+
+autoAd(options);
+// autoAd({ mock: true });
 
 ppc(options);
 // ppc({ mock: true });

@@ -1,0 +1,66 @@
+// 头部筛选栏
+.filter-container {
+  display: flex;
+
+  & > div {
+    margin-right: 10px;
+    width: 160px;
+  }
+
+  .input-with-select {
+    width: 300px;
+
+    ::v-deep {
+      .el-input-group__append {
+        padding: 0 10px;
+      }
+    }
+  }
+}
+
+// 批量设置栏
+.batch-container {
+  margin: 20px 0;
+}
+
+// 表格
+.table-container {
+  .pagination {
+    position: relative;
+    padding: 25px 0 20px 20px;
+    text-align: right;
+  }
+
+  ::v-deep {
+    .el-table {
+      font-size: 12px;
+
+      th {
+        color: rgba(0, 0, 0, .85);
+      }
+    }
+  }
+}
+
+// 弹窗
+.template-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  ::v-deep {
+    .el-form-item {
+      margin-bottom: 0;
+    }
+
+    .el-input input {
+      height: 32px;
+    }
+  }
+}
+
+.el-icon-circle-plus {
+  font-size: 20px;
+  color: #409EFF;
+  cursor: pointer;
+}
