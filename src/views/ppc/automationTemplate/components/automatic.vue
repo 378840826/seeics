@@ -78,9 +78,15 @@
         align="center"
       >
         <template slot-scope="scope">
-         <div v-if="scope.row.bidType === '广告组默认竞价'">无需选择竞价</div> 
-         <el-input v-else v-model="scope.row.bid" type="number">
-         </el-input>
+         <div v-if="scope.row.bidType === '广告组默认竞价'">无需选择竞价</div>
+         <div v-else class="bid">
+            <el-input 
+              v-model="scope.row.bid" 
+              type="number"
+              min="0"
+            />
+           <div v-if="msg" class="msg">支持两位小数</div>
+         </div>
         </template>
       </el-table-column>
       <el-table-column
@@ -107,33 +113,33 @@ export default {
     return {
       tableData: [
         {
-          campaign : '自动化标签所在广告活动',
+          campaign: '自动化标签所在广告活动',
           adGroup: '自动化标签所在广告组',
           matchType: '精准匹配',
           bidType: '广告组默认竞价',
           bid: ''
         },
       ],
-       matchType: [{
-          value: '精准匹配',
-          label: '精准匹配'
+      matchType: [{
+        value: '精准匹配',
+        label: '精准匹配'
+      }, {
+        value: '词组匹配',
+        label: '词组匹配'
+      }, {
+        value: '广泛匹配',
+        label: '广泛匹配'
+      }
+      ],
+      bidSelect: [
+        {
+          value: '广告组默认竞价',
+          label: '广告组默认竞价'
         }, {
-          value: '词组匹配',
-          label: '词组匹配'
-        }, {
-          value: '广泛匹配',
-          label: '广泛匹配'
+          value: '固定竞价',
+          label: '固定竞价'
         }
-       ],
-       bidSelect: [
-         {
-           value: '广告组默认竞价',
-           label: '广告组默认竞价'
-         }, {
-           value: '固定竞价',
-           label: '固定竞价'
-         }
-       ],
+      ],
       automatedOperation: '添加到投放',
       launchOption: [
         {
@@ -144,20 +150,28 @@ export default {
           label: '添加到否定投放',
           value: '添加到否定投放'
         }
-      ]
+      ],
+      msg: false
     };
   },
   mounted() {
-  //   console.log(Object.keys(this.echo).length)
     Object.keys(this.echo).length && this.echoFiled();
+  },
+  watch: {
+    tableData: {
+      handler(val) {
+        const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
+        if (reg.test(Number(val[0].bid))) {
+          this.msg = false;
+        } else {
+          this.msg = true;
+        }
+      },
+      deep: true
+    }
   },
   methods: {
     echoFiled() {
-      // this.tableData[0] = {
-      //   campaign : '自动化标签所在广告活动',
-      //   adGroup: '自动化标签所在广告组',
-      //   ...this.echo
-      // }
       this.tableData[0].matchType = this.echo.matchType;
       this.tableData[0].bid = this.echo.bid;
       this.tableData[0].bidType = this.echo.bidType;
@@ -168,7 +182,7 @@ export default {
         bidType: this.tableData[0].bidType,
         bid: this.tableData[0].bid,
         automatedOperation: this.automatedOperation
-      }
+      };
     },
     bidTypeSelect() {
       this.tableData[0].bid = '';
@@ -209,5 +223,9 @@ export default {
   .currency {
     color: #409EFF;
   }
-   
+  .bid {
+    .msg {
+      color: red;
+    }
+  }
 </style>

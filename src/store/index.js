@@ -7,7 +7,6 @@ import logs from './modules/logs';
 import dict from './modules/dict';
 import shop from './modules/shop';
 import getters from './getters';
-import automatic from './modules/automatic';
 
 Vue.use(Vuex);
 const store = new Vuex.Store({
@@ -18,7 +17,6 @@ const store = new Vuex.Store({
     logs,
     tags,
     dict,
-    automatic
   },
   getters,
 });

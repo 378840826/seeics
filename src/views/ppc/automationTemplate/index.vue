@@ -1,7 +1,7 @@
 <template>
   <basic-container>
     <el-row>
-      <el-col :span="12" style="lineHeight: 40px">
+      <el-col :span="16" style="lineHeight: 40px">
         <el-input 
           v-model="formInline.templateName"
           clearable
@@ -18,7 +18,15 @@
           size="mini"
           @click="reset"
         >重置</el-button>
-        <el-button type="primary" size="mini" @click="centerDialogVisible = true; flag = 'add'; ruleIs = true; automaticIs = true">创建模板</el-button>
+        <el-button 
+          class="btn"
+          type="primary" 
+          size="mini" 
+          @click="centerDialogVisible = true; 
+            flag = 'add'; 
+            ruleIs = true; 
+            automaticIs = true"
+        >创建模板</el-button>
       </el-col>
     </el-row>
     <el-dialog
@@ -364,7 +372,15 @@ export default {
         });
         return;
       }
+      const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
       const automatic = this.$refs.automatic.getFiled();
+      if (!reg.test(Number(automatic.bid))) {
+        this.$message({
+          type: 'error',
+          message: '固定竞价支持填入小数点后两位小数'
+        });
+        return;
+      }
       const params = {
         ...this.formInline,
         ...automatic,
