@@ -27,7 +27,11 @@
             />
         </div>
         <div class="search" >
-            <el-input v-model="fromInline.name" style="width: 50%"/>
+            <el-input 
+              v-model="fromInline.name" 
+              placeholder="筛选广告活动"
+              style="width: 50%"
+            />
             <el-button @click="handleSearch" size="mini">搜索</el-button>
             <el-button @click="reset" size="mini">重置</el-button>
         </div>
@@ -47,6 +51,7 @@
         @selection-change="selectionChange"
         @on-load="getCampaignList"
         ref="table1"
+        :table-loading="tableLoading"
       >
     </avue-crud>
     </el-col>
@@ -124,6 +129,7 @@ export default {
       data: [],
       datas: [],
       listData: [],
+      tableLoading: false,
       option: {
         emptyText: '暂无数据',
         addBtn: false,
@@ -221,14 +227,20 @@ export default {
     };
   },
   mounted() {
-    console.log(this.$refs.table1)
     getShopNameList().then(res => {
+      this.tableLoading = true;
       if (res.data.code === 200) {
         this.shopList = res.data.data;
         this.fromInline.shopName = res.data.data.length && res.data.data[0];
+        getMarketplaceList(this.fromInline.shopName).then(res => {
+          if (res.data.code === 200) {
+            this.marketplaceList = res.data.data;
+            this.fromInline.marketplace = res.data.data.length && res.data.data[0];
+            this.handleSearch();
+            this.tableLoading = false;
+          } 
+        });
       }
-      
-
     });
   },
   computed: {
@@ -251,22 +263,9 @@ export default {
         for (const key in this.fromInline) {
           this.fromInline[key] = '';
         }
-        this.getCampaignList();
       },
       deep: true
     },
-    'fromInline.shopName': {
-      async handler(val) {
-        await getMarketplaceList(val).then(res => {
-          if (res.data.code === 200) {
-            this.marketplaceList = res.data.data;
-            this.fromInline.marketplace = res.data.data.length && res.data.data[0];
-          } 
-        });
-        this.handleSearch();
-      },
-      deep: true
-    }
   },
   methods: {
     bas(row) {
@@ -291,11 +290,12 @@ export default {
       return params;
     },
     getCampaignList() {
-      getCampaignList({
-        current: this.page.currentPage,
-        size: this.page.pageSize,
+      const params = Object.assign({ 
+        ...this.fromInline,
+        state: this.state,
         automationTemplateId: this.automationTemplateId
-      }).then(res => {
+      }, { current: this.page.currentPage, size: this.page.pageSize });
+      getCampaignList(params).then(res => {
         if (res.data.code === 200) {
           this.page.total = res.data.data.total;
           this.data = res.data.data.records;
@@ -363,6 +363,7 @@ export default {
       this.getCampaignList();
     },
     handleSearch() {
+      this.tableLoading = true;
       const params = Object.assign({ 
         ...this.fromInline,
         state: this.state,
@@ -373,6 +374,7 @@ export default {
           this.data = res.data.data.records;
           this.page.total = res.data.data.total;
           this.data = res.data.data.records;
+          this.tableLoading = false;
         }
       });
     },

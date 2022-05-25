@@ -6,7 +6,7 @@
           v-model="formInline.templateName"
           clearable
           class="inputclass"
-          placeholder="请输入需要分析的关键词" 
+          placeholder="请输入规则名称" 
         />
         <el-button 
           @click="search"
@@ -29,10 +29,14 @@
       :show-close="false"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
+      @close="hidden"
+      center
     >
       <span>创建搜索词：</span>
       <div class="tabel">
-        <span>规则名称：</span>
+        <span>规则名称：
+          <span v-if="!formInline.templateName" style="color: red">*</span>
+        </span>
         <span style="width: 50%">
           <el-input
             v-model="formInline.templateName"
@@ -94,6 +98,7 @@
         ref="filters" 
         fields="tatolFileds" 
         :filterecho="ruleFiled"
+        v-model="saveDisabled"
         dateSelect 
         style="marginTop: 10px"
       />
@@ -117,7 +122,12 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button size="mini" @click="close">取 消</el-button>
-        <el-button size="mini" type="primary" @click="save">确 定</el-button>
+        <el-button 
+          size="mini" 
+          type="primary" 
+          @click="save"
+          :disabled="saveDisabled"
+        >保 存</el-button>
       </span>
     </el-dialog>
     <avue-crud 
@@ -133,8 +143,12 @@
       <template slot-scope="{row}" slot="scope">
         <div>{{row.scope && strSplit(row.scope)[0] && strSplit(row.scope)[0] || row.scope}}</div>
         <el-tooltip 
-          :content="row.scope && strSplit(row.scope)[0] && strSplit(row.scope)[1]"
+          popper-class="tooltip"
+          
         >
+          <div slot="content">
+             <div v-for="item in  strSplit(row.scope)" :key="item">{{item}}</div>
+          </div>
           <span class="scope">{{row.scope && strSplit(row.scope)[0] && strSplit(row.scope)[1] || ''}}</span>
         </el-tooltip>
       </template>
@@ -161,8 +175,8 @@
       ref="automation"
     />
     <span slot="footer" class="dialog-footer" style="textAlign: center">
-        <el-button size="mini" @click="groupVisible = false, tableDialog = false">取 消</el-button>
         <el-button size="mini" type="primary" @click="addCampaigns">确 定</el-button>
+        <el-button size="mini" @click="groupVisible = false, tableDialog = false">取 消</el-button>
       </span>
     </el-dialog>
   </basic-container>
@@ -293,6 +307,7 @@ export default {
       updateId: '',
       automationTemplateId: '',
       tableDialog: false,
+      saveDisabled: true,
       frequencyOption: [
         {
           label: '每7天',
@@ -319,7 +334,7 @@ export default {
   },
   methods: {
     strSplit(str) {
-      return str.split('n');
+      return str.split('n').filter(Boolean);
     },
     getAutomationList() {
       getTemplatePage({
@@ -342,6 +357,13 @@ export default {
       this.getAutomationList();
     },
     save() {
+      if (!this.formInline.templateName) {
+        this.$message({
+          type: 'error',
+          message: '请输入规则名称'
+        });
+        return;
+      }
       const automatic = this.$refs.automatic.getFiled();
       const params = {
         ...this.formInline,
@@ -360,6 +382,8 @@ export default {
           if (res.data.code === 200) {
             this.formInline.templateName = '';
             this.getAutomationList();
+            this.ruleFiled = [];
+            this.tableFiled = {};
             this.centerDialogVisible = false;
           }
         });
@@ -368,8 +392,6 @@ export default {
     },
     close() {
       if (this.flag === 'update') {
-        this.ruleIs = false;
-        this.automaticIs = false;
         this.ruleFiled = [];
         this.tableFiled = {};
         this.formInline = {
@@ -379,6 +401,10 @@ export default {
         };
       }
       this.centerDialogVisible = false;
+    },
+    hidden() {
+      this.ruleIs = false;
+      this.automaticIs = false;
     },
     async update(id) {
       this.flag = 'update';
@@ -454,6 +480,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  ::v-deep .avue-crud__menu {
+    min-height: 0px;
+  }
   ::v-deep .el-input__inner {
     line-height: 30px;
     height: 30px;   
@@ -490,11 +519,11 @@ export default {
     white-space: nowrap;
     text-overflow: ellipsis;
   }
-//  .inputclass[data-v-61329832] {
-//     line-height: 38px;
-//     width: 40%;
-//   }
   ::v-deep .el-input__icon {
     line-height: 30px;
+  }
+  .tooltip {
+    // width: 150px !important;
+    color: aqua !important;
   }
 </style>

@@ -39,7 +39,11 @@
         align="center"
       >
         <template slot-scope="scope">
-          <el-select v-model="scope.row.matchType" placeholder="请选择">
+          <el-select 
+            v-model="scope.row.matchType" 
+            placeholder="请选择"
+            @change="matchTypeSelect"
+          >
             <el-option
               v-for="item in matchType"
               :key="item.value"
@@ -55,7 +59,11 @@
         align="center"
       >
         <template slot-scope="scope">
-          <el-select v-model="scope.row.bidType" placeholder="请选择">
+          <el-select 
+            v-model="scope.row.bidType" 
+            placeholder="请选择"
+            @change="bidTypeSelect"
+          >
             <el-option
               v-for="item in bidSelect"
               :key="item.value"
@@ -139,14 +147,6 @@ export default {
       ]
     };
   },
-  watch: {
-    tableData: {
-      handler(val) {
-        console.log(val)
-      },
-      deep: true
-    }
-  },
   mounted() {
   //   console.log(Object.keys(this.echo).length)
     Object.keys(this.echo).length && this.echoFiled();
@@ -169,6 +169,13 @@ export default {
         bid: this.tableData[0].bid,
         automatedOperation: this.automatedOperation
       }
+    },
+    bidTypeSelect() {
+      this.tableData[0].bid = '';
+    },
+    matchTypeSelect() {
+      this.tableData[0].bidType = '广告组默认竞价';
+      this.tableData[0].bid = '';
     }
   }
 };
