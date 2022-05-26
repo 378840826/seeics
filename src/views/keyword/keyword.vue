@@ -174,7 +174,7 @@
               </div>
               <span class="analysisaginspan" type="text" slot="reference" style="margin: 0">修改词频选项</span>
         </el-popover>
-            <!-- <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span> -->
+            <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span>
         </div>
         </template>
       </avue-crud>
@@ -559,7 +559,7 @@ export default {
     detail (id) {
       console.log(id);
       // wordStatistics(id).then(res => console.log(res))
-      // this.$router.push({path: "/keywordDetail/index", query: {detailId: id}});
+      this.$router.push({path: "/keywordDetail/index", query: {detailId: id}});
       // this.$router.push({path: `/keyword/detail`});
       
     },

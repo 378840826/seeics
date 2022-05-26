@@ -16,7 +16,7 @@ const store = new Vuex.Store({
     common,
     logs,
     tags,
-    dict
+    dict,
   },
   getters,
 });
