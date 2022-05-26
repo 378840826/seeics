@@ -85,7 +85,7 @@ import {
   getCampaignList,
   getShopNameList,
   getMarketplaceList,
-} from '@/api/ppc/automatic';
+} from '@/api/ppc/automation';
 export default {
   name: 'tableDialog',
   props: {

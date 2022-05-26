@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span="16" style="lineHeight: 40px">
         <el-input 
-          v-model="formInline.templateName"
+          v-model="templateName"
           clearable
           class="inputclass"
           placeholder="请输入规则名称" 
@@ -155,14 +155,15 @@
           
         >
           <div slot="content">
-             <div v-for="item in  strSplit(row.scope)" :key="item">{{item}}</div>
+             <div v-for="item in  strSplit(row.scope)" :key="item" style="maxWidth: 150PX">{{item}}</div>
           </div>
           <span class="scope">{{row.scope && strSplit(row.scope)[0] && strSplit(row.scope)[1] || ''}}</span>
         </el-tooltip>
       </template>
       <template slot-scope="{row}" slot="menu">
+        <el-button type="text" size="mini" @click="remove(row.id)">删除</el-button>
         <el-button type="text" size="mini" @click="update(row.id)">编辑</el-button>
-        <el-button type="text" size="mini" @click="addCampaign(row.id)">添加广告活动</el-button>
+        <el-button type="text" size="mini" @click="addCampaignBtn(row.id)">添加广告活动</el-button>
       </template>
     </avue-crud>
     <el-dialog
@@ -183,7 +184,7 @@
       ref="automation"
     />
     <span slot="footer" class="dialog-footer" style="textAlign: center">
-        <el-button size="mini" type="primary" @click="addCampaigns">确 定</el-button>
+        <el-button size="mini" type="primary" @click="addCampaign">确 定</el-button>
         <el-button size="mini" @click="groupVisible = false, tableDialog = false">取 消</el-button>
       </span>
     </el-dialog>
@@ -199,8 +200,9 @@ import {
   detailTemplate,
   getTemplatePage,
   updateTemplate,
-  addCampaign
-} from '@/api/ppc/automatic';
+  addCampaign,
+  removeTemplate
+} from '@/api/ppc/automation';
 export default {
   name: 'automaticTeplate',
   components: {
@@ -306,6 +308,7 @@ export default {
         asinList: [], //ASIN集合
         templateType: '搜索词',
       },
+      templateName: '',
       asinMskuKeyword: '',
       ruleFiled: [],
       tableFiled: {},
@@ -341,6 +344,11 @@ export default {
     };
   },
   methods: {
+    empty() {
+      this.formInline.templateName = '';
+      this.formInline.templateIllustrate = '';
+      this.asinMskuKeyword = '';
+    },
     strSplit(str) {
       return str.split('n').filter(Boolean);
     },
@@ -348,7 +356,7 @@ export default {
       getTemplatePage({
         current: this.page.currentPage, 
         size: this.page.pageSize, 
-        templateName: this.formInline.templateName 
+        templateName: this.templateName 
       }).then(res => {
         if (res.data.code === 200) {
           this.data = res.data.data.records;
@@ -361,7 +369,7 @@ export default {
       this.getAutomationList();
     },
     reset() {
-      this.formInline.templateName = '';
+      this.templateName = '';
       this.getAutomationList();
     },
     save() {
@@ -389,6 +397,11 @@ export default {
       if (this.flag === 'add') {
         createTemplate(params).then(res => {
           if (res.data.code === 200) {
+            this.$message({
+              type: 'success',
+              message: '创建模板成功'
+            });
+            this.empty();
             this.getAutomationList();
             this.centerDialogVisible = false;
           }
@@ -396,6 +409,10 @@ export default {
       } else if (this.flag === 'update') {
         updateTemplate(Object.assign(params, { id: this.updateId })).then(res => {
           if (res.data.code === 200) {
+            this.$message({
+              type: 'success',
+              message: '修改模板成功'
+            });
             this.formInline.templateName = '';
             this.getAutomationList();
             this.ruleFiled = [];
@@ -410,11 +427,7 @@ export default {
       if (this.flag === 'update') {
         this.ruleFiled = [];
         this.tableFiled = {};
-        this.formInline = {
-          ...this.formInline,
-          templateIllustrate: '',
-          templateName: '',
-        };
+        this.empty();
       }
       this.centerDialogVisible = false;
     },
@@ -470,7 +483,7 @@ export default {
       }
       this.formInline.asinList = valueArr;
     },
-    addCampaigns() {
+    addCampaign() {
       addCampaign(this.$refs.automation.getFiled()).then(res => {
         if (res.data.code === 200) {
           this.$message({
@@ -478,18 +491,24 @@ export default {
             message: '添加广告活动成功'
           });
           this.groupVisible = false;
+          this.tableDialog = false;
           this.automationTemplateId = '';
         }
       });
     },
-    addCampaign(id) {
+    addCampaignBtn(id) {
       this.tableDialog = true;
       if (id) {
         this.groupVisible = true;
         this.automationTemplateId = id;
-      } else {
-        // console.log(this.$refs.automation.getFiled())
       }
+    },
+    remove(id) {
+      removeTemplate(id).then(res => {
+        if (res.data.code === 200) {
+          this.getAutomationList();
+        }
+      });
     }
   }
 };

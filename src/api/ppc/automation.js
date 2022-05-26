@@ -76,3 +76,14 @@ export const addCampaign = (data) => {
     data
   });
 };
+
+//删除
+export const removeTemplate = (id) => {
+  return request({
+    url: '/api/seeics-analysis/automation-template/remove',
+    method: 'get',
+    params: {
+      id,
+    }
+  });
+};
