@@ -29,3 +29,22 @@ export const queryCampaignList = data => {
     }
   });
 };
+
+//广告组列表
+export const getGroupList = (campaignIds) => {
+  return request({
+    url: '/api/seeics-ad/group/list',
+    method: 'post',
+    data: {
+      campaignIds,
+    }
+  });
+};
+
+//自动化模板列表
+export const getAutomationList = () => {
+  return request({
+    url: '/api/seeics-analysis/automation-template/list',
+    method: 'get'
+  });
+};

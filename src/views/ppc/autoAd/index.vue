@@ -28,9 +28,9 @@
       >
         <el-option
           v-for="item in filterOptions.marketplaceList"
-          :key="item"
-          :label="item"
-          :value="item"
+          :key="item.name"
+          :label="item.name"
+          :value="item.name"
         />
       </el-select>
 
@@ -155,8 +155,9 @@
         </el-table-column>
         
         <el-table-column prop="keyword" label="搜索词">
-          <template slot-scope="">
+          <template slot-scope="scope">
             <span style="color: #C0C4CC">功能即将开放</span>
+            <div @click="handleTemplate(scope.row.campaignId)">模板1</div>
           </template>
         </el-table-column>
 
@@ -217,7 +218,40 @@
         <el-button type="primary" @click="handleBatchTemplate" :size="componentsSize">确 定</el-button>
       </div>
     </el-dialog>
-
+    <el-dialog
+      :visible="dialogCreateVisible"
+      :append-to-body="true"
+      width="50%"
+      class="tst"
+      :show-close="false"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      center
+      destroy-on-close
+    > 
+      <global-filter
+        v-if="ruleIs"
+      />
+      <auto-mation
+        v-if="automationIs"
+        :id="adGroupList"
+      />
+      
+      <span slot="footer" class="dialog-footer">
+        <el-button 
+          size="mini" 
+          @click="dialogCreateVisible = false;
+            ruleIs = false;
+            automationIs = false"
+          >取 消</el-button>
+        <el-button 
+          size="mini" 
+          type="primary" 
+          @click="save"
+          :disabled="saveDisabled"
+        >保 存</el-button>
+      </span>
+    </el-dialog>
   </basic-container>
 </template>
 
@@ -226,6 +260,7 @@ import {
   queryShopNameList,
   queryMarketplaceList,
   queryCampaignList,
+  getAutomationList
 } from '@/api/ppc/autoAd';
 import {
   stateExtendDict,
@@ -233,11 +268,14 @@ import {
   targetingTypeDict,
   formatTableSortParams,
 } from '../util';
-
+import autoMation from './componets/automation.vue';
+import globalFilter from '@/components/globalFilter/globalFilter.vue';
 export default {
   name: 'ShopList',
 
   components: {
+    autoMation,
+    globalFilter
   },
 
   data() {
@@ -284,6 +322,11 @@ export default {
           { template: '', label: '' },
         ],
       },
+      // 创建模板参数
+      dialogCreateVisible: false,
+      adGroupList: '',
+      automationIs: false,
+      ruleIs: false
     };
   },
 
@@ -300,6 +343,9 @@ export default {
       // 用第一个店铺名称来请求站点列表和表格数据
       this.getMarketplaceListAndTableData(list[0]);
     });
+    getAutomationList().then(res => {
+      console.log(res)
+    })
   },
 
   methods: {
@@ -334,9 +380,9 @@ export default {
     // 获取站点列表并用第一个站点请求表格
     getMarketplaceListAndTableData(shopName) {
       queryMarketplaceList({ shopName }).then(mRes => {
-        const mList = mRes.data.data.sort((a, b) => a.localeCompare(b));
-        this.filterOptions.marketplaceList = mList;
-        this.form.marketplace = mList[0];
+        // const mList = mRes.data.data.sort((a, b) => a.localeCompare(b));
+        this.filterOptions.marketplaceList = mRes.data.data;
+        this.form.marketplace = mRes.data.data[0].name;
         // 获取列表
         this.getTableData();
       });
@@ -407,6 +453,12 @@ export default {
       console.log('点击日志', row);
       this.$message.info('功能即将开放');
     },
+    handleTemplate(id) {
+      this.dialogCreateVisible = true; 
+      this.adGroupList = id;
+      this.ruleIs = true;
+      this.automationIs = true;
+    }
   }
 };
 </script>
