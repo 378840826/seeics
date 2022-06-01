@@ -173,7 +173,7 @@
               </div>
               <span class="analysisaginspan" type="text" slot="reference" style="margin: 0">修改词频选项</span>
         </el-popover>
-            <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span>
+            <!-- <span class="analysisaginspan" @click="detail(scope.row.id)">详情</span> -->
         </div>
         </template>
       </avue-crud>

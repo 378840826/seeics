@@ -50,6 +50,9 @@
             v-model="formInline.templateName"
             placeholder="请输入规则名称"
           />
+          <span 
+            v-if="formInline.templateName.length > 50" 
+            class="msg">请输入不超过50个字符的名称</span>
         </span>
       </div>
       <div class="tabel">
@@ -60,6 +63,9 @@
             type="textarea"
             placeholder="模板说明最多支持1000个字符；"
           />
+          <span 
+            v-if="formInline.templateIllustrate.length > 1000" 
+            class="msg">请输入不超过1000个字符的说明</span>
         </div>
       </div>
       <div class="tabel">
@@ -71,9 +77,8 @@
           />
       </div>
       <h3>规则范围：</h3>
-      <div style="display: flex; justify-content: space-between;">
-        <div>
-          执行频率
+      <div >
+          执行频率：
           <el-select v-model="formInline.executionFrequency">
             <el-option
               v-for="item in frequencyOption"
@@ -82,13 +87,11 @@
               :label="item.label"
             />
           </el-select>
-        </div>
         <el-popover
-          placement="bottom-end"
           width="200"
           trigger="click"
         >
-        <el-button slot="reference" size="mini" style="marginRight: 0">ASIN批量查询</el-button>
+        <el-button slot="reference" size="mini" style="marginLeft: 30px">ASIN批量查询</el-button>
           <div>
             <el-input
               class="asin-textarea"
@@ -163,7 +166,7 @@
       <template slot-scope="{row}" slot="menu">
         <el-button type="text" size="mini" @click="remove(row.id)">删除</el-button>
         <el-button type="text" size="mini" @click="update(row.id)">编辑</el-button>
-        <el-button type="text" size="mini" @click="addCampaignBtn(row.id)">添加广告活动</el-button>
+        <!-- <el-button type="text" size="mini" @click="addCampaignBtn(row.id)">添加广告活动</el-button> -->
       </template>
     </avue-crud>
     <el-dialog
@@ -287,7 +290,7 @@ export default {
             label: '操作',
             prop: 'menu',
             align: 'center',
-            width: 230,
+            width: 130,
             fixed: 'right'
           },
         ],
@@ -531,7 +534,12 @@ export default {
   }
   .tabel {
     display: flex;
-    margin-top: 30px;
+    margin-top: 15px;
+    line-height: 30px;
+    .msg {
+      color: red;
+      font-size: 8px;
+    }
   }
   .explain {
     margin-top: 20px;
