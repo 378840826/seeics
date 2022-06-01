@@ -221,8 +221,8 @@ export default {
         total: 0,
         currentPage: 1,
         layout: 'total, sizes, prev, pager, next, jumper',
-        pageSize: 10,
-        pageSizes: [10, 20, 30, 50],
+        pageSize: 20,
+        pageSizes: [20, 50, 100],
       },
     };
   },
