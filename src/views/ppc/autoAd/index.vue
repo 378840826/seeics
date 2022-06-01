@@ -156,11 +156,11 @@
         
         <el-table-column prop="automationTemplateVoList" label="搜索词">
           <template slot-scope="scope">
-            <!-- <span style="color: #C0C4CC">功能即将开放</span> -->
-            <!-- <div @click="handleTemplate(scope.row)">模板1</div> -->
             <div 
               v-for="(item, index) in scope.row.automationTemplateVoList.length && scope.row.automationTemplateVoList" 
-              :key="item">
+              :key="item"
+              style=""
+            >
               <el-dropdown >
               <span class="el-icon-video-play" style="color: #58bc58"/>
                 <el-dropdown-menu slot="dropdown">
@@ -170,7 +170,7 @@
                     :value="item.value">{{item.label}}</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
-              <el-button type="text" size="mini">{{item}}</el-button>
+              <span type="text" size="mini" style="margin: 5px 5px">{{ item.templateName }}</span>
               <span
                 v-if="index === scope.row.automationTemplateVoList.length - 1"
                 @click="handleTemplate(scope.row)" 
@@ -398,9 +398,9 @@
       destroy-on-close
     >
       <div v-for="item in msgData" :key="item.camId">
-        <span>关键词{{ item.keywordText }}：</span>
+        <span>{{ item.keywordText }}：</span>
         <span>投放{{ item.state === 'fail' ? '失败' : '成功' }}</span>
-        <span v-if="item.state === 'fail'">，失败原因{{ item.failMsg }}</span>
+        <span v-if="item.state === 'fail'">，失败原因：{{ item.failMsg }}</span>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button 
@@ -598,9 +598,10 @@ export default {
     // 获取站点列表并用第一个站点请求表格
     getMarketplaceListAndTableData(shopName) {
       queryMarketplaceList({ shopName }).then(mRes => {
-        // const mList = mRes.data.data.sort((a, b) => a.localeCompare(b));
-        this.filterOptions.marketplaceList = mRes.data.data;
-        this.form.marketplace = mRes.data.data[0].name;
+        // 处理排序数据
+        const mList = mRes.data.data.sort((a, b) => b.name.localeCompare(a.name));
+        this.filterOptions.marketplaceList = mList;
+        this.form.marketplace = mList[0].name;
         // 获取列表
         this.getTableData();
       });
@@ -721,7 +722,22 @@ export default {
     },
     // 保存模板
     save() {
-      manualDelivery(this.$refs.autoMation.getFiled())
+      const params = this.$refs.autoMation.getFiled();
+      // 判断竞价策略
+      const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
+      let flag = true;
+      params.adCampaignInfos.map(item => {
+        if (item.bid && !reg.test(item.bid)) {
+          flag = false;
+        }
+      });
+      if (!flag) {
+        return this.$message({
+          type: 'error',
+          message: '竞价策略支持两位小数'
+        });
+      }
+      manualDelivery(params)
         .then(res => {
           if (res.data.code === 200) {
             this.msgDialog = true;
