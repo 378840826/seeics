@@ -388,6 +388,28 @@
         >创 建</el-button>
       </span>
     </el-dialog>
+    <el-dialog
+      :visible="msgDialog"
+      :append-to-body="true"
+      :show-close="false"
+      width="30%"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      destroy-on-close
+    >
+      <div v-for="item in msgData" :key="item.camId">
+        <span>关键词{{ item.keywordText }}：</span>
+        <span>投放{{ item.state === 'fail' ? '失败' : '成功' }}</span>
+        <span v-if="item.state === 'fail'">，失败原因{{ item.failMsg }}</span>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button 
+          size="mini" 
+          type="primary" 
+          @click="msgDialog = false"
+          >OK</el-button>
+      </span>
+    </el-dialog>
   </basic-container>
 </template>
 
@@ -511,7 +533,9 @@ export default {
           value: '',
           label: '无'
         }
-      ]
+      ],
+      msgDialog: false,
+      msgData: []
     };
   },
 
@@ -700,10 +724,8 @@ export default {
       manualDelivery(this.$refs.autoMation.getFiled())
         .then(res => {
           if (res.data.code === 200) {
-            this.$message({
-              type: 'success',
-              message: res.data.msg
-            });
+            this.msgDialog = true;
+            this.msgData = res.data.data;
             this.dialogCreateVisible = false;
             this.ruleIs = false;
             this.automationIs = false;
