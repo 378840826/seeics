@@ -380,7 +380,7 @@ export default {
       return arrs[0] && arrs[0].value || '';
     },
     //获取字段结构函数
-    getFileld() {
+    getFiled() {
       const obj = filterField(this.formInline, this.dateSelect ? { days: this.dayVal, calculation: this.dailyVal } : null);
       const res = [];
       if (Object.keys(obj).length !== 0) {
