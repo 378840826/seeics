@@ -8,6 +8,7 @@
           :key="item.value"
           :label="item.label"
           :value="item.value"
+          :disabled="item.disabled"
         />
       </el-select>
       <el-popover
@@ -215,11 +216,13 @@ export default {
       launchOption: [
         {
           label: '添加到投放',
-          value: '添加到投放'
+          value: '添加到投放',
+          disabled: true
         },
         {
           label: '添加到否定投放',
-          value: '添加到否定投放'
+          value: '添加到否定投放',
+          disabled: true
         }
       ],
       adGroupList: [],

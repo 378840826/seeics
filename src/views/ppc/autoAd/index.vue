@@ -699,7 +699,15 @@ export default {
     save() {
       manualDelivery(this.$refs.autoMation.getFiled())
         .then(res => {
-          console.log(res);
+          if (res.data.code === 200) {
+            this.$message({
+              type: 'success',
+              message: res.data.msg
+            });
+            this.dialogCreateVisible = false;
+            this.ruleIs = false;
+            this.automationIs = false;
+          }
         });
     },
     // 创建并保存模板
