@@ -154,10 +154,38 @@
           <template slot-scope="scope">{{ targetingTypeDict[scope.row.targetingType] }}</template>
         </el-table-column>
         
-        <el-table-column prop="keyword" label="搜索词">
+        <el-table-column prop="automationTemplateVoList" label="搜索词">
           <template slot-scope="scope">
-            <span style="color: #C0C4CC">功能即将开放</span>
-            <div @click="handleTemplate(scope.row.campaignId)">模板1</div>
+            <!-- <span style="color: #C0C4CC">功能即将开放</span> -->
+            <!-- <div @click="handleTemplate(scope.row)">模板1</div> -->
+            <div 
+              v-for="(item, index) in scope.row.automationTemplateVoList.length && scope.row.automationTemplateVoList" 
+              :key="item">
+              <el-dropdown >
+              <span class="el-icon-video-play" style="color: #58bc58"/>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item 
+                    v-for="item in templateStateList" 
+                    :key="item.value" 
+                    :value="item.value">{{item.label}}</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+              <el-button type="text" size="mini">{{item}}</el-button>
+              <span
+                v-if="index === scope.row.automationTemplateVoList.length - 1"
+                @click="handleTemplate(scope.row)" 
+                class="el-icon-circle-plus-outline"
+                style="fontSize: 14px"
+                type="text"
+              />
+            </div>
+            <span
+              v-if="!scope.row.automationTemplateVoList.length"
+              @click="handleTemplate(scope.row)" 
+              class="el-icon-edit"
+              style="fontSize: 14px"
+              type="text"
+            />
           </template>
         </el-table-column>
 
@@ -222,21 +250,123 @@
       :visible="dialogCreateVisible"
       :append-to-body="true"
       width="50%"
-      class="tst"
       :show-close="false"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       center
       destroy-on-close
     > 
-      <global-filter
+      <!-- <span>创建搜索词：</span>
+      <span>创建搜索词：</span>
+      <div class="tabel">
+        <span>广告活动：</span>
+        <span style="width: 50%">
+          <el-input
+            v-model="formInline.campaign"
+            placeholder="请输入规则名称"
+            :disabled="true"
+          />
+        </span>
+      </div>
+      <div class="tabel">
+        <span>模板类型：</span>
+        <span style="width: 40%">
+          <el-input
+            v-model="formInline.templateType"
+            placeholder="搜索词"
+            :disabled="true"
+          />
+        </span>
+      </div>
+      <div class="tabel">
+        <span>模板名称：
+          <span v-if="!formInline.templateName" style="color: red">*</span>
+        </span>
+        <span style="width: 50%">
+          <el-input
+            v-model="formInline.templateName"
+            placeholder="请输入模板名称"
+          />
+          <span 
+            v-if="formInline.templateName.length > 50" 
+            class="msg">请输入不超过50个字符的名称</span>
+        </span>
+      </div>
+      <div class="tabel">
+        <span>模板说明：</span>
+        <div style="width: 70%">
+          <el-input 
+            v-model="formInline.templateIllustrate" 
+            type="textarea"
+            placeholder="模板说明最多支持1000个字符；"
+          />
+          <span 
+            v-if="formInline.templateIllustrate.length > 1000" 
+            class="msg">请输入不超过1000个字符的名称</span>
+        </div>
+      </div>
+      <div class="tabel">
+        <span>模板状态：</span>
+        <avue-select
+            v-model="formInline.templateState"
+            :dic="templateStateList"
+            placeholder="请选择"
+          />
+      </div>
+      <div class="tabel">
+        <span>自动化模板：</span>
+        <avue-select
+          v-model="autoMationTemplate"
+          :dic="automationList"
+          @change="handlerRule"
+          placeholder="请选择自动化模板"
+        />
+        <span style="marginLeft: 30px; color: #409EFF">去设置</span>
+      </div>
+      <h3>规则范围：</h3>
+      <div>
+        <div class="tabel">
+          执行频率：
+          <el-select v-model="formInline.executionFrequency">
+            <el-option
+              v-for="item in executionFrequencyList"
+              :key="item.value"
+              :value="item.value"
+              :label="item.label"
+            />
+          </el-select>
+          <el-popover
+            width="200"
+            trigger="click"
+          >
+          <el-button slot="reference" size="mini" style="marginLeft: 30px">ASIN批量查询</el-button>
+            <div>
+              <el-input
+                class="asin-textarea"
+                v-model="asinMskuKeyword"
+                placeholder="支持ASIN批量查询，搜索ASIN，找到ASIN相关的关键词；最多20个ASIN，换行间隔；"
+                type="textarea"
+                :rows="10"
+                @input="handleTextAreaInput"
+              />
+            </div>
+          </el-popover>
+        </div>
+        
+      </div> -->
+      <!-- <global-filter
+        dateSelect
         v-if="ruleIs"
-      />
+        ref="rule"
+        :filterecho="ruleFiled"
+        style="marginTop: 15px"
+      /> -->
       <auto-mation
         v-if="automationIs"
-        :id="adGroupList"
+        ref="autoMation"
+        :rowData="rowData"
+        :campaign="formInline.campaign"
       />
-      
       <span slot="footer" class="dialog-footer">
         <el-button 
           size="mini" 
@@ -244,12 +374,18 @@
             ruleIs = false;
             automationIs = false"
           >取 消</el-button>
+        <!-- <el-button 
+          size="mini" 
+          type="primary" 
+          @click="createAndSaves"
+          :disabled="true"
+        >创建并保存模板</el-button> -->
         <el-button 
           size="mini" 
           type="primary" 
           @click="save"
           :disabled="saveDisabled"
-        >保 存</el-button>
+        >创 建</el-button>
       </span>
     </el-dialog>
   </basic-container>
@@ -260,7 +396,10 @@ import {
   queryShopNameList,
   queryMarketplaceList,
   queryCampaignList,
-  getAutomationList
+  getAutomationList,
+  getAutomationDetail,
+  manualDelivery,
+  createAndSave
 } from '@/api/ppc/autoAd';
 import {
   stateExtendDict,
@@ -324,9 +463,55 @@ export default {
       },
       // 创建模板参数
       dialogCreateVisible: false,
-      adGroupList: '',
+      rowData: {},
       automationIs: false,
-      ruleIs: false
+      ruleIs: false,
+      asinMskuKeyword: '',
+      formInline: {
+        campaign: '',
+        templateType: '搜索词',
+        templateName: '', //模板名称
+        templateIllustrate: '', // 模板说明
+        executionFrequency: '7', //执行频率
+        asinList: [], //ASIN集合
+        templateState: 'enabled',
+      },
+      ruleFiled: [], //规则回显
+      templateStateList: [
+        {
+          value: 'enabled',
+          label: '运行'
+        },
+        {
+          value: 'paused',
+          label: '暂停'
+        }
+      ],
+      executionFrequencyList: [
+        {
+          label: '每7天',
+          value: '7'
+        },
+        {
+          label: '每14天',
+          value: '14'
+        },
+        {
+          label: '每21天',
+          value: '21'
+        },
+        {
+          label: '每30天',
+          value: '30'
+        },
+      ],
+      autoMationTemplate: '',
+      automationList: [
+        {
+          value: '',
+          label: '无'
+        }
+      ]
     };
   },
 
@@ -341,11 +526,20 @@ export default {
       this.filterOptions.shopNameList = list;
       this.form.shopName = list[0];
       // 用第一个店铺名称来请求站点列表和表格数据
-      this.getMarketplaceListAndTableData(list[0]);
+      if (Array.isArray(list) && list.length) {
+        this.getMarketplaceListAndTableData(list[0]);
+      }
     });
     getAutomationList().then(res => {
-      console.log(res)
-    })
+      if (res.data.code === 200) {
+        res.data.data.map(item => {
+          this.automationList.push({
+            value: item.id,
+            label: item.templateName
+          });
+        });
+      }
+    });
   },
 
   methods: {
@@ -453,11 +647,75 @@ export default {
       console.log('点击日志', row);
       this.$message.info('功能即将开放');
     },
-    handleTemplate(id) {
+    handleTemplate(row) {
       this.dialogCreateVisible = true; 
-      this.adGroupList = id;
+      this.rowData = row;
       this.ruleIs = true;
       this.automationIs = true;
+      this.formInline.campaign = row.name;
+    },
+    // 批量搜索输入框输入
+    handleTextAreaInput(value) {
+      const maxLines = 20;
+      let valueArr = value.split(/\r\n|\r|\n/);
+      // 超过行数时截取
+      if (valueArr.length > maxLines) {
+        valueArr = valueArr.slice(0, maxLines);
+        value = valueArr.join('\n');
+        this.asinMskuKeyword = value;
+      }
+      this.formInline.asinList = valueArr;
+    },
+    // 回显自动模板规则
+    handlerRule(id) {
+      if (id) {
+        getAutomationDetail(id).then(res => {
+          if (res.data.code === 200) {
+            const data = res.data.data;
+            this.ruleFiled = data.roleList;
+            this.formInline.executionFrequency = data.executionFrequency;
+            this.formInline.templateName = data.templateName;
+            this.formInline.templateIllustrate = data.templateIllustrate;
+            this.asinMskuKeyword = data.asinList.join('\n');
+            this.ruleIs = this.ruleIs ? false : true;
+            this.$nextTick(() => {
+              this.ruleIs = this.ruleIs ? false : true;
+            });
+          }
+        });
+      } else {
+        this.ruleFiled = [];
+        this.formInline.executionFrequency = '';
+        this.formInline.templateName = '';
+        this.formInline.templateIllustrate = '';
+        this.asinMskuKeyword = '';
+        this.ruleIs = this.ruleIs ? false : true;
+        this.$nextTick(() => {
+          this.ruleIs = this.ruleIs ? false : true;
+        });
+      }
+    },
+    // 保存模板
+    save() {
+      manualDelivery(this.$refs.autoMation.getFiled())
+        .then(res => {
+          console.log(res);
+        });
+    },
+    // 创建并保存模板
+    createAndSaves() {
+      const params = {
+        templateName: this.formInline.templateName,
+        templateType: this.formInline.templateType,
+        templateIllustrate: this.formInline.templateIllustrate,
+        executionFrequency: this.formInline.executionFrequency,
+        roleList: this.$refs.rule.getFiled(),
+        asinList: this.formInline.asinList,
+        automationTemplateId: this.autoMationTemplate
+      };
+      createAndSave({ ...params, ...this.$refs.autoMation.getFiled() }).then(res => {
+        console.log(res);
+      });
     }
   }
 };
@@ -465,4 +723,20 @@ export default {
 
 <style lang="scss" scoped>
   @import "./index.scss";
+  .tabel {
+    display: flex;
+    margin-top: 15px;
+    line-height: 30px;
+    .msg {
+      color: red;
+      font-size: 8px;
+    }
+    ::v-deep .el-input__inner {
+      line-height: 30px;
+      height: 30px;   
+    }
+    ::v-deep .el-input__icon {
+      line-height: 30px;
+    }
+  }
 </style>

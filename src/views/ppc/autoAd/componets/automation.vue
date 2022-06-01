@@ -10,6 +10,22 @@
           :value="item.value"
         />
       </el-select>
+      <el-popover
+          width="200"
+          trigger="click"
+        >
+         <el-button slot="reference" size="mini" style="marginLeft: 30px">关键词批量查询</el-button>
+          <div>
+            <el-input
+              class="asin-textarea"
+              v-model="asinMskuKeyword"
+              placeholder="请输入关键词，换行间隔；"
+              type="textarea"
+              :rows="10"
+              @input="handleTextAreaInput"
+            />
+          </div>
+        </el-popover>
     </div>
     <el-table
       :data="tableData"
@@ -22,7 +38,9 @@
         align="center"
       >
         <template slot-scope="scope">
-          <div>{{scope.row.campaign}}</div>
+          <el-tooltip :content="scope.row.campaign">
+            <div style="text-overflow: ellipsis;overflow: hidden;white-space: nowrap;">{{scope.row.campaign}}</div>
+          </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column
@@ -34,7 +52,7 @@
           <el-select 
             v-model="scope.row.adGroup" 
             placeholder="请选择"
-            @change="matchTypeSelect"
+            @change="adGroupSelect(scope.row.id)"
           >
             <el-option
               class="option"
@@ -56,7 +74,6 @@
           <el-select 
             v-model="scope.row.matchType" 
             placeholder="请选择"
-            @change="matchTypeSelect"
           >
             <el-option
               v-for="item in matchType"
@@ -76,7 +93,7 @@
           <el-select 
             v-model="scope.row.bidType" 
             placeholder="请选择"
-            @change="bidTypeSelect"
+            @change="bidTypeSelect(scope.row.id)"
           >
             <el-option
               v-for="item in bidSelect"
@@ -100,7 +117,7 @@
               placeholder="站点货币"
               min="0"
             />
-           <div v-if="msg" class="msg">支持两位小数</div>
+           <div v-if="scope.row.msg" class="msg">支持两位小数</div>
          </div>
         </template>
       </el-table-column>
@@ -118,7 +135,7 @@
            v-if="scope.row.add"
            type="text"
            @click="add"
-           :disabled="addDisabled"
+           :disabled="addDisabled || scope.row.addDisabled"
         >+添加</el-button>
         </template>
       </el-table-column>
@@ -148,16 +165,16 @@ export default {
   name: 'automation',
   props: {
     echo: {
-      type: Object,
+      type: Array,
       default: new Array()
     },
-    // adGroupList: {
-    //   type: Array,
-    //   default: new Array(),
-    // },
-    id: {
+    campaign: {
       type: String,
-      default: ''
+      default: '',
+    },
+    rowData: {
+      type: Object,
+      default: new Object
     }
   },
   data() {
@@ -165,11 +182,12 @@ export default {
       tableData: [
         {
           id: new Date().getTime(),
-          campaign: '自动化标签所在广告活动',
+          campaign: this.campaign,
           adGroup: '',
           matchType: '精准匹配',
           bidType: '广告组默认竞价',
           bid: '',
+          msg: false,
           add: true
         },
       ],
@@ -205,17 +223,16 @@ export default {
         }
       ],
       adGroupList: [],
+      asinList: [],
+      asinMskuKeyword: '',
       msg: false,
       addDisabled: false,
-      deleteDisabled: false
+      deleteDisabled: false,
     };
-  },
-  created() {
-    
   },
   mounted() {
     Object.keys(this.echo).length && this.echoFiled();
-    getGroupList([this.id]).then(res => {
+    getGroupList([this.rowData.campaignId]).then(res => {
       if (res.data.code === 200) {
         this.adGroupList = res.data.data.records;
       }
@@ -225,11 +242,6 @@ export default {
     tableData: {
       handler(val) {
         const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
-        if (reg.test(Number(val[0].bid))) {
-          this.msg = false;
-        } else {
-          this.msg = true;
-        }
         if (val.length === this.adGroupList.length) {
           this.addDisabled = true;
         } else {
@@ -240,6 +252,21 @@ export default {
         } else {
           this.deleteDisabled = false;
         }
+        val.forEach(item => {
+          if (item.bidType === '固定竞价' && !item.bid) {
+            item.addDisabled = true;
+          } else {
+            item.addDisabled = false;
+            if (reg.test(Number(item.bid))) {
+              item.msg = false;
+              item.addDisabled = false;
+            
+            } else {
+              item.msg = true;
+              item.addDisabled = true;
+            }
+          }
+        });
       },
       deep: true
     },
@@ -265,32 +292,63 @@ export default {
       this.tableData[0].bidType = this.echo.bidType;
     },
     getFiled() {
-      return {
-        matchType: this.tableData[0].matchType,
-        bidType: this.tableData[0].bidType,
-        bid: this.tableData[0].bid,
-        automatedOperation: this.automatedOperation
+      let obj = {};
+      const data = this.tableData.map(item => {
+        return {
+          campaignId: this.rowData.campaignId,
+          adGroupId: item.adGroup,
+          matchType: item.matchType,
+          bidType: item.bidType,
+          bid: item.bid
+        };
+      });
+      obj = {
+        adCampaignInfos: data,
+        automatedOperation: this.automatedOperation,
+        keywordTexts: this.asinList,
+        adStoreId: this.rowData.adStoreId,
+        currency: this.rowData.currency
       };
+      return obj;
     },
-    bidTypeSelect() {
-      this.tableData[0].bid = '';
+    // 批量搜索输入框输入
+    handleTextAreaInput(value) {
+      const maxLines = 20;
+      let valueArr = value.split(/\r\n|\r|\n/);
+      // 超过行数时截取
+      if (valueArr.length > maxLines) {
+        valueArr = valueArr.slice(0, maxLines);
+        value = valueArr.join('\n');
+        this.asinMskuKeyword = value;
+      }
+      this.asinList = valueArr;
     },
-    matchTypeSelect() {
-      this.tableData[0].bidType = '广告组默认竞价';
-      this.tableData[0].bid = '';
+    bidTypeSelect(id) {
+      this.tableData.forEach(item => {
+        if (item.id === id) {
+          item.bid = '';
+        }
+      });
+    },
+    adGroupSelect(id) {
+      this.tableData.forEach(item => {
+        if (item.id === id) {
+          item.bid = '';
+        }
+      });
     },
     add() {
-        console.log(this.id)
       if (this.adGroupList === this.tableData.length) {
         return;
       }
       this.tableData.push({
         id: new Date().getTime(),
-        campaign: '自动化标签所在广告活动',
+        campaign: this.campaign,
         adGroup: '',
         matchType: '精准匹配',
         bidType: '广告组默认竞价',
         bid: '',
+        msg: false,
         add: true
       });
       delete this.tableData[this.tableData.length - 2].add;
@@ -344,7 +402,8 @@ export default {
     }
   }
   .option {
-    width: 700px;
+    width: 100%;
+    max-width: 700px;
     .box2 {
       padding: 0 20px;
       white-space: nowrap;

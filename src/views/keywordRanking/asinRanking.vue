@@ -476,7 +476,7 @@ export default {
       });
     },
     filterBtn() {
-      filter(this.$refs.filters.getFileld()).then(res => {
+      filter(this.$refs.filters.getFiled()).then(res => {
         if (res.data.code === 200) {
           this.getkeywordLists();
           this.$refs.filterPopover.doClose(); 

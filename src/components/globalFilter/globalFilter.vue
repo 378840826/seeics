@@ -1,13 +1,28 @@
 <template>
-  <div class="filterBox" :style="{width: screenWidth/2 + 'px'}">
+  <div class="filterBox" style="width: 100%">
     <el-card class="box-card" shadow="never" >
       <div slot="header" class="clearfix">
-          <span style="fontSize: 14px; fontWeight: 600; marginRight: 30px">子规则1</span>
+        <span style="fontSize: 14px; fontWeight: 600; marginRight: 30px">子规则1</span>
         <span style="fontSize: 12px;">规则内指标之间关系为且</span>
-        
-        <!-- <el-button style="float: right; padding: 3px 0" type="text" @click="remove">操作按钮</el-button> -->
       </div>
       <div>
+          <div v-if="dateSelect">
+            过去
+            <el-select 
+              class="condition"
+              style="marginLeft: 10px"
+              v-model="dayVal"
+            >
+             <el-option v-for="item in day" :key="item.value" :value="item.value" :label="item.value"/>
+            </el-select>天的
+            <el-select 
+              class="condition" 
+              style="marginLeft: 10px"
+              v-model='dailyVal'
+            >
+              <el-option v-for="item in daily" :key="item.label" :value="item.label" :label="item.label"/>
+            </el-select>
+          </div>
           <el-row v-for="formInline in formInline" :key="formInline" class="row">
               <el-col class="col">
               <el-select v-model="formInline.label" @change="labelSelect(formInline.id, formInline.label)">
@@ -22,9 +37,23 @@
                 <el-option v-for="item in condition" :key="item.label" :label="item.label" :value="item.value"/>
               </el-select>
               <span v-if="formInline.condition == '≥且<'" class="span">
-                  <el-input v-model="formInline.minVal" min="1" type="number" placeholder="min"/>
-                  <el-input v-model="formInline.maxVal" min="1" type="number" placeholder="max" style="marginRight: 0"/>
-                  
+                  <el-input 
+                    v-model="formInline.minVal" 
+                    min="1" 
+                    type="number" 
+                    placeholder="min"
+                  >
+                    <span v-if="formInline.percentage" slot="append">%</span>
+                  </el-input>
+                  <el-input 
+                    v-model="formInline.maxVal" 
+                    min="1" 
+                    type="number" 
+                    placeholder="max" 
+                    style="marginRight: 0"
+                  >
+                    <span v-if="formInline.percentage" slot="append">%</span>
+                  </el-input>
               </span>
               <span v-else-if="formInline.condition === '环比'" style="marginRight: 0">
                 <el-select v-model="formInline.chain">
@@ -38,8 +67,19 @@
                 <span v-if="formInline.vlaueType === '百分比'">%</span>
                 <span class="span"><el-input type="number" style="marginRight: 0"/></span>
               </span>
-              <span v-else class="span"><el-input v-model="formInline.value" min="1" type="number" style="marginRight: 0"/></span>
-              <div class="icon"><i class="el-icon-error" @click="deleteBtn(formInline.id)"></i></div>
+              <span v-else class="span">
+                <el-input 
+                  v-model="formInline.value" 
+                  min="1" 
+                  type="number" 
+                  style="marginRight: 0"
+                >
+                  <span v-if="formInline.percentage" slot="append">%</span>
+                </el-input>
+              </span>
+              <div class="icon">
+                <i class="el-icon-error" @click="deleteBtn(formInline.id)"></i>
+              </div>
               <el-button
                 v-if="formInline.btn" 
                 type="text" 
@@ -48,6 +88,7 @@
             </el-col>
             <div v-if="formInline.msg" class="message" :style="{width: screenWidth/4 + 'px'}">最大值必须大于最小值</div>
             <div v-else-if="formInline.integer" class="integer" :style="{width: screenWidth/4 + 'px'}">请输入正整数</div>
+            <div v-else-if="formInline.reg" class="integer" :style="{width: screenWidth/4 + 'px'}">只支持两位小数</div>
           </el-row>
       </div>
     </el-card>
@@ -57,7 +98,29 @@
         <div slot="header" class="clearfix">
             <span style="fontSize: 14px; fontWeight: 600; marginRight: 30px">子规则{{item.key + 1}}</span>
           <span style="fontSize: 12px;">规则内指标之间关系为且</span>
-          <el-button style="float: right; padding: 0 0" type="danger" @click="remove(item.key)" icon="el-icon-close"></el-button>
+          <el-button 
+            style="float: right; padding: 0 0" 
+            type="danger" 
+            @click="remove(item.key)" 
+            icon="el-icon-close"
+          ></el-button>
+        </div>
+        <div v-if="dateSelect">
+            过去
+            <el-select 
+              class="condition"
+              style="marginLeft: 10px"
+              v-model="item.days"
+            >
+             <el-option v-for="item in day" :key="item.value" :value="item.value" :label="item.value"/>
+            </el-select>天的
+            <el-select 
+              class="condition" 
+              style="marginLeft: 10px"
+              v-model='item.calculation'
+            >
+              <el-option v-for="item in daily" :key="item.label" :value="item.label" :label="item.label"/>
+            </el-select>
         </div>
         <el-row v-for="formInline in item.formInline" :key="formInline" class="row">
                 <el-col class="col">
@@ -69,12 +132,29 @@
                     :disabled="item.disabled"
                   ></el-option>
                 </el-select>
-                <el-select v-model="formInline.condition" class="condition" @change="sonSleect(formInline.condition, formInline.id)">
+                <el-select 
+                  v-model="formInline.condition" 
+                  class="condition" 
+                  @change="sonSleect(formInline.condition, formInline.id)"
+                >
                   <el-option v-for="item in condition" :key="item.label" :label="item.label" :value="item.value"/>
                 </el-select>
                 <span v-if="formInline.condition === '≥且<'" class="span">
-                    <el-input v-model="formInline.minVal"  min="1" type="number"/>
-                    <el-input v-model="formInline.maxVal"  min="1" type="number" style="marginRight: 0"/>
+                    <el-input 
+                      v-model="formInline.minVal"  
+                      min="1" 
+                      type="number"
+                    >
+                      <span v-if="formInline.percentage" slot="append">%</span>
+                    </el-input>
+                    <el-input 
+                      v-model="formInline.maxVal"  
+                      min="1" 
+                      type="number" 
+                      style="marginRight: 0"
+                    >
+                      <span v-if="formInline.percentage" slot="append">%</span>
+                    </el-input>
                 </span>
                 <span v-else-if="formInline.condition === '环比'" style="marginRight: 0">
                   <el-select v-model="formInline.chain">
@@ -88,8 +168,19 @@
                   <span v-if="formInline.vlaueType === '百分比'">%</span>
                   <span class="span"><el-input  min="1" type="number" style="marginRight: 0"/></span>
                 </span>
-                <span v-else class="span"><el-input v-model="formInline.value"  min="1" type="number" style="marginRight: 0"/></span>
-                <div class="icon"><i class="el-icon-error" @click="deleteBtn(formInline.id, item.id)"></i></div>
+                <span v-else class="span">
+                  <el-input 
+                    v-model="formInline.value" 
+                    min="1" 
+                    type="number" 
+                    style="marginRight: 0"
+                  >
+                    <span v-if="formInline.percentage" slot="append">%</span>
+                  </el-input>
+                </span>
+                <div class="icon">
+                  <i class="el-icon-error" @click="deleteBtn(formInline.id, item.id)"></i>
+                </div>
                 <el-button
                   v-if="formInline.btn" 
                   type="text" 
@@ -98,6 +189,7 @@
               </el-col>
               <div v-if="formInline.msg" class="message" :style="{width: screenWidth/4 + 'px'}">最大值必须大于最小值</div>
               <div v-else-if="formInline.integer" class="integer" :style="{width: screenWidth/4 + 'px'}">请输入正整数</div>
+              <div v-else-if="formInline.reg" class="integer" :style="{width: screenWidth/4 + 'px'}">只支持两位小数</div>
           </el-row>
       </el-card>
     </div>
@@ -112,12 +204,12 @@
 </template>
 
 <script>
-import { filterField, emptySelect, resetValue, addFiled, integer} from './util';
+import { filterField, emptySelect, resetValue, addFiled, integer } from './util';
 import { fields } from './filed';
 export default {
   name: 'globalFilter',
   props: {
-    filterecho: {
+    filterecho: { //字段回显
       type: Array,
       default: []
     },
@@ -125,9 +217,12 @@ export default {
       type: String,
       default: 'tatolFileds'
     },
-    
+    dateSelect: { //过去天数下拉框 
+      type: Boolean,
+      default: false
+    }
   },
-  model: {
+  model: { //双向绑定提交按钮是否禁用
     prop: 'value',
     event: 'change'
   },
@@ -172,20 +267,62 @@ export default {
         //   label: '环比'
         // },
       ],
-     
-      totalFields: [],
       fieldsPage: JSON.parse(JSON.stringify(fields[this.fields])),
       disabled: true,
       addDisabled: true,
       screenWidth: document.body.clientWidth,
       ruleLen: 1, //规则1条件长度
+      integerList: [], //非整数存放
+      percentageList: [], //百分比后缀存放
+      dayVal: '7',
+      dailyVal: '总计',
+      day: [
+        {
+          value: '7'
+        },
+        {
+          value: '14'
+        },
+        {
+          value: '21'
+        },
+        {
+          value: '30'
+        },
+        {
+          value: '60'
+        },
+        {
+          value: '90'
+        },
+      ],
+      daily: [
+        {
+          label: '总计'
+        },
+        {
+          label: '日均'
+        }
+      ]
     };
+  },
+  created() {
+    this.integerList = fields[this.fields].map(item => {
+      if (!item.integer) {
+        return item.value;
+      }
+    }).filter(Boolean);
+    this.percentageList = fields[this.fields].map(item => {
+      if (item.percentage) {
+        return item.value;
+      }
+    }).filter(Boolean);
   },
   mounted() {
     //回显
     this.filterecho.length && this.filterecho[0].item.length < 1 && this.$emit('change', true);
     this.filterecho.length && this.filterecho[0].item.length 
-      ? this.emptyFileld(this.filterecho) 
+      ? this.echoFileld(this.filterecho) 
       : this.addDisabled = true;
     window.onresize = () => {
       return (() => {
@@ -195,8 +332,10 @@ export default {
     
   },
   methods: {
-    emptyFileld(empty) {
-      this.formInline = empty[0].item.map(item => {
+    echoFileld(echo) {
+      this.dayVal = this.dateSelect && echo[0].days;
+      this.dailyVal = this.dateSelect && echo[0].calculation;
+      this.formInline = echo[0].item.map(item => {
         let obj = {};
         obj = {
           id: item.id,
@@ -209,11 +348,13 @@ export default {
         return obj;
       });
       this.formInline[this.formInline.length - 1].btn = true;
-      empty.map((item, idx) => {
+      echo.map((item, idx) => {
         if (idx !== 0) {
           this.data.push({
             id: idx,
             key: idx,
+            days: this.dateSelect && item.days,
+            calculation: this.dateSelect && item.calculation,
             ruleLen: 0,
             formInline: item.item.map(s => {
               let obj = {};
@@ -233,26 +374,26 @@ export default {
         }
       });
     },
+    // 默认选中非禁用字段
     labelFilter(arr) {
       const arrs = arr.filter(item => !item.disabled);
       return arrs[0] && arrs[0].value || '';
     },
-    
-    getFileld() {
-      const obj = filterField(this.formInline);
+    //获取字段结构函数
+    getFiled() {
+      const obj = filterField(this.formInline, this.dateSelect ? { days: this.dayVal, calculation: this.dailyVal } : null);
       const res = [];
       if (Object.keys(obj).length !== 0) {
         res.push(obj);
       }
       this.data.map(item => {
-        const arr = filterField(item.formInline);
+        const arr = filterField(item.formInline, this.dateSelect ? { days: item.days, calculation: item.calculation } : null);
         if (Object.keys(arr).length !== 0) {
           res.push(arr);
         }
       });
       return res;
     },
-
     labelSelect(id, val) {
       this.formInline = resetValue(this.formInline, id);
     },
@@ -320,6 +461,8 @@ export default {
           ruleLen: 0,
           formInline: arr,
           fieldsPage: JSON.parse(JSON.stringify(fields[this.fields])),
+          days: '7',
+          calculation: '总计'
         });
       } else {
         this.$message({
@@ -342,12 +485,14 @@ export default {
     formInline: {
       handler(val) {
         if (this.fieldsPage.length) {
+          
           const arr = [];
           const arrs = [];
           for (let i = 0; i < val.length; i ++) {
             if (val[i].label) {
               arrs.push(val[i].label);
             }
+            // 空值校验
             if (val[i].value && val[i].label || val[i].label && val[i].maxVal && val[i].minVal) {
               arr.push(val[i]);
               this.$emit('change', false);
@@ -356,22 +501,12 @@ export default {
               this.$emit('change', true);
               this.addDisabled = true;
             }
-            
+            // 大小校验
             if (Number(val[i].minVal) > Number(val[i].maxVal)) {
               this.$emit('change', true);
               this.addDisabled = true;
               this.disabled = true;
               val[i].msg = true;
-            } else if (Number(val[i].minVal) < 0 
-              || integer(val[i].minVal) 
-              || Number(val[i].maxVal) < 0 
-              || integer(val[i].maxVal) 
-              || Number(val[i].value) < 0 
-              || integer(val[i].value)) {
-              this.$emit('change', true);
-              this.addDisabled = true;
-              this.disabled = true;
-              val[i].integer = true;
             } else {
               this.$emit('change', false);
               this.addDisabled = false;
@@ -379,6 +514,31 @@ export default {
               val[i].msg = false;
               val[i].integer = false;
             }
+            // 正整数判断
+            if (!this.integerList.includes(val[i].label) && (Number(val[i].minVal) < 0 
+              || integer(val[i].minVal) 
+              || Number(val[i].maxVal) < 0 
+              || integer(val[i].maxVal) 
+              || Number(val[i].value) < 0 
+              || integer(val[i].value))) {
+              this.$emit('change', true);
+              this.addDisabled = true;
+              this.disabled = true;
+              val[i].integer = true;
+            } else {
+              //判断小数点后面两位数
+              const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
+              if (!reg.test(Number(val[i].value))
+                || !reg.test(Number(val[i].minVal))
+                || !reg.test(Number(val[i].maxVal))
+              ) {
+                val[i].reg = true;
+              } else {
+                val[i].reg = false;
+              }
+            }
+            //遍历数据添加百分比标识
+            val[i].percentage = this.percentageList.includes(val[i].label);
           }
           this.disabled = this.fieldsPage.length === val.length ? this.fieldsPage.length === val.length : val.length > arr.length;
           this.$emit('change', val.length > arr.length);
@@ -391,7 +551,12 @@ export default {
             this.$emit('change', true);
             this.addDisabled = true;
             this.disabled = true;
+          } else if (val.filter(item => item.reg).length) {
+            this.$emit('change', true);
+            this.addDisabled = true;
+            this.disabled = true;
           }
+          // 选中过的字段禁用
           this.fieldsPage.forEach(item => {
             if ([...arrs].includes(item.value)) {
               item.disabled = true;
@@ -416,6 +581,7 @@ export default {
               if (item.formInline[i].label) {
                 arrs.push(item.formInline[i].label);
               }
+              // 空值校验
               if (item.formInline[i].value && item.formInline[i].label || item.formInline[i].label && item.formInline[i].maxVal && item.formInline[i].minVal) {
                 arr.push(item.formInline[i]);
                 this.$emit('change', false);
@@ -424,28 +590,50 @@ export default {
                 this.$emit('change', true);
                 this.addDisabled = true;
               }
+              // 大小校验
               if (Number(item.formInline[i].minVal) > Number(item.formInline[i].maxVal)) {
                 this.$emit('change', false);
                 item.formInline[i].msg = true;
                 this.addDisabled = true;
                 return res.push(true);
-              } else if ( Number(item.formInline[i].minVal) < 0 
-                || integer(item.formInline[i].minVal) 
-                || Number(item.formInline[i].maxVal) < 0 
-                || integer(item.formInline[i].maxVal)  
-                || Number(item.formInline[i].value) < 0 
-                || integer(item.formInline[i].value) ) {
-                this.$emit('change', false);
-                item.formInline[i].integer = true;
-                this.addDisabled = true;
-                return res.push(true);
-              // eslint-disable-next-line no-else-return
+                // eslint-disable-next-line no-else-return
               } else {
                 this.$emit('change', true);
                 item.formInline[i].msg = false;
                 item.formInline[i].integer = false;
                 this.addDisabled = false;
               }
+              // 正整数判断
+              if (!this.integerList.includes(item.formInline[i].label) && (Number(item.formInline[i].minVal) < 0 
+                || integer(item.formInline[i].minVal) 
+                || Number(item.formInline[i].maxVal) < 0 
+                || integer(item.formInline[i].maxVal)  
+                || Number(item.formInline[i].value) < 0 
+                || integer(item.formInline[i].value)) ) {
+                this.$emit('change', false);
+                item.formInline[i].integer = true;
+                item.disabled = true;
+                this.addDisabled = true;
+                return res.push(true);
+                // eslint-disable-next-line no-else-return
+              } else {
+                //判断小数点后面两位数
+                const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
+                if (!reg.test(Number(item.formInline[i].value))
+                  || !reg.test(Number(item.formInline[i].minVal))
+                  || !reg.test(Number(item.formInline[i].maxVal))
+                ) {
+                  item.formInline[i].reg = true;
+                  item.disabled = true;
+                  return res.push(true);
+                  // eslint-disable-next-line no-else-return
+                } else {
+                  item.formInline[i].reg = false;
+                  item.disabled = true;
+                }
+              }
+              //遍历数据添加百分比标识
+              item.formInline[i].percentage = this.percentageList.includes(item.formInline[i].label);
             }
             if (item.formInline.length === arr.length) {
               this.$emit('change', false);
@@ -457,6 +645,7 @@ export default {
             if (item.formInline.length === this.fieldsPage.length) {
               item.disabled = true;
             }
+            // 选中过的字段禁用
             item.fieldsPage.forEach(item => {
               if ([...arrs].includes(item.value)) {
                 item.disabled = true;
@@ -466,13 +655,6 @@ export default {
               return item;
             });
             
-            // if (item.formInline.filter(item => item.msg).length) {
-            //   this.$emit("change", true);
-            //   this.addDisabled = true;
-            // } else if (item.formInline.filter(item => item.integer).length) {
-            //   this.$emit("change", true);
-            //   this.addDisabled = true;
-            // }
             res.push(item.formInline.length > arr.length);
           }
         });
@@ -496,16 +678,21 @@ export default {
         width: 80px;
         padding: 0 15px;
         height: 30px;
+        
       }
+     
     }
     .span {
       ::v-deep .el-input {
             position: relative;
             font-size: 14px;
-            display: inline-block;
+            // display: inline-block;
             width: 130px;
             margin-right: 10px;
         }
+       ::v-deep .el-input-group__append, .el-input-group__prepend {
+          padding: 0 0
+      }
     }
     ::v-deep .el-input__inner  {
         position: relative;

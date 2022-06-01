@@ -48,3 +48,41 @@ export const getAutomationList = () => {
     method: 'get'
   });
 };
+
+//自动化模板规则回显
+export const getAutomationDetail = (id) => {
+  return request({
+    url: '/api/seeics-analysis/automation-template/details',
+    method: 'get',
+    params: {
+      id: id
+    }
+  });
+};
+
+// 手动投放
+export const manualDelivery = (data) => {
+  return request({
+    url: '/api/seeics-analysis/automation-template/manual-delivery',
+    method: 'post',
+    data
+  });
+};
+
+// 创建并保存模板
+export const createAndSave = (data) => {
+  return request({
+    url: '/api/seeics-analysis/automation-template/advertising-campaign-template-create',
+    method: 'post',
+    data,
+  });
+};
+
+// 创建模板
+export const createTemplate = (data) => {
+  return request({
+    url: '/api/seeics-analysis/automation-template/advertising-campaign-create',
+    method: 'post',
+    data,
+  });
+};
