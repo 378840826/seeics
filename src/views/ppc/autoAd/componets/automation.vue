@@ -8,7 +8,6 @@
           :key="item.value"
           :label="item.label"
           :value="item.value"
-          :disabled="item.disabled"
         />
       </el-select>
       <el-popover
@@ -60,7 +59,9 @@
               v-for="item in adGroupList"
               :key="item.groupId"
               :label="item.name"
-              :value="item.groupId">
+              :value="item.groupId"
+              :disabled="item.disabled"
+              >
               <div class="box2">{{item.name}}</div>
             </el-option>
           </el-select>
@@ -216,13 +217,11 @@ export default {
       launchOption: [
         {
           label: '添加到投放',
-          value: '添加到投放',
-          disabled: true
+          value: '添加到投放'
         },
         {
           label: '添加到否定投放',
-          value: '添加到否定投放',
-          disabled: true
+          value: '添加到否定投放'
         }
       ],
       adGroupList: [],
@@ -237,7 +236,10 @@ export default {
     Object.keys(this.echo).length && this.echoFiled();
     getGroupList([this.rowData.campaignId]).then(res => {
       if (res.data.code === 200) {
-        this.adGroupList = res.data.data.records;
+        this.adGroupList = res.data.data.records.map(item => {
+          item.disabled = false;
+          return item;
+        });
       }
     });
   },
@@ -255,7 +257,11 @@ export default {
         } else {
           this.deleteDisabled = false;
         }
+        const adGroupId = [];
         val.forEach(item => {
+          if (item.adGroup) {
+            adGroupId.push(item.adGroup);
+          }
           if (item.bidType === '固定竞价' && !item.bid) {
             item.addDisabled = true;
           } else {
@@ -269,6 +275,14 @@ export default {
               item.addDisabled = true;
             }
           }
+          // 选中过的广告禁用
+          this.adGroupList.forEach(item => {
+            if ([...adGroupId].includes(item.groupId)) {
+              item.disabled = true;
+            } else {
+              item.disabled = false;
+            }
+          });
         });
       },
       deep: true
