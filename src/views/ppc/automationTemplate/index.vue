@@ -390,7 +390,7 @@ export default {
       const params = {
         ...this.formInline,
         ...automatic,
-        roleList: this.$refs.filters.getFileld()
+        roleList: this.$refs.filters.getFiled()
       };
       if (this.flag === 'add') {
         createTemplate(params).then(res => {
