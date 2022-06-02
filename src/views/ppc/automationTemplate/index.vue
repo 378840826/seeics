@@ -378,6 +378,20 @@ export default {
         });
         return;
       }
+      if (this.formInline.templateName.length > 50) {
+        this.$message({
+          type: 'error',
+          message: '模板名称不能超过50个字符'
+        });
+        return;
+      }
+      if (this.formInline.templateIllustrate.length > 1000) {
+        this.$message({
+          type: 'error',
+          message: '模板说明不能超过1000个字符'
+        });
+        return;
+      }
       const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
       const automatic = this.$refs.automatic.getFiled();
       if (!reg.test(Number(automatic.bid))) {
