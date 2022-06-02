@@ -402,20 +402,6 @@ export default {
       }
       const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
       const automatic = this.$refs.automatic.getFiled();
-      if (!reg.test(Number(automatic.bid))) {
-        this.$message({
-          type: 'error',
-          message: '固定竞价支持填入小数点后两位小数'
-        });
-        return;
-      }
-      if (!automatic.bid) {
-        this.$message({
-          type: 'error',
-          message: '请输入固定竞价'
-        });
-        return;
-      }
       const params = {
         ...this.formInline,
         ...automatic,
@@ -425,6 +411,20 @@ export default {
         this.$message({
           type: 'error',
           message: '请输子规则中入对应的数值'
+        });
+        return;
+      }
+      if (!reg.test(Number(automatic.bid))) {
+        this.$message({
+          type: 'error',
+          message: '固定竞价支持填入小数点后两位小数'
+        });
+        return;
+      }
+      if (automatic.bidType === '固定竞价' && !automatic.bid) {
+        this.$message({
+          type: 'error',
+          message: '请输入固定竞价'
         });
         return;
       }
