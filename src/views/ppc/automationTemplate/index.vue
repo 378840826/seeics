@@ -342,16 +342,6 @@ export default {
       }]
     };
   },
-  watch: {
-    saveDisabled: {
-      handler(val) {
-        if (val === undefined) {
-          this.saveDisabled = true;
-        }
-      },
-      deep: true
-    }
-  },
   methods: {
     empty() {
       this.formInline.templateName = '';
@@ -419,11 +409,25 @@ export default {
         });
         return;
       }
+      if (!automatic.bid) {
+        this.$message({
+          type: 'error',
+          message: '请输入固定竞价'
+        });
+        return;
+      }
       const params = {
         ...this.formInline,
         ...automatic,
         roleList: this.$refs.filters.getFiled()
       };
+      if (!params.roleList[0].item.length) {
+        this.$message({
+          type: 'error',
+          message: '请输子规则中入对应的数值'
+        });
+        return;
+      }
       if (this.flag === 'add') {
         createTemplate(params).then(res => {
           if (res.data.code === 200) {
