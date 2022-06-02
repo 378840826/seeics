@@ -618,7 +618,7 @@ export default {
       this.form = {
         name: '',
         shopName: this.filterOptions.shopNameList[0],
-        marketplace: this.filterOptions.marketplaceList[0],
+        marketplace: this.filterOptions.marketplaceList[0].name,
         campaignTypeList: [],
         targetingTypeList: [],
         state: '',
