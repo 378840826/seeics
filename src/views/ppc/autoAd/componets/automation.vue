@@ -240,6 +240,7 @@ export default {
           item.disabled = false;
           return item;
         });
+        this.tableData[0].adGroup = this.adGroupList[0].groupId;
       }
     });
   },
@@ -303,6 +304,11 @@ export default {
     },
   },
   methods: {
+    // 默认选择第一个
+    labelFilter(arr) {
+      const arrs = arr.filter(item => !item.disabled);
+      return arrs[0] && arrs[0].groupId || '';
+    },
     echoFiled() {
       this.tableData[0].matchType = this.echo.matchType;
       this.tableData[0].bid = this.echo.bid;
@@ -361,7 +367,7 @@ export default {
       this.tableData.push({
         id: new Date().getTime(),
         campaign: this.campaign,
-        adGroup: '',
+        adGroup: this.labelFilter(this.adGroupList),
         matchType: '精准匹配',
         bidType: '广告组默认竞价',
         bid: '',

@@ -726,15 +726,25 @@ export default {
       // 判断竞价策略
       const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
       let flag = true;
+      let msg = true;
       params.adCampaignInfos.map(item => {
         if (item.bid && !reg.test(item.bid)) {
           flag = false;
+        }
+        if (item.bidType === '固定竞价' && !item.bid) {
+          msg = false;
         }
       });
       if (!flag) {
         return this.$message({
           type: 'error',
-          message: '竞价策略支持两位小数'
+          message: '固定竞价支持两位小数'
+        });
+      }
+      if (!msg) {
+        return this.$message({
+          type: 'error',
+          message: '请输入固定竞价'
         });
       }
       manualDelivery(params)
