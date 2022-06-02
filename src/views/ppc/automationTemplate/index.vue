@@ -6,7 +6,7 @@
           v-model="templateName"
           clearable
           class="inputclass"
-          placeholder="请输入规则名称" 
+          placeholder="请输入模板名称" 
         />
         <el-button 
           @click="search"
@@ -42,7 +42,7 @@
     >
       <span>创建搜索词：</span>
       <div class="tabel">
-        <span>规则名称：
+        <span>模板名称：
           <span v-if="!formInline.templateName" style="color: red">*</span>
         </span>
         <span style="width: 50%">
@@ -56,7 +56,7 @@
         </span>
       </div>
       <div class="tabel">
-        <span>规则说明：</span>
+        <span>模板说明：</span>
         <div style="width: 70%">
           <el-input 
             v-model="formInline.templateIllustrate" 
@@ -215,14 +215,9 @@ export default {
   },
   data() {
     return {
-      data: [
-        {
-          id: 666,
-          scope: '5454'
-        }
-      ],
+      data: [],
       option: {
-        emptyText: '没有找到相关商品，请重新查询',
+        emptyText: '没有找到相关模板，请重新查询',
         addBtn: false,
         border: true,
         columnBtn: false,
@@ -379,7 +374,7 @@ export default {
       if (!this.formInline.templateName) {
         this.$message({
           type: 'error',
-          message: '请输入规则名称'
+          message: '请输入模板名称'
         });
         return;
       }
@@ -416,7 +411,7 @@ export default {
               type: 'success',
               message: '修改模板成功'
             });
-            this.formInline.templateName = '';
+            this.empty();
             this.getAutomationList();
             this.ruleFiled = [];
             this.tableFiled = {};
