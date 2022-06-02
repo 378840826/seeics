@@ -48,7 +48,7 @@
         <span style="width: 50%">
           <el-input
             v-model="formInline.templateName"
-            placeholder="请输入规则名称"
+            placeholder="请输入模板名称"
           />
           <span 
             v-if="formInline.templateName.length > 50" 
@@ -73,6 +73,7 @@
         <avue-select
             v-model="formInline.templateType"
             :dic="templateTypeList"
+            :clearable="false"
             placeholder="请选择"
           />
       </div>
@@ -302,7 +303,7 @@ export default {
       formInline: {
         templateName: '', //规则名称
         templateIllustrate: '', // 模板说明
-        executionFrequency: '7', //执行频率
+        executionFrequency: '30', //执行频率
         asinList: [], //ASIN集合
         templateType: '搜索词',
       },
@@ -340,6 +341,16 @@ export default {
         value: '搜索词'
       }]
     };
+  },
+  watch: {
+    saveDisabled: {
+      handler(val) {
+        if (val === undefined) {
+          this.saveDisabled = true;
+        }
+      },
+      deep: true
+    }
   },
   methods: {
     empty() {
@@ -389,6 +400,13 @@ export default {
         this.$message({
           type: 'error',
           message: '模板说明不能超过1000个字符'
+        });
+        return;
+      }
+      if (!this.formInline.asinList.length) {
+        this.$message({
+          type: 'error',
+          message: 'ASIN不能为空'
         });
         return;
       }
