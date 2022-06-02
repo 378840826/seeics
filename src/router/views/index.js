@@ -38,7 +38,11 @@ export default [{
       path: '/ppc/search-term',
       name: 'Search Term报表',
       component: () => import('@/views/ppc/searchTerm'),
-    },
+    }, {
+      path: '/ppc/automation-template',
+      name: '自动化模板',
+      component: () => import('@/views/ppc/automationTemplate')
+    }
   ],
 }, {
   path: '/test',
