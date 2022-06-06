@@ -410,7 +410,7 @@ export default {
       if (!params.roleList[0].item.length) {
         this.$message({
           type: 'error',
-          message: '请输子规则中入对应的数值'
+          message: '请输入子规则中对应的数值'
         });
         return;
       }
