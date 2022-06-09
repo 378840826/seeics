@@ -22,10 +22,11 @@
 }
 .customercenter {
   width: 400px;
+  margin-bottom: 30px;
 }
 
 .textcenter {
-  margin-top: 100px;
+  margin-top: 30px;
   text-align: center;
   font-size: 14px;
   color: #606266;
