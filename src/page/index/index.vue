@@ -1,5 +1,7 @@
 <template>
   <div class="avue-contail" :class="{'avue--collapse':isCollapse}">
+    <!-- 悬浮客服帮助弹框 -->
+      <suspensionBox/>
     <div class="avue-header">
       <!-- 顶部导航栏 -->
       <top ref="top"/>
@@ -38,13 +40,15 @@ import admin from '@/util/admin';
 import { validatenull } from '@/util/validate';
 import { calcDate } from '@/util/date.js';
 import { getStore } from '@/util/store.js';
+import suspensionBox from '@/components/globalsuspensionBox';
 
 export default {
   components: {
     top,
     tags,
     search,
-    sidebar
+    sidebar,
+    suspensionBox
   },
   name: 'index',
   provide() {
