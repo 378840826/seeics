@@ -173,12 +173,12 @@
                     :class="{'selected':item.campaignStatus === i.value}">{{i.label}}</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
-              <span @click="templateDetail(item.id, scope.row)" size="mini" style="margin: 5px 5px">{{ item.templateName }}</span>
-              <span
+              <el-button type="text" @click="templateDetail(item.id, scope.row)" size="mini" style="margin: 5px 5px; padding: 0">{{ item.templateName }}</el-button>
+              <el-button
                 v-if="index === scope.row.automationTemplateVoList.length - 1"
                 @click="handleTemplate(scope.row)" 
                 class="el-icon-circle-plus-outline"
-                style="fontSize: 14px"
+                style="fontSize: 14px; padding: 0; marginLeft: 0px"
                 type="text"
               />
             </div>
@@ -258,8 +258,10 @@
       :close-on-press-escape="false"
       center
       destroy-on-close
+      top="1vh"
+      custom-class="dialog"
     > 
-      <span>创建搜索词：</span>
+      <h4>创建搜索词：</h4>
       <div class="tabel">
         <span>广告活动：</span>
         <span style="width: 50%">
@@ -325,9 +327,9 @@
           :clearable="false"
           placeholder="请选择自动化模板"
         />
-        <span style="marginLeft: 30px; color: #409EFF">去设置</span>
+        <el-button type="text" style="marginLeft: 30px; padding: 0" @click="$router.push('/ppc/automation-template')">去设置</el-button>
       </div>
-      <h3>规则范围：</h3>
+      <h4>规则范围：</h4>
       <div>
         <div class="tabel">
           执行频率：
@@ -366,6 +368,7 @@
         style="marginTop: 15px"
         v-model="btnDisabled"
       />
+      <h4>自动化操作：</h4>
       <auto-mation
         v-if="automationIs"
         ref="autoMation"
@@ -397,7 +400,6 @@
           size="mini" 
           type="primary" 
           @click="manualDelivery"
-          :disabled="btnDisabled"
         >手动投放</el-button>
       </span>
     </el-dialog>
@@ -715,6 +717,8 @@ export default {
       console.log('点击日志', row);
       this.$message.info('功能即将开放');
     },
+
+    // 添加模板按钮
     handleTemplate(row) {
       this.dialogCreateVisible = true; 
       this.rowData = row;
@@ -723,6 +727,7 @@ export default {
       this.formInline.campaign = row.name;
       this.formInline.templateState = 'runing';
       this.autoMationTemplate = '';
+      this.formInline.asinList = [];
     },
     // 批量搜索输入框输入
     handleTextAreaInput(value) {
@@ -766,9 +771,9 @@ export default {
         });
       }
     },
-    // 手动投放
-    manualDelivery() {
-      const params = this.$refs.autoMation.getFiled();
+    // 投放统一校验
+    deliveryMsg (params) {
+      // const params = this.$refs.autoMation.getFiled();
       // 判断竞价策略
       const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
       let flag = true;
@@ -782,16 +787,64 @@ export default {
         }
       });
       if (!flag) {
-        return this.$message({
+        this.$message({
           type: 'error',
           message: '固定竞价支持两位小数'
         });
+        return true;
       }
       if (!msg) {
-        return this.$message({
+        this.$message({
           type: 'error',
           message: '请输入固定竞价'
         });
+        return true;
+      }
+    },
+    // 子规则统一校验
+    ruleMsg() {
+      if (!this.formInline.templateName) {
+        this.$message({
+          type: 'error',
+          message: '请输入模板名称'
+        });
+        return true;
+      }
+      if (this.formInline.templateName.length > 50) {
+        this.$message({
+          type: 'error',
+          message: '模板名称不能超过50个字符'
+        });
+        return true;
+      }
+      if (this.formInline.templateIllustrate.length > 1000) {
+        this.$message({
+          type: 'error',
+          message: '模板说明不能超过1000个字符'
+        });
+        return true;
+      }
+      if (!this.formInline.asinList.filter(Boolean).length) {
+        this.$message({
+          type: 'error',
+          message: 'ASIN不能为空'
+        });
+        return true;
+      }
+      const roleList = this.$refs.rule.getFiled();
+      if (!roleList[0].item.length) {
+        this.$message({
+          type: 'error',
+          message: '请输入子规则中对应的数值'
+        });
+        return true;
+      }
+    },
+    // 手动投放
+    manualDelivery() {
+      const params = this.$refs.autoMation.getFiled();
+      if (this.deliveryMsg(params)) {
+        return;
       }
       manualDelivery(params)
         .then(res => {
@@ -816,6 +869,9 @@ export default {
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState
       };
+      if (this.ruleMsg()) {
+        return;
+      }
       createAndSave({ ...params, ...this.$refs.autoMation.getFiled() }).then(res => {
         if (res.data.code === 200) {
           this.$message({
@@ -840,6 +896,9 @@ export default {
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState
       };
+      if (this.ruleMsg()) {
+        return;
+      }
       if (this.updateBtn) {
         templateUpdate({ ...params, ...this.$refs.autoMation.getFiled() }).then(res => {
           if (res.data.code === 200) {
@@ -926,6 +985,7 @@ export default {
 
 <style lang="scss" scoped>
   @import "./index.scss";
+
   .tabel {
     display: flex;
     margin-top: 15px;
