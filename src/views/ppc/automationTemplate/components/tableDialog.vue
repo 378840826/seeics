@@ -27,6 +27,7 @@
                 :dic="stateList"
                 placeholder="请选择"
                 style="width: 35%"
+                :clearable="false"
                 @change="getCampaignList()"
             />
         </div>
@@ -112,10 +113,10 @@ export default {
           label: '运行中',
           value: 'enabled'
         },
-        // {
-        //   label: '运行中和已暂停',
-        //   value: 2
-        // },
+        {
+          label: '运行中和已暂停',
+          value: 'enabledAndPaused'
+        },
         {
           label: '已暂停',
           value: 'paused'
@@ -250,7 +251,13 @@ export default {
           stateList.push(item.value);
         }
       });
-      return vm.fromInline.state === 'all' ? stateList : [vm.fromInline.state];
+      if (vm.fromInline.state === 'enabledAndPaused') {
+        return ['enabled', 'paused'];
+      } 
+      if (vm.fromInline.state === 'all') {
+        return stateList;
+      }
+      return [vm.fromInline.state];
     }
   },
   watch: {
