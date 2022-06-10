@@ -93,10 +93,9 @@ import {
 export default {
   name: 'tableDialog',
   props: {
-    automationTemplateId: {
-      type: String,
-      default: ''
-    }
+    automationRow: {
+      type: Object,
+    },
   },
   data() {
     return {
@@ -209,7 +208,7 @@ export default {
           },
           {
             label: '标签名称',
-            prop: 'searchKeyword',
+            prop: 'templateName',
             // width: 50,
             slot: true,            
           },
@@ -255,14 +254,7 @@ export default {
     }
   },
   watch: {
-    automationTemplateId: {
-      handler() {
-        for (const key in this.fromInline) {
-          this.fromInline[key] = '';
-        }
-      },
-      deep: true
-    },
+    
   },
   methods: {
     bas(row) {
@@ -281,7 +273,7 @@ export default {
         };
       });
       const params = {
-        id: this.automationTemplateId,
+        id: this.automationRow.id,
         detailDtoList
       };
       return params;
@@ -302,7 +294,7 @@ export default {
         name: this.fromInline.name,
         shopName: this.fromInline.shopName,
         stateList: this.state,
-        automationTemplateId: this.automationTemplateId
+        automationTemplateId: this.automationRow.id
       }, { current: this.page.currentPage, size: this.page.pageSize });
       getCampaignList(params).then(res => {
         if (res.data.code === 200) {
@@ -345,6 +337,7 @@ export default {
       this.listData = list;
       const arr = this.datas.length && this.datas.map(item => item.campaignId) || [];
       list.map(item => {
+        item.templateName = this.automationRow.templateName;
         if (!arr.includes(item.campaignId)) {
           this.datas.unshift(item);
         }
@@ -366,7 +359,7 @@ export default {
       const params = Object.assign({ 
         ...this.fromInline,
         state: this.state,
-        automationTemplateId: this.automationTemplateId
+        automationTemplateId: this.automationRow.id
       }, { current: this.page.currentPage, size: this.page.pageSize });
       getCampaignList(params).then(res => {
         if (res.data.code === 200) {
