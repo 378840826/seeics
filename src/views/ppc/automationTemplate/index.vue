@@ -39,8 +39,9 @@
       :close-on-press-escape="false"
       @close="hidden"
       center
+      top="1vh"
     >
-      <span>创建搜索词：</span>
+      <h4>创建搜索词：</h4>
       <div class="tabel">
         <span>模板名称：
           <span v-if="!formInline.templateName" style="color: red">*</span>
@@ -77,7 +78,7 @@
             placeholder="请选择"
           />
       </div>
-      <h3>规则范围：</h3>
+      <h4>规则范围：</h4>
       <div >
           执行频率：
           <el-select v-model="formInline.executionFrequency">
@@ -114,6 +115,7 @@
         dateSelect 
         style="marginTop: 10px"
       />
+      <h4>自动化操作：</h4>
       <automatic 
         v-if="automaticIs"
         ref="automatic"
@@ -155,11 +157,10 @@
       <template slot-scope="{row}" slot="scope">
         <div>{{row.scope && strSplit(row.scope)[0] && strSplit(row.scope)[0] || row.scope}}</div>
         <el-tooltip 
-          popper-class="tooltip"
-          
+          popper-class="tooltip" 
         >
-          <div slot="content">
-             <div v-for="item in  strSplit(row.scope)" :key="item" style="maxWidth: 150PX">{{item}}</div>
+          <div slot="content" class="content">
+             <div v-for="item in  strSplit(row.scope)" :key="item">{{item}}</div>
           </div>
           <span class="scope">{{row.scope && strSplit(row.scope)[0] && strSplit(row.scope)[1] || ''}}</span>
         </el-tooltip>
@@ -167,7 +168,7 @@
       <template slot-scope="{row}" slot="menu">
         <el-button type="text" size="mini" @click="remove(row.id)">删除</el-button>
         <el-button type="text" size="mini" @click="update(row.id)">编辑</el-button>
-        <!-- <el-button type="text" size="mini" @click="addCampaignBtn(row.id)">添加广告活动</el-button> -->
+        <el-button type="text" size="mini" @click="addCampaignBtn(row)">添加广告活动</el-button>
       </template>
     </avue-crud>
     <el-dialog
@@ -184,7 +185,7 @@
     <h4>添加广告活动：</h4>
     <p>请选择您要应该模板的广告活动</p>
     <table-dialog 
-      :automationTemplateId="automationTemplateId"
+      :automationRow="automationRow"
       ref="automation"
     />
     <span slot="footer" class="dialog-footer" style="textAlign: center">
@@ -233,6 +234,7 @@ export default {
         menuAlign: 'left',
         rowKey: 'id',
         tip: false,
+        height: 'calc(100vh - 290px)',
         column: [
           {
             label: '模板名称',
@@ -249,7 +251,7 @@ export default {
           {
             label: '规则或范围',
             prop: 'scope',
-            width: 150,
+            width: 280,
             slot: true,            
           },
           {
@@ -351,6 +353,7 @@ export default {
     strSplit(str) {
       return str.split('n').filter(Boolean);
     },
+    // 获取模板列表
     getAutomationList() {
       getTemplatePage({
         current: this.page.currentPage, 
@@ -371,36 +374,64 @@ export default {
       this.templateName = '';
       this.getAutomationList();
     },
-    save() {
+    // 模板校验
+    templateMsg() {
       if (!this.formInline.templateName) {
         this.$message({
           type: 'error',
           message: '请输入模板名称'
         });
-        return;
+        return true;
       }
       if (this.formInline.templateName.length > 50) {
         this.$message({
           type: 'error',
           message: '模板名称不能超过50个字符'
         });
-        return;
+        return true;
       }
       if (this.formInline.templateIllustrate.length > 1000) {
         this.$message({
           type: 'error',
           message: '模板说明不能超过1000个字符'
         });
-        return;
+        return true;
       }
-      if (!this.formInline.asinList.length) {
+      if (!this.formInline.asinList.filter(Boolean).length) {
         this.$message({
           type: 'error',
           message: 'ASIN不能为空'
         });
+        return true;
+      }
+    },
+    // 
+    deliveryMsg() {
+      const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
+      const automatic = this.$refs.automatic.getFiled();
+      if (!reg.test(Number(automatic.bid))) {
+        this.$message({
+          type: 'error',
+          message: '固定竞价支持填入小数点后两位小数'
+        });
+        return true;
+      }
+      if (automatic.bidType === '固定竞价' && !automatic.bid) {
+        this.$message({
+          type: 'error',
+          message: '请输入固定竞价'
+        });
+        return true;
+      }
+    },
+    // 创建模板
+    save() {
+      if (this.templateMsg()) {
         return;
       }
-      const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
+      if (this.deliveryMsg()) {
+        return;
+      }
       const automatic = this.$refs.automatic.getFiled();
       const params = {
         ...this.formInline,
@@ -411,20 +442,6 @@ export default {
         this.$message({
           type: 'error',
           message: '请输入子规则中对应的数值'
-        });
-        return;
-      }
-      if (!reg.test(Number(automatic.bid))) {
-        this.$message({
-          type: 'error',
-          message: '固定竞价支持填入小数点后两位小数'
-        });
-        return;
-      }
-      if (automatic.bidType === '固定竞价' && !automatic.bid) {
-        this.$message({
-          type: 'error',
-          message: '请输入固定竞价'
         });
         return;
       }
@@ -469,6 +486,7 @@ export default {
       this.ruleIs = false;
       this.automaticIs = false;
     },
+    // 编辑模板
     async update(id) {
       this.flag = 'update';
       this.updateId = id;
@@ -488,7 +506,8 @@ export default {
             executionFrequency: result.executionFrequency,
             templateIllustrate: result.templateIllustrate,
             templateName: result.templateName,
-            templateType: result.templateType
+            templateType: result.templateType,
+            asinList: result.asinList
           };
           this.asinMskuKeyword = result.asinList.join('\n');
         }
@@ -517,7 +536,16 @@ export default {
       }
       this.formInline.asinList = valueArr;
     },
+    // 保存添加广告活动
     addCampaign() {
+      const params = this.$refs.automation.getFiled();
+      if (!params.detailDtoList.length) {
+        this.$message({
+          type: 'error',
+          message: '请勾选广告活动'
+        });
+        return;
+      }
       addCampaign(this.$refs.automation.getFiled()).then(res => {
         if (res.data.code === 200) {
           this.$message({
@@ -527,14 +555,16 @@ export default {
           this.groupVisible = false;
           this.tableDialog = false;
           this.automationTemplateId = '';
+          this.getAutomationList();
         }
       });
     },
-    addCampaignBtn(id) {
+    // 添加广告活动按钮
+    addCampaignBtn(row) {
       this.tableDialog = true;
-      if (id) {
+      if (row) {
         this.groupVisible = true;
-        this.automationTemplateId = id;
+        this.automationRow = row;
       }
     },
     remove(id) {
@@ -588,16 +618,21 @@ export default {
   }
   .scope {
     display: inline-block;
-    max-width: 140px;
+    max-width: 200px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+  }
+  .content {
+    width: 200px; 
+    max-height: 200px;
+    overflow-y: scroll;
+
   }
   ::v-deep .el-input__icon {
     line-height: 30px;
   }
   .tooltip {
-    // width: 150px !important;
     color: aqua !important;
   }
 </style>

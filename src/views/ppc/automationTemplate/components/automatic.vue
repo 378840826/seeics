@@ -172,9 +172,9 @@ export default {
   },
   methods: {
     echoFiled() {
-      this.tableData[0].matchType = this.echo.matchType;
+      this.tableData[0].matchType = this.echo.matchType || '精准匹配';
       this.tableData[0].bid = this.echo.bid;
-      this.tableData[0].bidType = this.echo.bidType;
+      this.tableData[0].bidType = this.echo.bidType || '广告组默认竞价';
     },
     getFiled() {
       return {

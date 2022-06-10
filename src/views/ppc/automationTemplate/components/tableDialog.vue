@@ -11,12 +11,15 @@
                 :label="item"
               />
             </el-select>
-            <el-select v-model="fromInline.marketplace" style="width: 25%">
+            <el-select 
+              @change="getCampaignList()" 
+              v-model="fromInline.marketplace" 
+              style="width: 25%">
               <el-option
                 v-for="item in marketplaceList"
-                :key="item"
-                :value="item"
-                :label="item"
+                :key="item.name"
+                :value="item.name"
+                :label="item.name"
               />
             </el-select>
             <avue-select
@@ -24,6 +27,7 @@
                 :dic="stateList"
                 placeholder="请选择"
                 style="width: 35%"
+                @change="getCampaignList()"
             />
         </div>
         <div class="search" >
@@ -89,10 +93,9 @@ import {
 export default {
   name: 'tableDialog',
   props: {
-    automationTemplateId: {
-      type: String,
-      default: ''
-    }
+    automationRow: {
+      type: Object,
+    },
   },
   data() {
     return {
@@ -205,7 +208,7 @@ export default {
           },
           {
             label: '标签名称',
-            prop: 'searchKeyword',
+            prop: 'templateName',
             // width: 50,
             slot: true,            
           },
@@ -232,14 +235,7 @@ export default {
       if (res.data.code === 200) {
         this.shopList = res.data.data;
         this.fromInline.shopName = res.data.data.length && res.data.data[0];
-        getMarketplaceList(this.fromInline.shopName).then(res => {
-          if (res.data.code === 200) {
-            this.marketplaceList = res.data.data;
-            this.fromInline.marketplace = res.data.data.length && res.data.data[0];
-            this.handleSearch();
-            this.tableLoading = false;
-          } 
-        });
+        this.getMarketplaceList(this.fromInline.shopName);
       }
     });
   },
@@ -258,14 +254,7 @@ export default {
     }
   },
   watch: {
-    automationTemplateId: {
-      handler() {
-        for (const key in this.fromInline) {
-          this.fromInline[key] = '';
-        }
-      },
-      deep: true
-    },
+    
   },
   methods: {
     bas(row) {
@@ -284,16 +273,28 @@ export default {
         };
       });
       const params = {
-        id: this.automationTemplateId,
+        id: this.automationRow.id,
         detailDtoList
       };
       return params;
     },
+    getMarketplaceList(shopName) {
+      getMarketplaceList(shopName).then(res => {
+        if (res.data.code === 200) {
+          this.marketplaceList = res.data.data.sort((a, b) => b.name.localeCompare(a.name));
+          this.fromInline.marketplace = res.data.data.length && res.data.data[0].name;
+          this.tableLoading = false;
+          this.getCampaignList();
+        } 
+      });
+    },
     getCampaignList() {
       const params = Object.assign({ 
-        ...this.fromInline,
-        state: this.state,
-        automationTemplateId: this.automationTemplateId
+        marketplace: this.fromInline.marketplace,
+        name: this.fromInline.name,
+        shopName: this.fromInline.shopName,
+        stateList: this.state,
+        automationTemplateId: this.automationRow.id
       }, { current: this.page.currentPage, size: this.page.pageSize });
       getCampaignList(params).then(res => {
         if (res.data.code === 200) {
@@ -336,38 +337,29 @@ export default {
       this.listData = list;
       const arr = this.datas.length && this.datas.map(item => item.campaignId) || [];
       list.map(item => {
+        item.templateName = this.automationRow.templateName;
         if (!arr.includes(item.campaignId)) {
           this.datas.unshift(item);
         }
       });
     },
     handelShopChange(val) {
-      //清空原有选项
-      for (const key in this.fromInline) {
-        if (this.fromInline[key] !== val) {
-          this.fromInline[key] = '';
-        }
-      }
+      this.fromInline.name = '';
       this.marketplaceList = [];
-      getMarketplaceList(val).then(res => {
-        if (res.data.code === 200) {
-          this.marketplaceList = res.data.data;
-        } 
-      });
+      this.tableLoading = true;
+      this.getMarketplaceList(val);
     },
     reset() {
-      for (const key in this.fromInline) {
-        this.fromInline[key] = '';
-      }
-      this.marketplaceList = [];
-      this.getCampaignList();
+      this.fromInline.state = 'enabled';
+      this.fromInline.shopName = this.shopList[0];
+      this.handelShopChange(this.shopList[0]);
     },
     handleSearch() {
       this.tableLoading = true;
       const params = Object.assign({ 
         ...this.fromInline,
         state: this.state,
-        automationTemplateId: this.automationTemplateId
+        automationTemplateId: this.automationRow.id
       }, { current: this.page.currentPage, size: this.page.pageSize });
       getCampaignList(params).then(res => {
         if (res.data.code === 200) {
