@@ -168,7 +168,7 @@
       <template slot-scope="{row}" slot="menu">
         <el-button type="text" size="mini" @click="remove(row.id)">删除</el-button>
         <el-button type="text" size="mini" @click="update(row.id)">编辑</el-button>
-        <el-button type="text" size="mini" @click="addCampaignBtn(row.id)">添加广告活动</el-button>
+        <el-button type="text" size="mini" @click="addCampaignBtn(row)">添加广告活动</el-button>
       </template>
     </avue-crud>
     <el-dialog
@@ -185,7 +185,7 @@
     <h4>添加广告活动：</h4>
     <p>请选择您要应该模板的广告活动</p>
     <table-dialog 
-      :automationTemplateId="automationTemplateId"
+      :automationRow="automationRow"
       ref="automation"
     />
     <span slot="footer" class="dialog-footer" style="textAlign: center">
@@ -560,11 +560,11 @@ export default {
       });
     },
     // 添加广告活动按钮
-    addCampaignBtn(id) {
+    addCampaignBtn(row) {
       this.tableDialog = true;
-      if (id) {
+      if (row) {
         this.groupVisible = true;
-        this.automationTemplateId = id;
+        this.automationRow = row;
       }
     },
     remove(id) {
