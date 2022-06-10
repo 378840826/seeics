@@ -4,6 +4,9 @@
   :append-to-body="true"
   width="50%"
   center
+  :show-close="false"
+  :close-on-click-modal="false"
+  :close-on-press-escape="false"
   :before-close="handleClose">
     <div slot="title" class="title"><span>{{title}}</span></div>
     <el-form :label-position="labelPosition" ref="form" label-width="115px" :model="formLabelAlign">
@@ -24,7 +27,12 @@
             v-for="(item, index) in formLabelAlign.data" 
             :key="index">
             <el-col :span="10">
-              <el-form-item label="自动化模板" prop="automationTemplateId">
+              <el-form-item 
+                label="自动化模板" 
+                :prop="'data.' + index + '.automationTemplateId'"
+                :rules="[
+                  { required: true, message: '请选择模板'}
+                ]">
                 <avue-select
                   v-model="item.automationTemplateId"
                   :clearable="false"
@@ -39,7 +47,8 @@
                 label="标签名称"
                 :prop="'data.' + index +'.templateName'"
                 :rules="[
-                  { required: true, message: '标签名称不能为空'}
+                  { required: true, message: '标签名称不能为空'},
+                  { max: 50, message: '长度最多 50 个字符', trigger: 'change' }
                 ]"
               >
                 <el-input v-model="item.templateName"></el-input>
@@ -207,6 +216,13 @@ export default {
     },
     add() {
       this.$refs['form'].validate( valid => {
+        if (this.formLabelAlign.data.length > 10) {
+          this.$message({
+            type: 'warning',
+            message: '批量设置模板最多可以添加10个！'
+          });
+          return;
+        }
         if (valid) {
           this.formLabelAlign.data.push({
             automationTemplateId: this.labelFilter(this.templateList),
