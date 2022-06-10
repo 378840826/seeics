@@ -14,9 +14,9 @@
             <el-select v-model="fromInline.marketplace" style="width: 25%">
               <el-option
                 v-for="item in marketplaceList"
-                :key="item"
-                :value="item"
-                :label="item"
+                :key="item.name"
+                :value="item.name"
+                :label="item.name"
               />
             </el-select>
             <avue-select
@@ -235,7 +235,7 @@ export default {
         getMarketplaceList(this.fromInline.shopName).then(res => {
           if (res.data.code === 200) {
             this.marketplaceList = res.data.data;
-            this.fromInline.marketplace = res.data.data.length && res.data.data[0];
+            this.fromInline.marketplace = res.data.data.length && res.data.data[0].name;
             this.handleSearch();
             this.tableLoading = false;
           } 

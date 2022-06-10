@@ -52,7 +52,7 @@
           <el-select 
             v-model="scope.row.adGroup" 
             placeholder="请选择"
-            @change="adGroupSelect(scope.row.id)"
+            @change="adGroupSelect(scope.$index)"
           >
             <el-option
               class="option"
@@ -95,7 +95,7 @@
           <el-select 
             v-model="scope.row.bidType" 
             placeholder="请选择"
-            @change="bidTypeSelect(scope.row.id)"
+            @change="bidTypeSelect(scope.$index)"
           >
             <el-option
               v-for="item in bidSelect"
@@ -118,7 +118,7 @@
               type="number"
               placeholder="站点货币"
               min="0"
-            />
+            ><i slot="prefix" style="lineHeight: 30px;">{{ rowData.currency }}</i></el-input>
            <div v-if="scope.row.msg" class="msg">支持两位小数</div>
          </div>
         </template>
@@ -128,7 +128,7 @@
       >
         <template slot-scope="scope">
          <el-button 
-           @click="delet(scope.row.id)" 
+           @click="delet(scope.$index)" 
            type="text"
            class="el-icon-delete"
            :disabled="deleteDisabled"
@@ -183,7 +183,7 @@ export default {
     return {
       tableData: [
         {
-          id: new Date().getTime(),
+          id: null,
           campaign: this.campaign,
           adGroup: '',
           matchType: '精准匹配',
@@ -234,15 +234,11 @@ export default {
   },
   mounted() {
     Object.keys(this.echo).length && this.echoFiled();
-    getGroupList([this.rowData.campaignId]).then(res => {
-      if (res.data.code === 200) {
-        this.adGroupList = res.data.data.records.map(item => {
-          item.disabled = false;
-          return item;
-        });
-        this.tableData[0].adGroup = this.adGroupList[0].groupId;
-      }
-    });
+    this.getGroupList();
+  },
+  destroyed() {
+    this.echo.adCampaignInfos = [];
+    this.automatedOperation = '';
   },
   watch: {
     tableData: {
@@ -310,9 +306,21 @@ export default {
       return arrs[0] && arrs[0].groupId || '';
     },
     echoFiled() {
-      this.tableData[0].matchType = this.echo.matchType;
-      this.tableData[0].bid = this.echo.bid;
-      this.tableData[0].bidType = this.echo.bidType;
+      if (!this.echo.adCampaignInfos.length) {
+        return;
+      }
+      this.tableData = this.echo.adCampaignInfos.map(item => {
+        return {
+          id: item.id,
+          campaign: this.campaign,
+          adGroup: item.adGroupId,
+          matchType: item.matchType,
+          bidType: item.bidType,
+          bid: item.bid,
+        };
+      });
+      this.automatedOperation = this.echo.automatedOperation;
+      this.tableData[this.tableData.length - 1].add = true;
     },
     getFiled() {
       let obj = {};
@@ -322,7 +330,9 @@ export default {
           adGroupId: item.adGroup,
           matchType: item.matchType,
           bidType: item.bidType,
-          bid: item.bid
+          bid: item.bid,
+          currency: this.rowData.currency,
+          id: item.id
         };
       });
       obj = {
@@ -330,9 +340,40 @@ export default {
         automatedOperation: this.automatedOperation,
         keywordTexts: this.asinList,
         adStoreId: this.rowData.adStoreId,
-        currency: this.rowData.currency
+        currency: this.rowData.currency,
+        marketplace: this.rowData.marketplace,
+        id: this.echo.id || null,
+        campaignId: this.rowData.campaignId
       };
       return obj;
+    },
+    // 获取广告组
+    getGroupList() {
+      getGroupList([this.rowData.campaignId]).then(res => {
+        if (res.data.code === 200) {
+          this.adGroupList = res.data.data.records.map(item => {
+            item.disabled = false;
+            return item;
+          });
+          if (this.echo.adCampaignInfos && !this.echo.adCampaignInfos.length) {
+            this.tableData[0].adGroup = this.adGroupList[0].groupId;
+          }
+          // 选中过的广告禁用
+          const adGroupId = [];
+          this.tableData.map(item => {
+            if (item.adGroup) {
+              adGroupId.push(item.adGroup);
+            }
+          });
+          this.adGroupList.forEach(item => {
+            if ([...adGroupId].includes(item.groupId)) {
+              item.disabled = true;
+            } else {
+              item.disabled = false;
+            }
+          });
+        }
+      });
     },
     // 批量搜索输入框输入
     handleTextAreaInput(value) {
@@ -346,26 +387,18 @@ export default {
       }
       this.asinList = valueArr;
     },
-    bidTypeSelect(id) {
-      this.tableData.forEach(item => {
-        if (item.id === id) {
-          item.bid = '';
-        }
-      });
+    bidTypeSelect(index) {
+      this.tableData[index].bid = '';
     },
-    adGroupSelect(id) {
-      this.tableData.forEach(item => {
-        if (item.id === id) {
-          item.bid = '';
-        }
-      });
+    adGroupSelect(index) {
+      this.tableData[index].bid = '';
     },
     add() {
       if (this.adGroupList === this.tableData.length) {
         return;
       }
       this.tableData.push({
-        id: new Date().getTime(),
+        id: null,
         campaign: this.campaign,
         adGroup: this.labelFilter(this.adGroupList),
         matchType: '精准匹配',
@@ -376,11 +409,11 @@ export default {
       });
       delete this.tableData[this.tableData.length - 2].add;
     },
-    delet(id) {
+    delet(index) {
       if (this.tableData.length === 1) {
         return;
       }
-      this.tableData = this.tableData.filter(item => item.id !== id);
+      this.tableData.splice(index, 1);
       this.tableData[this.tableData.length - 1].add = true;
     }
   }

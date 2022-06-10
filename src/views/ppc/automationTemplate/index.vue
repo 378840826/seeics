@@ -167,7 +167,7 @@
       <template slot-scope="{row}" slot="menu">
         <el-button type="text" size="mini" @click="remove(row.id)">删除</el-button>
         <el-button type="text" size="mini" @click="update(row.id)">编辑</el-button>
-        <!-- <el-button type="text" size="mini" @click="addCampaignBtn(row.id)">添加广告活动</el-button> -->
+        <el-button type="text" size="mini" @click="addCampaignBtn(row.id)">添加广告活动</el-button>
       </template>
     </avue-crud>
     <el-dialog
@@ -233,6 +233,7 @@ export default {
         menuAlign: 'left',
         rowKey: 'id',
         tip: false,
+        height: 'calc(100vh - 290px)',
         column: [
           {
             label: '模板名称',
