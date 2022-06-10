@@ -114,12 +114,12 @@
     <!-- 批量设置栏 -->
     <div class="batch-container">
       <el-button
-        @click="handleClickLog"
+        @click="handleBacthBtn('batchTemplate')"
         :size="componentsSize"
         :disabled="!tableSelected.length"
       >批量设置模板</el-button>
       <el-button
-        @click="handleClickLog"
+        @click="handleBacthBtn('batchStatus')"
         :size="componentsSize"
         :disabled="!tableSelected.length"
       >批量设置模板状态</el-button>
@@ -161,16 +161,19 @@
               :key="item"
               style=""
             >
-              <el-dropdown >
-              <span class="el-icon-video-play" style="color: #58bc58"/>
+              <el-dropdown @command="templateStutes">
+              <span class="el-icon-video-play" :style="{color: item.campaignStatus !== 'stop' ? '#58bc58' : 'red'}"/>
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item 
-                    v-for="item in templateStateList" 
-                    :key="item.value" 
-                    :value="item.value">{{item.label}}</el-dropdown-item>
+                    v-for="i in templateStateList" 
+                    @click="statu"
+                    :key="i.value" 
+                    :command="status(i.value, scope.row, item.id)"
+                    :value="i.value"
+                    :class="{'selected':item.campaignStatus === i.value}">{{i.label}}</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
-              <span type="text" size="mini" style="margin: 5px 5px">{{ item.templateName }}</span>
+              <span @click="templateDetail(item.id, scope.row)" size="mini" style="margin: 5px 5px">{{ item.templateName }}</span>
               <span
                 v-if="index === scope.row.automationTemplateVoList.length - 1"
                 @click="handleTemplate(scope.row)" 
@@ -256,7 +259,6 @@
       center
       destroy-on-close
     > 
-      <!-- <span>创建搜索词：</span>
       <span>创建搜索词：</span>
       <div class="tabel">
         <span>广告活动：</span>
@@ -310,6 +312,7 @@
         <avue-select
             v-model="formInline.templateState"
             :dic="templateStateList"
+            :clearable="false"
             placeholder="请选择"
           />
       </div>
@@ -319,6 +322,7 @@
           v-model="autoMationTemplate"
           :dic="automationList"
           @change="handlerRule"
+          :clearable="false"
           placeholder="请选择自动化模板"
         />
         <span style="marginLeft: 30px; color: #409EFF">去设置</span>
@@ -353,39 +357,48 @@
           </el-popover>
         </div>
         
-      </div> -->
-      <!-- <global-filter
+      </div>
+      <global-filter
         dateSelect
         v-if="ruleIs"
         ref="rule"
         :filterecho="ruleFiled"
         style="marginTop: 15px"
-      /> -->
+        v-model="btnDisabled"
+      />
       <auto-mation
         v-if="automationIs"
         ref="autoMation"
         :rowData="rowData"
         :campaign="formInline.campaign"
+        :echo="echoAtuomation"
       />
       <span slot="footer" class="dialog-footer">
         <el-button 
           size="mini" 
           @click="dialogCreateVisible = false;
             ruleIs = false;
-            automationIs = false"
+            automationIs = false;
+            updateBtn = false"
           >取 消</el-button>
-        <!-- <el-button 
-          size="mini" 
-          type="primary" 
-          @click="createAndSaves"
-          :disabled="true"
-        >创建并保存模板</el-button> -->
         <el-button 
           size="mini" 
           type="primary" 
-          @click="save"
-          :disabled="saveDisabled"
-        >创 建</el-button>
+          @click="createAndSaves"
+          :disabled="btnDisabled"
+        >{{updateBtn ? '确认并保存模板' : '创建并保存模板'}}</el-button>
+        <el-button 
+          size="mini" 
+          type="primary" 
+          @click="createTemplate"
+          :disabled="btnDisabled"
+        >{{updateBtn ? '确 认' : '创 建'}}</el-button>
+        <el-button 
+          size="mini" 
+          type="primary" 
+          @click="manualDelivery"
+          :disabled="btnDisabled"
+        >手动投放</el-button>
       </span>
     </el-dialog>
     <el-dialog
@@ -410,6 +423,16 @@
           >OK</el-button>
       </span>
     </el-dialog>
+    <dialog-statu
+      v-if="dialogVisible"
+      :dialogVisible="dialogVisible"
+      :title="batch === 'batchTemplate' ? '批量设置模板' : '批量设置模板状态'"
+      :batch="batch"
+      v-model="dialogVisible"
+      :tableSelected="tableSelected"
+      :marketplace="marketplace"
+      :getTableData="getTableData"
+    />
   </basic-container>
 </template>
 
@@ -421,7 +444,11 @@ import {
   getAutomationList,
   getAutomationDetail,
   manualDelivery,
-  createAndSave
+  createAndSave,
+  createTemplate,
+  templateDetail,
+  templateUpdate,
+  templateStatus
 } from '@/api/ppc/autoAd';
 import {
   stateExtendDict,
@@ -431,12 +458,14 @@ import {
 } from '../util';
 import autoMation from './componets/automation.vue';
 import globalFilter from '@/components/globalFilter/globalFilter.vue';
+import dialogStatu from './componets/dialog.vue';
 export default {
   name: 'ShopList',
 
   components: {
     autoMation,
-    globalFilter
+    globalFilter,
+    dialogStatu
   },
 
   data() {
@@ -477,6 +506,9 @@ export default {
       dialogTemplateVisible: false,
       dialogStateVisible: false,
       // 批量设置模板参数
+      dialogVisible: false,
+      batch: '',
+      marketplace: '',
       templateForm: {
         type: '搜索词自动化标签',
         itemList: [
@@ -494,18 +526,20 @@ export default {
         templateType: '搜索词',
         templateName: '', //模板名称
         templateIllustrate: '', // 模板说明
-        executionFrequency: '7', //执行频率
+        executionFrequency: '30', //执行频率
         asinList: [], //ASIN集合
-        templateState: 'enabled',
+        templateState: 'runing',
       },
+      templateState: 'runing',
       ruleFiled: [], //规则回显
+      updateBtn: false, //
       templateStateList: [
         {
-          value: 'enabled',
+          value: 'runing',
           label: '运行'
         },
         {
-          value: 'paused',
+          value: 'stop',
           label: '暂停'
         }
       ],
@@ -535,7 +569,8 @@ export default {
         }
       ],
       msgDialog: false,
-      msgData: []
+      msgData: [],
+      btnDisabled: false, //弹窗按钮限制
     };
   },
 
@@ -628,7 +663,8 @@ export default {
 
     // 表格行选中
     handleSelectionChange(val) {
-      this.tableSelected = val;
+      this.tableSelected = val.map(item => item.campaignId);
+      this.marketplace = val[0].marketplace;
     },
 
     // 排序（广告活动名称排序）
@@ -663,6 +699,13 @@ export default {
       });
     },
 
+    // 批量设置弹窗
+    handleBacthBtn(name) {
+      this.dialogVisible = true;
+      this.batch = name;
+      this.$emit('toDialog');
+    },
+
     // 批量设置模板状态
     handleBatchState() {
       console.log('handleClickBatchTemplateState', this.tableSelected);
@@ -678,6 +721,8 @@ export default {
       this.ruleIs = true;
       this.automationIs = true;
       this.formInline.campaign = row.name;
+      this.formInline.templateState = 'runing';
+      this.autoMationTemplate = '';
     },
     // 批量搜索输入框输入
     handleTextAreaInput(value) {
@@ -702,6 +747,7 @@ export default {
             this.formInline.templateName = data.templateName;
             this.formInline.templateIllustrate = data.templateIllustrate;
             this.asinMskuKeyword = data.asinList.join('\n');
+            this.formInline.asinList = data.asinList;
             this.ruleIs = this.ruleIs ? false : true;
             this.$nextTick(() => {
               this.ruleIs = this.ruleIs ? false : true;
@@ -710,7 +756,7 @@ export default {
         });
       } else {
         this.ruleFiled = [];
-        this.formInline.executionFrequency = '';
+        this.formInline.executionFrequency = '30';
         this.formInline.templateName = '';
         this.formInline.templateIllustrate = '';
         this.asinMskuKeyword = '';
@@ -720,8 +766,8 @@ export default {
         });
       }
     },
-    // 保存模板
-    save() {
+    // 手动投放
+    manualDelivery() {
       const params = this.$refs.autoMation.getFiled();
       // 判断竞价策略
       const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
@@ -767,12 +813,113 @@ export default {
         executionFrequency: this.formInline.executionFrequency,
         roleList: this.$refs.rule.getFiled(),
         asinList: this.formInline.asinList,
-        automationTemplateId: this.autoMationTemplate
+        automationTemplateId: this.autoMationTemplate,
+        status: this.formInline.templateState
       };
       createAndSave({ ...params, ...this.$refs.autoMation.getFiled() }).then(res => {
-        console.log(res);
+        if (res.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: `${this.updateBtn ? '确认' : '创建'}并保存模板成功`
+          });
+          this.dialogCreateVisible = false;
+          this.ruleIs = false;
+          this.automationIs = false;
+          this.getTableData();
+        }
       });
-    }
+    },
+    createTemplate() {
+      const params = {
+        templateName: this.formInline.templateName,
+        templateType: this.formInline.templateType,
+        templateIllustrate: this.formInline.templateIllustrate,
+        executionFrequency: this.formInline.executionFrequency,
+        roleList: this.$refs.rule.getFiled(),
+        asinList: this.formInline.asinList,
+        automationTemplateId: this.autoMationTemplate,
+        status: this.formInline.templateState
+      };
+      if (this.updateBtn) {
+        templateUpdate({ ...params, ...this.$refs.autoMation.getFiled() }).then(res => {
+          if (res.data.code === 200) {
+            this.$message({
+              type: 'success',
+              message: '编辑模板成功'
+            });
+            this.dialogCreateVisible = false;
+            this.ruleIs = false;
+            this.automationIs = false;
+            this.getTableData();
+          }
+        });
+        return;
+      }
+      createTemplate({ ...params, ...this.$refs.autoMation.getFiled() }).then(res => {
+        if (res.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: '添加模板成功'
+          });
+          this.dialogCreateVisible = false;
+          this.ruleIs = false;
+          this.automationIs = false;
+          this.getTableData();
+        }
+      });
+    },
+
+    status(name, row, id) {
+      return {
+        'status': name,
+        'campaignId': row.campaignId,
+        'automationTemplateId': id
+      };
+    },
+    
+    templateStutes(params) {
+      templateStatus(params).then(res => {
+        if (res.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: '设置模板状态成功'
+          });
+          this.getTableData();
+        }
+      });
+    },
+
+    // 模板详情
+    templateDetail(id, row) {
+      this.dialogCreateVisible = true; 
+      this.rowData = row;
+      this.ruleIs = true;
+      this.automationIs = true;
+      this.formInline.campaign = row.name;
+      this.updateBtn = true;
+      templateDetail({ id, campaignId: row.campaignId }).then(res => {
+        if (res.data.code === 200) {
+          const data = res.data.data;
+          this.ruleFiled = data.roleList;
+          this.formInline.executionFrequency = data.executionFrequency;
+          this.formInline.templateName = data.templateName;
+          this.formInline.templateIllustrate = data.templateIllustrate;
+          this.formInline.templateState = data.status;
+          this.asinMskuKeyword = data.asinList.join('\n');
+          this.formInline.asinList = data.asinList;
+          this.echoAtuomation = data;
+          this.ruleIs = this.ruleIs ? false : true;
+          this.$nextTick(() => {
+            this.ruleIs = this.ruleIs ? false : true;
+          });
+          this.automationIs = this.automationIs ? false : true;
+          this.$nextTick(() => {
+            this.automationIs = this.automationIs ? false : true;
+          });
+        }
+      });
+    },
+
   }
 };
 </script>
@@ -794,5 +941,8 @@ export default {
     ::v-deep .el-input__icon {
       line-height: 30px;
     }
+  }
+  .selected{
+    color:#409EFF;
   }
 </style>

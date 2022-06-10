@@ -86,3 +86,50 @@ export const createTemplate = (data) => {
     data,
   });
 };
+
+// 设置模板状态
+export const templateStatus = (data) => {
+  return request({
+    url: '/api/seeics-analysis/automation-template/advertising-campaign-status',
+    method: 'post',
+    data,
+  });
+};
+
+// 批量设置模板
+export const batchTemplate = (data) => {
+  return request({
+    url: '/api/seeics-analysis/automation-template/advertising-campaign-batch-template',
+    method: 'post',
+    data,
+  });
+};
+
+// 批量设置zhuangtai
+export const batchStatus = (data) => {
+  return request({
+    url: '/api/seeics-analysis/automation-template/advertising-campaign-batch-status',
+    method: 'post',
+    data,
+  });
+};
+
+// 模板详情
+export const templateDetail = (data) => {
+  return request({
+    url: '/api/seeics-analysis/automation-template/advertising-campaign-details',
+    method: 'get',
+    params: {
+      ...data
+    }
+  });
+};
+
+// 编辑模板
+export const templateUpdate = (data) => {
+  return request({
+    url: '/api/seeics-analysis/automation-template/advertising-campaign-update',
+    method: 'post',
+    data,
+  });
+};
