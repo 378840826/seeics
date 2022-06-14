@@ -93,3 +93,11 @@ export const getGlobalOption = () => {
     method: 'get'
   });
 };
+
+//详情页（大屏）
+export const getDetial = (id) => {
+  return request({
+    url: `/api/seeics-analysis/keyword-analyze/detail-page/${id}`,
+    method: 'get',
+  });
+};
