@@ -290,7 +290,7 @@ export default {
         if (res.data.code === 200) {
           this.marketplaceList = res.data.data.sort((a, b) => b.name.localeCompare(a.name));
           this.fromInline.marketplace = res.data.data.length && res.data.data[0].name;
-          this.tableLoading = false;
+          this.tableLoading = true;
           this.getCampaignList();
         } 
       });
@@ -307,6 +307,7 @@ export default {
         if (res.data.code === 200) {
           this.page.total = res.data.data.total;
           this.data = res.data.data.records;
+          this.tableLoading = false;
         }
       });
     },
