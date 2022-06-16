@@ -320,6 +320,10 @@ export default {
           // disabled: true,
         },
         {
+          value: 'FR',
+          label: '法国',
+        },
+        {
           value: 2,
           label: '加拿大',
           disabled: true,
@@ -327,11 +331,6 @@ export default {
         {
           value: 3,
           label: '英国',
-          disabled: true,
-        },
-        {
-          value: 4,
-          label: '法国',
           disabled: true,
         },
         {
