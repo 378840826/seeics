@@ -303,10 +303,16 @@ export default {
         stateList: this.state,
         automationTemplateId: this.automationRow.id
       }, { current: this.page.currentPage, size: this.page.pageSize });
+      const leftDataId = this.datas.length && this.datas.map(item => item.campaignId) || [];
       getCampaignList(params).then(res => {
         if (res.data.code === 200) {
           this.page.total = res.data.data.total;
-          this.data = res.data.data.records;
+          this.data = res.data.data.records.map(item => {
+            if (leftDataId.includes(item.campaignId)) {
+              item.inCurrentAutomationTemplate = true;
+            }
+            return item;
+          });
           this.tableLoading = false;
         }
       });
@@ -314,40 +320,29 @@ export default {
     //pagesize变化
     handleSizeChange(pageSize) {
       this.page.pageSize = pageSize;
-      let flag = false;
-      for (const key in this.fromInline) {
-        if (this.fromInline[key]) {
-          flag = true;
-        }
-      }
-      if (flag) {
-        this.handleSearch();
-      } else {
-        this.getCampaignList();
-      }
+      this.tableLoading = true;
+      this.getCampaignList();
     },
     //currentpage 变化
     handleCurrentChange(currentPage) {
       this.page.currentPage = currentPage;  
-      let flag = false;
-      for (const key in this.fromInline) {
-        if (this.fromInline[key]) {
-          flag = true;
-        }
-      }
-      if (flag) {
-        this.handleSearch();
-      } else {
-        this.getCampaignList();
-      }
+      this.tableLoading = true;
+      this.getCampaignList();
+
     },
     selectionChange(list) {
       this.listData = list;
       const arr = this.datas.length && this.datas.map(item => item.campaignId) || [];
+      const leftDataId = list.map(item => item.campaignId);
       list.map(item => {
         item.templateName = this.automationRow.templateName;
         if (!arr.includes(item.campaignId)) {
           this.datas.unshift(item);
+        }
+      });
+      this.data.forEach(item => {
+        if (leftDataId.includes(item.campaignId)) {
+          item.inCurrentAutomationTemplate = true;
         }
       });
     },
@@ -361,26 +356,22 @@ export default {
       this.fromInline.state = 'enabled';
       this.fromInline.shopName = this.shopList[0];
       this.handelShopChange(this.shopList[0]);
+      this.page.currentPage = 1;
+      this.page.pageSize = 20;
     },
     handleSearch() {
       this.tableLoading = true;
-      const params = Object.assign({ 
-        ...this.fromInline,
-        state: this.state,
-        automationTemplateId: this.automationRow.id
-      }, { current: this.page.currentPage, size: this.page.pageSize });
-      getCampaignList(params).then(res => {
-        if (res.data.code === 200) {
-          this.data = res.data.data.records;
-          this.page.total = res.data.data.total;
-          this.data = res.data.data.records;
-          this.tableLoading = false;
-        }
-      });
+      this.getCampaignList();
     },
     async handleDelet(id) {
       if (id !== 'all') {
         this.datas = this.datas.filter(item => item.campaignId !== id);
+        this.data.forEach(item => {
+          if (item.campaignId === id) {
+            item.inCurrentAutomationTemplate = false;
+            // this.$refs.table1.toggleSelection(item, true);
+          }
+        });
         this.$nextTick(() => {
           this.listData.forEach(row => {
             if (row.campaignId === id) {
@@ -389,8 +380,12 @@ export default {
           });
         });
       } else {
-        this.$nextTick(() => {
-          this.$refs.table1.toggleSelection(this.listData, false); 
+        const leftDataId = this.datas.map(item => item.campaignId);
+        this.data.forEach(item => {
+          if (leftDataId.includes(item.campaignId)) {
+            item.inCurrentAutomationTemplate = false;
+            this.$refs.table1.toggleRowSelection(item, false);
+          }
         });
         this.datas = await [];
       }
