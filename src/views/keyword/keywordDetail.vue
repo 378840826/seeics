@@ -42,60 +42,60 @@
         <div class="div2"></div>
       </el-col>
     </el-row>
-    <el-row v-for="item in list" :key="item.height" :gutter="24">
+    <!-- <el-row v-for="item in list" :key="item.height" :gutter="24">
        <el-col v-for="i in item.children" :key="i.title" :span="i.span">
           <Title :title="i.title"/>
-          <bar-chart :chartData="chartData" :height="i.height"/>
+          <bar-chart :chartData="listDataMap(i.chartData.countCommentsRangeMap)" :height="i.height"/>
           <div class="div1"></div>
           <div class="div2"></div>
         </el-col>
-    </el-row>
-    <!-- <el-row :gutter="24">
+    </el-row> -->
+    <el-row :gutter="24">
       <el-col :span="12">
         <Title :title="'评论数量'"/>
-        <bar-chart :chartData="chartData" :title="'评论数量区间个数'" :height="'398px'"/>
+        <bar-chart :chartData="listDataMap(reviewCountVo.countCommentsRangeMap)" italic :title="'评论数量区间个数'" :height="'398px'"/>
       </el-col>
       <el-col :span="12">
         <Title :title="'价格分布图'"/>
-        <bar-chart :chartData="chartData" :types="'scatter'" :height="'398px'"/>
+        <bar-chart :chartData="price(listingPriceList)" italic :types="'scatter'" :height="'398px'"/>
       </el-col>
     </el-row>
     <el-row :gutter="24">
       <el-col :span="4">
         <Title :title="'卖家数量'"/>
-        <bar-chart :chartData="chartData" :height="'368px'"/>
+        <bar-chart :chartData="hijacker(hijackerVo)" ratio :height="'368px'"/>
       </el-col>
       <el-col :span="20">
         <Title :title="'大类排名'"/>
-        <bar-chart :chartData="chartData" :types="'scatter'" :height="'368px'"/>
+        <bar-chart :chartData="listDataMap(bigRankingMap)" italic :height="'378px'"/>
       </el-col>
     </el-row>
     <el-row :gutter="24">
       <el-col :span="12">
         <Title :title="'小类排名'"/>
-        <bar-chart :chartData="chartData" :height="'398px'"/>
+        <bar-chart :chartData="listDataMap(smallRankingMap)" :height="'398px'"/>
       </el-col>
       <el-col :span="12">
         <Title :title="'变体数量区间个数'"/>
-        <bar-chart :chartData="chartData" :types="'scatter'" :height="'398px'"/>
+        <bar-chart :chartData="listDataMap(variationRangeMap)" italic :height="'398px'"/>
       </el-col>
     </el-row>
     <el-row :gutter="24">
       <el-col :span="5">
         <Title :title="'发货方式'"/>
-        <bar-chart :chartData="chartData" :height="'398px'"/>
+        <bar-chart :chartData="fulfillmentChannelMap(fulfillmentChannel)" ratio :height="'398px'"/>
       </el-col>
       <el-col :span="9">
         <Title :title="'图片数量'"/>
-        <bar-chart :chartData="chartData" :types="'scatter'" :height="'398px'"/>
+        <bar-chart :chartData="listDataMap(imageNumber)" :height="'398px'"/>
       </el-col>
       <el-col :span="5">
         <Title :title="'相关视频'"/>
-        <bar-chart :chartData="chartData" :types="'scatter'" :height="'398px'"/>
+        <bar-chart :chartData="videoMap(video)" ratio :height="'398px'"/>
       </el-col>
       <el-col :span="5">
         <Title :title="'EBC图文品牌'"/>
-        <bar-chart :chartData="chartData" :types="'scatter'" :height="'398px'"/>
+        <bar-chart :chartData="ebsMap(EBC)" ratio :height="'398px'"/>
       </el-col>
     </el-row>
     <el-row :gutter="24">
@@ -117,7 +117,7 @@
         <Title :title="'30天反馈'"/>
         <bar-chart :chartData="chartData" :types="'scatter'" :height="'398px'"/>
       </el-col>
-    </el-row> -->
+    </el-row>
   </el-card>
     
 </template>
@@ -138,9 +138,19 @@ export default {
     return {
       id: this.$route.query.detailId,
       chartData: {
-        days: [],
-        data1: []
+        data1: [46.96, 56.98],
+        days: ['34', '46']
       },
+      reviewCountVo: {},
+      listingPriceList: [],
+      hijackerVo: {},
+      bigRankingMap: {},
+      smallRankingMap: {},
+      variationRangeMap: {},
+      fulfillmentChannel: {},
+      imageNumber: {},
+      video: {},
+      EBC: {},
       // value: 3,
       data: [
         {
@@ -159,11 +169,13 @@ export default {
               title: '评论数量',
               span: 12,
               height: '398px',
+              props: 'reviewCountVo'
             },
             {
               title: '价格分布图',
               span: 12,
               height: '398px',
+              props: 'listingPriceList'
             }
           ]
         },
@@ -174,11 +186,13 @@ export default {
               title: '卖家数量',
               span: 4,
               height: '368px',
+              props: 'hijackerVo'
             },
             {
               title: '大类排名',
               span: 20,
               height: '368px',
+              props: 'rankingVo'
             }
           ]
         },
@@ -189,11 +203,13 @@ export default {
               title: '小类排名',
               span: 12,
               height: '398px',
+              props: 'rankingVo'
             },
             {
               title: '变体数量区间个数',
               span: 12,
               height: '398px',
+              props: 'variationVo'
             }
           ]
         },
@@ -204,21 +220,25 @@ export default {
               title: '发货方式',
               span: 5,
               height: '398px',
+              props: 'fulfillmentChannelVo'
             },
             {
               title: '图片数量',
               span: 9,
               height: '398px',
+              props: 'imageCountVo'
             },
             {
               title: '相关视频',
               span: 5,
               height: '398px',
+              props: 'listingVideoVo'
             },
             {
               title: 'EBC图文品牌',
               span: 5,
               height: '398px',
+              props: 'hasEbcVo'
             }
           ]
         },
@@ -229,11 +249,13 @@ export default {
               title: 'ASIN距今发布时间',
               span: 20,
               height: '398px',
+              props: 'firstDateVo'
             },
             {
               title: '卖家',
               span: 4,
               height: '398px',
+              props: 'sellerVo'
             }
           ]
         },
@@ -244,11 +266,13 @@ export default {
               title: '各国占总比',
               span: 6,
               height: '398px',
+              props: 'companyAddressVo'
             },
             {
               title: '30天反馈',
               span: 18,
               height: '398px',
+              props: 'thirtyDaysFeedbackVo'
             }
           ]
         },
@@ -259,27 +283,123 @@ export default {
     console.log(this.$refs.echart);
     // this.drawLine();
     getDetial(this.id).then(res => {
-      for (const key in this.objectOrder(res.data.data[1].commentsRangeMap) ) {
-        this.chartData.days.push(key);
-        this.chartData.data1.push(res.data.data[1].commentsRangeMap[key]);
-      }
+      this.reviewCountVo = res.data.data['reviewCountVo'];
+      this.listingPriceList = res.data.data['listingPriceList'].sort((a, b) => a.listingPrice - b.listingPrice);
+      this.hijackerVo = res.data.data['hijackerVo'];
+      this.bigRankingMap = res.data.data['rankingVo'].bigRankingMap;
+      this.smallRankingMap = res.data.data['rankingVo'].smallRankingMap;
+      this.variationRangeMap = res.data.data['variationVo'].variationRangeMap;
+      this.fulfillmentChannel = res.data.data['fulfillmentChannelVo'];
+      this.imageNumber = res.data.data['imageCountVo'].haveImageNumberMap;
+      this.video = res.data.data['listingVideoVo'];
+      this.EBC = res.data.data['hasEbcVo'];
+      this.price(this.listingPriceList)
+      // this.list.map(item => {
+      //   item.children.forEach(item => {
+      //     item.chartData = res.data.data[item.props];
+      //   });
+      // });
     });
+    // console.log(this.reviewCountVo)
+    
+    // setTimeout(() => {
+    //   // this.listDataMap(this.list[0].children[0].chartData.countCommentsRangeMap);
+    //   this.price(this.listingPriceList)
+    // }, 1000);
+    
+    // this.listDataMap(this.list[0].children[0].chartData.countCommentsRangeMap);
   },
   methods: {
     objectOrder(obj) { //排序的函数
-
       const newkey = Object.keys(obj).sort(); //先用Object内置类的keys方法获取要排序对象的属性名，再利用Array原型上的sort方法对获取的属性名进行排序，newkey是一个数组，这行是最重要的代码！
-
       const newObj = {};//创建一个新的对象，用于存放排好序的键值对
-
       for (let i = 0; i < newkey.length; i ++) { //遍历newkey数组
-
         newObj[newkey[i]] = obj[newkey[i]];//向新创建的对象中按照排好的顺序依次增加键值对
-
       }
-
       return newObj;//返回排好序的新对象
-
+    },
+    listDataMap(obj) {
+      const chartData = {
+        days: [],
+        data1: []
+      };
+      for (const key in obj) {
+        chartData.days.push(key);
+        chartData.data1.push(obj[key]);
+      }
+      return chartData;
+    },
+    price(arr) {
+      const chartData = {
+        days: [],
+        data1: []
+      };
+      arr.forEach(item => {
+        chartData.days.push(item.listingPrice);
+        chartData.data1.push(item.priceCount);
+      });
+      return chartData;
+    },
+    hijacker(obj) {
+      const chartData = {
+        days: [],
+        data1: []
+      };
+      for (const key in obj) {
+        if (key === 'greaterOneRate' || key === 'oneRate') {
+          chartData.data1.push(obj[key]);
+        }
+        if (key === 'oneCount' || key === 'greaterOneCount') {
+          chartData.days.push(obj[key]);
+        }
+      }
+      return chartData;
+    },
+    fulfillmentChannelMap(obj) {
+      const chartData = {
+        days: [],
+        data1: []
+      };
+      for (const key in obj) {
+        if (key === 'amazonRate' || key === 'fbaRate' || key === 'fbmRate') {
+          chartData.data1.push(obj[key].toFixed(2));
+        }
+        // if (key === 'amazonCount' || key === 'fbaCount' || key === 'fbmCount') {
+        //   chartData.days.push(obj[key]);
+        // }
+      }
+      chartData.days = ['Amazon', 'FBA', 'FBM'];
+      return chartData;
+    },
+    videoMap(obj) {
+      const chartData = {
+        days: ['视频数量', '无视频数量'],
+        data1: []
+      };
+      for (const key in obj) {
+        if (key === 'haveVideoRate' || key === 'notHaveVideoRate') {
+          chartData.data1.push(obj[key].toFixed(2));
+        }
+        // if (key === 'amazonCount' || key === 'fbaCount' || key === 'fbmCount') {
+        //   chartData.days.push(obj[key]);
+        // }
+      }
+      return chartData;
+    },
+    ebsMap(obj) {
+      const chartData = {
+        days: ['EBC图文数量', '无EBC图文数量'],
+        data1: []
+      };
+      for (const key in obj) {
+        if (key === 'haveEbcCount' || key === 'notHaveEbcRate') {
+          chartData.data1.push(obj[key].toFixed(2));
+        }
+        // if (key === 'amazonCount' || key === 'fbaCount' || key === 'fbmCount') {
+        //   chartData.days.push(obj[key]);
+        // }
+      }
+      return chartData;
     },
     drawLine(){
       // 基于准备好的dom，初始化echarts实例

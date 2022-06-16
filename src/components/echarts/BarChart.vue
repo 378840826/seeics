@@ -28,6 +28,14 @@ export default {
     types: {
       type: String,
       default: 'bar'
+    },
+    italic: {
+      type: Boolean,
+      default: false
+    },
+    ratio: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -76,21 +84,24 @@ export default {
           //   type: 'shadow'
           // }
         },
-        xAxis: [
-          {
-            // type: 'category',
-            data: days,
-            // axisTick: {
-            //   alignWithLabel: true
-            // }
-          }
-        ],
+        xAxis: {
+          // type: 'category',
+          data: days,
+          axisLabel: {
+            interval: this.italic ? 0 : 0,
+            rotate: this.italic && 45 || 0,
+          } 
+          // axisTick: {
+          //   alignWithLabel: true
+          // }
+        },
         yAxis: [
           {
             type: 'value',
             axisLabel: {
               show: true,
-              // formatter: '{value}%'
+              interval: 'auto',
+              formatter: this.ratio ? '{value}%' : '{value}'
             },
             splitLine: {
               show: true,
@@ -108,7 +119,7 @@ export default {
             type: this.types,
             barWidth: '40%',
             stack: 'Total',
-            symbolSize: 16,
+            symbolSize: 10,
             data: data1,
             //   itemStyle: {
             //     color: function(key) {
@@ -117,11 +128,18 @@ export default {
             //       return col[key.dataIndex]
             //     }
             //   },
-            //   label: {
-            //     show: true,
-            //     position: 'top',
-            //     formatter: 'c'
-            //   }
+            label: this.ratio ? {
+              show: true,
+              position: 'top',
+              formatter: val => {
+                return `${val.data}%`;
+              },
+              textStyle: {
+                fontWeight: 'normal',
+                fontSize: 16,
+                color: '#205291'
+              }
+            } : null,
           }
         ]
       });
