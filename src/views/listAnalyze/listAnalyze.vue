@@ -324,25 +324,27 @@ export default {
           label: '法国',
         },
         {
-          value: 2,
+          value: 'UK',
+          label: '英国',
+        },
+        {
+          value: 'IT',
+          label: '意大利',
+        },
+        {
+          value: 'ES',
+          label: '西班牙',
+        },
+        {
+          value: 'CA',
           label: '加拿大',
           disabled: true,
         },
         {
-          value: 3,
-          label: '英国',
+          value: 'AU',
+          label: '澳洲',
           disabled: true,
-        },
-        {
-          value: 5,
-          label: '意大利',
-          disabled: true,
-        },
-        {
-          value: 6,
-          label: '西班牙',
-          disabled: true,
-        },
+        }
       ],
       formInline: {
         searchCountry: 'US',
@@ -531,6 +533,12 @@ export default {
         } else if (val === 'Any Department') {
           this.disabled = true;
         } else if (val === 'Alle Kategorien') {
+          this.disabled = true;
+        } else if (val === 'Cualquier departamento') {
+          this.disabled = true;
+        } else if (val === 'Tutte le categorie') {
+          this.disabled = true;
+        } else if (val === 'Tout département') {
           this.disabled = true;
         } else if (val !== this.analyzeData.searchKeyword) {
           this.disabled = true;
@@ -800,7 +808,11 @@ export default {
       }
     },
     nodeClick(node) {
-      if (node.title !== 'Any Department' && node.title !== 'Alle Kategorien') {
+      if (node.title !== 'Any Department' 
+          && node.title !== 'Alle Kategorien' 
+          && node.title !== 'Cualquier departamento'
+          && node.title !== 'Tutte le categorie'
+          && node.title !== 'Tout département') {
         this.formInline.searchKeyword = node.title;
         this.analyzeData.url = node.url;
         this.analyzeData.fullName = node.fullName;
@@ -828,7 +840,10 @@ export default {
         }).then( res => {
           if (res.data.data.length > 0 
               && res.data.data[0].fullName !== 'Any Department' 
-              && res.data.data[0].fullName !== 'Alle Kategorien') {
+              && res.data.data[0].fullName !== 'Alle Kategorien'
+              && res.data.data[0].fullName !== 'Cualquier departamento'
+              && res.data.data[0].fullName !== 'Tutte le categorie'
+              && res.data.data[0].fullName !== 'Tout département') {
             this.visible = false;
             // this.disabled = true;
             this.restaurants = res.data.data.map( itme => {
