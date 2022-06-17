@@ -166,7 +166,13 @@
         </el-tooltip>
       </template>
       <template slot-scope="{row}" slot="menu">
-        <el-button type="text" size="mini" @click="remove(row.id)">删除</el-button>
+        <!-- <el-button type="text" size="mini" @click="remove(row.id)">删除</el-button> -->
+        <el-popconfirm
+          :title="'您确定删除模板：' + row.templateName"
+          @confirm="remove(row.id)"
+        >
+          <el-button type="text" size="mini" slot="reference">删除</el-button>
+        </el-popconfirm>
         <el-button type="text" size="mini" @click="update(row.id)">编辑</el-button>
         <el-button type="text" size="mini" @click="addCampaignBtn(row)">添加广告活动</el-button>
       </template>
@@ -570,6 +576,10 @@ export default {
     remove(id) {
       removeTemplate(id).then(res => {
         if (res.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: '删除成功'
+          });
           this.getAutomationList();
         }
       });

@@ -162,7 +162,7 @@
               style=""
             >
               <el-dropdown @command="templateStutes">
-              <span class="el-icon-video-play" :style="{color: item.campaignStatus !== 'stop' ? '#58bc58' : 'red'}"/>
+              <span :class="item.campaignStatus !== 'stop' ? 'el-icon-video-play' : 'el-icon-video-pause'" :style="{color: item.campaignStatus !== 'stop' ? '#58bc58' : 'red'}"/>
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item 
                     v-for="i in templateStateList" 

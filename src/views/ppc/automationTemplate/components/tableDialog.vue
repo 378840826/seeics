@@ -82,6 +82,10 @@
         :layout="page.layout"
         :total="page.total">
       </el-pagination>
+      <div>
+        <p>在广告自动化模板下添加广告活动，相当于给广告活动批量设置模板：</p>
+        <p>1. 自动化标签、广告位自动化模板，添加广告活动后，每个广告活动都会新增一个自动化标签或广告位自动化规则。</p>
+      </div>
   </div>
 </template>
 
