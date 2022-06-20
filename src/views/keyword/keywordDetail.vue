@@ -31,13 +31,13 @@
       </el-col>
       <el-col :span="4">
         <Title :title="'AC关键字'"/>
-        <bar-chart :chartData="chartData" :title="'AC关键字'" :height="'528px'"/>
+        <bar-chart :chartData="acKeywordMap(acKeyword)" ratio :title="'AC关键字'" :height="'528px'"/>
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
       <el-col :span="14">
         <Title :title="'评论星级'" :width="'800px'"/>
-        <bar-chart :chartData="chartData" :title="'评论数量区间个数'" :types="'scatter'" :height="'528px'"/>
+        <bar-chart :chartData="listDataMap(reviewStar)" :title="'评论数量区间个数'" :height="'528px'"/>
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
@@ -67,7 +67,7 @@
       </el-col>
       <el-col :span="20">
         <Title :title="'大类排名'"/>
-        <bar-chart :chartData="listDataMap(bigRankingMap)" italic :height="'378px'"/>
+        <bar-chart :chartData="listDataMap(bigRankingMap)" italic :height="'368px'"/>
       </el-col>
     </el-row>
     <el-row :gutter="24">
@@ -101,21 +101,31 @@
     <el-row :gutter="24">
       <el-col :span="20">
         <Title :title="'ASIN距今发布时间'"/>
-        <bar-chart :chartData="chartData" :height="'398px'"/>
+        <bar-chart :chartData="listDataMap(timeQuantum)" italic :height="'398px'"/>
       </el-col>
       <el-col :span="4">
         <Title :title="'卖家'"/>
-        <bar-chart :chartData="chartData" :types="'scatter'" :height="'398px'"/>
+        <bar-chart :chartData="sellerMap(seller)" ratio :height="'398px'"/>
       </el-col>
     </el-row>
     <el-row :gutter="24">
       <el-col :span="6">
         <Title :title="'各国占总比'"/>
-        <bar-chart :chartData="chartData" :height="'398px'"/>
+        <bar-chart :chartData="countryMap(country)" :height="'398px'"/>
       </el-col>
       <el-col :span="18">
         <Title :title="'30天反馈'"/>
-        <bar-chart :chartData="chartData" :types="'scatter'" :height="'398px'"/>
+        <bar-chart :chartData="listDataMap(feedback)" italic :height="'398px'"/>
+      </el-col>
+    </el-row>
+    <el-row :gutter="24">
+      <el-col :span="12">
+        <Title :title="'品牌'"/>
+        <bar-chart :chartData="countryMap(country)" :height="'398px'"/>
+      </el-col>
+      <el-col :span="12">
+        <Title :title="'颜色'"/>
+        <bar-chart :chartData="listDataMap(feedback)" italic :height="'398px'"/>
       </el-col>
     </el-row>
   </el-card>
@@ -151,6 +161,12 @@ export default {
       imageNumber: {},
       video: {},
       EBC: {},
+      timeQuantum: {},
+      seller: {},
+      country: {},
+      feedback: {},
+      acKeyword: {},
+      reviewStar: {},
       // value: 3,
       data: [
         {
@@ -293,7 +309,12 @@ export default {
       this.imageNumber = res.data.data['imageCountVo'].haveImageNumberMap;
       this.video = res.data.data['listingVideoVo'];
       this.EBC = res.data.data['hasEbcVo'];
-      this.price(this.listingPriceList)
+      this.timeQuantum = res.data.data['firstDateVo'].timeQuantumMap;
+      this.seller = res.data.data['sellerVo'];
+      this.country = res.data.data['companyAddressVo'];
+      this.feedback = res.data.data['thirtyDaysFeedbackVo'].thirtyDaysFeedbackMap;
+      this.acKeyword = res.data.data['acKeywordVo'];
+      this.reviewStar = res.data.data['reviewStarVo'].commentsRangeMap;
       // this.list.map(item => {
       //   item.children.forEach(item => {
       //     item.chartData = res.data.data[item.props];
@@ -398,6 +419,42 @@ export default {
         // if (key === 'amazonCount' || key === 'fbaCount' || key === 'fbmCount') {
         //   chartData.days.push(obj[key]);
         // }
+      }
+      return chartData;
+    },
+    sellerMap(obj) {
+      const chartData = {
+        days: ['Amazon占总比', '自发货占总比'],
+        data1: []
+      };
+      for (const key in obj) {
+        if (key === 'amazonRate' || key === 'otherRate') {
+          chartData.data1.push(obj[key].toFixed(2));
+        }
+      }
+      return chartData;
+    },
+    countryMap(obj) {
+      const chartData = {
+        days: ['US占ASIN总数比值', 'CN占ASIN总数比值', '其他占ASIN总数比值'],
+        data1: []
+      };
+      for (const key in obj) {
+        if (key === 'usRate' || key === 'cnRate' || key === 'otherRate') {
+          chartData.data1.push(obj[key].toFixed(2));
+        }
+      }
+      return chartData;
+    },
+    acKeywordMap(obj) {
+      const chartData = {
+        days: ['AC关键词个数', '无AC关键词个数'],
+        data1: []
+      };
+      for (const key in obj) {
+        if (key === 'haveRate' || key === 'string') {
+          chartData.data1.push(obj[key].toFixed(2));
+        }
       }
       return chartData;
     },
