@@ -338,12 +338,10 @@ export default {
         {
           value: 'CA',
           label: '加拿大',
-          disabled: true,
         },
         {
           value: 'AU',
           label: '澳洲',
-          disabled: true,
         }
       ],
       formInline: {
