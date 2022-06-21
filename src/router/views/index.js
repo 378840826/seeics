@@ -204,4 +204,17 @@ export default [{
     component: () => 
     import(/* webpackChunkName: "views" */ '@/views/keywordRanking/asinRanking')
   }]
+}, {
+  path: '/castLog',
+  component: Layout,
+  redirect: '/castLog/index',
+  children: [{
+    path: 'index',
+    name: '投放日志',
+    meta: {
+      i18n: 'castLoag'
+    },
+    component: () =>
+    import('@/views/castLog/index')
+  }]
 }];
