@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { getLogPage } from '@/api/castLog/castLog';
+import { getLogPage } from '@/api/ppc/castLog';
 
 export default{
   data() {

@@ -42,6 +42,11 @@ export default [{
       path: '/ppc/automation-template',
       name: '自动化模板',
       component: () => import('@/views/ppc/automationTemplate')
+    },
+    {
+      path: '/ppc/cast-log',
+      name: '投放日志',
+      component: () => import('@/views/ppc/castLog')
     }
   ],
 }, {
@@ -203,18 +208,5 @@ export default [{
     },
     component: () => 
     import(/* webpackChunkName: "views" */ '@/views/keywordRanking/asinRanking')
-  }]
-}, {
-  path: '/castLog',
-  component: Layout,
-  redirect: '/castLog/index',
-  children: [{
-    path: 'index',
-    name: '投放日志',
-    meta: {
-      i18n: 'castLoag'
-    },
-    component: () =>
-    import('@/views/castLog/index')
   }]
 }];
