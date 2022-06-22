@@ -559,7 +559,13 @@ export default {
     detail (id) {
       console.log(id);
       // wordStatistics(id).then(res => console.log(res))
-      this.$router.push({ path: '/keywordDetail/index', query: { detailId: id }});
+      this.$router.push({ path: '/keywordDetail/index', query: { detailId: id } });
+      // this.$router.push({
+      //   name: '关键词分析详情',
+      //   params: {
+      //     detailId: id
+      //   }
+      // })
       // this.$router.push({path: `/keyword/detail`});
       
     },
