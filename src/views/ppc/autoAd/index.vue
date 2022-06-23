@@ -772,13 +772,18 @@ export default {
       }
     },
     // 投放统一校验
-    deliveryMsg (params) {
-      // const params = this.$refs.autoMation.getFiled();
+    deliveryMsg () {
+      const params = this.$refs.autoMation.getFiled();
       // 判断竞价策略
       const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
+      
       let flag = true;
       let msg = true;
+      let ad = true;
       params.adCampaignInfos.map(item => {
+        if (!item.adGroupId) {
+          ad = false;
+        }
         if (item.bid && !reg.test(item.bid)) {
           flag = false;
         }
@@ -786,6 +791,13 @@ export default {
           msg = false;
         }
       });
+      if (!ad) {
+        this.$message({
+          type: 'error',
+          message: '请输选择广告组'
+        });
+        return true;
+      }
       if (!flag) {
         this.$message({
           type: 'error',
@@ -799,7 +811,7 @@ export default {
           message: '请输入固定竞价'
         });
         return true;
-      }
+      } 
     },
     // 子规则统一校验
     ruleMsg() {
@@ -843,7 +855,7 @@ export default {
     // 手动投放
     manualDelivery() {
       const params = this.$refs.autoMation.getFiled();
-      if (this.deliveryMsg(params)) {
+      if (this.deliveryMsg()) {
         return;
       }
       manualDelivery(params)
@@ -859,6 +871,7 @@ export default {
     },
     // 创建并保存模板
     createAndSaves() {
+      // return
       const params = {
         templateName: this.formInline.templateName,
         templateType: this.formInline.templateType,
@@ -870,6 +883,9 @@ export default {
         status: this.formInline.templateState
       };
       if (this.ruleMsg()) {
+        return;
+      }
+      if (this.deliveryMsg()) {
         return;
       }
       createAndSave({ ...params, ...this.$refs.autoMation.getFiled() }).then(res => {
@@ -886,6 +902,7 @@ export default {
       });
     },
     createTemplate() {
+      // return
       const params = {
         templateName: this.formInline.templateName,
         templateType: this.formInline.templateType,
@@ -897,6 +914,9 @@ export default {
         status: this.formInline.templateState
       };
       if (this.ruleMsg()) {
+        return;
+      }
+      if (this.deliveryMsg()) {
         return;
       }
       if (this.updateBtn) {
