@@ -3,33 +3,62 @@
     <el-row :gutter="24">
       <el-col :span="6">
         <Title :title="'综合评分表'"/>
+         <!-- <div style="width: 100%;background: linear-gradient(180deg, #000318 0%, #03093D 100%);">
+
          <el-table
-          style="width: 100%;background: linear-gradient(180deg, #000318 0%, #03093D 100%);"
+          
           :data="data"
           border
           height='528'
-          class="Mytable"
           :span-method="objectSpanMethod"
-        >
-          <el-table-column label="序号" type="index" align="center" width= "44"/>
-          <el-table-column label="评分选项" prop="column" align="left" width= "155"/>
-          <el-table-column label="分值" prop="score" align="left" width= "50"/>
-          <el-table-column label="星级，满分十级"  align="left" min-width="200">
+          >
+          <el-table-column label="序号" type="index" align="center" />
+          <el-table-column label="评分选项" prop="column" align="left" />
+          <el-table-column label="分值" prop="score" align="left" />
+          <el-table-column label="星级，满分十级"  align="left">
             <template slot-scope="{row}">
-               <el-rate
+              <div>
+                <el-rate
                   disabled
                   text-color="rgba(254, 178, 70, 1)RGBA"
                   :max=row.score
                 >
                 </el-rate>
+              </div>
+               
             </template>
           </el-table-column>
-          <el-table-column label="分数" prop="props" align="center" width= "106">
+          <el-table-column label="分数" prop="props" align="center">
             <template slot-scope="{row}">
-              <div style="fontSize: 40px; color: #01E3E3; font-family: MicrosoftYaHei; line-height: 52px">{{total}}</div>
+              <div style="fontSize: 28px; color: #01E3E3; font-family: MicrosoftYaHei;">{{total}}</div>
             </template>
           </el-table-column>
         </el-table>
+         </div> -->
+         <div style="display: flex; maxHeight: 528px">
+           <div style=" width: 100%; minHeight: 40px; background: #09233A;">
+             <p class="th" v-resize="DomResize">
+              <span style="width: 7%">序号</span>
+              <span style="width: 22%">评分选项</span>
+              <span style="width: 7%">分值</span>
+              <span style="width: 36%">星级，满分十级</span>
+              <span style="textAlign: center; display: block">分数</span>
+             </p>
+           </div>
+         </div>
+         <div class="tabel" :style="{height: thWidth === '80px' ? '448px' : '488px'}">
+           <div style=" width: 70%; height: 100%">
+             <p v-for="(item, index) in data" :key="item.props" class="column" style=" width: 100%; display: flex;">
+                <span class="span" style="width: 10%">{{index + 1}}</span>
+                <span class="span" style="width: 30%">{{item.column}}</span>
+                <span class="span" style="width: 10%">{{item.score}}</span>
+                <span style="width: 50%" class="block">
+                   <a class="a" v-for="i in item.score" :key="i">⭐</a>
+                </span>
+             </p>
+           </div>
+           <div class="total">{{total}}</div>
+         </div>
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
@@ -167,11 +196,15 @@ export default {
       brand: {},
       // value: 3,
       data: [],
-      total: 0
+      total: 0,
+      thWidth: '',
     };
   },
   mounted(){
-    // this.getDetial(this.id);
+    
+  },
+  destroyed() {
+    window.onresize = null;
   },
   watch: {
     '$route.query': {
@@ -180,9 +213,32 @@ export default {
       handler(value) {
         this.getDetial(value.detailId);
       },
+    },
+  },
+  directives: {
+    resize: { // 指令的名称
+      bind(el, binding) { // el为绑定的元素，binding为绑定给指令的对象
+        let width = '', height = '';
+        function isReize() {
+          const style = document.defaultView.getComputedStyle(el);
+          if (width !== style.width || height !== style.height) {
+            binding.value({ width: style.width, height: style.height }); // 关键(这传入的是函数,所以执行此函数)
+          }
+          width = style.width;
+          height = style.height;
+        }
+        el.__vueSetInterval__ = setInterval(isReize, 300);
+      },
+      unbind(el) {
+        clearInterval(el.__vueSetInterval__);
+      }
     }
   },
   methods: {
+    DomResize(data) {
+      const { height } = data;
+      this.thWidth = height;
+    },
     getDetial(id) {
       getDetial(id).then(res => {
         this.total = 0;
@@ -470,52 +526,55 @@ export default {
     background: linear-gradient(270deg, #000110 0%, #043492 100%);
   }
   ::v-deep {
-    .el-table th>.cell {
-      padding-left: 0px;
-      padding-right: 0px;
+  .th {
+    color: #9AA8D4;
+    margin: 0;
+    line-height: 40px;
+    width: 100%; 
+    display: flex;
+    font-size: 14px;
+    padding: 0px 0px 0px 3px;
+  }
+  .feng {
+    margin: auto;
+  }
+  .column {
+    color: #9AA8D4;
+    margin: 0;
+    border-bottom: 1px solid rgba(8, 18, 81, 1);
+    .span {
+      display: block;
+      padding: 3px 4px;
+      border-left: 1px solid rgba(8, 18, 81, 1);
+      line-height: 28px;
+      box-sizing: border-box;
     }
-    .el-table .cell {
-      padding-right: 0px;
+    .block {
+      display: block;
+      border-left: 1px solid rgba(8, 18, 81, 1);
+      border-right: 1px solid rgba(8, 18, 81, 1);
+      box-sizing: border-box;
+      padding: 3px 4px;
+      // display: flex;
+      .a {
+      display: block;
+      float: left;
     }
-    /* 删除表格下最底层的横线 */
-    .el-table::before {
-      left: 0;
-      bottom: 0;
-      width: 100%;
-      height: 0px;
     }
-    /*最外层透明*/
-.el-table, .el-table__expanded-cell{
-    background-color: transparent;
-}
-/* 表格内背景颜色 */
-.el-table th,
-.el-table tr,
-.el-table td {
-    background-color: transparent;
-}
-.el-table td, .el-table th.is-leaf {
-    border: 1px solid rgba(8, 18, 81, 1);
-}
-  .el-table--border, .el-table--group{
-    border: none;
+    
   }
-  .el-table--border::after, .el-table--group::after{
-    width: 0;
+  .tabel {
+    width: 100%;
+    background: linear-gradient(180deg, #000318 0%, #03093D 100%); 
+    display: flex;
+    overflow: scroll;
   }
-  .el-table__body tr.hover-row > td.el-table__cell {
-    background-color: transparent;
+  .total {
+    font-size: 40px; 
+    color: #01E3E3; 
+    font-family: MicrosoftYaHei;
+    margin: auto;
   }
-  .el-table--enable-row-hover .el-table__body tr:hover>td {
-    background-color: transparent;
-  }
-  .el-rate__icon {
-    font-size: 18px;
-    margin-right: 0px;
-    color: #C0C4CC;
-    -webkit-transition: .3s;
-    transition: .3s;
-}
 .el-col {
   position: relative;
   .div1 {
