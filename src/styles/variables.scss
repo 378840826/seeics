@@ -1,2 +1,36 @@
+// 此文件为全局 scss 变量，很常用且统一的样式
+
 //main
 $mainBg: #409eff;
+
+/* 场景色 */
+// 主要颜色(主题色)
+$primaryColor: #409EFF;
+// 成功色
+$successColor: #67C23A;
+// 警告色
+$warningColor: #E6A23C;
+// 错误色(危险色)
+$danger: #F56C6C;
+// 一般信息色
+$infoColor: #909399;
+// 失效色(禁用色)
+$disabledColor: #C0C4CC;
+
+/* 文本色 */
+// 一般文本颜色
+$textColor: #606266;
+// 次文本色
+$secondaryTextColor: #909399;
+// 重要的文本色
+$primaryTextColor: #303133;
+// 标题色
+$titleColor: rgba(0, 0, 0, 0.85);
+
+/* 字体大小 */
+// view 主字号
+$textSize: 12px;
+// view 大字号
+$textSizeLg: 14px;
+// view 小字号
+$textSizeSm: 10px;
