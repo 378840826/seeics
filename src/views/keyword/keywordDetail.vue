@@ -38,11 +38,11 @@
          <div style="display: flex; maxHeight: 528px">
            <div style=" width: 100%; minHeight: 40px; background: #09233A;">
              <p class="th" v-resize="DomResize">
-              <span style="width: 7%">序号</span>
-              <span style="width: 22%">评分选项</span>
-              <span style="width: 7%">分值</span>
-              <span style="width: 36%">星级，满分十级</span>
-              <span style="textAlign: center; display: block">分数</span>
+              <span style="width: 7%; height: 100%; textAlign: center;">序号</span>
+              <span style="width: 21%; height: 100%; textAlign: center;">评分选项</span>
+              <span style="width: 6%; height: 100%; textAlign: center;">分值</span>
+              <span style="width: 33%; height: 100%; textAlign: center;">星级，满分十级</span>
+              <span style="width: 33%; height: 100%;textAlign: center; display: block">分数</span>
              </p>
            </div>
          </div>
