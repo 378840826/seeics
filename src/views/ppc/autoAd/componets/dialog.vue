@@ -63,8 +63,7 @@
             />
             <span 
               v-if="item.add"
-              class="el-icon-circle-plus-outline"
-              style="fontSize: 20px; marginTop: 10px; color: #409EFF"
+              :class="templateList.length === formLabelAlign.data.length ? 'el-icon-circle-plus-outline bearAdd' : 'el-icon-circle-plus-outline addBtn'"
               @click="add"
             />
             </el-col>
@@ -168,6 +167,13 @@ export default {
     if (this.batch === 'batchTemplate') {
       getAutomationList().then(res => {
         if (res.data.code === 200) {
+          if (!res.data.data.length) {
+            this.$message({
+              type: 'error',
+              message: '暂无自动化模板，请前往自动化模板设置模板'
+            });
+            return;
+          }
           this.templateList = res.data.data.map(item => {
             return {
               label: item.templateName,
@@ -216,11 +222,14 @@ export default {
     },
     add() {
       this.$refs['form'].validate( valid => {
-        if (this.formLabelAlign.data.length > 10) {
+        if (this.formLabelAlign.data.length >= 10) {
           this.$message({
             type: 'warning',
             message: '批量设置模板最多可以添加10个！'
           });
+          return;
+        }
+        if (this.formLabelAlign.data.length === this.templateList.length) {
           return;
         }
         if (valid) {
@@ -308,5 +317,14 @@ export default {
   }
   .title {
     text-align: start;
+  }
+  .addBtn {
+    font-size: 20px; margin-top: 10px; color: #409EFF
+  }
+  .bearAdd {
+    font-size: 20px;
+    margin-top: 10px;
+    color: #C0C4CC;
+    cursor:not-allowed;
   }
 </style>

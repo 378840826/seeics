@@ -8,6 +8,7 @@
           :key="item.value"
           :label="item.label"
           :value="item.value"
+          :disabled="item.disable"
         />
       </el-select>
       <el-popover
@@ -51,7 +52,7 @@
         <template slot-scope="scope">
           <el-select 
             v-model="scope.row.adGroup" 
-            placeholder="请选择"
+            placeholder="请选择广告组"
             @change="adGroupSelect(scope.$index)"
           >
             <el-option
@@ -167,8 +168,8 @@ export default {
   name: 'automation',
   props: {
     echo: {
-      type: Array,
-      default: new Array()
+      type: Object,
+      default: new Object
     },
     campaign: {
       type: String,
@@ -221,7 +222,8 @@ export default {
         },
         {
           label: '添加到否定投放',
-          value: '添加到否定投放'
+          value: '添加到否定投放',
+          disable: true
         }
       ],
       adGroupList: [],
@@ -355,8 +357,8 @@ export default {
             item.disabled = false;
             return item;
           });
-          if (this.echo.adCampaignInfos && !this.echo.adCampaignInfos.length) {
-            this.tableData[0].adGroup = this.adGroupList[0].groupId;
+          if ( this.echo.adCampaignInfos && !this.echo.adCampaignInfos.length || !Object.keys(this.echo).length) {
+            this.tableData[0].adGroup = this.adGroupList.length && this.adGroupList[0].groupId || '';
           }
           // 选中过的广告禁用
           const adGroupId = [];
