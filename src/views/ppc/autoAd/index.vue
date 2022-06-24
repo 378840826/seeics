@@ -878,7 +878,7 @@ export default {
         templateIllustrate: this.formInline.templateIllustrate,
         executionFrequency: this.formInline.executionFrequency,
         roleList: this.$refs.rule.getFiled(),
-        asinList: this.formInline.asinList,
+        asinList: this.formInline.asinList.filter(Boolean),
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState
       };
@@ -909,7 +909,7 @@ export default {
         templateIllustrate: this.formInline.templateIllustrate,
         executionFrequency: this.formInline.executionFrequency,
         roleList: this.$refs.rule.getFiled(),
-        asinList: this.formInline.asinList,
+        asinList: this.formInline.asinList.filter(Boolean),
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState
       };
