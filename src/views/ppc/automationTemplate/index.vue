@@ -441,6 +441,7 @@ export default {
       const automatic = this.$refs.automatic.getFiled();
       const params = {
         ...this.formInline,
+        asinList: this.formInline.asinList.filter(Boolean),
         ...automatic,
         roleList: this.$refs.filters.getFiled()
       };
