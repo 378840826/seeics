@@ -1,42 +1,58 @@
 <template>
   <el-card class="mian">
-    <el-row :gutter="24">
-      <el-col :span="6">
+    <el-row :gutter="20">
+      <el-col :span="12" :offset="6">
         <Title :title="'综合评分表'"/>
          <div style="display: flex; maxHeight: 528px">
            <div style=" width: 100%; minHeight: 40px; background: #09233A;">
              <p class="th" v-resize="DomResize">
               <span style="width: 7%; height: 100%; textAlign: center;">序号</span>
-              <span style="width: 21%; height: 100%; textAlign: center;">评分选项</span>
-              <span style="width: 6%; height: 100%; textAlign: center;">分值</span>
-              <span style="width: 33%; height: 100%; textAlign: center;">星级，满分十级</span>
+              <span style="width: 27%; height: 100%; textAlign: center;">评分选项</span>
+              <span style="width: 8%; height: 100%; textAlign: center;">分值</span>
+              <span style="width: 25%; height: 100%; textAlign: center;">星级，满分十级</span>
               <span style="width: 33%; height: 100%;textAlign: center; display: block">分数</span>
              </p>
            </div>
          </div>
-         <div class="tabel" :style="{height: thWidth === '80px' ? '448px' : '488px'}">
+         <div class="tabel" :style="{height: thWidth === '80px' ? '448px' : '532px'}">
            <div style=" width: 70%; height: 100%">
              <p v-for="(item, index) in data" :key="item.props" class="column" style=" width: 100%; display: flex;">
-                <span class="span" style="width: 10%">{{index + 1}}</span>
-                <span class="span" style="width: 30%">{{item.column}}</span>
-                <span class="span" style="width: 10%">{{item.score}}</span>
-                <span style="width: 50%" class="block">
+                <span class="span" style="width: 10%; textAlign: center;">{{index + 1}}</span>
+                <span class="span" style="width: 40%; textAlign: center;">{{item.column}}
+                  <el-tooltip>
+                    <div slot="content">
+                       <div v-for="item in  strSplit(item.tip)" :key="item">{{item}}</div>
+                    </div>
+                    <span class="el-icon-question"></span>
+                  </el-tooltip>
+                </span>
+                <span class="span" style="width: 10%; textAlign: center;">{{item.score}}</span>
+                <span style="width: 40%" class="block">
                    <a class="a" v-for="i in item.score" :key="i">⭐</a>
                 </span>
              </p>
            </div>
-           <div class="total">{{total}}</div>
+           <div class="total">
+              <!-- {{total}} -->
+              <div>
+                 <div style="textAlign: center; fontSize: 50px; color: #01E3E3">{{total}}</div>
+                 评估建议：
+                 <div>可以进入</div>
+              </div>
+           </div>
          </div>
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
-      <el-col :span="9">
+    </el-row>
+    <el-row :gutter="24">
+        <el-col :span="9">
         <Title :title="'AC关键字'"/>
         <bar-chart :chartData="acKeywordMap(acKeyword)" ratio :title="'AC关键字'" :height="'528px'"/>
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
-      <el-col :span="9">
+      <el-col :span="15">
         <Title :title="'评论星级'" :width="'800px'"/>
         <bar-chart :chartData="listDataMap(reviewStar)" :title="'评论数量区间个数'" italic :height="'528px'"/>
         <div class="div1"></div>
@@ -141,7 +157,7 @@
         <div class="div2"></div>
       </el-col>
     </el-row>
-    <el-row :gutter="24">
+    <el-row :gutter="24" id>
       <el-col :span="15">
         <Title :title="'品牌'"/>
         <bar-chart :chartData="brandMap(brand)" italic :height="'398px'"/>
@@ -200,6 +216,46 @@ export default {
       data: [],
       total: 0,
       thWidth: '',
+      tipList: { //n/表示换行符
+        acKeyword: 'AC关键词是被亚马逊判定为拥有一定权重的搜索词，获取到AC关键词的ASIN是被判定为某个时段内综合表现最好的ASIN，n/可以对这些AC关键词再次进行反查，并围绕该AC关键词进行选品。',
+        reviewStar: `Review评分高的占比较多的类目，一般表明供应链比较完善，产品质量以及售后服务较好；n/
+                    Review评分低的占比较多的类目，一般表明产品质量有比较大的问题或者不能解决消费者端的实际需求；n/
+                    Review评分高低的占比不相上下的类目，一般表明产品质量并不是这个类目的消费者购买产品的最主要考虑因素。`,
+        reviewCount: `若review数量多的卖家占大多数，则表明该类目大卖实力比较强，进场难度大；n/
+                    若review数量少的卖家占大多数，则表明该类目可能是新兴类目，卖家的实力均不是太强，进场难度小；n/
+                    若review数量多与少的卖家数量差不多，则表明该类目还有一定发展潜力，进场难度一般。`,
+        hijacker: `跟卖数量较多的链接，适合专门做跟卖的卖家进场；n/
+                  卖数量较少甚至没有的链接，证明该品牌大概率是已经完成了品牌注册的卖家，不适合进行跟卖。`,
+        ranking: `一般来说，若排名靠前的卖家数量较多，证明该类目竞争程度很高，不太适合中小卖家进场；n/
+                若排名靠后的卖家数量较多，证明该类目竞争程度很低，适合中小卖家进场；n/
+                若排名情况比较均衡，证明该类目竞争程度不高，也适合中小卖家进场。`,
+        variation: `变体数量一定程度上代表某个卖家的综合实力。n/
+                  一般来说，若变体数量多的卖家占多数，表明对中小卖家不太友好，对手的综合实力比较强；n/
+                  若变体数量少的卖家占多数，表明该类还有较大空间，非常适合中小卖家进场；`,
+        fulfillmentChannel: `发货方式有三种——FBM、FBA、AMZn/
+                            一般来说，FBM占比较高的类目，市场潜力巨大，进入难度相对较低，非常适合中小卖家；n/
+                            FBA占比较高的类目，市场发展得比较充分，进入难度一般；n/
+                            AMZ占比较高的类目，均是亚马逊官方供应商（VC账号），表明该类产品的供应链非常成熟，不太适合一般卖家进场。`,
+        imageCount: `比较完善的listing一般是主副图7张。n/
+                    一般来说，若图片数量≥6的listing数量较多，表明该类目的产品链接质量较高，优化比较到位，进场难度较大；n/
+                    若图片数量＜6的listing数量较多，表明该类目的产品链接质量普遍较低，优化不到位，经常难度较低。`,
+        listingVideo: `比较完善的listing一般是主副图7张，还有另外一种，是主副图6张+视频。n/
+                      一般来说，若listing有视频的数量较多，表明该类目的产品链接质量较高，优化比较到位，进场难度较大；n/
+                      若listing无视频的数量较多，表明该类目的产品链接质量普遍较低，优化不到位，经常难度较低。`,
+        hasEbc: `一般来说，EBC（A+）listing数量较多的话，表明优化比较到位，listing质量偏高，这种类目进入的难度较大；n/
+                反之，EBC（A+）listing数量较少的话，表明优化还不是很到位，listing质量偏低，进入难度较小。`,
+        brandName: `一般来说，如果某个品牌出现的频次较高，表明该类目极有可能被它所垄断，中小卖家不容易进入；n/
+                    如果各个品牌出现的频次都是较低，且比较分散，表明该类目尚未有巨头出现，适合中小卖家进入。`,
+        firstDate: `首次发布时间是指，该ASIN首次在亚马逊在售的时间。n/
+                    一般来说，若该类竞品的发布时间大部分都比较久（2年及以上），表明该类产品的权重已被老卖家占据，不利于新卖家进场；n/
+                    若该类竞品的发布时间大部分都比较新（2年以内），表明该类产品是新兴类目，大部分都是新卖家，同样也适合后来的新卖家进场。`,
+        seller: `一般来说，若显示的是Amazon的占比较多，表明该类目多数是由亚马逊官方（VC）销售，对自发货和打算发FBA的卖家不太友好，进入难度大；n/
+                若显示的是第三方品牌卖家的占比较多，表明该类目多数是第三方品牌卖家在销售，相对来说，进入难度小。`,
+        companyAddress: `一般来说，若外国卖家占比较多，表明该类目中国商品可能不太受欢迎（或者由于技术、政治等原因无法销售），中国卖家就要谨慎一些对待这类产品；n/
+                        若中国卖家占比较多，表明该类目的产品无论哪国生产，消费者都无所谓，且大概率没有技术、政治等问题，这种就比较适合中国卖家进入。`,
+        thirtyDaysFeedback: `一般来说，若30天feedback计数多的listing占比较高，表明这些卖家最近的销量都比较不错，量比较大，他们占的权重也相对较高，不太适合中小卖家进入；n/
+                            若30天feedback计数少的listing占比较高，表明销量情况一般，所占权重也较低，比较适合中小卖家进入。`
+      }
     };
   },
   mounted(){
@@ -237,6 +293,9 @@ export default {
     }
   },
   methods: {
+    strSplit(str) { //处理提示语数据
+      return str.split('n/').filter(Boolean);
+    },
     DomResize(data) {
       const { height } = data;
       this.thWidth = height;
@@ -264,8 +323,11 @@ export default {
         this.brand = res.data.data['brandNameVo'].brandNameCountList;
         this.data = res.data.data['tableScores'].map(item => {
           this.total += item.score;
+          if (this.tipList[item.props]) {
+            item.tip = this.tipList[item.props];
+          }
           return item;
-        });
+        }).sort((a, b) => b.score - a.score);
       });
     },
     objectOrder(obj) { //排序的函数
@@ -572,10 +634,14 @@ export default {
     overflow: scroll;
   }
   .total {
-    font-size: 40px; 
-    color: #01E3E3; 
+    // font-size: 40px; 
+    // color: #01E3E3; 
     font-family: MicrosoftYaHei;
     margin: auto;
+    div {
+      font-size: 30px; 
+      color: #9AA8D4;
+    }
   }
 .el-col {
   position: relative;
