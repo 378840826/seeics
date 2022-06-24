@@ -557,7 +557,6 @@ export default {
       }
     },
     detail (id) {
-      console.log(id);
       // wordStatistics(id).then(res => console.log(res))
       this.$router.push({ path: '/keywordDetail/index', query: { detailId: id } });
       // this.$router.push({

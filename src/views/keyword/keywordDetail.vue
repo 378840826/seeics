@@ -3,38 +3,6 @@
     <el-row :gutter="24">
       <el-col :span="6">
         <Title :title="'综合评分表'"/>
-         <!-- <div style="width: 100%;background: linear-gradient(180deg, #000318 0%, #03093D 100%);">
-
-         <el-table
-          
-          :data="data"
-          border
-          height='528'
-          :span-method="objectSpanMethod"
-          >
-          <el-table-column label="序号" type="index" align="center" />
-          <el-table-column label="评分选项" prop="column" align="left" />
-          <el-table-column label="分值" prop="score" align="left" />
-          <el-table-column label="星级，满分十级"  align="left">
-            <template slot-scope="{row}">
-              <div>
-                <el-rate
-                  disabled
-                  text-color="rgba(254, 178, 70, 1)RGBA"
-                  :max=row.score
-                >
-                </el-rate>
-              </div>
-               
-            </template>
-          </el-table-column>
-          <el-table-column label="分数" prop="props" align="center">
-            <template slot-scope="{row}">
-              <div style="fontSize: 28px; color: #01E3E3; font-family: MicrosoftYaHei;">{{total}}</div>
-            </template>
-          </el-table-column>
-        </el-table>
-         </div> -->
          <div style="display: flex; maxHeight: 528px">
            <div style=" width: 100%; minHeight: 40px; background: #09233A;">
              <p class="th" v-resize="DomResize">
@@ -62,15 +30,15 @@
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
-      <el-col :span="4">
+      <el-col :span="9">
         <Title :title="'AC关键字'"/>
         <bar-chart :chartData="acKeywordMap(acKeyword)" ratio :title="'AC关键字'" :height="'528px'"/>
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
-      <el-col :span="14">
+      <el-col :span="9">
         <Title :title="'评论星级'" :width="'800px'"/>
-        <bar-chart :chartData="listDataMap(reviewStar)" :title="'评论数量区间个数'" :height="'528px'"/>
+        <bar-chart :chartData="listDataMap(reviewStar)" :title="'评论数量区间个数'" italic :height="'528px'"/>
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
@@ -79,78 +47,112 @@
       <el-col :span="12">
         <Title :title="'评论数量'"/>
         <bar-chart :chartData="listDataMap(reviewCountVo.countCommentsRangeMap)" italic :title="'评论数量区间个数'" :height="'398px'"/>
+        <div class="div1"></div>
+        <div class="div2"></div>
       </el-col>
       <el-col :span="12">
         <Title :title="'价格分布图'"/>
         <bar-chart :chartData="price(listingPriceList)" italic :types="'scatter'" :height="'398px'"/>
+        <div class="div1"></div>
+        <div class="div2"></div>
       </el-col>
     </el-row>
     <el-row :gutter="24">
-      <el-col :span="4">
+      <el-col :span="9">
         <Title :title="'卖家数量'"/>
         <bar-chart :chartData="hijacker(hijackerVo)" ratio :height="'368px'"/>
+        <div class="div1"></div>
+        <div class="div2"></div>
       </el-col>
-      <el-col :span="20">
+      <el-col :span="15">
         <Title :title="'大类排名'"/>
         <bar-chart :chartData="listDataMap(bigRankingMap)" italic :height="'368px'"/>
+        <div class="div1"></div>
+        <div class="div2"></div>
       </el-col>
     </el-row>
     <el-row :gutter="24">
       <el-col :span="12">
         <Title :title="'小类排名'"/>
-        <bar-chart :chartData="listDataMap(smallRankingMap)" :height="'398px'"/>
+        <bar-chart :chartData="listDataMap(smallRankingMap)" italic :height="'398px'"/>
+        <div class="div1"></div>
+        <div class="div2"></div>
       </el-col>
       <el-col :span="12">
         <Title :title="'变体数量区间个数'"/>
         <bar-chart :chartData="listDataMap(variationRangeMap)" italic :height="'398px'"/>
+        <div class="div1"></div>
+        <div class="div2"></div>
       </el-col>
     </el-row>
     <el-row :gutter="24">
-      <el-col :span="5">
+      <el-col :span="9">
         <Title :title="'发货方式'"/>
         <bar-chart :chartData="fulfillmentChannelMap(fulfillmentChannel)" ratio :height="'398px'"/>
+        <div class="div1"></div>
+        <div class="div2"></div>
       </el-col>
-      <el-col :span="9">
+      <el-col :span="15">
         <Title :title="'图片数量'"/>
         <bar-chart :chartData="listDataMap(imageNumber)" :height="'398px'"/>
-      </el-col>
-      <el-col :span="5">
-        <Title :title="'相关视频'"/>
-        <bar-chart :chartData="videoMap(video)" ratio :height="'398px'"/>
-      </el-col>
-      <el-col :span="5">
-        <Title :title="'EBC图文品牌'"/>
-        <bar-chart :chartData="ebsMap(EBC)" ratio :height="'398px'"/>
+        <div class="div1"></div>
+        <div class="div2"></div>
       </el-col>
     </el-row>
     <el-row :gutter="24">
-      <el-col :span="20">
+      <el-col :span="15">
         <Title :title="'ASIN距今发布时间'"/>
         <bar-chart :chartData="listDataMap(timeQuantum)" italic :height="'398px'"/>
+        <div class="div1"></div>
+        <div class="div2"></div>
       </el-col>
-      <el-col :span="4">
+      <el-col :span="9">
         <Title :title="'卖家'"/>
         <bar-chart :chartData="sellerMap(seller)" ratio :height="'398px'"/>
+        <div class="div1"></div>
+        <div class="div2"></div>
       </el-col>
     </el-row>
     <el-row :gutter="24">
-      <el-col :span="6">
+      <el-col :span="9">
         <Title :title="'各国占总比'"/>
         <bar-chart :chartData="countryMap(country)" ratio :height="'398px'"/>
+        <div class="div1"></div>
+        <div class="div2"></div>
       </el-col>
-      <el-col :span="18">
+      <el-col :span="15">
         <Title :title="'30天反馈'"/>
         <bar-chart :chartData="listDataMap(feedback)" ratio italic :height="'398px'"/>
+        <div class="div1"></div>
+        <div class="div2"></div>
       </el-col>
     </el-row>
     <el-row :gutter="24">
-      <el-col :span="12">
-        <Title :title="'品牌'"/>
-        <bar-chart :chartData="brandMap(brand)" italic :height="'398px'"/>
+      <el-col :span="9">
+        <Title :title="'相关视频'"/>
+        <bar-chart :chartData="videoMap(video)" ratio :height="'398px'"/>
+        <div class="div1"></div>
+        <div class="div2"></div>
       </el-col>
-      <el-col :span="12">
+      <el-col :span="15">
         <Title :title="'颜色'"/>
         <bar-chart :chartData="colorMap(color)" italic :height="'398px'"/>
+        <div class="div1"></div>
+        <div class="div2"></div>
+      </el-col>
+    </el-row>
+    <el-row :gutter="24">
+      <el-col :span="15">
+        <Title :title="'品牌'"/>
+        <bar-chart :chartData="brandMap(brand)" italic :height="'398px'"/>
+        <div class="div1"></div>
+        <div class="div2"></div>
+      </el-col>
+      <el-col :span="9">
+        <Title :title="'EBC图文品牌'"/>
+        <bar-chart :chartData="ebsMap(EBC)" ratio :height="'398px'"/>
+        <div class="div1"></div>
+        <div class="div2"></div>
       </el-col>
     </el-row>
   </el-card>

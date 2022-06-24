@@ -1,5 +1,5 @@
 <template>
-    <div :style="{width: width, height: height}" ref="echart" id="chart"><div></div><div></div></div>
+    <div :style="{width: width, height: height}" ref="echart" class="chart"><div></div><div></div></div>
 </template>
 
 <script>
@@ -153,7 +153,7 @@ export default {
   #avue-view {
     background-color: black;
   }
-  #chart {
+  .chart {
     background: linear-gradient(180deg, #000318 0%, #03093D 100%);
     position: relative;
     
