@@ -42,6 +42,11 @@ export default [{
       path: '/ppc/automation-template',
       name: '自动化模板',
       component: () => import('@/views/ppc/automationTemplate')
+    },
+    {
+      path: '/ppc/cast-log',
+      name: '投放日志',
+      component: () => import('@/views/ppc/castLog')
     }
   ],
 }, {
