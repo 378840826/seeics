@@ -604,7 +604,7 @@ export default {
     // 店铺名称
     queryShopNameList().then(res => {
       this.tableLoading = true;
-      if (res.data.data.length) {
+      if (!res.data.data.length) {
         this.tableLoading = false;
         this.noShopDialog = true;
       }
