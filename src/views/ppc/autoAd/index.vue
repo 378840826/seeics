@@ -435,6 +435,26 @@
       :marketplace="marketplace"
       :getTableData="getTableData"
     />
+    <el-dialog
+      title="提示"
+      :visible="noShopDialog"
+      :append-to-body="true"
+      :show-close="false"
+      width="30%"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      destroy-on-close
+      center
+    >
+      <p>目前没有广告数据，请先在【我的店铺】完成绑定店铺和广告授权；</p>
+      <span slot="footer" class="dialog-footer">
+        <el-button 
+          size="mini" 
+          type="primary" 
+          @click="noShopDialog = false; $router.push('/ppc/shop')"
+          >好 的</el-button>
+      </span>
+    </el-dialog>
   </basic-container>
 </template>
 
@@ -573,6 +593,7 @@ export default {
       msgDialog: false,
       msgData: [],
       btnDisabled: false, //弹窗按钮限制
+      noShopDialog: false, // 没绑定店铺弹窗
     };
   },
 
@@ -583,6 +604,10 @@ export default {
     // 店铺名称
     queryShopNameList().then(res => {
       this.tableLoading = true;
+      if (res.data.data.length) {
+        this.tableLoading = false;
+        this.noShopDialog = true;
+      }
       const list = res.data.data.sort((a, b) => a.localeCompare(b));
       this.filterOptions.shopNameList = list;
       this.form.shopName = list[0];
