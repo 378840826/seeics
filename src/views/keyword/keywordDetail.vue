@@ -1,6 +1,6 @@
 <template>
-  <el-card class="mian">
-    <el-row :gutter="20">
+  <el-card class="mian" id="mian">
+    <el-row :gutter="20" id="top">
       <el-col :span="12" :offset="6">
         <Title :title="'综合评分表'"/>
          <div style="display: flex; maxHeight: 528px">
@@ -18,14 +18,14 @@
            <div style=" width: 70%; height: 100%">
              <p v-for="(item, index) in data" :key="item.props" class="column" style=" width: 100%; display: flex;">
                 <span class="span" style="width: 10%; textAlign: center;">{{index + 1}}</span>
-                <span class="span" style="width: 40%; textAlign: center;">{{item.column}}
+                <a @click="hanlderColumn(item.props)" class="span column" style="width: 40%; textAlign: center; cursor: pointer;">{{item.column}}
                   <el-tooltip>
                     <div slot="content">
                        <div v-for="item in  strSplit(item.tip)" :key="item">{{item}}</div>
                     </div>
                     <span class="el-icon-question"></span>
                   </el-tooltip>
-                </span>
+                </a>
                 <span class="span" style="width: 10%; textAlign: center;">{{item.score}}</span>
                 <span style="width: 40%" class="block">
                    <a class="a" v-for="i in item.score" :key="i">⭐</a>
@@ -37,7 +37,10 @@
               <div>
                  <div style="textAlign: center; fontSize: 50px; color: #01E3E3">{{total}}</div>
                  评估建议：
-                 <div>可以进入</div>
+                 <div v-if="total >= 120 && total <= 150">强烈建议进入</div>
+                 <div v-else-if="total >= 90 && total <= 120">建议进入</div>
+                 <div v-else-if="total >= 60 && total <= 90">可以进入</div>
+                 <div v-else-if="total < 60">不建议进入</div>
               </div>
            </div>
          </div>
@@ -45,14 +48,14 @@
         <div class="div2"></div>
       </el-col>
     </el-row>
-    <el-row :gutter="24">
+    <el-row :gutter="24" id="acKeyword">
         <el-col :span="9">
         <Title :title="'AC关键字'"/>
         <bar-chart :chartData="acKeywordMap(acKeyword)" ratio :title="'AC关键字'" :height="'528px'"/>
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
-      <el-col :span="15">
+      <el-col :span="15" id="reviewStar">
         <Title :title="'评论星级'" :width="'800px'"/>
         <bar-chart :chartData="listDataMap(reviewStar)" :title="'评论数量区间个数'" italic :height="'528px'"/>
         <div class="div1"></div>
@@ -60,13 +63,13 @@
       </el-col>
     </el-row>
     <el-row :gutter="24">
-      <el-col :span="12">
+      <el-col :span="12" id="reviewCount">
         <Title :title="'评论数量'"/>
         <bar-chart :chartData="listDataMap(reviewCountVo.countCommentsRangeMap)" italic :title="'评论数量区间个数'" :height="'398px'"/>
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
-      <el-col :span="12">
+      <el-col :span="12" id="hijacker">
         <Title :title="'价格分布图'"/>
         <bar-chart :chartData="price(listingPriceList)" italic :types="'scatter'" :height="'398px'"/>
         <div class="div1"></div>
@@ -74,13 +77,13 @@
       </el-col>
     </el-row>
     <el-row :gutter="24">
-      <el-col :span="9">
+      <el-col :span="9" id="hijacker">
         <Title :title="'卖家数量'"/>
         <bar-chart :chartData="hijacker(hijackerVo)" ratio :height="'368px'"/>
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
-      <el-col :span="15">
+      <el-col :span="15" id="ranking">
         <Title :title="'大类排名'"/>
         <bar-chart :chartData="listDataMap(bigRankingMap)" italic :height="'368px'"/>
         <div class="div1"></div>
@@ -88,13 +91,13 @@
       </el-col>
     </el-row>
     <el-row :gutter="24">
-      <el-col :span="12">
+      <el-col :span="12" id="ranking">
         <Title :title="'小类排名'"/>
         <bar-chart :chartData="listDataMap(smallRankingMap)" italic :height="'398px'"/>
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
-      <el-col :span="12">
+      <el-col :span="12" id="variation">
         <Title :title="'变体数量区间个数'"/>
         <bar-chart :chartData="listDataMap(variationRangeMap)" italic :height="'398px'"/>
         <div class="div1"></div>
@@ -102,13 +105,13 @@
       </el-col>
     </el-row>
     <el-row :gutter="24">
-      <el-col :span="9">
+      <el-col :span="9" id="fulfillmentChannel">
         <Title :title="'发货方式'"/>
         <bar-chart :chartData="fulfillmentChannelMap(fulfillmentChannel)" ratio :height="'398px'"/>
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
-      <el-col :span="15">
+      <el-col :span="15" id="imageCount">
         <Title :title="'图片数量'"/>
         <bar-chart :chartData="listDataMap(imageNumber)" :height="'398px'"/>
         <div class="div1"></div>
@@ -116,13 +119,13 @@
       </el-col>
     </el-row>
     <el-row :gutter="24">
-      <el-col :span="15">
+      <el-col :span="15" id="firstDate">
         <Title :title="'ASIN距今发布时间'"/>
         <bar-chart :chartData="listDataMap(timeQuantum)" italic :height="'398px'"/>
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
-      <el-col :span="9">
+      <el-col :span="9" id="seller">
         <Title :title="'卖家'"/>
         <bar-chart :chartData="sellerMap(seller)" ratio :height="'398px'"/>
         <div class="div1"></div>
@@ -130,13 +133,13 @@
       </el-col>
     </el-row>
     <el-row :gutter="24">
-      <el-col :span="9">
+      <el-col :span="9" id="companyAddress">
         <Title :title="'各国占总比'"/>
         <bar-chart :chartData="countryMap(country)" ratio :height="'398px'"/>
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
-      <el-col :span="15">
+      <el-col :span="15" id="thirtyDaysFeedback">
         <Title :title="'30天反馈'"/>
         <bar-chart :chartData="listDataMap(feedback)" ratio italic :height="'398px'"/>
         <div class="div1"></div>
@@ -145,7 +148,7 @@
     </el-row>
     <el-row :gutter="24">
       <el-col :span="9">
-        <Title :title="'相关视频'"/>
+        <Title :title="'相关视频'" id="listingVideo"/>
         <bar-chart :chartData="videoMap(video)" ratio :height="'398px'"/>
         <div class="div1"></div>
         <div class="div2"></div>
@@ -157,20 +160,21 @@
         <div class="div2"></div>
       </el-col>
     </el-row>
-    <el-row :gutter="24" id>
-      <el-col :span="15">
+    <el-row :gutter="24">
+      <el-col :span="15" id="brandName">
         <Title :title="'品牌'"/>
         <bar-chart :chartData="brandMap(brand)" italic :height="'398px'"/>
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
-      <el-col :span="9">
+      <el-col :span="9" id="hasEbc">
         <Title :title="'EBC图文品牌'"/>
         <bar-chart :chartData="ebsMap(EBC)" ratio :height="'398px'"/>
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
     </el-row>
+    <a @click="returnTop"  class="returnTop">返回顶部</a>
   </el-card>
     
 </template>
@@ -259,7 +263,15 @@ export default {
     };
   },
   mounted(){
-    
+    document.querySelector('#avue-view').addEventListener('scroll', () => {
+      const top = document.querySelector('#avue-view').scrollTop;
+      const returnTop = document.querySelector('.returnTop');
+      if (top > 20) {
+        returnTop.style.display = 'block';
+      } else {
+        returnTop.style.display = 'none';
+      }
+    });
   },
   destroyed() {
     window.onresize = null;
@@ -293,8 +305,14 @@ export default {
     }
   },
   methods: {
+    returnTop() {
+      document.querySelector('#avue-view').scrollTop = 0;
+    },
     strSplit(str) { //处理提示语数据
       return str.split('n/').filter(Boolean);
+    },
+    hanlderColumn(name) {
+      document.getElementById(name).scrollIntoView(true);
     },
     DomResize(data) {
       const { height } = data;
@@ -579,6 +597,18 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+  .returnTop {
+    display:none;
+    position:fixed;
+    bottom: 30px;
+    right: 20px;
+    width:40px;
+    text-align:center;
+    cursor: pointer;
+    border-radius: 4px;
+    color: #9AA8D4;
+    background:rgb(213, 214, 224);
+  }
   .mian {
     width: 99%;
     margin: auto;
@@ -612,6 +642,9 @@ export default {
       border-left: 1px solid rgba(8, 18, 81, 1);
       line-height: 28px;
       box-sizing: border-box;
+    }
+    .column {
+      color: #9AA8D4;
     }
     .block {
       display: block;
