@@ -48,8 +48,8 @@
         <div class="div2"></div>
       </el-col>
     </el-row>
-    <el-row :gutter="24" id="acKeyword">
-        <el-col :span="9">
+    <el-row :gutter="24">
+        <el-col :span="9" id="acKeyword">
         <Title :title="'AC关键字'"/>
         <bar-chart :chartData="acKeywordMap(acKeyword)" ratio :title="'AC关键字'" :height="'528px'"/>
         <div class="div1"></div>
@@ -147,8 +147,8 @@
       </el-col>
     </el-row>
     <el-row :gutter="24">
-      <el-col :span="9">
-        <Title :title="'相关视频'" id="listingVideo"/>
+      <el-col :span="9" id="listingVideo">
+        <Title :title="'相关视频'"/>
         <bar-chart :chartData="videoMap(video)" ratio :height="'398px'"/>
         <div class="div1"></div>
         <div class="div2"></div>
@@ -312,7 +312,7 @@ export default {
       return str.split('n/').filter(Boolean);
     },
     hanlderColumn(name) {
-      document.getElementById(name).scrollIntoView(true);
+      document.querySelector('#avue-view').scrollTop = document.getElementById(name).parentNode.offsetTop - 50;
     },
     DomResize(data) {
       const { height } = data;
