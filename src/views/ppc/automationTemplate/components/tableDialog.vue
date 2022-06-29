@@ -86,6 +86,26 @@
         <p>在广告自动化模板下添加广告活动，相当于给广告活动批量设置模板：</p>
         <p>1. 自动化标签、广告位自动化模板，添加广告活动后，每个广告活动都会新增一个自动化标签或广告位自动化规则。</p>
       </div>
+      <el-dialog
+      title="提示"
+      :visible="noShopDialog"
+      :append-to-body="true"
+      :show-close="false"
+      width="30%"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      destroy-on-close
+      center
+    >
+      <p>目前没有广告数据，请先在【我的店铺】完成绑定店铺和广告授权；</p>
+      <span slot="footer" class="dialog-footer">
+        <el-button 
+          size="mini" 
+          type="primary" 
+          @click="noShopDialog = false; $router.push('/ppc/shop')"
+          >好 的</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -232,6 +252,7 @@ export default {
         pageSize: 20,
         pageSizes: [20, 50, 100],
       },
+      noShopDialog: false,
     };
   },
   mounted() {
@@ -239,6 +260,10 @@ export default {
       this.tableLoading = true;
       if (res.data.code === 200) {
         this.shopList = res.data.data;
+        if (!res.data.data.length) {
+          this.noShopDialog = true;
+          return;
+        }
         this.fromInline.shopName = res.data.data.length && res.data.data[0] || '';
         this.getMarketplaceList(this.fromInline.shopName);
       }
