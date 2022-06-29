@@ -239,7 +239,7 @@ export default {
       this.tableLoading = true;
       if (res.data.code === 200) {
         this.shopList = res.data.data;
-        this.fromInline.shopName = res.data.data.length && res.data.data[0];
+        this.fromInline.shopName = res.data.data.length && res.data.data[0] || '';
         this.getMarketplaceList(this.fromInline.shopName);
       }
     });
@@ -293,7 +293,7 @@ export default {
       getMarketplaceList(shopName).then(res => {
         if (res.data.code === 200) {
           this.marketplaceList = res.data.data.sort((a, b) => b.name.localeCompare(a.name));
-          this.fromInline.marketplace = res.data.data.length && res.data.data[0].name;
+          this.fromInline.marketplace = res.data.data.length && res.data.data[0].name || '';
           this.tableLoading = true;
           this.getCampaignList();
         } 
