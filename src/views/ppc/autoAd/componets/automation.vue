@@ -39,9 +39,26 @@
         align="center"
       >
         <template slot-scope="scope">
-          <el-tooltip :content="scope.row.campaign">
+          <!-- <el-tooltip :content="scope.row.campaign">
             <div style="text-overflow: ellipsis;overflow: hidden;white-space: nowrap;">{{scope.row.campaign}}</div>
-          </el-tooltip>
+          </el-tooltip> -->
+          <el-select 
+            v-model="scope.row.campaign" 
+            placeholder="请选择广告活动"
+            @change="campaignChange($event, scope.$index)"
+            v-loadmore="loadmore"
+          >
+            <el-option
+              class="option"
+              v-for="item in campaignList"
+              :key="item.value"
+              :label="item.name"
+              :value="item.value"
+              :disabled="item.disabled"
+              >
+              <div class="box2">{{item.name}}</div>
+            </el-option>
+          </el-select>
         </template>
       </el-table-column>
       <el-table-column
@@ -57,7 +74,7 @@
           >
             <el-option
               class="option"
-              v-for="item in adGroupList"
+              v-for="item in scope.row.adGroupList"
               :key="item.groupId"
               :label="item.name"
               :value="item.groupId"
@@ -161,6 +178,7 @@
 
 <script>
 import {
+  queryCampaignList,
   getGroupList
 } from '@/api/ppc/autoAd';
 
@@ -185,13 +203,14 @@ export default {
       tableData: [
         {
           id: null,
-          campaign: this.campaign,
+          campaign: '',
           adGroup: '',
           matchType: '精准匹配',
           bidType: '广告组默认竞价',
           bid: '',
           msg: false,
-          add: true
+          add: true,
+          adGroupList: [],
         },
       ],
       matchType: [{
@@ -226,6 +245,12 @@ export default {
           disable: true
         }
       ],
+      formData: {
+        current: 1,
+        size: 20
+      },
+      total: 0,
+      campaignList: [],
       adGroupList: [],
       asinList: [],
       asinMskuKeyword: '',
@@ -236,20 +261,41 @@ export default {
   },
   mounted() {
     Object.keys(this.echo).length && this.echoFiled();
-    this.getGroupList();
+    this.queryCampaignList(this.formData);
   },
   destroyed() {
     this.echo.adCampaignInfos = [];
     this.automatedOperation = '';
+  },
+  directives: {
+    'loadmore': {
+      bind(el, binding) {
+        // 获取element-ui定义好的scroll盒子
+        const SELECTWRAP_DOM = el.querySelector('.el-select-dropdown .el-select-dropdown__wrap');
+        SELECTWRAP_DOM.addEventListener('scroll', function () {
+          /**
+          * scrollHeight 获取元素内容高度(只读)
+          * scrollTop 获取或者设置元素的偏移值,常用于, 计算滚动条的位置, 当一个元素的容器没有产生垂直方向的滚动条, 那它的scrollTop的值默认为0.
+          * clientHeight 读取元素的可见高度(只读)
+          * 如果元素滚动到底, 下面等式返回true, 没有则返回false:
+          * ele.scrollHeight - ele.scrollTop === ele.clientHeight;
+          */
+          const condition = this.scrollHeight - this.scrollTop <= this.clientHeight;
+          if (condition) {
+            binding.value();
+          }
+        }, true);
+      }
+    }
   },
   watch: {
     tableData: {
       handler(val) {
         const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
         if (val.length === this.adGroupList.length) {
-          this.addDisabled = true;
+          // this.addDisabled = true;
         } else {
-          this.addDisabled = false; 
+          // this.addDisabled = false; 
         }
         if (val.length === 1) {
           this.deleteDisabled = true;
@@ -289,7 +335,7 @@ export default {
     adGroupList: {
       handler(val) {
         if (val.length === this.tableData.length) {
-          this.addDisabled = true;
+          // this.addDisabled = true;
           this.deleteDisabled = true;
         }
         if (this.tableData.length === 1) {
@@ -302,6 +348,30 @@ export default {
     },
   },
   methods: {
+    loadmore() {
+      const result = this.formData.size * this.formData.current;
+      if (result < this.total) { //加载全部出来 停止请求
+        this.formData.current ++;
+        this.queryCampaignList(this.formData);
+      }  
+    },
+    //
+    queryCampaignList(formData) {
+      queryCampaignList({
+        shopName: this.rowData.shopName, 
+        marketplace: this.rowData.marketplace, 
+        ...formData
+      }).then(res => {
+        const data = res.data.data.records.map(item => {
+          return {
+            name: item.name,
+            value: item.campaignId
+          };
+        });
+        this.total = res.data.data.total;
+        this.campaignList = [...this.campaignList, ...data];
+      });
+    },
     // 默认选择第一个
     labelFilter(arr) {
       const arrs = arr.filter(item => !item.disabled);
@@ -314,13 +384,16 @@ export default {
       this.tableData = this.echo.adCampaignInfos.map(item => {
         return {
           id: item.id,
-          campaign: this.campaign,
+          campaign: item.campaignId,
           adGroup: item.adGroupId,
           matchType: item.matchType,
           bidType: item.bidType,
           bid: item.bid,
         };
       });
+      if (this.tableData.length && this.tableData[0].campaign) {
+        this.getGroupList(this.tableData[0].campaign);
+      }
       this.automatedOperation = this.echo.automatedOperation;
       this.tableData[this.tableData.length - 1].add = true;
     },
@@ -328,7 +401,7 @@ export default {
       let obj = {};
       const data = this.tableData.map(item => {
         return {
-          campaignId: this.rowData.campaignId,
+          campaignId: item.campaign,
           adGroupId: item.adGroup,
           matchType: item.matchType,
           bidType: item.bidType,
@@ -350,16 +423,21 @@ export default {
       return obj;
     },
     // 获取广告组
-    getGroupList() {
-      getGroupList([this.rowData.campaignId]).then(res => {
+    getGroupList(value, index) {
+      getGroupList([value]).then(res => {
         if (res.data.code === 200) {
-          this.adGroupList = res.data.data.records.map(item => {
-            item.disabled = false;
+          this.tableData[index].adGroupList = res.data.data.records.map(item => {
+            // item.disabled = false;
             return item;
           });
-          if ( this.echo.adCampaignInfos && !this.echo.adCampaignInfos.length || !Object.keys(this.echo).length) {
-            this.tableData[0].adGroup = this.adGroupList.length && this.adGroupList[0].groupId || '';
-          }
+          // if ( this.echo.adCampaignInfos && !this.echo.adCampaignInfos.length || !Object.keys(this.echo).length) {
+          //   this.tableData[0].adGroup = this.adGroupList.length && this.adGroupList[0].groupId || '';
+          // }
+          // this.tableData.forEach(item => {
+          //   if (item.campaign === value) {
+          //     item.adGroupList = adGroupList;
+          //   }
+          // });
           // 选中过的广告禁用
           const adGroupId = [];
           this.tableData.map(item => {
@@ -367,6 +445,7 @@ export default {
               adGroupId.push(item.adGroup);
             }
           });
+          console.log(this.tableData)
           this.adGroupList.forEach(item => {
             if ([...adGroupId].includes(item.groupId)) {
               item.disabled = true;
@@ -392,6 +471,11 @@ export default {
     bidTypeSelect(index) {
       this.tableData[index].bid = '';
     },
+    campaignChange(value, index) {
+      console.log(value, index)
+      this.getGroupList(value, index);
+      
+    },
     adGroupSelect(index) {
       this.tableData[index].bid = '';
     },
@@ -407,7 +491,8 @@ export default {
         bidType: '广告组默认竞价',
         bid: '',
         msg: false,
-        add: true
+        add: true,
+        adGroupList: []
       });
       delete this.tableData[this.tableData.length - 2].add;
     },
