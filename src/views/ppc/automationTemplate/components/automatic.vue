@@ -75,26 +75,86 @@
         </template>
       </el-table-column>
       <el-table-column
+        label=""
+        prop="cpcType"
+        align="center"
+      >
+        <template 
+          slot-scope="scope" 
+          v-if="scope.row.bidType === '过去7天CPC' 
+          || scope.row.bidType === '过去14天CPC' 
+          || scope.row.bidType === '过去21天CPC' 
+          || scope.row.bidType === '过去30天CPC'">
+          <el-select 
+            v-model="scope.row.cpcType" 
+            placeholder="请选择"
+            @change="cpcTypeSelect(scope.$index)"
+          >
+            <el-option
+              v-for="item in shang"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </template>
+      </el-table-column>
+      <el-table-column
         label="竞价策略"
         align="center"
       >
         <template slot-scope="scope">
          <div v-if="scope.row.bidType === '广告组默认竞价'">无需选择竞价</div>
-         <div v-else class="bid">
+         <div v-else-if="scope.row.bidType === '固定竞价'" class="bid">
             <el-input 
               v-model="scope.row.bid" 
               type="number"
               min="0"
+              placeholder="站点货币"
             />
            <div v-if="msg" class="msg">支持两位小数</div>
          </div>
+         <div v-else-if="!scope.row.cpcType">无</div>
+         <div v-else-if="scope.row.cpcType">
+           <el-input
+              v-model="scope.row.cpcValue"
+              type="number"
+              placeholder="调整数值"
+            >
+              <div
+                v-if="scope.row.cpcType === '上浮(%)' || scope.row.cpcType === '下调(%)'"
+                slot="suffix"
+                style="lineHeight: 30px;">%</div>
+                <div
+                v-else
+                slot="prefix"
+                style="lineHeight: 30px;">$</div>
+            </el-input>
+            <div v-if="scope.row.valueMsg" class="msg">支持两位小数</div>
+         </div>
         </template>
       </el-table-column>
-      <el-table-column
+      <!-- <el-table-column
         label=""
       >
         <template slot-scope="scope">
          <div v-if="scope.row.bidType !== '广告组默认竞价'" class="currency">(站点货币)</div> 
+        </template>
+      </el-table-column> -->
+      <el-table-column
+        label=""
+        prop="cpcMost"
+        align="center"
+      >
+        <template slot-scope="scope" v-if="scope.row.cpcType">
+          <el-input
+            v-model="scope.row.cpcMost"
+            type="number"
+            placeholder="竞价最大值"
+          >
+            <div slot="prefix" style="lineHeight: 30px;">$</div>
+          </el-input>
+          <!-- <div v-if="scope.row.mostMsg" class="msg">支持两位小数</div> -->
         </template>
       </el-table-column>
     </el-table>
@@ -118,7 +178,10 @@ export default {
           adGroup: '自动化标签所在广告组',
           matchType: '精准匹配',
           bidType: '广告组默认竞价',
-          bid: ''
+          bid: '',
+          cpcType: '上浮(%)',
+          cpcValue: '',
+          cpcMost: '',
         },
       ],
       matchType: [{
@@ -134,12 +197,50 @@ export default {
       ],
       bidSelect: [
         {
+          value: '过去7天CPC',
+          label: '过去7天CPC'
+        },
+        {
+          value: '过去14天CPC',
+          label: '过去14天CPC'
+        },
+        {
+          value: '过去21天CPC',
+          label: '过去21天CPC'
+        },
+        {
+          value: '过去30天CPC',
+          label: '过去30天CPC'
+        },
+        {
           value: '广告组默认竞价',
           label: '广告组默认竞价'
         }, {
           value: '固定竞价',
           label: '固定竞价'
         }
+      ],
+      shang: [
+        // {
+        //   label: '--',
+        //   value: ''
+        // },
+        {
+          label: '上浮(%)',
+          value: '上浮(%)'
+        },
+        {
+          label: '上浮(绝对值)',
+          value: '上浮(绝对值)'
+        },
+        {
+          label: '下调(%)',
+          value: '下调(%)'
+        },
+        {
+          label: '下调(绝对值)',
+          value: '下调(绝对值)'
+        },
       ],
       automatedOperation: '添加到投放',
       launchOption: [
@@ -177,21 +278,40 @@ export default {
       this.tableData[0].matchType = this.echo.matchType || '精准匹配';
       this.tableData[0].bid = this.echo.bid;
       this.tableData[0].bidType = this.echo.bidType || '广告组默认竞价';
+      this.tableData[0].cpcType = this.echo.cpcType;
+      this.tableData[0].cpcValue = this.echo.cpcValue;
+      this.tableData[0].cpcMost = this.echo.cpcMost;
     },
     getFiled() {
       return {
         matchType: this.tableData[0].matchType,
         bidType: this.tableData[0].bidType,
         bid: this.tableData[0].bid,
-        automatedOperation: this.automatedOperation
+        automatedOperation: this.automatedOperation,
+        cpcType: this.tableData[0].cpcType,
+        cpcValue: this.tableData[0].cpcValue || '',
+        cpcMost: this.tableData[0].cpcMost || '',
       };
     },
     bidTypeSelect() {
       this.tableData[0].bid = '';
+      this.tableData[0].cpcMost = '';
+      this.tableData[0].cpcValue = '';
+      if (this.tableData[0].bidType === '广告组默认竞价' || this.tableData[0].bidType === '固定竞价') {
+        this.tableData[0].cpcType = '';
+      } else {
+        this.tableData[0].cpcType = '上浮(%)';
+      }
     },
     matchTypeSelect() {
-      this.tableData[0].bidType = '广告组默认竞价';
+      // this.tableData[0].bidType = '广告组默认竞价';
+      // this.tableData[0].bid = '';
+      // this.tableData[0].cpcType = '';
+    },
+    cpcTypeSelect() {
       this.tableData[0].bid = '';
+      this.tableData[0].cpcMost = '';
+      this.tableData[0].cpcValue = '';
     }
   }
 };

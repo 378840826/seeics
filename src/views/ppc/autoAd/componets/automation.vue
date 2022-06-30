@@ -129,7 +129,12 @@
         prop="cpcType"
         align="center"
       >
-        <template slot-scope="scope" v-if="scope.row.bidType === '7' || scope.row.bidType === '14' || scope.row.bidType === '21' || scope.row.bidType === '30'">
+        <template 
+          slot-scope="scope" 
+          v-if="scope.row.bidType === '过去7天CPC' 
+          || scope.row.bidType === '过去14天CPC' 
+          || scope.row.bidType === '过去21天CPC' 
+          || scope.row.bidType === '过去30天CPC'">
           <el-select 
             v-model="scope.row.cpcType" 
             placeholder="请选择"
@@ -284,19 +289,19 @@ export default {
       ],
       bidSelect: [
         {
-          value: '7',
+          value: '过去7天CPC',
           label: '过去7天CPC'
         },
         {
-          value: '14',
+          value: '过去14天CPC',
           label: '过去14天CPC'
         },
         {
-          value: '21',
+          value: '过去21天CPC',
           label: '过去21天CPC'
         },
         {
-          value: '30',
+          value: '过去30天CPC',
           label: '过去30天CPC'
         },
         {
@@ -320,10 +325,10 @@ export default {
         }
       ],
       shang: [
-        {
-          label: '--',
-          value: ''
-        },
+        // {
+        //   label: '--',
+        //   value: ''
+        // },
         {
           label: '上浮(%)',
           value: '上浮(%)'
@@ -585,9 +590,13 @@ export default {
     },
     bidTypeSelect(index) {
       this.tableData[index].bid = '';
+      if (this.tableData[index].bidType === '广告组默认竞价' || this.tableData[index].bidType === '固定竞价') {
+        this.tableData[index].cpcType = '';
+      } else {
+        this.tableData[index].cpcType = '上浮(%)';
+      }
       this.tableData[index].cpcMost = '';
       this.tableData[index].cpcValue = '';
-      this.tableData[index].cpcType = '';
     },
     cpcTypeSelect(index) {
       this.tableData[index].cpcMost = '';

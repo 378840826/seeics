@@ -32,7 +32,7 @@
     <el-dialog
       :visible.sync="centerDialogVisible"
       :append-to-body="true"
-      width="50%"
+      width="1150px"
       class="tst"
       :show-close="false"
       :close-on-click-modal="false"
@@ -429,6 +429,28 @@ export default {
         });
         return true;
       }
+      if ((automatic.cpcType === '上浮(%)' 
+          || automatic.cpcType === '下调(%)'
+          || automatic.cpcType === '下调(绝对值)'
+          || automatic.cpcType === '上浮(绝对值)')
+          && !automatic.cpcValue) {
+        this.$message({
+          type: 'error',
+          message: '请输入调整数值'
+        });
+        return true;
+      }
+      if ((automatic.cpcType === '上浮(%)'
+          || automatic.cpcType === '下调(%)'
+          || automatic.cpcType === '下调(绝对值)'
+          || automatic.cpcType === '上浮(绝对值)')
+          && !automatic.cpcMost) {
+        this.$message({
+          type: 'error',
+          message: '请输入竞价最大值'
+        });
+        return true;
+      }
     },
     // 创建模板
     save() {
@@ -506,7 +528,10 @@ export default {
             automatedOperation: result.automatedOperation,
             bidType: result.bidType,
             matchType: result.matchType,
-            bid: result.bid
+            bid: result.bid,
+            cpcType: result.cpcType,
+            cpcValue: result.cpcValue,
+            cpcMost: result.cpcMost,
           };
           this.formInline = {
             ...this.formInline,
