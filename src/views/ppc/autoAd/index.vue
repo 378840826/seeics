@@ -218,11 +218,41 @@
     </div>
 
     <!-- 批量设置模板弹窗 -->
-    
+    <el-dialog title="批量设置模板" :visible="dialogTemplateVisible" append-to-body>
+      <el-form :model="templateForm" ref="templateForm" label-width="120px">
+        <el-form-item label="广告自动化类型">
+          <el-select v-model="templateForm.type" :size="componentsSize">
+            <el-option value="搜索词自动化标签" label="搜索词自动化标签" />
+          </el-select>
+        </el-form-item>
+        <div
+          v-for="(item, index) in templateForm.itemList"
+          :key="index"
+          class="template-item"
+        >
+          <el-form-item label="自动化模板">
+            <el-select v-model="item.template" :size="componentsSize">
+              <!-- <el-option value="搜索词自动化标签" label="搜索词自动化标签" /> -->
+            </el-select>
+          </el-form-item>
+          <el-form-item label="标签名称" :prop="'itemList.' + index + '.label'" :rules="[
+            { required: true, message: '请输入标签名称', trigger: 'change' },
+            { min: 1, max: 50, message: '店铺名称长度在 1 到 50 个字符', trigger: 'change' },
+          ]">
+            <el-input v-model="item.label" placeholder="请输入标签名称" />
+          </el-form-item>
+        </div>
+        <i class="el-icon-circle-plus" @click="handleAddTemplateFormItem" />
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogTemplateVisible = false" :size="componentsSize">取 消</el-button>
+        <el-button type="primary" @click="handleBatchTemplate" :size="componentsSize">确 定</el-button>
+      </div>
+    </el-dialog>
     <el-dialog
       :visible="dialogCreateVisible"
       :append-to-body="true"
-      width="50%"
+      width="1200px"
       :show-close="false"
       :close-on-click-modal="false"
       :close-on-press-escape="false"

@@ -125,12 +125,32 @@
         </template>
       </el-table-column>
       <el-table-column
+        label=""
+        prop="cpcType"
+        align="center"
+      >
+        <template slot-scope="scope" v-if="scope.row.bidType === '7' || scope.row.bidType === '14' || scope.row.bidType === '21' || scope.row.bidType === '30'">
+          <el-select 
+            v-model="scope.row.cpcType" 
+            placeholder="请选择"
+            @change="cpcTypeSelect(scope.$index)"
+          >
+            <el-option
+              v-for="item in shang"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </template>
+      </el-table-column>
+      <el-table-column
         label="竞价策略"
         align="center"
       >
         <template slot-scope="scope">
          <div v-if="scope.row.bidType === '广告组默认竞价'">无需选择竞价</div>
-         <div v-else class="bid">
+         <div v-else-if="scope.row.bidType === '固定竞价'" class="bid">
             <el-input 
               v-model="scope.row.bid" 
               type="number"
@@ -139,10 +159,45 @@
             ><i slot="prefix" style="lineHeight: 30px;">{{ rowData.currency }}</i></el-input>
            <div v-if="scope.row.msg" class="msg">支持两位小数</div>
          </div>
+         <div v-else-if="!scope.row.cpcType">无</div>
+         <div v-else-if="scope.row.cpcType">
+           <el-input
+              v-model="scope.row.cpcValue"
+              type="number"
+              placeholder="调整数值"
+            >
+              <div
+                v-if="scope.row.cpcType === '上浮(%)' || scope.row.cpcType === '下调(%)'"
+                slot="suffix"
+                style="lineHeight: 30px;">%</div>
+                <div
+                v-else
+                slot="prefix"
+                style="lineHeight: 30px;">$</div>
+            </el-input>
+            <div v-if="scope.row.valueMsg" class="msg">支持两位小数</div>
+         </div>
         </template>
       </el-table-column>
       <el-table-column
         label=""
+        prop="cpcMost"
+        align="center"
+      >
+        <template slot-scope="scope" v-if="scope.row.cpcType">
+          <el-input
+            v-model="scope.row.cpcMost"
+            type="number"
+            placeholder="竞价最大值"
+          >
+            <div slot="prefix" style="lineHeight: 30px;">$</div>
+          </el-input>
+          <div v-if="scope.row.mostMsg" class="msg">支持两位小数</div>
+        </template>
+      </el-table-column>
+      <el-table-column
+        label=""
+        width="100"
       >
         <template slot-scope="scope">
          <el-button 
@@ -208,6 +263,9 @@ export default {
           matchType: '精准匹配',
           bidType: '广告组默认竞价',
           bid: '',
+          cpcType: '',
+          cpcValue: '',
+          cpcMost: '',
           msg: false,
           add: true,
           adGroupList: [],
@@ -225,6 +283,22 @@ export default {
       }
       ],
       bidSelect: [
+        {
+          value: '7',
+          label: '过去7天CPC'
+        },
+        {
+          value: '14',
+          label: '过去14天CPC'
+        },
+        {
+          value: '21',
+          label: '过去21天CPC'
+        },
+        {
+          value: '30',
+          label: '过去30天CPC'
+        },
         {
           value: '广告组默认竞价',
           label: '广告组默认竞价'
@@ -244,6 +318,28 @@ export default {
           value: '添加到否定投放',
           disable: true
         }
+      ],
+      shang: [
+        {
+          label: '--',
+          value: ''
+        },
+        {
+          label: '上浮(%)',
+          value: '上浮(%)'
+        },
+        {
+          label: '上浮(绝对值)',
+          value: '上浮(绝对值)'
+        },
+        {
+          label: '下调(%)',
+          value: '下调(%)'
+        },
+        {
+          label: '下调(绝对值)',
+          value: '下调(绝对值)'
+        },
       ],
       formData: {
         current: 1,
@@ -307,18 +403,42 @@ export default {
           if (item.adGroup) {
             adGroupId.push(item.adGroup);
           }
-          if (item.bidType === '固定竞价' && !item.bid) {
+          if (item.bidType === '固定竞价' && !item.bid
+              || item.cpcType === '上浮(%)' && (!item.cpcMost || !item.cpcValue)
+              || item.cpcType === '下调(%)' && (!item.cpcMost || !item.cpcValue)
+              || item.cpcType === '下调(绝对值)' && (!item.cpcMost || !item.cpcValue)
+              || item.cpcType === '上浮(绝对值)' && (!item.cpcMost || !item.cpcValue)
+          ) {
             item.addDisabled = true;
           } else {
             item.addDisabled = false;
-            if (reg.test(Number(item.bid))) {
-              item.msg = false;
-              item.addDisabled = false;
-            
-            } else {
+            if (!reg.test(Number(item.bid)) || !reg.test(Number(item.cpcMost)) || !reg.test(Number(item.cpcValue))) {
               item.msg = true;
               item.addDisabled = true;
+            
+            } else {
+              
+              item.msg = false;
+              item.addDisabled = false;
             }
+            // if ( item.cpcMost && !reg.test(Number(item.cpcMost))) {
+            //   item.mostMsg = true;
+            //   item.addDisabled = true;
+            
+            // } else {
+              
+            //   item.mostMsg = false;
+            //   item.addDisabled = false;
+            // }
+            // if (item.cpcValue && !reg.test(Number(item.cpcValue))) {
+            //   item.valueMsg = true;
+            //   item.addDisabled = true;
+            
+            // } else {
+              
+            //   item.valueMsg = false;
+            //   item.addDisabled = false;
+            // }
           }
           // 选中过的广告禁用
           this.adGroupList.forEach(item => {
@@ -381,19 +501,18 @@ export default {
       if (!this.echo.adCampaignInfos.length) {
         return;
       }
-      this.tableData = this.echo.adCampaignInfos.map(item => {
+      this.tableData = this.echo.adCampaignInfos.map((item, index) => {
+        this.getGroupList(item.campaignId, index);
         return {
-          id: item.id,
+          ...item,
           campaign: item.campaignId,
           adGroup: item.adGroupId,
-          matchType: item.matchType,
-          bidType: item.bidType,
-          bid: item.bid,
+          adGroupList: [],
         };
       });
-      if (this.tableData.length && this.tableData[0].campaign) {
-        this.getGroupList(this.tableData[0].campaign);
-      }
+      // if (this.tableData.length && this.tableData[0].campaign) {
+      //   this.getGroupList(this.tableData[0].campaign);
+      // }
       this.automatedOperation = this.echo.automatedOperation;
       this.tableData[this.tableData.length - 1].add = true;
     },
@@ -401,13 +520,10 @@ export default {
       let obj = {};
       const data = this.tableData.map(item => {
         return {
+          ...item,
           campaignId: item.campaign,
           adGroupId: item.adGroup,
-          matchType: item.matchType,
-          bidType: item.bidType,
-          bid: item.bid,
           currency: this.rowData.currency,
-          id: item.id
         };
       });
       obj = {
@@ -439,20 +555,19 @@ export default {
           //   }
           // });
           // 选中过的广告禁用
-          const adGroupId = [];
-          this.tableData.map(item => {
-            if (item.adGroup) {
-              adGroupId.push(item.adGroup);
-            }
-          });
-          console.log(this.tableData)
-          this.adGroupList.forEach(item => {
-            if ([...adGroupId].includes(item.groupId)) {
-              item.disabled = true;
-            } else {
-              item.disabled = false;
-            }
-          });
+          // const adGroupId = [];
+          // this.tableData.map(item => {
+          //   if (item.adGroup) {
+          //     adGroupId.push(item.adGroup);
+          //   }
+          // });
+          // this.adGroupList.forEach(item => {
+          //   if ([...adGroupId].includes(item.groupId)) {
+          //     item.disabled = true;
+          //   } else {
+          //     item.disabled = false;
+          //   }
+          // });
         }
       });
     },
@@ -470,11 +585,16 @@ export default {
     },
     bidTypeSelect(index) {
       this.tableData[index].bid = '';
+      this.tableData[index].cpcMost = '';
+      this.tableData[index].cpcValue = '';
+      this.tableData[index].cpcType = '';
+    },
+    cpcTypeSelect(index) {
+      this.tableData[index].cpcMost = '';
+      this.tableData[index].cpcValue = '';
     },
     campaignChange(value, index) {
-      console.log(value, index)
       this.getGroupList(value, index);
-      
     },
     adGroupSelect(index) {
       this.tableData[index].bid = '';
@@ -490,6 +610,9 @@ export default {
         matchType: '精准匹配',
         bidType: '广告组默认竞价',
         bid: '',
+        cpcType: '',
+        cpcValue: '',
+        cpcMost: '',
         msg: false,
         add: true,
         adGroupList: []
@@ -536,6 +659,9 @@ export default {
   ::v-deep .el-input__icon {
     line-height: 30px;
   }
+  ::v-deep .el-input--prefix .el-input__inner {
+    padding-left: 20px;
+  }
   .currency {
     color: #409EFF;
   }
@@ -544,6 +670,9 @@ export default {
       color: red;
     }
   }
+  .msg {
+      color: red;
+    }
   .option {
     width: 100%;
     max-width: 700px;
