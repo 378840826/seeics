@@ -94,7 +94,7 @@
         filterable
         remote
         clearable
-        @change="getTableData()"
+        @change="handleCampaignSelectChange"
         :remote-method="getCampaignList"
         :size="componentsSize"
         :loading="loading.campaignList"
@@ -116,6 +116,7 @@
         placeholder="搜索选择广告组"
         filterable
         remote
+        clearable
         @change="getTableData()"
         :remote-method="getGroupList"
         :size="componentsSize"
@@ -151,6 +152,7 @@
       <el-date-picker
         v-model="form.dateRange"
         type="daterange"
+        value-format="yyyy-MM-dd"
         align="right"
         unlink-panels
         range-separator="至"
@@ -178,24 +180,28 @@
           <template slot="header">
             <div>
               操作时间
-              <el-tooltip class="item" effect="dark" content="站点时间" placement="top">
+              <el-tooltip class="item" effect="dark" content="北京时间" placement="top">
                 <i class="el-icon-info icon-time_info"></i>
               </el-tooltip>
             </div>
           </template>
         </el-table-column>
 
-        <el-table-column prop="shopName" label="店铺站点" width="100">
+        <el-table-column prop="storeName" label="店铺站点" width="100">
           <template slot-scope="scope">
-            {{ scope.row.marketplace }}-{{ scope.row.shopName }}
+            {{ scope.row.marketplace }}-{{ scope.row.storeName }}
           </template>
         </el-table-column>
 
-        <el-table-column prop="adType" label="广告类型" width="80" />
+        <el-table-column prop="adType" label="广告类型" width="80">
+          <template slot-scope="scope">
+            {{ scope.row.adType &&  scope.row.adType.toUpperCase()}}
+          </template>
+        </el-table-column>
         
         <el-table-column prop="actionEntity" label="操作对象" width="200px" />
 
-        <el-table-column prop="entityType" label="对象类型">
+        <el-table-column prop="entityType" label="对象类型" width="100px" >
           <template slot-scope="scope">
             {{ adObjectTypeDict[scope.row.entityType] }}
           </template>
@@ -206,13 +212,13 @@
         <el-table-column prop="actionMode" label="操作方式" width="80px" />
         <el-table-column prop="action" label="执行操作" width="120px" />
 
-        <el-table-column prop="oldValue" label="操作前" width="120px">
+        <el-table-column prop="oldValue" label="操作前" width="160px">
           <template slot-scope="scope">
-            {{ scope.row.oldValue === '' ? '—' : scope.row.oldValue }}
+            {{ scope.row.oldValue === null ? '—' : scope.row.oldValue }}
           </template>
         </el-table-column>
 
-        <el-table-column prop="newValue" label="操作后" width="120px">
+        <el-table-column prop="newValue" label="操作后" width="160px">
           <template slot-scope="scope">
             {{ scope.row.newValue === '' ? '—' : scope.row.newValue }}
           </template>
@@ -363,9 +369,18 @@ export default {
   created() {
     // 店铺名称
     queryShopNameList().then(res => {
+      if (!res.data.data || res.data.data.length === 0) {
+        this.$alert('没有授权广告店铺，请前往授权', '提示', {
+          confirmButtonText: '去授权',
+          showClose: false,
+          callback: () => {
+            this.$router.push({ path: '/ppc/shop' });
+          },
+        });
+        return;
+      }
       this.loading.table = true;
       const list = res.data.data.sort((a, b) => a.localeCompare(b));
-      console.log('res.data.data', res.data);
       this.filterOptions.shopNameList = list;
       this.form.shopName = list[0];
       // 用第一个店铺名称来请求站点列表和表格数据
@@ -397,7 +412,7 @@ export default {
       const sortParams = formatTableSortParams(this.tableSort);
       const queryParams = {
         actionEntity: this.form.actionEntity.trim(),
-        shopName: this.form.shopName,
+        storeName: this.form.shopName,
         adStoreId: this.form.adStoreId,
         marketplace: this.form.marketplace,
         adType: this.form.adType,
@@ -411,7 +426,6 @@ export default {
         ...sortParams,
         ...params,
       };
-      console.log('queryParams', queryParams);
       queryTable(queryParams).then(res => {
         const resData = res.data.data;
         this.tableData = resData.records;
@@ -487,6 +501,13 @@ export default {
       } else {
         this.filterOptions.groupList = [];
       }
+    },
+
+    // 广告活动选中值改变
+    handleCampaignSelectChange() {
+      // 清空广告组的选中
+      this.form.groupId = '';
+      this.getTableData();
     },
   },
 };
