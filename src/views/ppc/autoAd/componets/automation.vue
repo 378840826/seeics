@@ -158,17 +158,17 @@
          <div v-else-if="scope.row.bidType === '固定竞价'" class="bid">
             <el-input 
               v-model="scope.row.bid" 
-              type="number"
+              @blur="numberChange($event, 'bid', scope.$index)"
               placeholder="站点货币"
               min="0"
-            ><i slot="prefix" style="lineHeight: 30px;">{{ rowData.currency }}</i></el-input>
-           <div v-if="scope.row.msg" class="msg">支持两位小数</div>
+            ><div slot="prefix" style="lineHeight: 30px;">{{ rowData.currency }}</div></el-input>
+           <!-- <div v-if="scope.row.msg" class="msg">支持两位小数</div> -->
          </div>
          <div v-else-if="!scope.row.cpcType">无</div>
          <div v-else-if="scope.row.cpcType">
            <el-input
               v-model="scope.row.cpcValue"
-              type="number"
+              @blur="numberChange($event, 'cpcValue', scope.$index)"
               placeholder="调整数值"
             >
               <div
@@ -178,9 +178,9 @@
                 <div
                 v-else
                 slot="prefix"
-                style="lineHeight: 30px;">$</div>
+                style="lineHeight: 30px;">{{ rowData.currency }}</div>
             </el-input>
-            <div v-if="scope.row.valueMsg" class="msg">支持两位小数</div>
+            <!-- <div v-if="scope.row.valueMsg" class="msg">支持两位小数</div> -->
          </div>
         </template>
       </el-table-column>
@@ -192,12 +192,12 @@
         <template slot-scope="scope" v-if="scope.row.cpcType">
           <el-input
             v-model="scope.row.cpcMost"
-            type="number"
+            @blur="numberChange($event, 'cpcMost', scope.$index)"
             placeholder="竞价最大值"
           >
-            <div slot="prefix" style="lineHeight: 30px;">$</div>
+            <div slot="prefix" style="lineHeight: 30px;">{{ rowData.currency }}</div>
           </el-input>
-          <div v-if="scope.row.mostMsg" class="msg">支持两位小数</div>
+          <!-- <div v-if="scope.row.mostMsg" class="msg">支持两位小数</div> -->
         </template>
       </el-table-column>
       <el-table-column
@@ -426,24 +426,6 @@ export default {
               item.msg = false;
               item.addDisabled = false;
             }
-            // if ( item.cpcMost && !reg.test(Number(item.cpcMost))) {
-            //   item.mostMsg = true;
-            //   item.addDisabled = true;
-            
-            // } else {
-              
-            //   item.mostMsg = false;
-            //   item.addDisabled = false;
-            // }
-            // if (item.cpcValue && !reg.test(Number(item.cpcValue))) {
-            //   item.valueMsg = true;
-            //   item.addDisabled = true;
-            
-            // } else {
-              
-            //   item.valueMsg = false;
-            //   item.addDisabled = false;
-            // }
           }
           // 选中过的广告禁用
           this.adGroupList.forEach(item => {
@@ -544,13 +526,18 @@ export default {
       return obj;
     },
     // 获取广告组
-    getGroupList(value, index) {
+    getGroupList(value, index, flag) {
       getGroupList([value]).then(res => {
+        const data = res.data.data.records;
         if (res.data.code === 200) {
-          this.tableData[index].adGroupList = res.data.data.records.map(item => {
+          // this.tableData[index].adGroup = data.length && data[0].groupId || '';
+          this.tableData[index].adGroupList = data.map(item => {
             // item.disabled = false;
             return item;
           });
+          if (flag) {
+            this.tableData[index].adGroup = data.length && data[0].groupId || '';
+          }
           // if ( this.echo.adCampaignInfos && !this.echo.adCampaignInfos.length || !Object.keys(this.echo).length) {
           //   this.tableData[0].adGroup = this.adGroupList.length && this.adGroupList[0].groupId || '';
           // }
@@ -603,10 +590,28 @@ export default {
       this.tableData[index].cpcValue = '';
     },
     campaignChange(value, index) {
-      this.getGroupList(value, index);
+      this.tableData[index].adGroup = '';
+      this.getGroupList(value, index, 'flag');
     },
     adGroupSelect(index) {
-      this.tableData[index].bid = '';
+      // this.tableData[index].bid = '';
+    },
+    // 修改不合法字符以及数字
+    numberChange (val, name, index) { // name字段名，index索引
+      // 校验正数，带两位小数
+      const reg = /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/;
+      if (isNaN(val.target.value)) { 
+        val.target.value = parseFloat(val.target.value) ;
+      } 
+      // 修改超出两位小数值
+      if (val.target.value.indexOf('.') > 0){
+        val.target.value = val.target.value.slice(0, val.target.value.indexOf('.') + 3);
+        this.tableData[index][name] = val.target.value;
+      }
+      if (!reg.test(val.target.value)) {
+        val.target.value = '';
+        this.tableData[index][name] = '';
+      }
     },
     add() {
       if (this.adGroupList === this.tableData.length) {

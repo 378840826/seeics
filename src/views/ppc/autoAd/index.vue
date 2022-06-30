@@ -396,11 +396,11 @@
           @click="createTemplate"
           :disabled="btnDisabled"
         >{{updateBtn ? '确 认' : '创 建'}}</el-button>
-        <el-button 
+        <!-- <el-button 
           size="mini" 
           type="primary" 
           @click="manualDelivery"
-        >手动投放</el-button>
+        >手动投放</el-button> -->
       </span>
     </el-dialog>
     <el-dialog
@@ -805,6 +805,8 @@ export default {
       let flag = true;
       let msg = true;
       let ad = true;
+      let cpcValue = true;
+      let cpcMost = true;
       params.adCampaignInfos.map(item => {
         if (!item.adGroupId) {
           ad = false;
@@ -814,6 +816,20 @@ export default {
         }
         if (item.bidType === '固定竞价' && !item.bid) {
           msg = false;
+        }
+        if ((item.cpcType === '上浮(%)' 
+          || item.cpcType === '下调(%)'
+          || item.cpcType === '下调(绝对值)'
+          || item.cpcType === '上浮(绝对值)')
+          && !item.cpcValue) {
+          cpcValue = false;
+        }
+        if ((item.cpcType === '上浮(%)'
+          || item.cpcType === '下调(%)'
+          || item.cpcType === '下调(绝对值)'
+          || item.cpcType === '上浮(绝对值)')
+          && !item.cpcMost) {
+          cpcMost = false;
         }
       });
       if (!ad) {
@@ -836,7 +852,21 @@ export default {
           message: '请输入固定竞价'
         });
         return true;
-      } 
+      }
+      if (!cpcValue) {
+        this.$message({
+          type: 'error',
+          message: '请输入调整数值'
+        });
+        return true;
+      }
+      if (!cpcMost) {
+        this.$message({
+          type: 'error',
+          message: '请输入竞价最大值'
+        });
+        return true;
+      }
     },
     // 子规则统一校验
     ruleMsg() {

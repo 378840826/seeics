@@ -108,17 +108,20 @@
          <div v-else-if="scope.row.bidType === '固定竞价'" class="bid">
             <el-input 
               v-model="scope.row.bid" 
-              type="number"
-              min="0"
-              placeholder="站点货币"
-            />
-           <div v-if="msg" class="msg">支持两位小数</div>
+              placeholder="固定竞价"
+              @blur="numberChange($event, 'bid')"
+            >
+              <div
+                slot="prefix"
+                style="lineHeight: 30px;">站点货币</div>
+            </el-input>
+           <!-- <div v-if="msg" class="msg">支持两位小数</div> -->
          </div>
          <div v-else-if="!scope.row.cpcType">无</div>
          <div v-else-if="scope.row.cpcType">
            <el-input
               v-model="scope.row.cpcValue"
-              type="number"
+              @blur="numberChange($event, 'cpcValue')"
               placeholder="调整数值"
             >
               <div
@@ -128,9 +131,9 @@
                 <div
                 v-else
                 slot="prefix"
-                style="lineHeight: 30px;">$</div>
+                style="lineHeight: 30px;">站点货币</div>
             </el-input>
-            <div v-if="scope.row.valueMsg" class="msg">支持两位小数</div>
+            <!-- <div v-if="scope.row.valueMsg" class="msg">支持两位小数</div> -->
          </div>
         </template>
       </el-table-column>
@@ -149,10 +152,10 @@
         <template slot-scope="scope" v-if="scope.row.cpcType">
           <el-input
             v-model="scope.row.cpcMost"
-            type="number"
+            @blur="numberChange($event, 'cpcMost')"
             placeholder="竞价最大值"
           >
-            <div slot="prefix" style="lineHeight: 30px;">$</div>
+            <div slot="prefix" style="lineHeight: 30px;">站点货币</div>
           </el-input>
           <!-- <div v-if="scope.row.mostMsg" class="msg">支持两位小数</div> -->
         </template>
@@ -274,6 +277,20 @@ export default {
     }
   },
   methods: {
+    numberChange (val, name) {
+      const reg = /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/;
+      if (isNaN(val.target.value)) { 
+        val.target.value = parseFloat(val.target.value) ;
+      } 
+      if (val.target.value.indexOf('.') > 0){
+        val.target.value = val.target.value.slice(0, val.target.value.indexOf('.') + 3);
+        this.tableData[0][name] = val.target.value;
+      }
+      if (!reg.test(val.target.value)) {
+        val.target.value = '';
+        this.tableData[0][name] = '';
+      }
+    },
     echoFiled() {
       this.tableData[0].matchType = this.echo.matchType || '精准匹配';
       this.tableData[0].bid = this.echo.bid;
@@ -342,8 +359,22 @@ export default {
   ::v-deep .el-input__icon {
     line-height: 30px;
   }
-  .currency {
-    color: #409EFF;
+  ::v-deep .el-input__prefix, .el-input__suffix {
+    position: absolute;
+    top: 0;
+    -webkit-transition: all .3s;
+    height: 100%;
+    color: #C0C4CC;
+    font-size: 12px;
+    text-align: center;
+  }
+  ::v-deep .el-input--prefix .el-input__inner {
+    padding-left: 55px;
+    font-size: 12px;
+  }
+  ::v-deep .el-input--suffix .el-input__inner {
+    padding-right: 30px;
+    font-size: 12px;
   }
   .bid {
     .msg {
