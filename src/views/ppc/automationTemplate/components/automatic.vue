@@ -63,7 +63,7 @@
           <el-select 
             v-model="scope.row.bidType" 
             placeholder="请选择"
-            @change="bidTypeSelect"
+            @change="bidTypeSelect(scope.$index)"
           >
             <el-option
               v-for="item in bidSelect"
@@ -182,7 +182,7 @@ export default {
           matchType: '精准匹配',
           bidType: '广告组默认竞价',
           bid: '',
-          cpcType: '上浮(%)',
+          cpcType: '',
           cpcValue: '',
           cpcMost: '',
         },
@@ -310,15 +310,15 @@ export default {
         cpcMost: this.tableData[0].cpcMost || '',
       };
     },
-    bidTypeSelect() {
-      this.tableData[0].bid = '';
-      this.tableData[0].cpcMost = '';
-      this.tableData[0].cpcValue = '';
-      if (this.tableData[0].bidType === '广告组默认竞价' || this.tableData[0].bidType === '固定竞价') {
-        this.tableData[0].cpcType = '';
+    bidTypeSelect(index) {
+      this.tableData[index].bid = '';
+      if (this.tableData[index].bidType === '广告组默认竞价' || this.tableData[index].bidType === '固定竞价') {
+        this.tableData[index].cpcType = '';
       } else {
-        this.tableData[0].cpcType = '上浮(%)';
+        this.tableData[index].cpcType = '上浮(%)';
       }
+      this.tableData[index].cpcMost = '';
+      this.tableData[index].cpcValue = '';
     },
     matchTypeSelect() {
       // this.tableData[0].bidType = '广告组默认竞价';
