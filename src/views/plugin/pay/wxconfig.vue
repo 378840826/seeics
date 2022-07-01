@@ -1,3 +1,4 @@
+<!-- 微信支付配置 -->
 <template>
   <basic-container>
     <avue-crud :option="option"
@@ -166,11 +167,11 @@ export default {
             multiple: false,
             limit: 1,
             action: '/api/blade-resource/oss/endpoint/put-file-attach',
-            rules: [{
-              required: true,
-              message: '请上传微信证书KEY文件',
-              trigger: 'blur'
-            }]
+            // rules: [{
+            //   required: true,
+            //   message: '请上传微信证书KEY文件',
+            //   trigger: 'blur'
+            // }]
           },
           {
             label: 'CERT证书文件',
@@ -188,11 +189,11 @@ export default {
             },
             tip: '请上传微信证书CERT文件',
             action: '/api/blade-resource/oss/endpoint/put-file-attach',
-            rules: [{
-              required: true,
-              message: '请上传微信证书CERT文件',
-              trigger: 'blur'
-            }]
+            // rules: [{
+            //   required: true,
+            //   message: '请上传微信证书CERT文件',
+            //   trigger: 'blur'
+            // }]
           },
           {
             label: 'P12证书文件',
@@ -210,11 +211,11 @@ export default {
             },
             tip: '请上传微信证书 p12 文件',
             action: '/api/blade-resource/oss/endpoint/put-file-attach',
-            rules: [{
-              required: true,
-              message: '请输入微信证书p12文件',
-              trigger: 'blur'
-            }]
+            // rules: [{
+            //   required: true,
+            //   message: '请输入微信证书p12文件',
+            //   trigger: 'blur'
+            // }]
           },
         ]
       },
