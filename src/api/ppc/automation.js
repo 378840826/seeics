@@ -87,3 +87,14 @@ export const removeTemplate = (id) => {
     }
   });
 };
+
+// 模板名称校验
+export const repeatName = (name) => {
+  return request({
+    url: '/api/seeics-analysis/automation-template/repeat-name',
+    method: 'get',
+    params: {
+      name,
+    }
+  });
+};

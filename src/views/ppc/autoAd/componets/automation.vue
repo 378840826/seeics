@@ -1,8 +1,11 @@
 <template>
   <div class="sa">
     <div class="tabel">
-      <span>自动化模板：</span>
-      <el-select v-model="automatedOperation">
+      <span>自动化操作：</span>
+      <el-select 
+        v-model="automatedOperation"
+        @change="hanlderAuto"
+      >
         <el-option
           v-for="item in launchOption"
           :key="item.value"
@@ -15,7 +18,7 @@
           width="200"
           trigger="click"
         >
-         <el-button slot="reference" size="mini" style="marginLeft: 30px">关键词批量查询</el-button>
+         <!-- <el-button slot="reference" size="mini" style="marginLeft: 30px">关键词批量查询</el-button> -->
           <div>
             <el-input
               class="asin-textarea"
@@ -29,6 +32,7 @@
         </el-popover>
     </div>
     <el-table
+      v-if="isAutoShow"
       :data="tableData"
       :header-cell-style="{'text-align':'center'}"
       max-height="300"
@@ -315,6 +319,10 @@ export default {
       automatedOperation: '添加到投放',
       launchOption: [
         {
+          label: '无',
+          value: null
+        },
+        {
           label: '添加到投放',
           value: '添加到投放'
         },
@@ -358,6 +366,7 @@ export default {
       msg: false,
       addDisabled: false,
       deleteDisabled: false,
+      isAutoShow: true
     };
   },
   mounted() {
@@ -485,6 +494,10 @@ export default {
       return arrs[0] && arrs[0].groupId || '';
     },
     echoFiled() {
+      if (!this.echo.automatedOperation) {
+        this.isAutoShow = false;
+        this.automatedOperation = this.echo.automatedOperation;
+      }
       if (!this.echo.adCampaignInfos.length) {
         return;
       }
@@ -514,9 +527,9 @@ export default {
         };
       });
       obj = {
-        adCampaignInfos: data,
+        adCampaignInfos: this.automatedOperation ? data : null,
         automatedOperation: this.automatedOperation,
-        keywordTexts: this.asinList,
+        // keywordTexts: this.asinList,
         adStoreId: this.rowData.adStoreId,
         currency: this.rowData.currency,
         marketplace: this.rowData.marketplace,
@@ -611,6 +624,13 @@ export default {
       if (!reg.test(val.target.value)) {
         val.target.value = '';
         this.tableData[index][name] = '';
+      }
+    },
+    hanlderAuto(val) {
+      if (!val) {
+        this.isAutoShow = false;
+      } else {
+        this.isAutoShow = true;
       }
     },
     add() {

@@ -1,8 +1,11 @@
 <template>
   <div class="sa">
     <div class="tabel">
-      <span>自动化模板：</span>
-      <el-select v-model="automatedOperation">
+      <span>自动化操作：</span>
+      <el-select 
+        v-model="automatedOperation"
+        @change="hanlderAuto"
+      >
         <el-option
           v-for="item in launchOption"
           :key="item.value"
@@ -13,6 +16,7 @@
       </el-select>
     </div>
     <el-table
+      v-if="isAutoShow"
       :data="tableData"
       :header-cell-style="{'text-align':'center'}"
       style="width: 100%; margin: 10px 0 0 0">
@@ -248,6 +252,10 @@ export default {
       automatedOperation: '添加到投放',
       launchOption: [
         {
+          label: '无',
+          value: null
+        },
+        {
           label: '添加到投放',
           value: '添加到投放'
         },
@@ -257,7 +265,8 @@ export default {
           disable: true
         }
       ],
-      msg: false
+      msg: false,
+      isAutoShow: true
     };
   },
   mounted() {
@@ -298,16 +307,20 @@ export default {
       this.tableData[0].cpcType = this.echo.cpcType;
       this.tableData[0].cpcValue = this.echo.cpcValue;
       this.tableData[0].cpcMost = this.echo.cpcMost;
+      this.automatedOperation = this.echo.automatedOperation;
+      if (!this.echo.automatedOperation) {
+        this.isAutoShow = false;
+      }
     },
     getFiled() {
       return {
-        matchType: this.tableData[0].matchType,
-        bidType: this.tableData[0].bidType,
-        bid: this.tableData[0].bid,
+        matchType: this.automatedOperation ? this.tableData[0].matchType : null,
+        bidType: this.automatedOperation ? this.tableData[0].bidType : null,
+        bid: this.automatedOperation ? this.tableData[0].bid : null,
         automatedOperation: this.automatedOperation,
-        cpcType: this.tableData[0].cpcType,
-        cpcValue: this.tableData[0].cpcValue || '',
-        cpcMost: this.tableData[0].cpcMost || '',
+        cpcType: this.automatedOperation ? this.tableData[0].cpcType : null,
+        cpcValue: this.automatedOperation ? this.tableData[0].cpcValue || '' : null,
+        cpcMost: this.automatedOperation ? this.tableData[0].cpcMost || '' : null,
       };
     },
     bidTypeSelect(index) {
@@ -329,7 +342,14 @@ export default {
       this.tableData[0].bid = '';
       this.tableData[0].cpcMost = '';
       this.tableData[0].cpcValue = '';
-    }
+    },
+    hanlderAuto(val) {
+      if (!val) {
+        this.isAutoShow = false;
+      } else {
+        this.isAutoShow = true;
+      }
+    },
   }
 };
 </script>

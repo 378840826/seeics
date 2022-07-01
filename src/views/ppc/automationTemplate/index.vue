@@ -50,10 +50,14 @@
           <el-input
             v-model="formInline.templateName"
             placeholder="请输入模板名称"
+            @blur="hanlderName"
           />
           <span 
             v-if="formInline.templateName.length > 50" 
             class="msg">请输入不超过50个字符的名称</span>
+          <span 
+            v-else-if="templateNameMsg" 
+            class="msg">该模板名称已存在</span>
         </span>
       </div>
       <div class="tabel">
@@ -66,7 +70,7 @@
           />
           <span 
             v-if="formInline.templateIllustrate.length > 1000" 
-            class="msg">请输入不超过1000个字符的说明</span>
+            class="msg" style="top: 45px">请输入不超过1000个字符的说明</span>
         </div>
       </div>
       <div class="tabel">
@@ -212,7 +216,8 @@ import {
   getTemplatePage,
   updateTemplate,
   addCampaign,
-  removeTemplate
+  removeTemplate,
+  repeatName
 } from '@/api/ppc/automation';
 export default {
   name: 'automaticTeplate',
@@ -347,7 +352,8 @@ export default {
       templateTypeList: [{
         label: '搜索词',
         value: '搜索词'
-      }]
+      }],
+      templateNameMsg: false, //模板名称校验
     };
   },
   methods: {
@@ -379,6 +385,16 @@ export default {
     reset() {
       this.templateName = '';
       this.getAutomationList();
+    },
+    // 模板名称发请求校验
+    hanlderName(e) {
+      repeatName(e.target.value).then(res => {
+        if (res.data.success) {
+          this.templateNameMsg = false;
+        } else {
+          this.templateNameMsg = true;
+        }
+      });
     },
     // 模板校验
     templateMsg() {
@@ -631,11 +647,15 @@ export default {
   }
   .tabel {
     display: flex;
+    position: relative;
     margin-top: 15px;
     line-height: 30px;
     .msg {
+      position: absolute;
       color: red;
       font-size: 8px;
+      top: 21px;
+      left: 80px;
     }
   }
   .explain {

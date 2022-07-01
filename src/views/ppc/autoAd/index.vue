@@ -807,7 +807,7 @@ export default {
       let ad = true;
       let cpcValue = true;
       let cpcMost = true;
-      params.adCampaignInfos.map(item => {
+      params.adCampaignInfos && params.adCampaignInfos.map(item => {
         if (!item.adGroupId) {
           ad = false;
         }
