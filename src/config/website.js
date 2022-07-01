@@ -21,6 +21,8 @@ export default {
   urlWhiteList: [
     // st报表导出
     '/api/seeics-analysis/searchTerm/download',
+    // 自动化模板名称校验
+    '/api/seeics-analysis/automation-template/repeat-name',
   ],
   //配置首页不可关闭
   isFirstPage: false,
