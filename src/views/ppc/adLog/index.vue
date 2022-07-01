@@ -155,6 +155,7 @@
         value-format="yyyy-MM-dd"
         align="right"
         unlink-panels
+        :clearable="false"
         range-separator="至"
         start-placeholder="开始日期"
         end-placeholder="结束日期"
@@ -274,7 +275,7 @@ const pickerOptions = {
     {
       text: '今日',
       onClick(picker) {
-        picker.$emit('pick', getDateRangeForKey(0));
+        picker.$emit('pick', getDateRangeForKey(1));
       }
     }, {
       text: '昨日',
@@ -485,8 +486,7 @@ export default {
         this.loading.groupList = true;
         const param = {
           name: query.trim(),
-          shopName: this.form.shopName,
-          marketplace: this.form.marketplace,
+          campaignIds: [this.form.campaignId],
         };
         queryGroupList(param).then(res => {
           const list = res.data.data.records.map(item => ({
