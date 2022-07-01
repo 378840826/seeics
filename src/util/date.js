@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 export const calcDate = (date1, date2) => {
   const date3 = date2 - date1;
 
@@ -52,4 +54,64 @@ export function dateFormat(date, format) {
   }
   return '';
 
+}
+
+/**
+ * 获取最近 n 天的日期范围
+ * @param {Number} n 天
+ * @param {String} format 日期格式
+ * @returns {[String, String]}
+ */
+export function getDateRangeForLastDay(n = 1, format = 'YYYY-MM-DD') {
+  const myDayjs = dayjs();
+  // n -1 是因为最近X天需要算上当天
+  return [myDayjs.subtract(n - 1, 'day').format(format), myDayjs.format(format)];
+}
+
+/**
+ * 根据 key 获取日期范围
+ * @param {String | Number} key 关键词， 或最近 key 天
+ * @param {String} format 日期格式
+ * @returns {[String, String]}
+ */
+export function getDateRangeForKey(key, format = 'YYYY-MM-DD') {
+  let dates = [];
+  const myDayjs = dayjs();
+  switch (key) {
+  case 'yesterday':
+    dates = [
+      myDayjs.subtract(1, 'day').format(format),
+      myDayjs.subtract(1, 'day').format(format),
+    ];
+    break;
+  case 'lastWeek':
+    dates = [
+      myDayjs.subtract(1, 'weeks').startOf('week').add(1, 'days').format(format),
+      myDayjs.subtract(1, 'weeks').endOf('week').add(1, 'days').format(format),
+    ];
+    break;
+  case 'lastMonth':
+    dates = [
+      myDayjs.subtract(1, 'months').startOf('month').format(format),
+      myDayjs.subtract(1, 'months').endOf('month').format(format),
+    ];
+    break;
+  case 'thisYear':
+    dates = [
+      myDayjs.startOf('year').format(format),
+      myDayjs.endOf('year').format(format),
+    ];
+    break;
+  case 'lastYear':
+    dates = [
+      dayjs().subtract(1, 'years').startOf('year').format(format),
+      dayjs().subtract(1, 'years').endOf('year').format(format),
+    ];
+    break;
+  // 如果不是关键词，则返回最近 key 天的范围
+  default:
+    dates = getDateRangeForLastDay(key);
+    break;
+  }
+  return dates;
 }

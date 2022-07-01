@@ -35,6 +35,10 @@ export default [{
       name: '智能广告',
       component: () => import('@/views/ppc/autoAd'),
     }, {
+      path: '/ppc/ad_log',
+      name: '调整日志',
+      component: () => import('@/views/ppc/adLog'),
+    }, {
       path: '/ppc/search-term',
       name: 'Search Term报表',
       component: () => import('@/views/ppc/searchTerm'),

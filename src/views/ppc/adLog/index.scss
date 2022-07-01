@@ -1,0 +1,93 @@
+// 头部筛选栏
+.filter-container {
+  display: flex;
+  flex-wrap: wrap;
+
+  & > div {
+    margin-right: 10px;
+    margin-bottom: 10px;
+    width: 160px;
+  }
+
+  .date_picker {
+    width: 240px;
+  }
+
+  .input-with-select {
+    width: 290px;
+
+    ::v-deep {
+      .el-input-group__append {
+        padding: 0 10px;
+      }
+    }
+  }
+
+  .select-multiple {
+    width: 180px;
+  }
+
+  .select-marketplace {
+    width: 100px;
+  }
+
+  // 广告活动和广告组选择器
+  .select {
+    width: 200px;
+
+    ::v-deep {
+      .el-tag {
+        display: inline-flex;
+        align-items: baseline;
+        line-height: 22px;
+        height: 24px;
+      }
+
+      .el-select__tags-text {
+        max-width: 60px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .el-input__inner {
+        height: auto !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+}
+
+@media (width: 1920px) {
+  .filter-container {
+    justify-content: space-between;
+  }
+}
+
+// 表格
+.table-container {
+  margin-top: 20px;
+
+  .icon-time_info {
+    color: $warningColor; 
+  }
+
+  .pagination {
+    position: relative;
+    padding: 25px 0 20px 20px;
+    text-align: right;
+  }
+
+  ::v-deep {
+    .el-table {
+      font-size: 12px;
+
+      th {
+        color: rgba(0, 0, 0, .85);
+        background: #fafafa;
+      }
+    }
+  }
+}
