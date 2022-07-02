@@ -78,6 +78,33 @@ export const getRoleTree = (tenantId) => {
   });
 };
 
+// 获取角色下的用户
+export const getMemberOwnedRole = params => {
+  return request({
+    url: '/api/blade-user/get_user',
+    method: 'get',
+    params,
+  });
+};
+
+// 获取没有该角色的用户 
+export const getMemberNotOwnedRole = params => {
+  return request({
+    url: '/api/blade-user/get_notrole',
+    method: 'get',
+    params,
+  });
+};
+
+// 保存用户(修改用户)
+export const modifyMemberOfRole = data => {
+  return request({
+    url: '/api/blade-user/add_role',
+    method: 'post',
+    data,
+  });
+};
+
 export const getRoleTreeById = (roleId) => {
   return request({
     url: '/api/blade-system/role/tree-by-id',

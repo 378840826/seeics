@@ -1,3 +1,4 @@
+<!-- 角色管理 -->
 <template>
   <basic-container>
     <avue-crud :option="option"
@@ -31,6 +32,18 @@
                    v-if="userInfo.role_name.includes('admin')"
                    plain>权限设置
         </el-button>
+      </template>
+      <!-- 编辑成员 -->
+      <template slot-scope="{row,index}" slot="menu">
+          <el-button
+            type="text"
+            icon="el-icon-edit"
+            size="small"
+            plain
+            @click="handleClickEditMember(row, index)"
+          >
+            编辑成员
+          </el-button>
       </template>
     </avue-crud>
     <el-dialog title="角色权限配置"
@@ -74,11 +87,100 @@
                    @click="submit">确 定</el-button>
       </span>
     </el-dialog>
+
+    <!-- 编辑成员弹窗  -->
+    <el-dialog
+      title="编辑成员"
+      :visible.sync="member.visible"
+      :append-to-body="true"
+    >
+      <div>
+        <div class="member_dialog-toolbar">
+          <div>
+            添加成员：
+            <el-select
+              v-model="member.selectedIds"
+              placeholder="请选择成员"
+              filterable
+              multiple
+              clearable
+              tags
+              collapse-tags
+              :no-data-text="未找到相关数据"
+              size="small"
+              class="select"
+              popper-class="seeics-st-select"
+              @clear="handleClearMemberSelected"
+            >
+              <div class="seeics-st-check_all">
+                <el-checkbox
+                  v-model="member.checkedAll"
+                  @change="handleMemberCheckAllChange"
+                >全选</el-checkbox>
+              </div>
+              <el-option
+                v-for="item in member.showData.optionsList"
+                :key="item.id"
+                :label="item.realName"
+                :value="item.id"
+              />
+            </el-select>
+            <el-button type="primary" size="small" @click="handleAddMember">添 加</el-button>
+          </div>
+          
+          <el-input
+            placeholder="搜索姓名"
+            v-model="member.filterName"
+            size="small"
+            class="input-filter_name"
+          />
+        </div>
+        <el-table
+          :data="showMemberList"
+          style="width: 100%"
+        >
+          <el-table-column label="姓名" prop="realName" />
+          <el-table-column label="手机号" prop="phone" />
+          <el-table-column label="操作">
+            <template slot-scope="scope">
+              <el-button
+                @click="handleClickDel(scope.row)"
+                type="text"
+                size="small"
+              >移除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <span slot="footer">
+        <el-button
+          size="small"
+          @click="member.visible = false"
+        >取 消</el-button>
+        <el-button
+          type="primary"
+          size="small"
+          @click="handleSaveMember"
+        >保 存</el-button>
+      </span>
+    </el-dialog>
   </basic-container>
 </template>
 
 <script>
-import { add, getList, getRole, getRoleTreeById, grant, grantTree, remove, update } from '@/api/system/role';
+import {
+  add,
+  getList,
+  getRole,
+  getRoleTreeById,
+  grant,
+  grantTree,
+  remove,
+  update,
+  getMemberOwnedRole,
+  getMemberNotOwnedRole,
+  modifyMemberOfRole,
+} from '@/api/system/role';
 import { mapGetters } from 'vuex';
 import website from '@/config/website';
 
@@ -118,6 +220,7 @@ export default {
         viewBtn: true,
         dialogWidth: 900,
         dialogClickModal: false,
+        menuWidth: 300,
         column: [
           {
             label: '角色名称',
@@ -185,6 +288,14 @@ export default {
             ]
           },
           {
+            label: '成员数量',
+            prop: 'userCount',
+            type: 'number',
+            span: 24,
+            addDisplay: false,
+            editDisplay: false,
+          },
+          {
             label: '角色排序',
             prop: 'sort',
             type: 'number',
@@ -199,7 +310,26 @@ export default {
           }
         ]
       },
-      data: []
+      data: [],
+      // 编辑成员弹窗
+      member: {
+        visible: false,
+        // 搜索姓名输入框
+        filterName: '',
+        selectedIds: [],
+        // 下拉框是否全选
+        checkedAll: false,
+        // 原始的表格和下拉框数据(点击保存前，数据库的数据)
+        originalData: {
+          optionsList: [],
+          tableList: [],
+        },
+        // 操作后的表格和下拉框数据(保存时提交给后端的数据)
+        showData: {
+          optionsList: [],
+          tableList: [],
+        },
+      },
     };
   },
   computed: {
@@ -226,7 +356,23 @@ export default {
         ids.push(ele.id);
       });
       return ids;
-    }
+    },
+
+    // 编辑成员弹窗列表，列表筛选后的成员
+    showMemberList() {
+      const filterName = this.member.filterName;
+      const list = this.member.showData.tableList;
+      if (filterName === '') {
+        return list;
+      }
+      const showList = [];
+      list.forEach(item => {
+        if (item.realName.includes(filterName)) {
+          showList.push(item);
+        }
+      });
+      return showList;
+    },
   },
   methods: {
     initData(roleId){
@@ -374,7 +520,110 @@ export default {
         this.loading = false;
         this.selectionClear();
       });
-    }
-  }
+    },
+
+    // 点击编辑成员按钮
+    handleClickEditMember(row) {
+      this.member.roleId = row.id;
+      this.member.visible = true;
+      const params = {
+        roleId: row.id,
+      };
+      // 获取成员表格和待选成员
+      getMemberOwnedRole(params).then(res => {
+        const list = res.data.data;
+        this.member.originalData.tableList = [...list];
+        this.member.showData.tableList = [...list];
+      });
+      getMemberNotOwnedRole(params).then(res => {
+        const list = res.data.data;
+        this.member.originalData.optionsList = [...list];
+        this.member.showData.optionsList = [...list];
+      });
+    },
+
+    // 编辑成员弹窗-下拉框全选用户
+    handleMemberCheckAllChange(checked) {
+      if (checked) {
+        this.member.selectedIds = this.member.showData.optionsList.map(item => item.id);
+      } else {
+        this.member.selectedIds = [];
+      }
+    },
+
+    // 编辑成员弹窗-点击添加用户
+    handleAddMember() {
+      const ids = this.member.selectedIds;
+      if (!ids.length) {
+        this.$message.warning('请选择要添加的成员');
+        return;
+      }
+      // 清空下拉框选中
+      this.member.selectedIds = [];
+      // 通过 ids 找出用户数据
+      const selectedList = ids.map(id => {
+        return this.member.showData.optionsList.find(item => item.id === id);
+      });
+      // 添加到表格
+      this.member.showData.tableList.unshift(...selectedList);
+      // 从下拉框中删除
+      const optionsList = [];
+      this.member.showData.optionsList.forEach(item => !ids.includes(item.id) && optionsList.push(item));
+      this.member.showData.optionsList = optionsList;
+    },
+
+    // 编辑成员弹窗-点击移除用户
+    handleClickDel(row) {
+      // 添加到下拉框选项中
+      const member = this.member.showData.tableList.find(item => item.id === row.id);
+      this.member.showData.optionsList.unshift(member);
+      // 从 tableList 中删除
+      const index = this.member.showData.tableList.findIndex(item => item.id === row.id);
+      this.member.showData.tableList.splice(index, 1);
+    },
+
+    // 编辑成员弹窗-点击保存
+    handleSaveMember() {
+      const showIds = this.member.showData.tableList.map(item => item.id);
+      const originalIds = this.member.originalData.tableList.map(item => item.id);
+      const addIds = showIds.filter(id => !originalIds.includes(id));
+      const removeIds = originalIds.filter(id => !showIds.includes(id));
+      console.log(addIds, removeIds);
+      const params = {
+        roleId: this.member.roleId,
+        addIds,
+        removeIds,
+      };
+      modifyMemberOfRole(params).then(res => {
+        this.$message.success(res.data.message || '操作成功');
+        this.member.visible = false;
+      });
+    },
+  },
+
+  watch: {
+    // 添加成员勾选变动时
+    'member.selectedIds'(ids) {
+      // 全选框状态
+      if (ids.length === this.member.showData.optionsList.length) {
+        this.member.checkedAll = true;
+      } else {
+        this.member.checkedAll = false;
+      }
+    },
+  },
 };
 </script>
+
+<style scoped lang="scss">
+.member_dialog-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+}
+
+.input-filter_name {
+  width: 200px;
+}
+</style>

@@ -74,6 +74,17 @@
                        @click="handleExport">导出
             </el-button>
           </template>
+          <!-- 用户状态 -->
+          <template slot-scope="{row}"
+                    slot="isDisable">
+            <template v-if="row.isDisable === 0">
+              <span>启用</span>
+            </template>
+            <template v-if="row.isDisable === 1">
+              <span class="disable">禁用</span>
+            </template>
+          </template>
+
           <template slot-scope="{row}"
                     slot="tenantName">
             <el-tag>{{row.tenantName}}</el-tag>
@@ -207,7 +218,7 @@ export default {
       loading: true,
       platformLoading: false,
       page: {
-        pageSize: 10,
+        pageSize: 20,
         currentPage: 1,
         total: 0
       },
@@ -265,6 +276,22 @@ export default {
         //dialogType: 'drawer',
         dialogClickModal: false,
         column: [
+          {
+            label: '用户状态',
+            prop: 'isDisable',
+            search: true,
+            display: false,
+            type: 'switch',
+            dicData: [
+              {
+                label: '禁用',
+                value: 1,
+              }, {
+                label: '启用',
+                value: 0,
+              },
+            ],
+          },
           {
             label: '登录账号',
             prop: 'account',
@@ -327,6 +354,22 @@ export default {
             prop: 'baseInfo',
             icon: 'el-icon-user-solid',
             column: [
+              {
+                label: '用户状态',
+                prop: 'isDisable',
+                type: 'switch',
+                value: 1,
+                dicData: [
+                  {
+                    label: '禁用',
+                    value: 1,
+                  }, {
+                    label: '启用',
+                    value: 0,
+                  },
+                ],
+                span: 24,
+              },
               {
                 label: '所属租户',
                 prop: 'tenantId',
@@ -990,5 +1033,9 @@ export default {
 
   .box .el-scrollbar__wrap {
     overflow: scroll;
+  }
+
+  .disable {
+    color: #F56C6C;
   }
 </style>
