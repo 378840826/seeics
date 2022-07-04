@@ -1,7 +1,8 @@
 <template>
   <el-card class="mian" id="mian">
-    <el-row :gutter="20" id="top">
-      <el-col :span="12" :offset="6">
+    <!-- <el-row :gutter="20" id="top">
+      <el-col  style="width: 850px"> -->
+      <div class="tableBox" style="width: 850px; margin: auto; margin-bottom: 10px;">
         <Title :title="'综合评分表'"/>
          <div style="display: flex; maxHeight: 528px">
            <div style=" width: 100%; minHeight: 40px; background: #09233A;">
@@ -14,7 +15,7 @@
              </p>
            </div>
          </div>
-         <div class="tabel" :style="{height: thWidth === '80px' ? '448px' : '532px'}">
+         <div class="tabel" :style="{height: thWidth === '80px' ? '448px' : '550px'}">
            <div style=" width: 70%; height: 100%">
              <p v-for="(item, index) in data" :key="item.props" class="column" style=" width: 100%; display: flex;">
                 <span class="span" style="width: 10%; textAlign: center;">{{index + 1}}</span>
@@ -46,8 +47,9 @@
          </div>
         <div class="div1"></div>
         <div class="div2"></div>
-      </el-col>
-    </el-row>
+      </div>
+      <!-- </el-col>
+    </el-row> -->
     <el-row :gutter="24">
         <el-col :span="9" id="acKeyword">
         <Title :title="'AC关键字'"/>
@@ -664,7 +666,7 @@ export default {
     width: 100%;
     background: linear-gradient(180deg, #000318 0%, #03093D 100%); 
     display: flex;
-    overflow: scroll;
+    // overflow: scroll;
   }
   .total {
     // font-size: 40px; 
@@ -674,6 +676,27 @@ export default {
     div {
       font-size: 30px; 
       color: #9AA8D4;
+    }
+  }
+  .tableBox {
+    position: relative;
+    .div1 {
+      position: absolute;
+      right: 0px;
+      bottom: 0px;
+          padding: 4px;
+          border-style: solid;
+          border-color: rgba(14, 65, 206, 1);
+          border-width: 0 1px 1px 0;
+    }
+    .div2 {
+      position: absolute;
+      left: 0px;
+          bottom: 0px;
+          padding: 4px;
+          border-style: solid;
+          border-color: rgba(14, 65, 206, 1);
+          border-width: 0 0 1px 1px;
     }
   }
 .el-col {
