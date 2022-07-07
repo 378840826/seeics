@@ -72,3 +72,28 @@
   color: #409EFF;
   cursor: pointer;
 }
+
+// 广告活动和广告组选择器
+.select {
+  width: 200px;
+
+  ::v-deep {
+    .el-tag {
+      display: inline-flex;
+      align-items: baseline;
+      line-height: 22px;
+      height: 24px;
+    }
+
+    .el-select__tags-text {
+      max-width: 60px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .el-input__inner {
+      height: auto !important;
+    }
+  }
+}

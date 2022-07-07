@@ -327,9 +327,40 @@
           :clearable="false"
           placeholder="请选择自动化模板"
         />
-        <el-button type="text" style="marginLeft: 30px; padding: 0" @click="$router.push('/ppc/automation-template')">去设置</el-button>
+        <el-button type="text" style="padding: 0" @click="$router.push('/ppc/automation-template')">去设置</el-button>
       </div>
-      <h4>规则范围：</h4>
+      <h4>规则范围： 
+        <el-radio style="marginLeft: 232px" v-model="radio" @change="handleRadio" :label="1">
+            <el-popover
+              width="200"
+              trigger="click"
+            >
+            <el-button 
+              slot="reference" 
+              size="mini" 
+              :disabled="radio === 2 ? true : false"
+            >ASIN批量查询</el-button>
+              <div>
+                <el-input
+                  class="asin-textarea"
+                  v-model="asinMskuKeyword"
+                  placeholder="支持ASIN批量查询，搜索ASIN，找到ASIN相关的关键词；最多20个ASIN，换行间隔；"
+                  type="textarea"
+                  :rows="10"
+                  @input="handleTextAreaInput"
+                />
+              </div>
+            </el-popover>
+          </el-radio>
+          <span style="marginLeft: 327px">
+             搜索词：
+             <el-radio-group v-model="searchWord">
+                <el-radio :label="1">排除ASIN</el-radio>
+                <el-radio :label="2">只含ASIN</el-radio>
+                <el-radio :label="3">不限</el-radio>
+              </el-radio-group>
+          </span>
+        </h4>
       <div>
         <div class="tabel">
           执行频率：
@@ -341,22 +372,33 @@
               :label="item.label"
             />
           </el-select>
-          <el-popover
-            width="200"
-            trigger="click"
-          >
-          <el-button slot="reference" size="mini" style="marginLeft: 30px">ASIN批量查询</el-button>
-            <div>
-              <el-input
-                class="asin-textarea"
-                v-model="asinMskuKeyword"
-                placeholder="支持ASIN批量查询，搜索ASIN，找到ASIN相关的关键词；最多20个ASIN，换行间隔；"
-                type="textarea"
-                :rows="10"
-                @input="handleTextAreaInput"
-              />
-            </div>
-          </el-popover>
+          <el-radio 
+            v-model="radio"
+            @change="handleRadio"
+            :label="2"
+            style="marginLeft: 30px"
+          >广告组：
+            <el-select
+              v-model="adGroupVal"
+              ref="selectIt"
+              multiple
+              allow-create
+              default-first-option
+              collapse-tags
+              class="select"
+              popper-class="seeics-st-select"
+              placeholder="请选择广告组"
+              @focus="groupVisible = true; $refs.selectIt.blur()"
+              :disabled="radio === 1 ? true : false"
+            >
+              <el-option
+                v-for="item in adGroupOption"
+                :key="item.groupId"
+                :label="item.groupName"
+                :value="item.groupId">
+              </el-option>
+            </el-select>
+          </el-radio>
         </div>
         
       </div>
@@ -382,7 +424,12 @@
           @click="dialogCreateVisible = false;
             ruleIs = false;
             automationIs = false;
-            updateBtn = false"
+            updateBtn = false;
+            radio = 1;
+            adGroupOption = [];
+            adGroupVal = [];
+            campaignCheckedAll = false;
+            templateId = '';"
           >取 消</el-button>
         <el-button 
           size="mini" 
@@ -455,6 +502,33 @@
           >好 的</el-button>
       </span>
     </el-dialog>
+    <el-dialog
+      v-if="isGroupTabel"
+      :visible.sync="groupVisible"
+      :append-to-body="true"
+      width="800px"
+      class="tst"
+      :show-close="false"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      center
+    >
+    <h4>添加广告组：</h4>
+    <p>请选择您要应该模板的广告组</p>
+    <table-dialog 
+      ref="adGroup"
+      :adStoreId="adGroupPage.storeId"
+      :templateId="templateId"
+      :echoGroupList="adGroupOption"
+    />
+    <span slot="footer" class="dialog-footer" style="textAlign: center">
+        <el-button size="mini" type="primary" @click="hanldeAdGroup">确 定</el-button>
+        <el-button size="mini" 
+          @click="groupVisible = false;
+         
+        ">取 消</el-button>
+      </span>
+    </el-dialog>
   </basic-container>
 </template>
 
@@ -470,7 +544,7 @@ import {
   createTemplate,
   templateDetail,
   templateUpdate,
-  templateStatus
+  templateStatus,
 } from '@/api/ppc/autoAd';
 import {
   stateExtendDict,
@@ -481,13 +555,15 @@ import {
 import autoMation from './componets/automation.vue';
 import globalFilter from '@/components/globalFilter/globalFilter.vue';
 import dialogStatu from './componets/dialog.vue';
+import tableDialog from './componets/tableDialog.vue';
 export default {
   name: 'ShopList',
 
   components: {
     autoMation,
     globalFilter,
-    dialogStatu
+    dialogStatu,
+    tableDialog
   },
 
   data() {
@@ -555,6 +631,22 @@ export default {
       templateState: 'runing',
       ruleFiled: [], //规则回显
       updateBtn: false, //
+      adGroupVal: [],
+      adGroupOption: [], //广告组分页
+      campaignCheckedAll: false,
+      groupVisible: false,
+      isGroupTabel: true,
+      templateId: '',
+      radio: 1,
+      searchWord: 1,
+      echoAdgroupList: [],
+      adGroupPage: {
+        current: 1,
+        size: 100,
+        total: 0,
+        storeId: ''
+      },
+      time: null,
       templateStateList: [
         {
           value: 'runing',
@@ -599,7 +691,14 @@ export default {
 
   computed: {
   },
-
+  // watch: {
+  //   'adGroupVal': {
+  //     handler(val) {
+  //       this.adGroupOption = this.adGroupOption.filter(item => [...val].includes(item.groupId));
+  //     },
+  //     deep: true
+  //   }
+  // },
   created() {
     // 店铺名称
     queryShopNameList().then(res => {
@@ -743,6 +842,21 @@ export default {
       this.$message.info('功能即将开放');
     },
 
+    hanldeAdGroup() {
+      this.adGroupOption = this.$refs.adGroup.getList();
+      this.adGroupVal = this.$refs.adGroup.getFiled();
+      this.groupVisible = false;
+      // this.isGroupTabel = this.isGroupTabel ? false : true;
+      // this.$nextTick(() => {
+      //   this.isGroupTabel = this.isGroupTabel ? false : true;
+      // });
+    },
+    handleRadio(val) {
+      if (val === 2) {
+        this.groupVisible = true; this.$refs.selectIt.blur();
+      }
+    },
+
     // 添加模板按钮
     handleTemplate(row) {
       this.dialogCreateVisible = true; 
@@ -753,7 +867,13 @@ export default {
       this.formInline.templateState = 'runing';
       this.autoMationTemplate = '';
       this.formInline.asinList = [];
+      this.adGroupPage.storeId = row.adStoreId;
+      this.isGroupTabel = this.isGroupTabel ? false : true;
+      this.$nextTick(() => {
+        this.isGroupTabel = this.isGroupTabel ? false : true;
+      });
     },
+
     // 批量搜索输入框输入
     handleTextAreaInput(value) {
       const maxLines = 20;
@@ -766,6 +886,7 @@ export default {
       }
       this.formInline.asinList = valueArr;
     },
+
     // 回显自动模板规则
     handlerRule(id) {
       if (id) {
@@ -891,10 +1012,17 @@ export default {
         });
         return true;
       }
-      if (!this.formInline.asinList.filter(Boolean).length) {
+      if (this.radio === 1 && !this.formInline.asinList.filter(Boolean).length) {
         this.$message({
           type: 'error',
           message: 'ASIN不能为空'
+        });
+        return true;
+      }
+      if (this.radio === 2 && !this.adGroupOption.length) {
+        this.$message({
+          type: 'error',
+          message: '请选择广告组'
         });
         return true;
       }
@@ -933,9 +1061,12 @@ export default {
         templateIllustrate: this.formInline.templateIllustrate,
         executionFrequency: this.formInline.executionFrequency,
         roleList: this.$refs.rule.getFiled(),
-        asinList: this.formInline.asinList.filter(Boolean),
+        asinList: this.radio === 1 ? this.formInline.asinList.filter(Boolean) : [],
         automationTemplateId: this.autoMationTemplate,
-        status: this.formInline.templateState
+        status: this.formInline.templateState,
+        ruleType: this.radio,
+        excludeTerms: this.searchWord,
+        groupIdList: this.radio === 2 ? this.adGroupOption : []
       };
       if (this.ruleMsg()) {
         return;
@@ -952,6 +1083,9 @@ export default {
           this.dialogCreateVisible = false;
           this.ruleIs = false;
           this.automationIs = false;
+          this.templateId = '';
+          this.adGroupOption = [];
+          this.adGroupVal = [];
           this.getTableData();
         }
       });
@@ -964,9 +1098,12 @@ export default {
         templateIllustrate: this.formInline.templateIllustrate,
         executionFrequency: this.formInline.executionFrequency,
         roleList: this.$refs.rule.getFiled(),
-        asinList: this.formInline.asinList.filter(Boolean),
+        asinList: this.radio === 1 ? this.formInline.asinList.filter(Boolean) : [],
         automationTemplateId: this.autoMationTemplate,
-        status: this.formInline.templateState
+        status: this.formInline.templateState,
+        ruleType: this.radio,
+        excludeTerms: this.searchWord,
+        groupIdList: this.radio === 2 ? this.adGroupOption : []
       };
       if (this.ruleMsg()) {
         return;
@@ -984,6 +1121,9 @@ export default {
             this.dialogCreateVisible = false;
             this.ruleIs = false;
             this.automationIs = false;
+            this.templateId = '';
+            this.adGroupOption = [];
+            this.adGroupVal = [];
             this.getTableData();
           }
         });
@@ -998,6 +1138,9 @@ export default {
           this.dialogCreateVisible = false;
           this.ruleIs = false;
           this.automationIs = false;
+          this.templateId = '';
+          this.adGroupOption = [];
+          this.adGroupVal = [];
           this.getTableData();
         }
       });
@@ -1031,6 +1174,8 @@ export default {
       this.automationIs = true;
       this.formInline.campaign = row.name;
       this.updateBtn = true;
+      this.adGroupPage.storeId = row.adStoreId;
+      this.templateId = id;
       templateDetail({ id, campaignId: row.campaignId }).then(res => {
         if (res.data.code === 200) {
           const data = res.data.data;
@@ -1042,6 +1187,16 @@ export default {
           this.asinMskuKeyword = data.asinList.join('\n');
           this.formInline.asinList = data.asinList;
           this.echoAtuomation = data;
+          this.adGroupOption = data.groupIdList;
+          data.groupIdList.map(item => {
+            this.adGroupVal.push(item.groupId);
+          });
+          this.searchWord = data.excludeTerms;
+          this.radio = data.ruleType;
+          this.isGroupTabel = this.isGroupTabel ? false : true;
+          this.$nextTick(() => {
+            this.isGroupTabel = this.isGroupTabel ? false : true;
+          });
           this.ruleIs = this.ruleIs ? false : true;
           this.$nextTick(() => {
             this.ruleIs = this.ruleIs ? false : true;
@@ -1079,5 +1234,56 @@ export default {
   }
   .selected{
     color:#409EFF;
+  }
+  .seeics-st-select.el-select-dropdown.el-popper.is-multiple {
+    .seeics-st-check_all {
+      padding: 3px 10px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    li.el-select-dropdown__item {
+      max-width: 400px;
+      line-height: 20px;
+      padding: 6px 20px;
+      white-space: normal;
+      word-break: break-all;
+
+      span {
+        padding: 0;
+        line-height: 20px;
+      }
+    }
+  }
+  // 广告活动和广告组选择器
+  .select {
+    width: 200px;
+
+    ::v-deep {
+      .el-tag {
+        display: inline-flex;
+        align-items: baseline;
+        line-height: 22px;
+        height: 24px;
+      }
+
+      .el-select__tags-text {
+        max-width: 60px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .el-input__inner {
+        // height: auto !important;
+        width: 400px;
+      }
+      .el-input {
+        position: relative;
+        font-size: 14px;
+        display: inline-block;
+        width: 400px;
+      }
+    }
   }
 </style>

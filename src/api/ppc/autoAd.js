@@ -133,3 +133,16 @@ export const templateUpdate = (data) => {
     data,
   });
 };
+
+// 获取广告组分页根据id
+export const getCampaignPage = (data) => {
+  return request({
+    url: '/api/seeics-analysis/advertising-campaign/page',
+    method: 'post',
+    // params: {
+    //   current: data.current,
+    //   size: data.size
+    // },
+    data,
+  });
+};
