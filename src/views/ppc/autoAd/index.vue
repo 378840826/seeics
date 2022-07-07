@@ -329,8 +329,12 @@
         />
         <el-button type="text" style="padding: 0" @click="$router.push('/ppc/automation-template')">去设置</el-button>
       </div>
-      <h4>规则范围： 
-        <el-radio style="marginLeft: 232px" v-model="radio" @change="handleRadio" :label="1">
+      <h4>规则范围： </h4>
+      <div class="tabel">
+        搜索词来源：
+        <div style="width: 400px">
+
+        <el-radio  v-model="radio" @change="handleRadio" :label="1">
             <el-popover
               width="200"
               trigger="click"
@@ -352,31 +356,12 @@
               </div>
             </el-popover>
           </el-radio>
-          <span style="marginLeft: 327px">
-             搜索词：
-             <el-radio-group v-model="searchWord">
-                <el-radio :label="1">排除ASIN</el-radio>
-                <el-radio :label="2">只含ASIN</el-radio>
-                <el-radio :label="3">不限</el-radio>
-              </el-radio-group>
-          </span>
-        </h4>
-      <div>
-        <div class="tabel">
-          执行频率：
-          <el-select v-model="formInline.executionFrequency">
-            <el-option
-              v-for="item in executionFrequencyList"
-              :key="item.value"
-              :value="item.value"
-              :label="item.label"
-            />
-          </el-select>
+          
           <el-radio 
             v-model="radio"
             @change="handleRadio"
             :label="2"
-            style="marginLeft: 30px"
+            style="marginTop: 5px"
           >广告组：
             <el-select
               v-model="adGroupVal"
@@ -400,7 +385,30 @@
             </el-select>
           </el-radio>
         </div>
-        
+        <div style="marginLeft: 30px">
+          <div>搜索词筛选结果处理：</div>
+          <span>
+             <el-radio-group v-model="searchWord" style="marginTop: 5px">
+                <el-radio :label="1">排除ASIN</el-radio>
+                <el-radio :label="2">只含ASIN</el-radio>
+                <el-radio :label="3">不限</el-radio>
+              </el-radio-group>
+          </span>
+        </div>
+          
+      </div>
+      <div>
+        <div class="tabel">
+          执行频率：
+          <el-select v-model="formInline.executionFrequency">
+            <el-option
+              v-for="item in executionFrequencyList"
+              :key="item.value"
+              :value="item.value"
+              :label="item.label"
+            />
+          </el-select>
+        </div>
       </div>
       <global-filter
         dateSelect
@@ -1276,13 +1284,13 @@ export default {
 
       .el-input__inner {
         // height: auto !important;
-        width: 400px;
+        width: 300px;
       }
       .el-input {
         position: relative;
         font-size: 14px;
         display: inline-block;
-        width: 400px;
+        width: 300px;
       }
     }
   }

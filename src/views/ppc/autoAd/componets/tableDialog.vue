@@ -315,6 +315,7 @@ export default {
       });
     },
     reset() {
+      this.fromInline.name = '';
       this.page.currentPage = 1;
       this.page.pageSize = 20;
       this.getCampaignPage();
