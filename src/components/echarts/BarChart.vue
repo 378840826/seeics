@@ -1,5 +1,5 @@
 <template>
-    <div :style="{width: width, height: height}" ref="echart" id="chart"><div></div><div></div></div>
+    <div :style="{width: width, height: height}" ref="echart" class="chart"><div></div><div></div></div>
 </template>
 
 <script>
@@ -28,6 +28,14 @@ export default {
     types: {
       type: String,
       default: 'bar'
+    },
+    italic: {
+      type: Boolean,
+      default: false
+    },
+    ratio: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -46,7 +54,6 @@ export default {
   },
   mounted(){
     this.$nextTick(() => {
-      console.log(this.chartData);
       this.initChart();
     });
     // this.drawLine();
@@ -56,7 +63,7 @@ export default {
       this.chart = echarts.init(this.$el);
       this.setOption(this.chartData);
     },
-    setOption({ days, data1 }) {
+    setOption({ days, data1, data2 }) {
       this.chart.setOption({
         backgroundColor: 'rgba(255,255,255,0)',
         title: { 
@@ -70,27 +77,33 @@ export default {
           },
         },
         tooltip: {
-          show: false,
-          // trigger: 'axis',
-          // axisPointer: {
-          //   type: 'shadow'
+          show: true,
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow'
+          },
+          formatter: data2 ? (params) => {
+            return `<div>${params[0].axisValue}：${data2[params[0].dataIndex]}</div>`;
+          } : null
+        },
+        xAxis: {
+          // type: 'category',
+          data: days,
+          axisLabel: {
+            interval: this.italic ? 0 : 0,
+            rotate: this.italic && 45 || 0,
+          } 
+          // axisTick: {
+          //   alignWithLabel: true
           // }
         },
-        xAxis: [
-          {
-            // type: 'category',
-            data: days,
-            // axisTick: {
-            //   alignWithLabel: true
-            // }
-          }
-        ],
         yAxis: [
           {
             type: 'value',
             axisLabel: {
               show: true,
-              // formatter: '{value}%'
+              interval: 'auto',
+              formatter: this.ratio ? '{value}%' : '{value}'
             },
             splitLine: {
               show: true,
@@ -108,7 +121,7 @@ export default {
             type: this.types,
             barWidth: '40%',
             stack: 'Total',
-            symbolSize: 16,
+            symbolSize: 10,
             data: data1,
             //   itemStyle: {
             //     color: function(key) {
@@ -117,86 +130,22 @@ export default {
             //       return col[key.dataIndex]
             //     }
             //   },
-            //   label: {
-            //     show: true,
-            //     position: 'top',
-            //     formatter: 'c'
-            //   }
+            label: {
+              show: true,
+              position: 'top',
+              formatter: val => {
+                return this.ratio ? `${val.data}%` : val.data;
+              },
+              textStyle: {
+                fontWeight: 'normal',
+                fontSize: 16,
+                color: ' #9AA8D4'
+              }
+            },
           }
         ]
       });
     },
-    drawLine(){
-      // 基于准备好的dom，初始化echarts实例
-      const myChart = echarts.init(this.$refs.echart);
-      // 绘制图表
-      myChart.setOption({
-        backgroundColor: '#000000',
-        title: { 
-          text: this.title,
-          x: 'center', 
-          y: '17px',
-          textStyle: {
-            fontSize: '26',
-            fontWeight: 100,
-            color: '#ffffff',
-          },
-        },
-        tooltip: {
-          show: false,
-          // trigger: 'axis',
-          // axisPointer: {
-          //   type: 'shadow'
-          // }
-        },
-        xAxis: [
-          {
-            // type: 'category',
-            data: ['AC关键词分析个数', '无关AC关键词分析个数'],
-            // axisTick: {
-            //   alignWithLabel: true
-            // }
-          }
-        ],
-        yAxis: [
-          {
-            type: 'value',
-            axisLabel: {
-              show: true,
-              formatter: '{value}%'
-            },
-            splitLine: {
-              show: true,
-              lineStyle: {
-                color: ['	#8E8E8E'],
-                width: 1,
-                type: 'solid'
-              }
-            }
-          }
-        ],
-        series: [
-          {
-            // name: '',
-            type: 'bar',
-            barWidth: '40%',
-            data: [19, 52],
-            itemStyle: {
-              color: function(key) {
-                const col = [new echarts.graphic.LinearGradient(0, 0, 1, 0, [{ offset: 0, color: '#fff2cc' }, { offset: 1, color: '#993300' }]),
-                  new echarts.graphic.LinearGradient(0, 0, 1, 0, [{ offset: 0, color: '	#F0FFF0' }, { offset: 1, color: '#006633' }])];
-                return col[key.dataIndex];
-              }
-            },
-            label: {
-              show: true,
-              position: 'top',
-              formatter: '{c}%'
-            }
-          }
-        ]
-      });
-    }
   }
 };
 </script>
@@ -204,7 +153,7 @@ export default {
   #avue-view {
     background-color: black;
   }
-  #chart {
+  .chart {
     background: linear-gradient(180deg, #000318 0%, #03093D 100%);
     position: relative;
     
