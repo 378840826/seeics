@@ -1,4 +1,4 @@
-<!-- 岗位管理 -->
+<!-- 机构岗位 -->
 <template>
   <basic-container>
     <avue-crud :option="option"
@@ -175,20 +175,22 @@
 </template>
 
 <script>
-import { getList, getDetail, add, update, remove } from '@/api/system/post';
-// 权限改造新增的接口
 import {
-  getStoreList,
-  getPostStore,
-  modifyPostStore,
-  getRoleList,
-  getPostRole,
-  modifyPostRole,
+  getList,
+  getDetail,
+  add,
+  update,
+  remove,
+  getDeptStore,
+  getDeptPostStore,
+  modifyDeptPostStore,
+  getDeptRole,
+  getDeptPostRole,
+  modifyDeptPostRole,
   getMemberOwnedPost,
   getMemberNotOwnedPost,
   modifyMemberOfPost,
-} from '@/api/system/post';
-
+} from '@/api/system/deptPost';
 import { mapGetters } from 'vuex';
 import website from '@/config/website';
 
@@ -351,7 +353,7 @@ export default {
       });
       return ids.join(',');
     },
-    // 全部店铺的 id 数组
+    // 机构全部店铺的 id 数组
     storeIds() {
       return this.storeList.map(item => item.id);
     },
@@ -490,14 +492,14 @@ export default {
       }
       this.roleBtnLoading = true;
       this.roleTreeObj = [];
-      // 获取全部角色
-      getRoleList({}).then(res => {
+      // 获取机构下的全部角色
+      getDeptRole().then(res => {
         this.roleList = res.data.data;
         const params = {
           postId: this.selectionList[0].id,
         };
         // 获取当前岗位拥有的角色
-        getPostRole(params).then(res => {
+        getDeptPostRole(params).then(res => {
           this.roleTreeObj = res.data.data.map(item => item.id);
           this.roleVisible = true;
         }).finally(() => {
@@ -513,7 +515,7 @@ export default {
         postId: this.selectionList[0].id,
         addIds: roleIds,
       };
-      modifyPostRole(params).then(() => {
+      modifyDeptPostRole(params).then(() => {
         this.roleVisible = false;
         this.$message({
           type: 'success',
@@ -530,15 +532,15 @@ export default {
       }
       this.storeBtnLoading = true;
       this.storeChecked = [];
-      // 获取全部店铺
-      getStoreList().then(res => {
+      // 获取机构下的全部店铺
+      getDeptStore().then(res => {
         const list = res.data.data.sort((a, b) => a.storeName.localeCompare(b.storeName));
         this.storeList = list;
         const params = {
           postId: this.selectionList[0].id,
         };
         // 获取当前岗位拥有的店铺
-        getPostStore(params).then(res => {
+        getDeptPostStore(params).then(res => {
           const storeIds = res.data.data.map(item => item.id);
           this.storeChecked = storeIds;
           this.storeVisible = true;
@@ -555,7 +557,7 @@ export default {
         postId: this.selectionList[0].id,
         addIds: this.storeChecked,
       };
-      modifyPostStore(params).then(() => {
+      modifyDeptPostStore(params).then(() => {
         this.storeVisible = false;
         this.$message({
           type: 'success',
