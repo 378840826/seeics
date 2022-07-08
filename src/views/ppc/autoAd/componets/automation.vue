@@ -66,6 +66,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="!launch"
         label="广告组"
         prop="adGroup"
         align="center"
@@ -90,6 +91,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="!launch"
         label="匹配类型"
         prop="matchType"
         align="center"
@@ -109,18 +111,20 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="竞价参考"
+        :label="`竞价${automatedOperation === '添加到投放' ? '参考' : '调整'}`"
         prop="bidType"
         align="center"
       >
         <template slot-scope="scope">
+          <div v-if="automatedOperation === '自动暂停' || automatedOperation === '自动归档'">无</div>
           <el-select 
+            v-else
             v-model="scope.row.bidType" 
             placeholder="请选择"
             @change="bidTypeSelect(scope.$index)"
           >
             <el-option
-              v-for="item in bidSelect"
+              v-for="item in (automatedOperation === '自动竞价' ? [...bidSelect, ...launchBidSelect] : bidSelect)"
               :key="item.value"
               :label="item.label"
               :value="item.value">
@@ -138,7 +142,10 @@
           v-if="scope.row.bidType === '过去7天CPC' 
           || scope.row.bidType === '过去14天CPC' 
           || scope.row.bidType === '过去21天CPC' 
-          || scope.row.bidType === '过去30天CPC'">
+          || scope.row.bidType === '过去30天CPC'
+          || scope.row.bidType === '建议竞价最小值'
+          || scope.row.bidType === '建议竞价最大值'
+          || scope.row.bidType === '建议竞价'">
           <el-select 
             v-model="scope.row.cpcType" 
             placeholder="请选择"
@@ -158,34 +165,37 @@
         align="center"
       >
         <template slot-scope="scope">
-         <div v-if="scope.row.bidType === '广告组默认竞价'">无需选择竞价</div>
-         <div v-else-if="scope.row.bidType === '固定竞价'" class="bid">
-            <el-input 
-              v-model="scope.row.bid" 
-              @blur="numberChange($event, 'bid', scope.$index)"
-              placeholder="站点货币"
-              min="0"
-            ><div slot="prefix" style="lineHeight: 30px;">{{ rowData.currency }}</div></el-input>
-           <!-- <div v-if="scope.row.msg" class="msg">支持两位小数</div> -->
-         </div>
-         <div v-else-if="!scope.row.cpcType">无</div>
-         <div v-else-if="scope.row.cpcType">
-           <el-input
-              v-model="scope.row.cpcValue"
-              @blur="numberChange($event, 'cpcValue', scope.$index)"
-              placeholder="调整数值"
-            >
-              <div
-                v-if="scope.row.cpcType === '上浮(%)' || scope.row.cpcType === '下调(%)'"
-                slot="suffix"
-                style="lineHeight: 30px;">%</div>
-                <div
-                v-else
-                slot="prefix"
-                style="lineHeight: 30px;">{{ rowData.currency }}</div>
-            </el-input>
-            <!-- <div v-if="scope.row.valueMsg" class="msg">支持两位小数</div> -->
-         </div>
+          <div v-if="automatedOperation === '自动暂停' || automatedOperation === '自动归档'">无</div>
+          <div v-else>
+            <div v-if="scope.row.bidType === '广告组默认竞价'">无需选择竞价</div>
+            <div v-else-if="scope.row.bidType === '固定竞价'" class="bid">
+                <el-input 
+                  v-model="scope.row.bid" 
+                  @blur="numberChange($event, 'bid', scope.$index)"
+                  placeholder="站点货币"
+                  min="0"
+                ><div slot="prefix" style="lineHeight: 30px;">{{ rowData.currency }}</div></el-input>
+              <!-- <div v-if="scope.row.msg" class="msg">支持两位小数</div> -->
+            </div>
+            <div v-else-if="!scope.row.cpcType">无</div>
+            <div v-else-if="scope.row.cpcType">
+              <el-input
+                  v-model="scope.row.cpcValue"
+                  @blur="numberChange($event, 'cpcValue', scope.$index)"
+                  placeholder="调整数值"
+                >
+                  <div
+                    v-if="scope.row.cpcType === '上浮(%)' || scope.row.cpcType === '下调(%)'"
+                    slot="suffix"
+                    style="lineHeight: 30px;">%</div>
+                    <div
+                    v-else
+                    slot="prefix"
+                    style="lineHeight: 30px;">{{ rowData.currency }}</div>
+                </el-input>
+                <!-- <div v-if="scope.row.valueMsg" class="msg">支持两位小数</div> -->
+            </div>
+          </div>
         </template>
       </el-table-column>
       <el-table-column
@@ -205,6 +215,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="!launch"
         label=""
         width="100"
       >
@@ -318,6 +329,20 @@ export default {
         }, {
           value: '固定竞价',
           label: '固定竞价'
+        }
+      ],
+      launchBidSelect: [
+        {
+          value: '建议竞价最小值',
+          label: '建议竞价最小值'
+        },
+        {
+          value: '建议竞价最大值',
+          label: '建议竞价最大值'
+        },
+        {
+          value: '建议竞价',
+          label: '建议竞价'
         }
       ],
       automatedOperation: '添加到投放',
