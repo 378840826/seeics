@@ -7,7 +7,7 @@
         @change="hanlderAuto"
       >
         <el-option
-          v-for="item in launchOption"
+          v-for="item in (!launch ? launchOption : searchOption)"
           :key="item.value"
           :label="item.label"
           :value="item.value"
@@ -260,6 +260,10 @@ export default {
     rowData: {
       type: Object,
       default: new Object
+    },
+    launch: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -318,6 +322,33 @@ export default {
       ],
       automatedOperation: '添加到投放',
       launchOption: [
+        {
+          label: '无',
+          value: null
+        },
+        {
+          label: '添加到投放',
+          value: '添加到投放'
+        },
+        {
+          label: '添加到否定投放',
+          value: '添加到否定投放',
+          disable: true
+        },
+        {
+          label: '自动竞价',
+          value: '自动竞价'
+        },
+        {
+          label: '自动暂停',
+          value: '自动暂停'
+        },
+        {
+          label: '自动归档',
+          value: '自动归档'
+        }
+      ],
+      searchOption: [
         {
           label: '无',
           value: null
