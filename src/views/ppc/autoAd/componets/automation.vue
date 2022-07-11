@@ -50,7 +50,13 @@
             v-model="scope.row.campaign" 
             placeholder="请选择广告活动"
             @change="campaignChange($event, scope.$index)"
+            filterable
+            reserve-keyword
+            remote
+            :remote-method="remoteMethod"
+            :loading="loading"
             v-loadmore="loadmore"
+            @focus="name=''; queryCampaignList(formData)"
           >
             <el-option
               class="option"
@@ -358,6 +364,7 @@ export default {
         current: 1,
         size: 20
       },
+      name: '',
       total: 0,
       campaignList: [],
       adGroupList: [],
@@ -366,16 +373,20 @@ export default {
       msg: false,
       addDisabled: false,
       deleteDisabled: false,
-      isAutoShow: true
+      isAutoShow: true,
+      loading: false
     };
   },
   mounted() {
     Object.keys(this.echo).length && this.echoFiled();
+    this.name = this.rowData.name;
+    this.tableData[0].campaign = this.rowData.campaignId || '';
     this.queryCampaignList(this.formData);
+    this.getGroupList(this.tableData[0].campaign, 0, 'flag');
   },
   destroyed() {
     this.echo.adCampaignInfos = [];
-    this.automatedOperation = '';
+    this.automatedOperation = '添加到投放';
   },
   directives: {
     'loadmore': {
@@ -476,6 +487,7 @@ export default {
       queryCampaignList({
         shopName: this.rowData.shopName, 
         marketplace: this.rowData.marketplace, 
+        name: this.name,
         ...formData
       }).then(res => {
         const data = res.data.data.records.map(item => {
@@ -486,6 +498,12 @@ export default {
         });
         this.total = res.data.data.total;
         this.campaignList = [...this.campaignList, ...data];
+        const hasObj = {};
+        this.campaignList = this.campaignList.reduce((total, next) => {
+          const filterKey = next.value;
+          hasObj[filterKey] ? '' : hasObj[filterKey] = true && total.push(next);
+          return total;
+        }, []);
       });
     },
     // 默认选择第一个
@@ -639,7 +657,7 @@ export default {
       }
       this.tableData.push({
         id: null,
-        campaign: this.campaign,
+        campaign: '',
         adGroup: this.labelFilter(this.adGroupList),
         matchType: '精准匹配',
         bidType: '广告组默认竞价',
@@ -659,8 +677,35 @@ export default {
       }
       this.tableData.splice(index, 1);
       this.tableData[this.tableData.length - 1].add = true;
+    },
+    // 广告活动远程搜索
+    remoteMethod(query) {
+      if (query !== '') {
+        this.name = query;
+        this.loading = true;
+        queryCampaignList({
+          shopName: this.rowData.shopName, 
+          marketplace: this.rowData.marketplace,
+          name: query,
+          current: 1,
+          size: 2147483647
+        }).then(res => {
+          this.loading = false;
+          this.campaignList = res.data.data.records.map(item => {
+            return {
+              name: item.name,
+              value: item.campaignId
+            };
+          });
+        });
+      } else {
+        this.name = '';
+        this.campaignList = [];
+        this.formData.current = 1;
+        this.queryCampaignList(this.formData);
+      }
     }
-  }
+  },
 };
 </script>
 
