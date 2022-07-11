@@ -437,7 +437,8 @@
             adGroupOption = [];
             adGroupVal = [];
             campaignCheckedAll = false;
-            templateId = '';"
+            templateId = '';
+            echoAtuomation = {}"
           >取 消</el-button>
         <el-button 
           size="mini" 
@@ -1094,6 +1095,7 @@ export default {
           this.templateId = '';
           this.adGroupOption = [];
           this.adGroupVal = [];
+          this.echoAtuomation = {};
           this.getTableData();
         }
       });
@@ -1132,6 +1134,7 @@ export default {
             this.templateId = '';
             this.adGroupOption = [];
             this.adGroupVal = [];
+            this.echoAtuomation = {};
             this.getTableData();
           }
         });
@@ -1149,6 +1152,7 @@ export default {
           this.templateId = '';
           this.adGroupOption = [];
           this.adGroupVal = [];
+          this.echoAtuomation = {};
           this.getTableData();
         }
       });
@@ -1196,7 +1200,7 @@ export default {
           this.formInline.asinList = data.asinList;
           this.echoAtuomation = data;
           this.adGroupOption = data.groupIdList;
-          data.groupIdList.map(item => {
+          data.groupIdList && data.groupIdList.map(item => {
             this.adGroupVal.push(item.groupId);
           });
           this.searchWord = data.excludeTerms;
