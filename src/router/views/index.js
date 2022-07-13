@@ -213,4 +213,13 @@ export default [{
     component: () => 
     import(/* webpackChunkName: "views" */ '@/views/keywordRanking/asinRanking')
   }]
+}, {
+  path: '/member',
+  component: Layout,
+  redirect: '/member/index',
+  children: [{
+    path: 'index',
+    name: '我的会员',
+    component: () => import('@/views/member')
+  }]
 }];
