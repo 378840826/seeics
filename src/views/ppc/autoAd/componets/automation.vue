@@ -7,7 +7,7 @@
         @change="hanlderAuto"
       >
         <el-option
-          v-for="item in (!launch ? launchOption : searchOption)"
+          v-for="item in (launch ? launchOption : searchOption)"
           :key="item.value"
           :label="item.label"
           :value="item.value"
@@ -66,7 +66,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        v-if="!launch"
+        v-if="automatedOperation === '添加到投放'"
         label="广告组"
         prop="adGroup"
         align="center"

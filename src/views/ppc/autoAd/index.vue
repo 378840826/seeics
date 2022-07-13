@@ -173,7 +173,17 @@
                     :class="{'selected':item.campaignStatus === i.value}">{{i.label}}</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
-              <el-button type="text" @click="templateDetail(item.id, scope.row)" size="mini" style="margin: 5px 5px; padding: 0">{{ item.templateName }}</el-button>
+              <el-button 
+                type="text" 
+                @click="templateDetail(item.id, scope.row)" 
+                size="mini" 
+                style="margin: 5px 5px; padding: 0">
+                  {{ item.templateName }}
+                  <span 
+                    style="margin: 5px 5px; padding: 0">
+                    {{ item.automatedOperation ? item.automatedOperation : '无' }}
+                  </span>
+                </el-button>
               <el-button
                 v-if="index === scope.row.automationTemplateVoList.length - 1"
                 @click="handleTemplate(scope.row)" 
@@ -191,6 +201,54 @@
             />
           </template>
         </el-table-column>
+
+        <!-- <el-table-column prop="" label="投放">
+           <template slot-scope="scope">
+             <div 
+              v-for="(item, index) in scope.row.automationTemplateVoList.length && scope.row.automationTemplateVoList" 
+              :key="item"
+              style=""
+            >
+              <el-dropdown @command="templateStutes">
+              <span :class="item.campaignStatus !== 'stop' ? 'el-icon-video-play' : 'el-icon-video-pause'" :style="{color: item.campaignStatus !== 'stop' ? '#58bc58' : 'red'}"/>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item 
+                    v-for="i in templateStateList" 
+                    @click="statu"
+                    :key="i.value" 
+                    :command="status(i.value, scope.row, item.id)"
+                    :value="i.value"
+                    :class="{'selected':item.campaignStatus === i.value}">{{i.label}}</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+              <el-button 
+                type="text" 
+                @click="templateDetail(item.id, scope.row, true)" 
+                size="mini" 
+                style="margin: 5px 5px; padding: 0">
+                  {{ item.templateName }}
+                  <span 
+                    style="margin: 5px 5px; padding: 0">
+                    {{ item.automatedOperation ? item.automatedOperation : '无' }}
+                  </span>
+                </el-button>
+              <el-button
+                v-if="index === scope.row.automationTemplateVoList.length - 1"
+                @click="handleTemplate(scope.row, true)" 
+                class="el-icon-circle-plus-outline"
+                style="fontSize: 14px; padding: 0; marginLeft: 0px"
+                type="text"
+              />
+            </div>
+            <span
+              v-if="!scope.row.automationTemplateVoList.length"
+              @click="handleTemplate(scope.row, true)" 
+              class="el-icon-edit"
+              style="fontSize: 14px"
+              type="text"
+            />
+          </template>
+        </el-table-column> -->
 
         <el-table-column label="操作" fixed="right" width="120">
           <template slot-scope="scope">
@@ -425,6 +483,7 @@
         :rowData="rowData"
         :campaign="formInline.campaign"
         :echo="echoAtuomation"
+        :launch="launchFlag"
       />
       <span slot="footer" class="dialog-footer">
         <el-button 
@@ -694,6 +753,7 @@ export default {
       msgData: [],
       btnDisabled: false, //弹窗按钮限制
       noShopDialog: false, // 没绑定店铺弹窗
+      launchFlag: false, //投放弹窗判断
     };
   },
 
@@ -866,7 +926,12 @@ export default {
     },
 
     // 添加模板按钮
-    handleTemplate(row) {
+    handleTemplate(row, launch) {
+      if (launch) {
+        this.launchFlag = true;
+      } else {
+        this.launchFlag = false;
+      }
       this.dialogCreateVisible = true; 
       this.rowData = row;
       this.ruleIs = true;
@@ -1175,7 +1240,12 @@ export default {
     },
 
     // 模板详情
-    templateDetail(id, row) {
+    templateDetail(id, row, launch) {
+      if (launch) {
+        this.launchFlag = true;
+      } else {
+        this.launchFlag = false;
+      }
       this.dialogCreateVisible = true; 
       this.rowData = row;
       this.ruleIs = true;
