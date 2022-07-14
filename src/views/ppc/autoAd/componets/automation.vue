@@ -203,7 +203,7 @@
           <el-input
             v-model="scope.row.cpcMost"
             @blur="numberChange($event, 'cpcMost', scope.$index)"
-            placeholder="竞价最大值"
+            :placeholder="minValue(scope.row.cpcType)"
           >
             <div slot="prefix" style="lineHeight: 30px;">{{ rowData.currency }}</div>
           </el-input>
@@ -475,6 +475,13 @@ export default {
     },
   },
   methods: {
+    minValue(cpcType) {
+      if (cpcType === '下调(绝对值)' || cpcType === '下调(%)') {
+        return '竞价最小值';
+      } else if (cpcType === '上浮(%)' || cpcType === '上浮(绝对值)') {
+        return '竞价最大值';
+      }
+    },
     loadmore() {
       const result = this.formData.size * this.formData.current;
       if (result < this.total) { //加载全部出来 停止请求

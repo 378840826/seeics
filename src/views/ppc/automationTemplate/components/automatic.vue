@@ -157,7 +157,7 @@
           <el-input
             v-model="scope.row.cpcMost"
             @blur="numberChange($event, 'cpcMost')"
-            placeholder="竞价最大值"
+            :placeholder="minValue(scope.row.cpcType)"
           >
             <div slot="prefix" style="lineHeight: 30px;">站点货币</div>
           </el-input>
@@ -286,6 +286,13 @@ export default {
     }
   },
   methods: {
+    minValue(cpcType) {
+      if (cpcType === '下调(绝对值)' || cpcType === '下调(%)') {
+        return '竞价最小值';
+      } else if (cpcType === '上浮(%)' || cpcType === '上浮(绝对值)') {
+        return '竞价最大值';
+      }
+    },
     numberChange (val, name) {
       const reg = /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/;
       if (isNaN(val.target.value)) { 
