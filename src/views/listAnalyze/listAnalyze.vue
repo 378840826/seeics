@@ -342,6 +342,10 @@ export default {
         {
           value: 'AU',
           label: '澳洲',
+        },
+        {
+          value: 'JP',
+          label: '日本',
         }
       ],
       formInline: {
@@ -537,6 +541,8 @@ export default {
         } else if (val === 'Tutte le categorie') {
           this.disabled = true;
         } else if (val === 'Tout département') {
+          this.disabled = true;
+        } else if (val === 'すべてのカテゴリー') {
           this.disabled = true;
         } else if (val !== this.analyzeData.searchKeyword) {
           this.disabled = true;
@@ -810,7 +816,8 @@ export default {
           && node.title !== 'Alle Kategorien' 
           && node.title !== 'Cualquier departamento'
           && node.title !== 'Tutte le categorie'
-          && node.title !== 'Tout département') {
+          && node.title !== 'Tout département'
+          && node.title !== 'すべてのカテゴリー') {
         this.formInline.searchKeyword = node.title;
         this.analyzeData.url = node.url;
         this.analyzeData.fullName = node.fullName;
@@ -841,7 +848,8 @@ export default {
               && res.data.data[0].fullName !== 'Alle Kategorien'
               && res.data.data[0].fullName !== 'Cualquier departamento'
               && res.data.data[0].fullName !== 'Tutte le categorie'
-              && res.data.data[0].fullName !== 'Tout département') {
+              && res.data.data[0].fullName !== 'Tout département'
+              && res.data.data[0].fullName !== 'すべてのカテゴリー') {
             this.visible = false;
             // this.disabled = true;
             this.restaurants = res.data.data.map( itme => {
