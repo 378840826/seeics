@@ -2,13 +2,14 @@
   <div>
 
   <el-dialog
-    title="会员升级"
+    :title="info.renew ? '会员续费' : '会员升级'"
     :visible.sync="dialogVisible"
-    width="50%"
+    width="530px"
     :append-to-body="true"
     :show-close="false"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
+    center
     :before-close="handleClose">
     <el-dialog
       width="40%"
@@ -42,60 +43,79 @@
       </span>
     </el-dialog>
     <p>
-      <span>当前会员等级：{{'普通会员'}}</span>
-      <span style="marginLeft: 50px">有效期剩余：{{12}}天</span>
+      <span>当前会员等级：{{info.levelName}}</span>
+      <span style="marginLeft: 50px">有效期剩余：<span style="color: #009900">{{info.effectiveDays}}</span>天（{{info.expirationTime}}到期）</span>
     </p>
     <!-- <el-radio-group v-model="radio"> -->
-      <p>
-        <el-radio v-model="radio" :label="299">
-          <span>VIP 1个月</span>
-          <span style="marginLeft: 57px; color: #999999">原价：299元/月</span>
-          <span style="marginLeft: 30px">299元/月</span>
-        </el-radio>
-      </p>
-      <p>
-        <el-radio v-model="radio" :label="29992999">
-          <span>VIP 1年</span>
-          <span style="marginLeft: 72px; color: #999999">原价：3599元/年</span>
-          <span style="marginLeft: 20px; color: #ff0000">2999元/年</span>
-        </el-radio>
-      </p>
-      <p>
-        <el-radio v-model="radio" :label="499">
-          <span>高级VIP 1个月</span>
-          <span style="marginLeft: 30px; color: #999999">原价：499元/月</span>
-          <span style="marginLeft: 30px">499元/月</span>
-        </el-radio>
-      </p>
-      <p>
-        <el-radio v-model="radio" :label="5999">
-          <span>高级VIP 1年</span>
-          <span style="marginLeft: 43px; color: #999999">原价：5999元/年</span>
-          <span style="marginLeft: 23px; color: #ff0000">4999元/年</span>
-        </el-radio>
-      </p>
-      <p>
-        <el-radio v-model="radio" :label="999">
-          <span>至尊VIP 1个月</span>
-          <span style="marginLeft: 30px; color: #999999">原价：999元/月</span>
-          <span style="marginLeft: 30px">999元/月</span>
-        </el-radio>
-      </p>
-      <p>
-        <el-radio v-model="radio" :label="11999">
-          <span>至尊VIP 1年</span>
-          <span style="marginLeft: 43px; color: #999999">原价：11999元/年</span>
-          <span style="marginLeft: 20px; color: #ff0000">9999元/年</span>
-        </el-radio>
-      </p>
+      <div v-if="info.renew ? info.levelName === 'VIP' : info.levelName === '普通会员'">
+        <p>
+          <el-radio v-model="radio" :label="299">
+            <span>VIP 1个月</span>
+            <span style="marginLeft: 57px; color: #999999">原价：299元/月</span>
+            <span style="marginLeft: 30px">299元/月</span>
+          </el-radio>
+        </p>
+        <p>
+          <el-radio v-model="radio" :label="2999">
+            <span>VIP 1年</span>
+            <span style="marginLeft: 72px; color: #999999">原价：3599元/年</span>
+            <span style="marginLeft: 20px; color: #ff0000">2999元/年</span>
+          </el-radio>
+        </p>
+      </div>
+      <div v-if="info.renew ? info.levelName === '高级VIP' : info.levelName === 'VIP' || info.levelName === '普通会员' ">
+        <p>
+          <el-radio v-model="radio" :label="499">
+            <span>高级VIP 1个月</span>
+            <span style="marginLeft: 30px; color: #999999">原价：499元/月</span>
+            <span style="marginLeft: 30px">499元/月</span>
+          </el-radio>
+        </p>
+        <p>
+          <el-radio v-model="radio" :label="5999">
+            <span>高级VIP 1年</span>
+            <span style="marginLeft: 43px; color: #999999">原价：5999元/年</span>
+            <span style="marginLeft: 23px; color: #ff0000">4999元/年</span>
+          </el-radio>
+        </p>
+      </div>
+      <div v-if="info.renew ? info.levelName === '至尊VIP' : info.levelName === 'VIP' || info.levelName === '高级VIP' || info.levelName === '普通会员'">
+        <p>
+          <el-radio v-model="radio" :label="999">
+            <span>至尊VIP 1个月</span>
+            <span style="marginLeft: 30px; color: #999999">原价：999元/月</span>
+            <span style="marginLeft: 30px">999元/月</span>
+          </el-radio>
+        </p>
+        <p>
+          <el-radio v-model="radio" :label="11999">
+            <span>至尊VIP 1年</span>
+            <span style="marginLeft: 43px; color: #999999">原价：11999元/年</span>
+            <span style="marginLeft: 20px; color: #ff0000">9999元/年</span>
+          </el-radio>
+        </p>
+      </div>
       <div style="fontSize: 18px">实付：{{radio}}元</div>
+      <div v-if="!info.renew" style="fontSize: 14px; color: #999999; marginLeft: 50px">={{radio}}-（{{spread(info.levelName)}}/30）*12</div>
+      <div style="fontSize: 14px; color: #999999">
+        {{info.renew ? '（付费成功后，有效期延长至 2021-10-12）' : '（升级当日生效，有效期延长15天（2021-10-12到期），需补齐差价）'}}
+      </div>
       <el-checkbox v-model="checked">本人已阅且同意</el-checkbox>
       <el-button type="text" @click="innerVisible = true">会员协议</el-button>
-      <div>
-        <el-button :type="checked ? 'primary' : ''" :disabled="!checked">微信支付</el-button>
-        <el-button :type="checked ? 'primary' : ''" :disabled="!checked">支付宝支付</el-button>
+      <div class="selectQR">
+        <div :class="checked ? 'pay pointer' : 'pay not-allowed'" @click="handleQR('wechat')">
+          <el-image style="width: 30px; height: 30px" src="/img/wechat.png"/>
+          <span>微信支付</span>
+        </div>
+        <div :class="checked ? 'pay pointer' : 'pay not-allowed'" @click="handleQR('alipay')">
+          <el-image style="width: 30px; height: 30px" src="/img/alipay.png"/>
+          <span style="margin-right: 10px;">支付宝</span>
+        </div>
       </div>
-    <!-- </el-radio-group> -->
+      <div class="QRcode">
+        <div style="height: 30px; lineHeight: 30px;">{{checked ? `请用${qrName}扫码进行支付` : ''}}</div>
+        <el-image :style="{ width: '150px', height: '150px', opacity: checked ? 1 : '0.02' }" src="https://d1icd6shlvmxi6.cloudfront.net/gsc/XTEPHL/90/a6/d4/90a6d47195614b5db966ae2e9e6a33a5/images/购买vip/u7396.jpg"/>
+      </div>
     <span slot="footer" class="dialog-footer">
       <el-button @click="dialogVisible = false; $emit('change', false)">取 消</el-button>
       <el-button type="primary" @click="dialogVisible = false; $emit('change', false)">确 定</el-button>
@@ -112,6 +132,9 @@ export default{
     dialogVisible: {
       type: Boolean,
       default: false
+    },
+    info: {
+      type: Object,
     }
   },
   model: {
@@ -122,11 +145,31 @@ export default{
     return {
       radio: 299,
       checked: false,
-      innerVisible: false
+      innerVisible: false,
+      qrName: '微信'
     };
   },
   mounted() {
-    console.log(this.dialogVisible)
+    console.log(this.info)
+  },
+  methods: {
+    handleQR(val) {
+      if (!this.checked) {
+        return;
+      }
+      if (val === 'wechat') {
+        this.qrName = '微信';
+      } else if (val === 'alipay') {
+        this.qrName = '支付宝';
+      }
+    },
+    spread(val) {
+      if (val === 'VIP') {
+        return 299;
+      } else if (val === '高级VIP') {
+        return 499;
+      }
+    }
   }
 };
 </script>
@@ -141,5 +184,41 @@ export default{
     p {
       margin: 0;
     }
+  }
+  .selectQR {
+    width: 260px;
+    display: flex;
+    justify-content: space-around;
+    margin: auto
+  }
+  .pay {
+    line-height: 30px;
+    height: 30px;
+    width: 100px;
+    font-size: 16px;
+    border: 1px solid #EBEEF5;
+    padding: 5px;
+    &.not-allowed {
+      cursor: not-allowed;
+      background-color: #F2F6FC;
+    }
+    &.pointer {
+      cursor: pointer;
+    }
+    span {
+      float: right;
+    }
+  }
+  .QRcode {
+    width: 160px;
+    margin: auto;
+    text-align: center;
+  }
+  .div {
+    width: 150px;
+    height: 150px;
+    position: absolute;
+    bottom: 100px;
+    background: #ccc;
   }
 </style>

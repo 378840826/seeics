@@ -5,7 +5,7 @@
       <p>
         当前会员等级：<span style="color: #ff0000; fontWeight: 600">{{levelName}}</span>
         <span style="marginLeft: 40px">有效期剩余：<span style="color: #009900">{{effectiveDays}}</span>天</span>
-        <el-button type="text" style="marginLeft: 10px">续费</el-button>
+        <el-button v-if="levelName !== '普通会员'" type="text" @click="dialogVisible = true; isvibist = true; renew = true" style="marginLeft: 10px">续费</el-button>
         <span style="marginLeft: 40px" >订单加油包剩余：{{effectiveDays}}</span>
       </p>
       <h4>功能余量</h4>
@@ -22,19 +22,39 @@
     </div>
     <div class="upgrade">
 
-      升级：<el-button type="primary" @click="handleUpgrade" style="marginLeft: 30px">至尊VIP</el-button>
-      <el-button type="primary" style="marginLeft: 30px">购买订单加油包</el-button>
+      <span v-if="levelName !== '至尊VIP'">升级：<el-button type="primary" @click="handleUpgrade">{{vip(levelName)}}</el-button></span> 
+      <el-button type="primary" @click="refuelVisible = true; isRefuel = true" style="marginLeft: 30px">购买订单加油包</el-button>
       <el-button type="primary" style="marginLeft: 30px">购买关键词分析加油包</el-button>
       <el-button type="primary" style="marginLeft: 30px">购买榜单分析加油包</el-button>
     </div>
     <h4>付款记录</h4>
     <avue-crud
       :option="option"
+      :data="data"
+      :page.sync="page"
+      @on-load="queryIndentPage"
     ></avue-crud>
     <upgrade-dialog
       v-if="isvibist"
       v-model="isvibist"
       :dialogVisible="dialogVisible"
+      :info="{
+        levelName,
+        effectiveDays,
+        expirationTime,
+        renew
+      }"
+    />
+    <refuel-dialog
+      v-if="isRefuel"
+      v-model="isRefuel"
+      :refuelVisible="refuelVisible"
+      :info="{
+        levelName,
+        effectiveDays,
+        expirationTime,
+        renew
+      }"
     />
   </basic-container>
 </template>
@@ -43,11 +63,12 @@
 // import upgradeDialog from './componets/upgradeDialog.vue';
 
 import upgradeDialog from './componets/upgradeDialog';
-import { queryInfo } from '@/api/member/member';
+import refuelDialog from './componets/refuelDialog';
+import { queryInfo, queryIndentPage, upgradeInfo } from '@/api/member/member';
 export default {
   name: 'nember',
   components: {
-    // upgradeDialog,
+    refuelDialog,
     upgradeDialog,
   },
   data() {
@@ -55,7 +76,10 @@ export default {
       // 基本信息
       levelName: '', //会员名
       effectiveDays: 0, //有效天数
+      expirationTime: '', //过期时间
+      renew: false, //续费标识
       table: [],
+      data: [],
       option: {
         emptyText: '暂无数据',
         addBtn: false,
@@ -77,37 +101,59 @@ export default {
         column: [
           {
             label: '付款时间',
-            prop: 'name',
+            prop: 'payTime',
           },
           {
             label: '订单号',
-            prop: 'name',
+            prop: 'code',
           },
           {
             label: '订单详情',
-            prop: 'name',
+            prop: 'itemName',
           },
           {
             label: '支付方式',
-            prop: 'name',
+            prop: 'payType',
           },
           {
             label: '支付金额(￥)',
-            prop: 'name',
+            prop: 'payAmount',
           },
         ],
       },
-      isvibist: false
+      page: {
+        total: 0,
+        currentPage: 1,
+        layout: 'total, sizes, prev, pager, next, jumper',
+        pageSize: 20,
+        pageSizes: [20, 50, 100],
+      },
+      isvibist: false,
+      isRefuel: false
     };
   },
   mounted() {
     queryInfo().then(res => {
       if (res.data.code === 200) {
-        this.levelName = res.data.data.levelName;
+        this.levelName = 'VIP';
         this.effectiveDays = res.data.data.effectiveDays;
         this.table = res.data.data.surplusVoList;
+        this.expirationTime = res.data.data.expirationTime;
       }
     });
+    upgradeInfo().then(res => {
+      console.log(res)
+    })
+  },
+  watch: {
+    isvibist: {
+      handler(val) {
+        if (!val) {
+          this.renew = false;
+        }
+      },
+      deep: true
+    }
   },
   methods: {
     // 表格样式
@@ -118,11 +164,28 @@ export default {
         return { background: '#ccc', color: '#303133', padding: '5px 0' };
       }
     },
+    vip(val) {
+      if (val === '普通会员') {
+        return 'VIP';
+      } else if (val === 'VIP') {
+        return '高级VIP';
+      } else if (val === '高级VIP') {
+        return '至尊VIP';
+      }
+    },
     handleUpgrade() {
-      console.log(666)
-      this.dialogVisible = true
-      this.isvibist = true
-    }
+      this.dialogVisible = true;
+      this.isvibist = true;
+    },
+    queryIndentPage() {
+      queryIndentPage({ size: this.page.pageSize, current: this.page.currentPage }).then(res => {
+        if (res.data.code === 200) {
+          this.data = res.data.data.records;
+          this.page.total = res.data.data.total;
+          this.page.currentPage = res.data.data.current;
+        }
+      });
+    },
   }
 };
 </script>

@@ -8,3 +8,22 @@ export const queryInfo = () => {
     method: 'get',
   });
 };
+
+// 订单列表
+export const queryIndentPage = (data) => {
+  return request({
+    url: '/api/seeics-member/order/orderList',
+    method: 'get',
+    params: {
+      ...data
+    }
+  });
+};
+
+// 会员升级
+export const upgradeInfo = () => {
+  return request({
+    url: '/api/seeics-member/level/upgradeInfo',
+    method: 'get'
+  });
+};
