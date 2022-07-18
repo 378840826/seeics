@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import option from '@/option/user/info';
+import getOption from '@/option/user/info';
 import { getUserInfo, updateInfo, updatePassword } from '@/api/system/user';
 import md5 from 'js-md5';
 import func from '@/util/func';
@@ -21,9 +21,14 @@ export default {
   data() {
     return {
       index: 0,
-      option: option,
+      isPay: 0,
       form: {},
     };
+  },
+  computed: {
+    option() {
+      return getOption(this.isPay);
+    },
   },
   created() {
     this.handleWitch();
@@ -32,7 +37,12 @@ export default {
   methods: {
     handleSubmit(form, done) {
       if (this.index === 0) {
-        updateInfo(form).then(res => {
+        const params = {
+          user: { ...form },
+          deptName: form.deptName,
+          fullName: form.fullName,
+        };
+        updateInfo(params).then(res => {
           if (res.data.success) {
             this.$message({
               type: 'success',
@@ -73,6 +83,7 @@ export default {
       if (this.index === 0) {
         getUserInfo().then(res => {
           const user = res.data.data;
+          this.isPay = user.isPay;
           this.form = {
             id: user.id,
             avatar: user.avatar,
@@ -80,6 +91,8 @@ export default {
             realName: user.realName,
             phone: user.phone,
             email: user.email,
+            deptName: user.deptName,
+            fullName: user.fullName,
           };
         });
       }

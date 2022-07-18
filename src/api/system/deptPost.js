@@ -14,15 +14,15 @@ export const getList = (current, size, params) => {
   });
 };
 
-// export const getPostList = (tenantId) => {
-//   return request({
-//     url: '/api/blade-system/post/select',
-//     method: 'get',
-//     params: {
-//       tenantId
-//     }
-//   });
-// };
+export const getPostList = (tenantId) => {
+  return request({
+    url: '/api/blade-system/post/deptPost_select',
+    method: 'get',
+    params: {
+      tenantId
+    }
+  });
+};
 
 export const getDetail = (id) => {
   return request({

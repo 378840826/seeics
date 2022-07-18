@@ -1,4 +1,4 @@
-<!-- 角色管理 -->
+<!-- 机构角色 -->
 <template>
   <basic-container>
     <avue-crud :option="option"
@@ -109,10 +109,9 @@
               :no-data-text="未找到相关数据"
               size="small"
               class="select"
-              popper-class="seeics-st-select"
               @clear="handleClearMemberSelected"
             >
-              <div class="seeics-st-check_all">
+              <div class="check_all">
                 <el-checkbox
                   v-model="member.checkedAll"
                   @change="handleMemberCheckAllChange"
@@ -180,7 +179,8 @@ import {
   getMemberOwnedRole,
   getMemberNotOwnedRole,
   modifyMemberOfRole,
-} from '@/api/system/role';
+  getMemberOwnedMenu,
+} from '@/api/system/deptRole';
 import { mapGetters } from 'vuex';
 import website from '@/config/website';
 
@@ -471,14 +471,17 @@ export default {
       this.apiScopeTreeObj = [];
       grantTree()
         .then(res => {
-          this.menuGrantList = res.data.data.menu;
           this.dataScopeGrantList = res.data.data.dataScope;
           this.apiScopeGrantList = res.data.data.apiScope;
-          getRole(this.ids).then(res => {
-            this.menuTreeObj = res.data.data.menu;
-            this.dataScopeTreeObj = res.data.data.dataScope;
-            this.apiScopeTreeObj = res.data.data.apiScope;
-            this.box = true;
+          // 获取菜单权限树（不用 grantTree获取的 menu）
+          getMemberOwnedMenu().then(res => {
+            this.menuGrantList = res.data.data.menu;
+            getRole(this.ids).then(res => {
+              this.menuTreeObj = res.data.data.menu;
+              this.dataScopeTreeObj = res.data.data.dataScope;
+              this.apiScopeTreeObj = res.data.data.apiScope;
+              this.box = true;
+            });
           });
         });
     },
@@ -624,5 +627,11 @@ export default {
 
 .input-filter_name {
   width: 200px;
+}
+
+.check_all {
+  padding: 3px 10px;
+  display: flex;
+  justify-content: flex-end;
 }
 </style>
