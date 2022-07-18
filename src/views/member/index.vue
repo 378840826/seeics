@@ -5,7 +5,7 @@
       <p>
         当前会员等级：<span style="color: #ff0000; fontWeight: 600">{{levelName}}</span>
         <span style="marginLeft: 40px">有效期剩余：<span style="color: #009900">{{effectiveDays}}</span>天</span>
-        <el-button v-if="levelName !== '普通会员'" type="text" @click="dialogVisible = true; isvibist = true; renew = true" style="marginLeft: 10px">续费</el-button>
+        <el-button v-if="levelName !== '普通会员'" type="text" @click="handleUpgrade('renew')" style="marginLeft: 10px">续费</el-button>
         <span style="marginLeft: 40px" >订单加油包剩余：{{effectiveDays}}</span>
       </p>
       <h4>功能余量</h4>
@@ -22,10 +22,10 @@
     </div>
     <div class="upgrade">
 
-      <span v-if="levelName !== '至尊VIP'">升级：<el-button type="primary" @click="handleUpgrade">{{vip(levelName)}}</el-button></span> 
-      <el-button type="primary" @click="refuelVisible = true; isRefuel = true" style="marginLeft: 30px">购买订单加油包</el-button>
-      <el-button type="primary" style="marginLeft: 30px">购买关键词分析加油包</el-button>
-      <el-button type="primary" style="marginLeft: 30px">购买榜单分析加油包</el-button>
+      <span v-if="levelName !== '至尊VIP'">升级：<el-button type="primary" @click="handleUpgrade('upgrade')">{{vip(levelName)}}</el-button></span> 
+      <el-button type="primary" disabled @click="handleRefuel()" style="marginLeft: 30px">购买订单加油包</el-button>
+      <el-button type="primary" @click="handleRefuel(4)" style="marginLeft: 30px">购买关键词分析加油包</el-button>
+      <el-button type="primary" @click="handleRefuel(6)" style="marginLeft: 30px">购买榜单分析加油包</el-button>
     </div>
     <h4>付款记录</h4>
     <avue-crud
@@ -42,7 +42,8 @@
         levelName,
         effectiveDays,
         expirationTime,
-        renew
+        renew,
+        priceVoList
       }"
     />
     <refuel-dialog
@@ -53,6 +54,7 @@
         levelName,
         effectiveDays,
         expirationTime,
+        refuelList,
         renew
       }"
     />
@@ -64,7 +66,7 @@
 
 import upgradeDialog from './componets/upgradeDialog';
 import refuelDialog from './componets/refuelDialog';
-import { queryInfo, queryIndentPage, upgradeInfo } from '@/api/member/member';
+import { queryInfo, queryIndentPage, upgradeInfo, renewInfo, refuelList } from '@/api/member/member';
 export default {
   name: 'nember',
   components: {
@@ -77,6 +79,7 @@ export default {
       levelName: '', //会员名
       effectiveDays: 0, //有效天数
       expirationTime: '', //过期时间
+      // priceVoList: [], //会员价格列表
       renew: false, //续费标识
       table: [],
       data: [],
@@ -141,9 +144,6 @@ export default {
         this.expirationTime = res.data.data.expirationTime;
       }
     });
-    upgradeInfo().then(res => {
-      console.log(res)
-    })
   },
   watch: {
     isvibist: {
@@ -173,9 +173,35 @@ export default {
         return '至尊VIP';
       }
     },
-    handleUpgrade() {
-      this.dialogVisible = true;
-      this.isvibist = true;
+    handleUpgrade(flag) {
+      if (flag === 'renew') {
+        this.renew = true;
+        renewInfo().then(res => {
+          if (res.data.code === 200) {
+            this.priceVoList = res.data.data.priceVoList;
+            this.dialogVisible = true;
+            this.isvibist = true;
+          }
+        });
+      } else {
+        upgradeInfo().then(res => {
+          if (res.data.code === 200) {
+            this.priceVoList = res.data.data.priceVoList.filter(item => item.levelName !== this.levelName);
+            this.dialogVisible = true;
+            this.isvibist = true;
+          }
+        });
+      }
+      
+    },
+    handleRefuel(code) { 
+      refuelList({ function: code }).then(res => {
+        if (res.data.code === 200) {
+          this.refuelList = res.data.data;
+          this.refuelVisible = true;
+          this.isRefuel = true;
+        }
+      });
     },
     queryIndentPage() {
       queryIndentPage({ size: this.page.pageSize, current: this.page.currentPage }).then(res => {

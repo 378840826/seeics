@@ -27,3 +27,22 @@ export const upgradeInfo = () => {
     method: 'get'
   });
 };
+
+// 会员续费
+export const renewInfo = () => {
+  return request({
+    url: '/api/seeics-member/level/renewInfo',
+    method: 'get'
+  });
+};
+
+// 加油包列表
+export const refuelList = (data) => {
+  return request({
+    url: '/api/seeics-member/package/list',
+    method: 'get',
+    params: {
+      ...data
+    }
+  });
+};

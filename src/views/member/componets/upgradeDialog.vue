@@ -46,59 +46,19 @@
       <span>当前会员等级：{{info.levelName}}</span>
       <span style="marginLeft: 50px">有效期剩余：<span style="color: #009900">{{info.effectiveDays}}</span>天（{{info.expirationTime}}到期）</span>
     </p>
-    <!-- <el-radio-group v-model="radio"> -->
-      <div v-if="info.renew ? info.levelName === 'VIP' : info.levelName === '普通会员'">
-        <p>
-          <el-radio v-model="radio" :label="299">
-            <span>VIP 1个月</span>
-            <span style="marginLeft: 57px; color: #999999">原价：299元/月</span>
-            <span style="marginLeft: 30px">299元/月</span>
+        <p v-for="item in (info.renew ? info.priceVoList.filter(item => item.unitName === '年' && item.isCurrentPrice || item) : info.priceVoList)" :key="item">
+          <el-radio v-model="radio" :label="item.payAmount" @change="handleRadio(item)" style="width: 400px; position: relative">
+            <span>{{`${item.levelName} 1` + `${item.unitName === '月' ? '个' : ''}` + item.unitName}}</span>
+            <div class="radioDiv">
+              <span style="color: #999999;">原价：{{item.price + '元/' + item.unitName}}</span>
+              <span >{{item.payAmount + '元/' + item.unitName}}</span>
+            </div>
           </el-radio>
         </p>
-        <p>
-          <el-radio v-model="radio" :label="2999">
-            <span>VIP 1年</span>
-            <span style="marginLeft: 72px; color: #999999">原价：3599元/年</span>
-            <span style="marginLeft: 20px; color: #ff0000">2999元/年</span>
-          </el-radio>
-        </p>
-      </div>
-      <div v-if="info.renew ? info.levelName === '高级VIP' : info.levelName === 'VIP' || info.levelName === '普通会员' ">
-        <p>
-          <el-radio v-model="radio" :label="499">
-            <span>高级VIP 1个月</span>
-            <span style="marginLeft: 30px; color: #999999">原价：499元/月</span>
-            <span style="marginLeft: 30px">499元/月</span>
-          </el-radio>
-        </p>
-        <p>
-          <el-radio v-model="radio" :label="5999">
-            <span>高级VIP 1年</span>
-            <span style="marginLeft: 43px; color: #999999">原价：5999元/年</span>
-            <span style="marginLeft: 23px; color: #ff0000">4999元/年</span>
-          </el-radio>
-        </p>
-      </div>
-      <div v-if="info.renew ? info.levelName === '至尊VIP' : info.levelName === 'VIP' || info.levelName === '高级VIP' || info.levelName === '普通会员'">
-        <p>
-          <el-radio v-model="radio" :label="999">
-            <span>至尊VIP 1个月</span>
-            <span style="marginLeft: 30px; color: #999999">原价：999元/月</span>
-            <span style="marginLeft: 30px">999元/月</span>
-          </el-radio>
-        </p>
-        <p>
-          <el-radio v-model="radio" :label="11999">
-            <span>至尊VIP 1年</span>
-            <span style="marginLeft: 43px; color: #999999">原价：11999元/年</span>
-            <span style="marginLeft: 20px; color: #ff0000">9999元/年</span>
-          </el-radio>
-        </p>
-      </div>
       <div style="fontSize: 18px">实付：{{radio}}元</div>
-      <div v-if="!info.renew" style="fontSize: 14px; color: #999999; marginLeft: 50px">={{radio}}-（{{spread(info.levelName)}}/30）*12</div>
+      <div v-if="!info.renew" style="fontSize: 14px; color: #999999; marginLeft: 50px">{{explain}}</div>
       <div style="fontSize: 14px; color: #999999">
-        {{info.renew ? '（付费成功后，有效期延长至 2021-10-12）' : '（升级当日生效，有效期延长15天（2021-10-12到期），需补齐差价）'}}
+        {{info.renew ? `（付费成功后，有效期延长至 ${extensionDate}）` : `（升级当日生效，有效期延长15天（${extensionDate}到期），需补齐差价）`}}
       </div>
       <el-checkbox v-model="checked">本人已阅且同意</el-checkbox>
       <el-button type="text" @click="innerVisible = true">会员协议</el-button>
@@ -143,14 +103,19 @@ export default{
   },
   data() {
     return {
-      radio: 299,
+      radio: '',
       checked: false,
       innerVisible: false,
-      qrName: '微信'
+      qrName: '微信',
+      explain: '',
+      extensionDate: ''
     };
   },
   mounted() {
-    console.log(this.info)
+    // console.log(this.info)
+    this.radio = this.info.priceVoList[0].payAmount;
+    this.explain = this.info.priceVoList[0].explain;
+    this.extensionDate = this.info.priceVoList[0].extensionDate;
   },
   methods: {
     handleQR(val) {
@@ -169,6 +134,10 @@ export default{
       } else if (val === '高级VIP') {
         return 499;
       }
+    },
+    handleRadio(val) {
+      this.explain = val.explain;
+      this.extensionDate = val.extensionDate;
     }
   }
 };
@@ -220,5 +189,14 @@ export default{
     position: absolute;
     bottom: 100px;
     background: #ccc;
+  }
+  .radioDiv {
+    width: 250px;
+    /* top: 16px; */
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
   }
 </style>
