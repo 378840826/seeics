@@ -138,7 +138,7 @@ export default {
   mounted() {
     queryInfo().then(res => {
       if (res.data.code === 200) {
-        this.levelName = 'VIP';
+        this.levelName = res.data.data.levelName;
         this.effectiveDays = res.data.data.effectiveDays;
         this.table = res.data.data.surplusVoList;
         this.expirationTime = res.data.data.expirationTime;
