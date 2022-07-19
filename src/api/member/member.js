@@ -46,3 +46,30 @@ export const refuelList = (data) => {
     }
   });
 };
+
+export const rsdf = data => {
+  return request({
+    url: '/api/seeics-member/information/changeLevel',
+    method: 'put',
+    data
+  });
+};
+
+//购买会员信息
+export const buyInfo = () => {
+  return request({
+    url: '/api/seeics-member/level/buyInfo',
+    method: 'get'
+  });
+};
+
+// 购买会员列表
+export const buyPage = (data) => {
+  return request({
+    url: '/api/seeics-member/level/levelInfoList',
+    method: 'get',
+    params: {
+      ...data
+    }
+  });
+};

@@ -222,4 +222,13 @@ export default [{
     name: '我的会员',
     component: () => import('@/views/member')
   }]
+}, {
+  path: '/vip-config',
+  component: Layout,
+  redirect: '/vip-config/index',
+  children: [{
+    path: 'index',
+    name: 'VIP配置',
+    component: () => import('@/views/member/configVip')
+  }]
 }];

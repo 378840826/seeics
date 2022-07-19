@@ -66,7 +66,7 @@
 
 import upgradeDialog from './componets/upgradeDialog';
 import refuelDialog from './componets/refuelDialog';
-import { queryInfo, queryIndentPage, upgradeInfo, renewInfo, refuelList } from '@/api/member/member';
+import { queryInfo, queryIndentPage, upgradeInfo, renewInfo, refuelList, rsdf } from '@/api/member/member';
 export default {
   name: 'nember',
   components: {
@@ -156,6 +156,13 @@ export default {
     }
   },
   methods: {
+    puts() {
+      rsdf({
+        userId: '1547104741226749953',
+        type: 2,
+        levelPriceId: '1547099471965138947'
+      }).then(res => console.log(res))
+    },
     // 表格样式
     rowStyle(flag) {
       if (flag === 'row') {
@@ -174,6 +181,7 @@ export default {
       }
     },
     handleUpgrade(flag) {
+      // this.puts();
       if (flag === 'renew') {
         this.renew = true;
         renewInfo().then(res => {
