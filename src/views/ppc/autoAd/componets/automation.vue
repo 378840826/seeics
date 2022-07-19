@@ -139,13 +139,14 @@
       >
         <template 
           slot-scope="scope" 
-          v-if="scope.row.bidType === '过去7天CPC' 
+          v-if="(automatedOperation !== '自动竞价' || automatedOperation !== '添加到投放') 
+          &&(scope.row.bidType === '过去7天CPC' 
           || scope.row.bidType === '过去14天CPC' 
           || scope.row.bidType === '过去21天CPC' 
           || scope.row.bidType === '过去30天CPC'
           || scope.row.bidType === '建议竞价最小值'
           || scope.row.bidType === '建议竞价最大值'
-          || scope.row.bidType === '建议竞价'">
+          || scope.row.bidType === '建议竞价')">
           <el-select 
             v-model="scope.row.cpcType" 
             placeholder="请选择"
@@ -276,6 +277,10 @@ export default {
       type: Boolean,
       default: false
     }
+  },
+  model: {
+    prop: 'value',
+    event: 'change'
   },
   data() {
     return {
@@ -457,7 +462,7 @@ export default {
   watch: {
     tableData: {
       handler(val) {
-        const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
+        const reg = /^(([1-9]{1}\d{0,4})|(0{1}))(\.\d{0,2})?$/;
         if (val.length === this.adGroupList.length) {
           // this.addDisabled = true;
         } else {
@@ -578,7 +583,7 @@ export default {
         return {
           ...item,
           campaignId: item.campaign,
-          adGroupId: item.adGroup,
+          adGroupId: this.automatedOperation === '添加到投放' ? item.adGroup : null,
           currency: this.rowData.currency,
         };
       });
@@ -669,6 +674,8 @@ export default {
     numberChange (val, name, index) { // name字段名，index索引
       // 校验正数，带两位小数
       const reg = /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/;
+      val.target.style.borderColor = '';
+      // this.$emit('change', false);
       if (isNaN(val.target.value)) { 
         val.target.value = parseFloat(val.target.value) ;
       } 
@@ -677,12 +684,33 @@ export default {
         val.target.value = val.target.value.slice(0, val.target.value.indexOf('.') + 3);
         this.tableData[index][name] = val.target.value;
       }
+      if (val.target.value > 100000) {
+        val.target.style.borderColor = 'red';
+        this.$message({
+          type: 'error',
+          message: '值不能超过100000'
+        });
+        val.target.value = '';
+        // this.$emit('change', true);
+      }
       if (!reg.test(val.target.value)) {
         val.target.value = '';
         this.tableData[index][name] = '';
       }
     },
     hanlderAuto(val) {
+      if (this.launch) {
+        if (val === '自动归档' || val === '自动暂停') {
+          this.tableData[0].matchType = null;
+          this.tableData[0].bid = null;
+          this.tableData[0].bidType = null;
+        }
+        this.tableData[0].bidType = '广告组默认竞价';
+        this.tableData[0].cpcType = '';
+        this.tableData[0].cpcMost = '';
+        this.tableData[0].cpcValue = '';
+        this.tableData[0].bid = '';
+      }
       if (!val) {
         this.isAutoShow = false;
       } else {

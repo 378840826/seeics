@@ -202,10 +202,10 @@
           </template>
         </el-table-column>
 
-        <!-- <el-table-column prop="" label="投放">
+        <el-table-column prop="" label="投放">
            <template slot-scope="scope">
              <div 
-              v-for="(item, index) in scope.row.automationTemplateVoList.length && scope.row.automationTemplateVoList" 
+              v-for="(item, index) in scope.row.putTemplateVoList.length && scope.row.putTemplateVoList" 
               :key="item"
               style=""
             >
@@ -233,7 +233,7 @@
                   </span>
                 </el-button>
               <el-button
-                v-if="index === scope.row.automationTemplateVoList.length - 1"
+                v-if="index === scope.row.putTemplateVoList.length - 1"
                 @click="handleTemplate(scope.row, true)" 
                 class="el-icon-circle-plus-outline"
                 style="fontSize: 14px; padding: 0; marginLeft: 0px"
@@ -241,14 +241,14 @@
               />
             </div>
             <span
-              v-if="!scope.row.automationTemplateVoList.length"
+              v-if="!scope.row.putTemplateVoList.length"
               @click="handleTemplate(scope.row, true)" 
               class="el-icon-edit"
               style="fontSize: 14px"
               type="text"
             />
           </template>
-        </el-table-column> -->
+        </el-table-column>
 
         <el-table-column label="操作" fixed="right" width="120">
           <template slot-scope="scope">
@@ -319,7 +319,7 @@
       top="1vh"
       custom-class="dialog"
     > 
-      <h4>创建搜索词：</h4>
+      <h4>{{dialogName}}：</h4>
       <div class="tabel">
         <span>广告活动：</span>
         <span style="width: 50%">
@@ -484,6 +484,7 @@
         :campaign="formInline.campaign"
         :echo="echoAtuomation"
         :launch="launchFlag"
+        v-model="btnDisabled"
       />
       <span slot="footer" class="dialog-footer">
         <el-button 
@@ -681,6 +682,7 @@ export default {
         ],
       },
       // 创建模板参数
+      dialogName: '',
       dialogCreateVisible: false,
       rowData: {},
       automationIs: false,
@@ -721,8 +723,12 @@ export default {
         },
         {
           value: 'stop',
-          label: '暂停'
-        }
+          label: '暂停',
+        },
+        // {
+        //   value: 'stop',
+        //   label: '归档',
+        // }
       ],
       executionFrequencyList: [
         {
@@ -929,8 +935,12 @@ export default {
     handleTemplate(row, launch) {
       if (launch) {
         this.launchFlag = true;
+        this.formInline.templateType = '投放';
+        this.dialogName = '创建投放';
       } else {
         this.launchFlag = false;
+        this.formInline.templateType = '搜索词';
+        this.dialogName = '创建搜索词';
       }
       this.dialogCreateVisible = true; 
       this.rowData = row;
@@ -1026,10 +1036,10 @@ export default {
           cpcMost = false;
         }
       });
-      if (!ad) {
+      if (!this.launchFlag && !ad) {
         this.$message({
           type: 'error',
-          message: '请输选择广告组'
+          message: '请选择广告组'
         });
         return true;
       }
@@ -1057,7 +1067,7 @@ export default {
       if (!cpcMost) {
         this.$message({
           type: 'error',
-          message: '请输入竞价最大值'
+          message: '请输入竞价最小值'
         });
         return true;
       }
@@ -1243,8 +1253,10 @@ export default {
     templateDetail(id, row, launch) {
       if (launch) {
         this.launchFlag = true;
+        this.dialogName = '编辑投放';
       } else {
         this.launchFlag = false;
+        this.dialogName = '编辑搜索词';
       }
       this.dialogCreateVisible = true; 
       this.rowData = row;
