@@ -6,24 +6,29 @@
      
       @on-load="queryIndentPage"
     ></avue-crud> -->
-    <div class="cardPrice">
-      <el-card 
-        v-for="(item, idx) in priceList" 
-        :key="item.name" 
-        shadow="never" 
-        :body-style="{padding: '10px', width: '150px', height: '150px'}">
-        <p>{{item.name}}</p>
-        <div>
-          <p v-for="i in item.priceList" :key="i.id">{{i.price + '/' + i.unitName}}</p>
-        </div>
-        <el-button v-if="item.name !== '普通会员'" size="mini" @click="handlePrice(idx, item.name)">购买</el-button>
-        <p v-else class="bot">永久免费</p>
-      </el-card>
-      <el-card shadow="never" :body-style="{padding: '10px', width: '150px', height: '150px', position: 'relative'}">
-        <p>企业会员</p>
-        <el-button size="mini" class="bot" @click="$router.push('/contact')">联系客服</el-button>
-      </el-card>
-    </div>
+    <!-- <div class="cardPrice"> -->
+      <el-row  type="flex" justify="end" class="cardPrice">
+        <el-col :span="4" v-for="(item, idx) in priceList" :key="item.name">
+           
+          <el-card 
+            shadow="never" 
+            :body-style="{padding: '10px', width: '100%', height: '150px'}">
+            <p>{{item.name}}</p>
+            <div>
+              <p v-for="i in item.priceList" :key="i.id">{{i.price + '/' + i.unitName}}</p>
+            </div>
+            <el-button v-if="item.name !== '普通会员'" size="mini" @click="handlePrice(idx, item.name)">购买</el-button>
+            <p v-else class="bot p">永久免费</p>
+          </el-card>
+        </el-col>
+        <el-col :span="4">
+            <el-card shadow="never" :body-style="{padding: '10px', height: '150px', position: 'relative'}">
+              <p>企业会员</p>
+              <el-button size="mini" class="bot" @click="$router.push('/contact')">联系客服</el-button>
+            </el-card>
+          </el-col>
+      </el-row>  
+    <!-- </div> -->
     <el-table
       :data="data"
       :header-cell-style="{background: '#ccc', color: 'rgb(48, 49, 51)'}"
@@ -174,16 +179,17 @@ export default {
 <style lang="scss" scoped>
   .cardPrice {
     display: flex;
-    width: 860px;
+    width: 100%;
     text-align: center;
     margin: auto;
     margin-bottom: 4px;
     position: relative; 
   }
   .bot {
-      position: absolute;
-      bottom: 5px;
-      left: 50px;
-      margin: 0;
+     
+      margin-top: 74px;
+      &.p {
+        margin-top: 95px;
+      }
     }
 </style>
