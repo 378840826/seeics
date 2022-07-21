@@ -44,10 +44,17 @@
     </el-dialog>
     <p>
       <span>当前会员等级：{{info.levelName}}</span>
-      <span style="marginLeft: 50px">有效期剩余：<span style="color: #009900">{{info.effectiveDays}}</span>天（{{info.expirationTime}}到期）</span>
+      <span style="marginLeft: 50px">有效期剩余：
+        <span style="color: #009900">{{info.effectiveDays}}</span>天（{{info.expirationTime}}到期）</span>
     </p>
-        <p v-for="item in (info.renew ? info.priceVoList.filter(item => item.unitName === '年' && item.isCurrentPrice || item) : info.priceVoList)" :key="item">
-          <el-radio v-model="radio" :label="item.payAmount" @change="handleRadio(item)" style="width: 400px; position: relative">
+        <p 
+          v-for="item in (info.renew ? 
+          info.priceVoList.filter(item => item.unitName === '年' && item.isCurrentPrice 
+          || item) : info.priceVoList)" 
+          :key="item">
+          <el-radio 
+            v-model="price" 
+            :label="item.payAmount" @change="handleRadio(item)" style="width: 400px; position: relative">
             <span>{{`${item.levelName} 1` + `${item.unitName === '月' ? '个' : ''}` + item.unitName}}</span>
             <div class="radioDiv">
               <span style="color: #999999;">原价：{{item.price + '元/' + item.unitName}}</span>
@@ -55,7 +62,7 @@
             </div>
           </el-radio>
         </p>
-      <div style="fontSize: 18px">实付：{{radio}}元</div>
+      <div style="fontSize: 18px">实付：{{price}}元</div>
       <div v-if="!info.renew" style="fontSize: 14px; color: #999999; marginLeft: 50px">{{explain}}</div>
       <div style="fontSize: 14px; color: #999999">
         {{info.renew ? `（付费成功后，有效期延长至 ${extensionDate}）` : `（升级当日生效，有效期延长15天（${extensionDate}到期），需补齐差价）`}}
@@ -74,7 +81,11 @@
       </div>
       <div class="QRcode">
         <div style="height: 30px; lineHeight: 30px;">{{checked ? `请用${qrName}扫码进行支付` : ''}}</div>
-        <el-image :style="{ width: '150px', height: '150px', opacity: checked ? 1 : '0.02' }" src="https://d1icd6shlvmxi6.cloudfront.net/gsc/XTEPHL/90/a6/d4/90a6d47195614b5db966ae2e9e6a33a5/images/购买vip/u7396.jpg"/>
+        <el-image 
+         v-if="!overdue" 
+         :style="{ width: '150px', height: '150px', opacity: checked ? 1 : '0.02' }" 
+         :src="url"/>
+        <div v-else class="load">二维码已过期，<el-button type="text" @click="placeAnOrder">刷新</el-button></div>
       </div>
     <span slot="footer" class="dialog-footer">
       <el-button @click="dialogVisible = false; $emit('change', false)">取 消</el-button>
@@ -85,7 +96,7 @@
 </template>
 
 <script>
-
+import { placeAnOrder, queryOrderInfo } from '@/api/member/member';
 export default{
   name: 'upgradeDialog',
   props: {
@@ -95,6 +106,12 @@ export default{
     },
     info: {
       type: Object,
+    },
+    queryIndentPage: {
+      type: Function
+    },
+    queryInfo: {
+      type: Function
     }
   },
   model: {
@@ -103,19 +120,26 @@ export default{
   },
   data() {
     return {
-      radio: '',
+      price: '',
       checked: false,
       innerVisible: false,
       qrName: '微信',
       explain: '',
-      extensionDate: ''
+      extensionDate: '',
+      businessId: '',
+      orderId: '',
+      url: 'https://d1icd6shlvmxi6.cloudfront.net/gsc/XTEPHL/90/a6/d4/90a6d47195614b5db966ae2e9e6a33a5/images/购买vip/u7396.jpg',
+      payType: 1,
+      time: null,
+      overdue: false,
     };
   },
   mounted() {
-    // console.log(this.info)
-    this.radio = this.info.priceVoList[0].payAmount;
+    this.price = this.info.priceVoList[0].payAmount;
     this.explain = this.info.priceVoList[0].explain;
     this.extensionDate = this.info.priceVoList[0].extensionDate;
+    this.businessId = this.info.priceVoList[0].id;
+    this.placeAnOrder();
   },
   methods: {
     handleQR(val) {
@@ -127,17 +151,52 @@ export default{
       } else if (val === 'alipay') {
         this.qrName = '支付宝';
       }
-    },
-    spread(val) {
-      if (val === 'VIP') {
-        return 299;
-      } else if (val === '高级VIP') {
-        return 499;
-      }
+      this.placeAnOrder();
     },
     handleRadio(val) {
       this.explain = val.explain;
       this.extensionDate = val.extensionDate;
+      this.businessId = val.id;
+      this.placeAnOrder();
+    },
+    placeAnOrder() {
+      this.time = null;
+      this.overdue = false;
+      const params = {
+        businessId: this.businessId,
+        orderType: this.info.renew ? 3 : 2, //下单类型 1.购买会员 2.升级会员 3.续费会员 4.购买加油包
+        payAmount: this.price,
+        payType: this.payType
+      };
+      placeAnOrder(params).then(res => {
+        if (res.data.code === 200) {
+          this.url = res.data.data.url;
+          this.orderId = res.data.data.orderId;
+        }
+      });
+    },
+    queryOrderInfo() {
+      queryOrderInfo(this.orderId).then(res => {
+        if (res.data.code) {
+          if (res.data.data.status === 3) {
+            this.$message({
+              type: 'error',
+              message: '已取消支付'
+            });
+          } else if (res.data.data.status === 2) {
+            this.time = null;
+            this.$message({
+              type: 'success',
+              message: '支付成功'
+            });
+            this.queryIndentPage();
+            this.queryInfo();
+            this.$emit('change', false);
+          } else if (res.data.data.status === 4) {
+            this.overdue = true;
+          }
+        }
+      });
     }
   }
 };
@@ -198,5 +257,11 @@ export default{
     right: 0;
     display: flex;
     justify-content: space-between;
+  }
+  .load {
+    width: 160px;
+    height: 150px;
+    background-color: #ccc;
+    line-height: 150px;
   }
 </style>

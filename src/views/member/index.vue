@@ -5,7 +5,9 @@
       <p>
         当前会员等级：<span style="color: #ff0000; fontWeight: 600">{{levelName}}</span>
         <span style="marginLeft: 40px">有效期剩余：<span style="color: #009900">{{effectiveDays}}</span>天</span>
-        <el-button v-if="levelName !== '普通会员'" type="text" @click="handleUpgrade('renew')" style="marginLeft: 10px">续费</el-button>
+        <el-button 
+          v-if="levelName !== '普通会员'" 
+          type="text" @click="handleUpgrade('renew')" style="marginLeft: 10px">续费</el-button>
         <span style="marginLeft: 40px" >订单加油包剩余：{{effectiveDays}}</span>
       </p>
       <h4>功能余量</h4>
@@ -22,10 +24,12 @@
     </div>
     <div class="upgrade">
 
-      <span v-if="levelName !== '至尊VIP'">升级：<el-button type="primary" @click="handleUpgrade('upgrade')">{{vip(levelName)}}</el-button></span> 
+      <span v-if="levelName !== '至尊VIP'">升级：
+        <el-button type="primary" @click="handleUpgrade('upgrade')">{{vip(levelName)}}</el-button>
+      </span> 
       <el-button type="primary" disabled @click="handleRefuel()" style="marginLeft: 30px">购买订单加油包</el-button>
-      <el-button type="primary" @click="handleRefuel(4)" style="marginLeft: 30px">购买关键词分析加油包</el-button>
-      <el-button type="primary" @click="handleRefuel(6)" style="marginLeft: 30px">购买榜单分析加油包</el-button>
+      <el-button type="primary" @click="handleRefuel(4, '购买关键词分析加油包')" style="marginLeft: 30px">购买关键词分析加油包</el-button>
+      <el-button type="primary" @click="handleRefuel(6, '购买榜单分析加油包')" style="marginLeft: 30px">购买榜单分析加油包</el-button>
     </div>
     <h4>付款记录</h4>
     <avue-crud
@@ -43,7 +47,10 @@
         effectiveDays,
         expirationTime,
         renew,
-        priceVoList
+        priceVoList,
+        queryIndentPage,
+        queryInfo
+
       }"
     />
     <refuel-dialog
@@ -55,7 +62,10 @@
         effectiveDays,
         expirationTime,
         refuelList,
-        renew
+        renew,
+        tilte: refuelTitle,
+        queryIndentPage,
+        queryInfo
       }"
     />
   </basic-container>
@@ -66,7 +76,7 @@
 
 import upgradeDialog from './componets/upgradeDialog';
 import refuelDialog from './componets/refuelDialog';
-import { queryInfo, queryIndentPage, upgradeInfo, renewInfo, refuelList, rsdf } from '@/api/member/member';
+import { queryInfo, queryIndentPage, upgradeInfo, renewInfo, refuelList, changeLevel } from '@/api/member/member';
 export default {
   name: 'nember',
   components: {
@@ -81,6 +91,7 @@ export default {
       expirationTime: '', //过期时间
       // priceVoList: [], //会员价格列表
       renew: false, //续费标识
+      refuelTitle: '',
       table: [],
       data: [],
       option: {
@@ -136,14 +147,7 @@ export default {
     };
   },
   mounted() {
-    queryInfo().then(res => {
-      if (res.data.code === 200) {
-        this.levelName = res.data.data.levelName;
-        this.effectiveDays = res.data.data.effectiveDays;
-        this.table = res.data.data.surplusVoList;
-        this.expirationTime = res.data.data.expirationTime;
-      }
-    });
+    this.queryInfo();
   },
   watch: {
     isvibist: {
@@ -156,12 +160,12 @@ export default {
     }
   },
   methods: {
-    puts() {
-      rsdf({
-        userId: '1547104741226749953',
+    changeLevel() {
+      changeLevel({
+        userId: '1123598821738675201',
         type: 2,
-        levelPriceId: '1547099471965138947'
-      }).then(res => console.log(res))
+        levelPriceId: '1547099470383886340'
+      }).then(res => console.log(res));
     },
     // 表格样式
     rowStyle(flag) {
@@ -181,7 +185,7 @@ export default {
       }
     },
     handleUpgrade(flag) {
-      // this.puts();
+      // this.changeLevel();
       if (flag === 'renew') {
         this.renew = true;
         renewInfo().then(res => {
@@ -202,12 +206,23 @@ export default {
       }
       
     },
-    handleRefuel(code) { 
+    handleRefuel(code, tilte) {
+      this.refuelTitle = tilte;
       refuelList({ function: code }).then(res => {
         if (res.data.code === 200) {
           this.refuelList = res.data.data;
           this.refuelVisible = true;
           this.isRefuel = true;
+        }
+      });
+    },
+    queryInfo() {
+      queryInfo().then(res => {
+        if (res.data.code === 200) {
+          this.levelName = res.data.data.levelName;
+          this.effectiveDays = res.data.data.effectiveDays;
+          this.table = res.data.data.surplusVoList;
+          this.expirationTime = res.data.data.expirationTime;
         }
       });
     },

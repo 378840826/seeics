@@ -47,7 +47,8 @@ export const refuelList = (data) => {
   });
 };
 
-export const rsdf = data => {
+//手动升级
+export const changeLevel = data => {
   return request({
     url: '/api/seeics-member/information/changeLevel',
     method: 'put',
@@ -71,5 +72,22 @@ export const buyPage = (data) => {
     params: {
       ...data
     }
+  });
+};
+
+// 获取下单二维码
+export const placeAnOrder = data => {
+  return request({
+    url: '/api/seeics-member/order/placeAnOrder',
+    method: 'post',
+    data
+  });
+};
+
+// 查询订单交易状态
+export const queryOrderInfo = id => {
+  return request({
+    url: `/api/seeics-member/order/queryInfo/${id}`,
+    method: 'post',
   });
 };

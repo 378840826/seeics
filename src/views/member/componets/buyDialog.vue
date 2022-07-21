@@ -2,9 +2,9 @@
   <div>
 
   <el-dialog
-    :title="info.tilte"
-    :visible.sync="refuelVisible"
-    width="750px"
+    :title="'购买' + info.title + '会员'"
+    :visible.sync="visible"
+    width="500px"
     :append-to-body="true"
     :show-close="false"
     :close-on-click-modal="false"
@@ -42,18 +42,19 @@
             <el-button size="mini" @click="innerVisible = false">已悉知</el-button>
         </span>
        </el-dialog>
-      <div class="cardPrice">
-          <el-card 
-            v-for="item in info.refuelList" 
-            :key="item" shadow="hover" 
-            :body-style="{padding: '10px', width: '100px'}" 
-            :class="{active : active === item.price}"
-            @click.native="handlePrice(item)"
-          >
-              <p>{{item.frequency}}个</p>
-              <p>¥{{item.price + '/' + item.validityDays + '天'}}</p>
-          </el-card>
-      </div>
+      <p v-for="item in info.priceLists" :key="item">
+          <el-radio 
+            v-model="price" 
+            :label="item.price" 
+            @change="handleRadio(item)"  
+            style="width: 400px; position: relative">
+            <span>{{`${info.title} 1` + `${item.unitName === '月' ? '个' : ''}` + item.unitName}}</span>
+            <div class="radioDiv">
+              <span style="color: #999999;">原价：{{item.price + '元/' + item.unitName}}</span>
+              <span >{{item.price + '元/' + item.unitName}}</span>
+            </div>
+          </el-radio>
+        </p>
       <!-- <p>优惠金额：￥100</p> -->
       <div style="fontSize: 18px; marginTop: 20px">实付：{{price}}元</div>
       <el-checkbox v-model="checked">本人已阅且同意</el-checkbox>
@@ -77,8 +78,8 @@
         <div v-else class="load">二维码已过期，<el-button type="text" @click="placeAnOrder">刷新</el-button></div>
       </div>
     <span slot="footer" class="dialog-footer">
-      <el-button @click="refuelVisible = false; $emit('change', false)">取 消</el-button>
-      <el-button type="primary" @click="refuelVisible = false; $emit('change', false)">确 定</el-button>
+      <el-button @click="$emit('change', false)">取 消</el-button>
+      <el-button type="primary" @click="$emit('change', false)">确 定</el-button>
     </span>
   </el-dialog>
   </div>
@@ -87,20 +88,14 @@
 <script>
 import { placeAnOrder, queryOrderInfo } from '@/api/member/member';
 export default{
-  name: 'refuelDialog',
+  name: 'buyDialog',
   props: {
-    refuelVisible: {
+    visible: {
       type: Boolean,
       default: false
     },
     info: {
       type: Object,
-    },
-    queryIndentPage: {
-      type: Function
-    },
-    queryInfo: {
-      type: Function
     }
   },
   model: {
@@ -109,33 +104,44 @@ export default{
   },
   data() {
     return {
-      price: '',
+      price: '', //实付价格
       checked: false,
       innerVisible: false,
       qrName: '微信',
       active: '',
-      businessId: '',
-      orderId: '',
+      payType: 1, //付款类型
+      businessId: '', //价格id
       url: 'https://d1icd6shlvmxi6.cloudfront.net/gsc/XTEPHL/90/a6/d4/90a6d47195614b5db966ae2e9e6a33a5/images/购买vip/u7396.jpg',
-      payType: 1,
       time: null,
-      overdue: false,
+      overdue: false, //二维码过期标识
+      orderId: ''
     };
   },
   mounted() {
-    // console.log(this.info)
-    this.active = this.info.refuelList[0].price;
-    this.price = this.info.refuelList[0].price;
-    this.businessId = this.info.refuelList[0].id;
+    this.price = this.info.priceLists[0].price;
+    this.businessId = this.info.priceLists[0].id;
     this.placeAnOrder();
   },
+  watch: {
+    url: {
+      handler() {
+        this.time = setInterval(() => {
+          this.queryOrderInfo();
+        }, 100);
+      },
+      deep: true
+    }
+  },
   methods: {
-    handlePrice(item) {
-      this.price = item.price;
-      this.active = item.price;
-      this.businessId = item.id;
+    handleRadio(val) {
+      this.price = val.price;
+      this.businessId = val.id;
       this.placeAnOrder();
     },
+    // handlePrice(price) {
+    //   this.price = price;
+    //   this.active = price;
+    // },
     handleQR(val) {
       if (!this.checked) {
         return;
@@ -149,20 +155,13 @@ export default{
       }
       this.placeAnOrder();
     },
-    spread(val) {
-      if (val === 'VIP') {
-        return 299;
-      } else if (val === '高级VIP') {
-        return 499;
-      }
-    },
     placeAnOrder() {
       this.time = null;
       this.overdue = false;
       const params = {
         businessId: this.businessId,
-        orderType: 4, //下单类型 1.购买会员 2.升级会员 3.续费会员 4.购买加油包
-        payAmount: this.price,
+        orderType: 1, //下单类型 1.购买会员 2.升级会员 3.续费会员 4.购买加油包
+        payAmount: Number(this.price),
         payType: this.payType
       };
       placeAnOrder(params).then(res => {
@@ -186,8 +185,6 @@ export default{
               type: 'success',
               message: '支付成功'
             });
-            this.queryIndentPage();
-            this.queryInfo();
             this.$emit('change', false);
           } else if (res.data.data.status === 4) {
             this.overdue = true;
@@ -236,18 +233,14 @@ export default{
     bottom: 100px;
     background: #ccc;
   }
-  .cardPrice {
+  
+  .radioDiv {
+    width: 250px;
+    position: absolute;
+    top: 0;
+    right: 0;
     display: flex;
     justify-content: space-between;
-    width: 700px;
-    text-align: center;
-    
-    p {
-      margin: 0;
-    }
-  }
-  .active {
-    border: 1px solid #58bc58;
   }
   .load {
     width: 160px;
