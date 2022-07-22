@@ -1282,6 +1282,7 @@ export default {
       this.adGroupPage.storeId = row.adStoreId;
       this.templateId = id;
       templateDetail({ id, campaignId: row.campaignId }).then(res => {
+        console.log(res.data.data)
         if (res.data.code === 200) {
           const data = res.data.data;
           this.ruleFiled = data.roleList;
@@ -1294,7 +1295,7 @@ export default {
           this.echoAtuomation = data;
           this.adGroupOption = data.groupIdList;
           this.formInline.templateType = data.templateType;
-          data.groupIdList.map(item => {
+          data.groupIdList && data.groupIdList.map(item => {
             this.adGroupVal.push(item.groupId);
           });
           this.searchWord = data.excludeTerms;

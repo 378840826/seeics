@@ -82,7 +82,7 @@
             placeholder="请选择"
             @change="handleType"
           /> -->
-          <el-select v-model="formInline.templateType" @change="handleType">
+          <el-select v-model="formInline.templateType" @change="handleType" :disabled="flag === 'update'">
             <el-option
               v-for="item in templateTypeList"
               :key="item.value"
@@ -372,6 +372,10 @@ export default {
   methods: {
     handleType(val) { //监听模板变化
       this.$refs.automatic.wathcType(val);
+      // this.automaticIs = this.automaticIs ? true : false;
+      // this.$nextTick(() => {
+      //   this.automaticIs = this.automaticIs ? true : false;
+      // });
     },
     empty() {
       this.formInline.templateName = '';
@@ -505,6 +509,8 @@ export default {
         ...this.formInline,
         asinList: this.formInline.asinList.filter(Boolean),
         ...automatic,
+        ruleType: 1,
+        excludeTerms: 0,
         roleList: this.$refs.filters.getFiled()
       };
       if (!params.roleList[0].item.length) {

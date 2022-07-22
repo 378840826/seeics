@@ -365,6 +365,9 @@ export default {
     wathcType(val) { //监听模板变化
       if (val === '搜索词') {
         this.launch = false;
+        this.automatedOperation = '添加到投放';
+        this.tableData[0].matchType = '精准匹配';
+        this.isAutoShow = true;
       } else if (val === '投放') {
         this.launch = true;
       }
