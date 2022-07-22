@@ -79,14 +79,16 @@
       </div>
     <span slot="footer" class="dialog-footer">
       <el-button @click="$emit('change', false)">取 消</el-button>
-      <el-button type="primary" @click="$emit('change', false)">确 定</el-button>
+      <el-button type="primary" @click="changeLevel">确 定</el-button>
     </span>
   </el-dialog>
   </div>
 </template>
 
 <script>
-import { placeAnOrder, queryOrderInfo } from '@/api/member/member';
+import { placeAnOrder, queryOrderInfo, changeLevel } from '@/api/member/member';
+import { getStore } from '@/util/store';
+const userId = getStore({ name: 'userInfo' }).user_id;
 export default{
   name: 'buyDialog',
   props: {
@@ -133,6 +135,22 @@ export default{
     }
   },
   methods: {
+    // 测试升级
+    changeLevel() {
+      changeLevel({
+        userId: userId,
+        type: 2,
+        levelPriceId: this.businessId
+      }).then(res => {
+        if (res.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: `购买${this.info.title}会员成功！`
+          });
+          this.$emit('change', false);
+        }
+      });
+    },
     handleRadio(val) {
       this.price = val.price;
       this.businessId = val.id;

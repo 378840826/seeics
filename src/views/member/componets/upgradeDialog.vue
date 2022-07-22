@@ -89,14 +89,16 @@
       </div>
     <span slot="footer" class="dialog-footer">
       <el-button @click="dialogVisible = false; $emit('change', false)">取 消</el-button>
-      <el-button type="primary" @click="dialogVisible = false; $emit('change', false)">确 定</el-button>
+      <el-button type="primary" @click="changeLevel">确 定</el-button>
     </span>
   </el-dialog>
   </div>
 </template>
 
 <script>
-import { placeAnOrder, queryOrderInfo } from '@/api/member/member';
+import { placeAnOrder, queryOrderInfo, changeLevel } from '@/api/member/member';
+import { getStore } from '@/util/store';
+const userId = getStore({ name: 'userInfo' }).user_id;
 export default{
   name: 'upgradeDialog',
   props: {
@@ -142,6 +144,31 @@ export default{
     this.placeAnOrder();
   },
   methods: {
+    // 测试升级
+    changeLevel() {
+      let name = '';
+      this.info.priceVoList.map(item => {
+        if (item.id === this.businessId) {
+          name = item.levelName;
+        }
+      });
+      changeLevel({
+        userId: userId,
+        type: this.info.renew ? 3 : 2,
+        levelPriceId: this.businessId
+      }).then(res => {
+        if (res.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: this.info.renew ? `续费${name}会员成功！` : `升级${name}会员成功！`
+          });
+          this.info.queryIndentPage();
+          this.info.queryInfo();
+          this.$emit('change', false);
+          this.dialogVisible = false;
+        }
+      });
+    },
     handleQR(val) {
       if (!this.checked) {
         return;
@@ -189,8 +216,8 @@ export default{
               type: 'success',
               message: '支付成功'
             });
-            this.queryIndentPage();
-            this.queryInfo();
+            this.info.queryIndentPage();
+            this.info.queryInfo();
             this.$emit('change', false);
           } else if (res.data.data.status === 4) {
             this.overdue = true;

@@ -223,6 +223,15 @@ export default [{
     component: () => import('@/views/member')
   }]
 }, {
+  path: '/buy-vip',
+  component: Layout,
+  redirect: '/buy-vip/index',
+  children: [{
+    path: 'index',
+    name: 'VIP购买',
+    component: () => import('@/views/member/buyVip')
+  }]
+}, {
   path: '/vip-config',
   component: Layout,
   redirect: '/vip-config/index',

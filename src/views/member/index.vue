@@ -8,7 +8,7 @@
         <el-button 
           v-if="levelName !== '普通会员'" 
           type="text" @click="handleUpgrade('renew')" style="marginLeft: 10px">续费</el-button>
-        <span style="marginLeft: 40px" >订单加油包剩余：{{effectiveDays}}</span>
+        <!-- <span style="marginLeft: 40px" >订单加油包剩余：{{effectiveDays}}</span> -->
       </p>
       <h4>功能余量</h4>
       <el-table 
@@ -50,7 +50,6 @@
         priceVoList,
         queryIndentPage,
         queryInfo
-
       }"
     />
     <refuel-dialog

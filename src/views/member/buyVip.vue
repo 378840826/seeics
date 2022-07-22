@@ -43,10 +43,6 @@
         prop="普通会员"
         align="center"
         label="普通会员">
-        <template slot-scope="scope">
-          <!-- <el-input v-model="scope.row['普通会员']" @input="inputs(scope.row)"/> -->
-          <div>{{scope.row['普通会员'] + scope.row.unitName}}</div>
-        </template>
       </el-table-column>
       <el-table-column
         align="center"
@@ -72,7 +68,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <!-- <buyDialog
+    <buyDialog
       :visible="isBuyDialog"
       v-if="isBuyDialog"
       v-model="isBuyDialog"
@@ -81,7 +77,7 @@
         title,
         i
       }"
-    /> -->
+    />
   </basic-container>
 </template>
 
@@ -154,9 +150,6 @@ export default {
     this.buyPage();
   },
   methods: {
-    inputs(s) {
-      console.log(s)
-    },
     buyPage() {
       buyPage({ current: 1, size: 20, levelType: 1 }).then(res => {
         const obj = new Array(res.data.data.records[0].functionList.length);
@@ -165,9 +158,8 @@ export default {
           item.functionList.map((s, i) => {
             obj[i + 1] = {
               ...obj[i + 1],
-              [item.name]: s.frequency,
-              functionName: s.functionName,
-              unitName: s.unitName
+              [item.name]: s.frequency + s.unitName,
+              functionName: s.functionName
             } ;
           });
         });
