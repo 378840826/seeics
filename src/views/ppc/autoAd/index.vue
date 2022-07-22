@@ -1010,7 +1010,8 @@ export default {
       let msg = true;
       let ad = true;
       let cpcValue = true;
-      let cpcMost = true;
+      let minCpcMost = true;
+      let maxCpcMost = true;
       params.adCampaignInfos && params.adCampaignInfos.map(item => {
         if (!item.adGroupId) {
           ad = false;
@@ -1028,12 +1029,15 @@ export default {
           && !item.cpcValue) {
           cpcValue = false;
         }
+        if ((item.cpcType === '下调(%)'
+          || item.cpcType === '下调(绝对值)')
+          && !item.cpcMost) {
+          minCpcMost = false;
+        }
         if ((item.cpcType === '上浮(%)'
-          || item.cpcType === '下调(%)'
-          || item.cpcType === '下调(绝对值)'
           || item.cpcType === '上浮(绝对值)')
           && !item.cpcMost) {
-          cpcMost = false;
+          maxCpcMost = false;
         }
       });
       if (!this.launchFlag && !ad) {
@@ -1064,10 +1068,17 @@ export default {
         });
         return true;
       }
-      if (!cpcMost) {
+      if (!minCpcMost) {
         this.$message({
           type: 'error',
           message: '请输入竞价最小值'
+        });
+        return true;
+      }
+      if (!maxCpcMost) {
+        this.$message({
+          type: 'error',
+          message: '请输入竞价最大值'
         });
         return true;
       }
