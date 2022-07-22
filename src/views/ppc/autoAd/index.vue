@@ -173,7 +173,17 @@
                     :class="{'selected':item.campaignStatus === i.value}">{{i.label}}</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
-              <el-button type="text" @click="templateDetail(item.id, scope.row)" size="mini" style="margin: 5px 5px; padding: 0">{{ item.templateName }}</el-button>
+              <el-button 
+                type="text" 
+                @click="templateDetail(item.id, scope.row)" 
+                size="mini" 
+                style="margin: 5px 5px; padding: 0">
+                  {{ item.templateName }}
+                  <span 
+                    style="margin: 5px 5px; padding: 0">
+                    {{ item.automatedOperation ? item.automatedOperation : '无' }}
+                  </span>
+                </el-button>
               <el-button
                 v-if="index === scope.row.automationTemplateVoList.length - 1"
                 @click="handleTemplate(scope.row)" 
@@ -185,6 +195,54 @@
             <span
               v-if="!scope.row.automationTemplateVoList.length"
               @click="handleTemplate(scope.row)" 
+              class="el-icon-edit"
+              style="fontSize: 14px"
+              type="text"
+            />
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="" label="投放">
+           <template slot-scope="scope">
+             <div 
+              v-for="(item, index) in scope.row.putTemplateVoList.length && scope.row.putTemplateVoList" 
+              :key="item"
+              style=""
+            >
+              <el-dropdown @command="templateStutes">
+              <span :class="item.campaignStatus !== 'stop' ? 'el-icon-video-play' : 'el-icon-video-pause'" :style="{color: item.campaignStatus !== 'stop' ? '#58bc58' : 'red'}"/>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item 
+                    v-for="i in templateStateList" 
+                    @click="statu"
+                    :key="i.value" 
+                    :command="status(i.value, scope.row, item.id)"
+                    :value="i.value"
+                    :class="{'selected':item.campaignStatus === i.value}">{{i.label}}</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+              <el-button 
+                type="text" 
+                @click="templateDetail(item.id, scope.row, true)" 
+                size="mini" 
+                style="margin: 5px 5px; padding: 0">
+                  {{ item.templateName }}
+                  <span 
+                    style="margin: 5px 5px; padding: 0">
+                    {{ item.automatedOperation ? item.automatedOperation : '无' }}
+                  </span>
+                </el-button>
+              <el-button
+                v-if="index === scope.row.putTemplateVoList.length - 1"
+                @click="handleTemplate(scope.row, true)" 
+                class="el-icon-circle-plus-outline"
+                style="fontSize: 14px; padding: 0; marginLeft: 0px"
+                type="text"
+              />
+            </div>
+            <span
+              v-if="!scope.row.putTemplateVoList.length"
+              @click="handleTemplate(scope.row, true)" 
               class="el-icon-edit"
               style="fontSize: 14px"
               type="text"
@@ -261,7 +319,7 @@
       top="1vh"
       custom-class="dialog"
     > 
-      <h4>创建搜索词：</h4>
+      <h4>{{dialogName}}：</h4>
       <div class="tabel">
         <span>广告活动：</span>
         <span style="width: 50%">
@@ -425,6 +483,8 @@
         :rowData="rowData"
         :campaign="formInline.campaign"
         :echo="echoAtuomation"
+        :launch="launchFlag"
+        v-model="btnDisabled"
       />
       <span slot="footer" class="dialog-footer">
         <el-button 
@@ -623,6 +683,7 @@ export default {
         ],
       },
       // 创建模板参数
+      dialogName: '',
       dialogCreateVisible: false,
       rowData: {},
       automationIs: false,
@@ -663,8 +724,12 @@ export default {
         },
         {
           value: 'stop',
-          label: '暂停'
-        }
+          label: '暂停',
+        },
+        // {
+        //   value: 'stop',
+        //   label: '归档',
+        // }
       ],
       executionFrequencyList: [
         {
@@ -695,6 +760,7 @@ export default {
       msgData: [],
       btnDisabled: false, //弹窗按钮限制
       noShopDialog: false, // 没绑定店铺弹窗
+      launchFlag: false, //投放弹窗判断
     };
   },
 
@@ -867,7 +933,16 @@ export default {
     },
 
     // 添加模板按钮
-    handleTemplate(row) {
+    handleTemplate(row, launch) {
+      if (launch) {
+        this.launchFlag = true;
+        this.formInline.templateType = '投放';
+        this.dialogName = '创建投放';
+      } else {
+        this.launchFlag = false;
+        this.formInline.templateType = '搜索词';
+        this.dialogName = '创建搜索词';
+      }
       this.dialogCreateVisible = true; 
       this.rowData = row;
       this.ruleIs = true;
@@ -936,7 +1011,8 @@ export default {
       let msg = true;
       let ad = true;
       let cpcValue = true;
-      let cpcMost = true;
+      let minCpcMost = true;
+      let maxCpcMost = true;
       params.adCampaignInfos && params.adCampaignInfos.map(item => {
         if (!item.adGroupId) {
           ad = false;
@@ -954,18 +1030,21 @@ export default {
           && !item.cpcValue) {
           cpcValue = false;
         }
+        if ((item.cpcType === '下调(%)'
+          || item.cpcType === '下调(绝对值)')
+          && !item.cpcMost) {
+          minCpcMost = false;
+        }
         if ((item.cpcType === '上浮(%)'
-          || item.cpcType === '下调(%)'
-          || item.cpcType === '下调(绝对值)'
           || item.cpcType === '上浮(绝对值)')
           && !item.cpcMost) {
-          cpcMost = false;
+          maxCpcMost = false;
         }
       });
-      if (!ad) {
+      if (!this.launchFlag && !ad) {
         this.$message({
           type: 'error',
-          message: '请输选择广告组'
+          message: '请选择广告组'
         });
         return true;
       }
@@ -990,7 +1069,14 @@ export default {
         });
         return true;
       }
-      if (!cpcMost) {
+      if (!minCpcMost) {
+        this.$message({
+          type: 'error',
+          message: '请输入竞价最小值'
+        });
+        return true;
+      }
+      if (!maxCpcMost) {
         this.$message({
           type: 'error',
           message: '请输入竞价最大值'
@@ -1179,7 +1265,14 @@ export default {
     },
 
     // 模板详情
-    templateDetail(id, row) {
+    templateDetail(id, row, launch) {
+      if (launch) {
+        this.launchFlag = true;
+        this.dialogName = '编辑投放';
+      } else {
+        this.launchFlag = false;
+        this.dialogName = '编辑搜索词';
+      }
       this.dialogCreateVisible = true; 
       this.rowData = row;
       this.ruleIs = true;
@@ -1200,7 +1293,8 @@ export default {
           this.formInline.asinList = data.asinList;
           this.echoAtuomation = data;
           this.adGroupOption = data.groupIdList;
-          data.groupIdList && data.groupIdList.map(item => {
+          this.formInline.templateType = data.templateType;
+          data.groupIdList.map(item => {
             this.adGroupVal.push(item.groupId);
           });
           this.searchWord = data.excludeTerms;

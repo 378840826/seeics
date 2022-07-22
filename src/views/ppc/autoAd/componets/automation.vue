@@ -7,7 +7,7 @@
         @change="hanlderAuto"
       >
         <el-option
-          v-for="item in launchOption"
+          v-for="item in (launch ? launchOption : searchOption)"
           :key="item.value"
           :label="item.label"
           :value="item.value"
@@ -72,6 +72,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="automatedOperation === '添加到投放'"
         label="广告组"
         prop="adGroup"
         align="center"
@@ -96,6 +97,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="!launch"
         label="匹配类型"
         prop="matchType"
         align="center"
@@ -115,18 +117,20 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="竞价参考"
+        :label="`竞价${automatedOperation === '添加到投放' ? '参考' : '调整'}`"
         prop="bidType"
         align="center"
       >
         <template slot-scope="scope">
+          <div v-if="automatedOperation === '自动暂停' || automatedOperation === '自动归档'">无</div>
           <el-select 
+            v-else
             v-model="scope.row.bidType" 
             placeholder="请选择"
             @change="bidTypeSelect(scope.$index)"
           >
             <el-option
-              v-for="item in bidSelect"
+              v-for="item in (automatedOperation === '自动竞价' ? [...bidSelect, ...launchBidSelect] : bidSelect)"
               :key="item.value"
               :label="item.label"
               :value="item.value">
@@ -141,10 +145,14 @@
       >
         <template 
           slot-scope="scope" 
-          v-if="scope.row.bidType === '过去7天CPC' 
+          v-if="(automatedOperation !== '自动竞价' || automatedOperation !== '添加到投放') 
+          &&(scope.row.bidType === '过去7天CPC' 
           || scope.row.bidType === '过去14天CPC' 
           || scope.row.bidType === '过去21天CPC' 
-          || scope.row.bidType === '过去30天CPC'">
+          || scope.row.bidType === '过去30天CPC'
+          || scope.row.bidType === '建议竞价最小值'
+          || scope.row.bidType === '建议竞价最大值'
+          || scope.row.bidType === '建议竞价')">
           <el-select 
             v-model="scope.row.cpcType" 
             placeholder="请选择"
@@ -164,34 +172,43 @@
         align="center"
       >
         <template slot-scope="scope">
-         <div v-if="scope.row.bidType === '广告组默认竞价'">无需选择竞价</div>
-         <div v-else-if="scope.row.bidType === '固定竞价'" class="bid">
-            <el-input 
-              v-model="scope.row.bid" 
-              @blur="numberChange($event, 'bid', scope.$index)"
-              placeholder="站点货币"
-              min="0"
-            ><div slot="prefix" style="lineHeight: 30px;">{{ rowData.currency }}</div></el-input>
-           <!-- <div v-if="scope.row.msg" class="msg">支持两位小数</div> -->
-         </div>
-         <div v-else-if="!scope.row.cpcType">无</div>
-         <div v-else-if="scope.row.cpcType">
-           <el-input
-              v-model="scope.row.cpcValue"
-              @blur="numberChange($event, 'cpcValue', scope.$index)"
-              placeholder="调整数值"
-            >
-              <div
-                v-if="scope.row.cpcType === '上浮(%)' || scope.row.cpcType === '下调(%)'"
-                slot="suffix"
-                style="lineHeight: 30px;">%</div>
-                <div
-                v-else
-                slot="prefix"
-                style="lineHeight: 30px;">{{ rowData.currency }}</div>
-            </el-input>
-            <!-- <div v-if="scope.row.valueMsg" class="msg">支持两位小数</div> -->
-         </div>
+          <div v-if="automatedOperation === '自动暂停' || automatedOperation === '自动归档'">无</div>
+          <div v-else>
+            <div v-if="scope.row.bidType === '广告组默认竞价'">无需选择竞价</div>
+            <div v-else-if="scope.row.bidType === '固定竞价'" class="bid">
+                <el-input 
+                  :ref="'input_bid' + scope.$index"
+                  v-model="scope.row.bid" 
+                  @blur="numberChange($event, 'bid', scope.$index)"
+                  placeholder="站点货币"
+                  min="0"
+                ><div 
+                  @click="focus('input_bid' + scope.$index)" 
+                  slot="prefix" 
+                  style="lineHeight: 30px;">{{ rowData.currency }}</div></el-input>
+              <!-- <div v-if="scope.row.msg" class="msg">支持两位小数</div> -->
+            </div>
+            <div v-else-if="!scope.row.cpcType">无</div>
+            <div v-else-if="scope.row.cpcType">
+              <el-input
+                  :ref="'input_cpcValue' + scope.$index"
+                  v-model="scope.row.cpcValue"
+                  @blur="numberChange($event, 'cpcValue', scope.$index)"
+                  placeholder="调整数值"
+                >
+                  <div
+                    v-if="scope.row.cpcType === '上浮(%)' || scope.row.cpcType === '下调(%)'"
+                    slot="suffix"
+                    style="lineHeight: 30px;">%</div>
+                    <div
+                    v-else
+                    @click="focus('input_cpcValue' + scope.$index)"
+                    slot="prefix"
+                    style="lineHeight: 30px;">{{ rowData.currency }}</div>
+                </el-input>
+                <!-- <div v-if="scope.row.valueMsg" class="msg">支持两位小数</div> -->
+            </div>
+          </div>
         </template>
       </el-table-column>
       <el-table-column
@@ -201,16 +218,21 @@
       >
         <template slot-scope="scope" v-if="scope.row.cpcType">
           <el-input
+            :ref="'input_cpcMost' + scope.$index"
             v-model="scope.row.cpcMost"
             @blur="numberChange($event, 'cpcMost', scope.$index)"
             :placeholder="minValue(scope.row.cpcType)"
           >
-            <div slot="prefix" style="lineHeight: 30px;">{{ rowData.currency }}</div>
+            <div 
+              @click="focus('input_cpcMost' + scope.$index)" 
+              slot="prefix" 
+              style="lineHeight: 30px;">{{ rowData.currency }}</div>
           </el-input>
           <!-- <div v-if="scope.row.mostMsg" class="msg">支持两位小数</div> -->
         </template>
       </el-table-column>
       <el-table-column
+        v-if="!launch"
         label=""
         width="100"
       >
@@ -266,7 +288,15 @@ export default {
     rowData: {
       type: Object,
       default: new Object
+    },
+    launch: {
+      type: Boolean,
+      default: false
     }
+  },
+  model: {
+    prop: 'value',
+    event: 'change'
   },
   data() {
     return {
@@ -322,8 +352,49 @@ export default {
           label: '固定竞价'
         }
       ],
+      launchBidSelect: [
+        {
+          value: '建议竞价最小值',
+          label: '建议竞价最小值'
+        },
+        {
+          value: '建议竞价最大值',
+          label: '建议竞价最大值'
+        },
+        {
+          value: '建议竞价',
+          label: '建议竞价'
+        }
+      ],
       automatedOperation: '添加到投放',
       launchOption: [
+        {
+          label: '无',
+          value: null
+        },
+        {
+          label: '添加到投放',
+          value: '添加到投放'
+        },
+        {
+          label: '添加到否定投放',
+          value: '添加到否定投放',
+          disable: true
+        },
+        {
+          label: '自动竞价',
+          value: '自动竞价'
+        },
+        {
+          label: '自动暂停',
+          value: '自动暂停'
+        },
+        {
+          label: '自动归档',
+          value: '自动归档'
+        }
+      ],
+      searchOption: [
         {
           label: '无',
           value: null
@@ -412,7 +483,7 @@ export default {
   watch: {
     tableData: {
       handler(val) {
-        const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
+        const reg = /^(([1-9]{1}\d{0,4})|(0{1}))(\.\d{0,2})?$/;
         if (val.length === this.adGroupList.length) {
           // this.addDisabled = true;
         } else {
@@ -482,6 +553,9 @@ export default {
         return '竞价最大值';
       }
     },
+    focus(name) {
+      this.$refs[name].focus();
+    },
     loadmore() {
       const result = this.formData.size * this.formData.current;
       if (result < this.total) { //加载全部出来 停止请求
@@ -547,7 +621,7 @@ export default {
         return {
           ...item,
           campaignId: item.campaign,
-          adGroupId: item.adGroup,
+          adGroupId: this.automatedOperation === '添加到投放' ? item.adGroup : null,
           currency: this.rowData.currency,
         };
       });
@@ -638,6 +712,8 @@ export default {
     numberChange (val, name, index) { // name字段名，index索引
       // 校验正数，带两位小数
       const reg = /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/;
+      val.target.style.borderColor = '';
+      // this.$emit('change', false);
       if (isNaN(val.target.value)) { 
         val.target.value = parseFloat(val.target.value) ;
       } 
@@ -646,12 +722,33 @@ export default {
         val.target.value = val.target.value.slice(0, val.target.value.indexOf('.') + 3);
         this.tableData[index][name] = val.target.value;
       }
+      if (val.target.value > 100000) {
+        val.target.style.borderColor = 'red';
+        this.$message({
+          type: 'error',
+          message: '值不能超过100000'
+        });
+        val.target.value = '';
+        // this.$emit('change', true);
+      }
       if (!reg.test(val.target.value)) {
         val.target.value = '';
         this.tableData[index][name] = '';
       }
     },
     hanlderAuto(val) {
+      if (this.launch) {
+        if (val === '自动归档' || val === '自动暂停') {
+          this.tableData[0].matchType = null;
+          this.tableData[0].bid = null;
+          this.tableData[0].bidType = null;
+        }
+        this.tableData[0].bidType = '广告组默认竞价';
+        this.tableData[0].cpcType = '';
+        this.tableData[0].cpcMost = '';
+        this.tableData[0].cpcValue = '';
+        this.tableData[0].bid = '';
+      }
       if (!val) {
         this.isAutoShow = false;
       } else {

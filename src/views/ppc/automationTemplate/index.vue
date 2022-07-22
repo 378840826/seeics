@@ -75,12 +75,21 @@
       </div>
       <div class="tabel">
         <span>模板类型：</span>
-        <avue-select
+        <!-- <avue-select
             v-model="formInline.templateType"
             :dic="templateTypeList"
             :clearable="false"
             placeholder="请选择"
-          />
+            @change="handleType"
+          /> -->
+          <el-select v-model="formInline.templateType" @change="handleType">
+            <el-option
+              v-for="item in templateTypeList"
+              :key="item.value"
+              :value="item.value"
+              :label="item.label"
+            />
+          </el-select>
       </div>
       <h4>规则范围：</h4>
       <div >
@@ -124,6 +133,7 @@
         v-if="automaticIs"
         ref="automatic"
         :echo="tableFiled"
+        :templateType="formInline.templateType"
       />
       <div class="explain">
         <p>操作要点</p>
@@ -352,15 +362,22 @@ export default {
       templateTypeList: [{
         label: '搜索词',
         value: '搜索词'
+      }, {
+        label: '投放',
+        value: '投放'
       }],
       templateNameMsg: false, //模板名称校验
     };
   },
   methods: {
+    handleType(val) { //监听模板变化
+      this.$refs.automatic.wathcType(val);
+    },
     empty() {
       this.formInline.templateName = '';
       this.formInline.templateIllustrate = '';
       this.asinMskuKeyword = '';
+      this.formInline.templateType = '搜索词';
     },
     strSplit(str) {
       return str.split('n').filter(Boolean);
@@ -457,13 +474,20 @@ export default {
         return true;
       }
       if ((automatic.cpcType === '上浮(%)'
-          || automatic.cpcType === '下调(%)'
-          || automatic.cpcType === '下调(绝对值)'
           || automatic.cpcType === '上浮(绝对值)')
           && !automatic.cpcMost) {
         this.$message({
           type: 'error',
           message: '请输入竞价最大值'
+        });
+        return true;
+      }
+      if ((automatic.cpcType === '下调(%)'
+          || automatic.cpcType === '下调(绝对值)')
+          && !automatic.cpcMost) {
+        this.$message({
+          type: 'error',
+          message: '请输入竞价最小值'
         });
         return true;
       }
@@ -525,6 +549,7 @@ export default {
         this.tableFiled = {};
         this.empty();
       }
+      this.formInline.templateType = '搜索词';
       this.centerDialogVisible = false;
     },
     hidden() {
