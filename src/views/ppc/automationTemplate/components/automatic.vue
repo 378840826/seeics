@@ -122,12 +122,14 @@
           <div v-if="scope.row.bidType === '广告组默认竞价'">无需选择竞价</div>
           <div v-else-if="scope.row.bidType === '固定竞价'" class="bid">
               <el-input 
+                :ref="'input_bid' + scope.$index"
                 v-model="scope.row.bid" 
                 placeholder="固定竞价"
                 @blur="numberChange($event, 'bid')"
               >
                 <div
                   slot="prefix"
+                  @click="focus('input_bid' + scope.$index)"
                   style="lineHeight: 30px;">站点货币</div>
               </el-input>
             <!-- <div v-if="msg" class="msg">支持两位小数</div> -->
@@ -135,6 +137,7 @@
           <div v-else-if="!scope.row.cpcType">无</div>
           <div v-else-if="scope.row.cpcType">
             <el-input
+                :ref="'input_cpcValue' + scope.$index"
                 v-model="scope.row.cpcValue"
                 @blur="numberChange($event, 'cpcValue')"
                 placeholder="调整数值"
@@ -146,6 +149,7 @@
                   <div
                   v-else
                   slot="prefix"
+                  @click="focus('input_cpcValue' + scope.$index)"
                   style="lineHeight: 30px;">站点货币</div>
               </el-input>
               <!-- <div v-if="scope.row.valueMsg" class="msg">支持两位小数</div> -->
@@ -167,11 +171,15 @@
       >
         <template slot-scope="scope" v-if="scope.row.cpcType">
           <el-input
+            :ref="'input_cpcMost' + scope.$index"
             v-model="scope.row.cpcMost"
             @blur="numberChange($event, 'cpcMost')"
             placeholder="竞价最大值"
           >
-            <div slot="prefix" style="lineHeight: 30px;">站点货币</div>
+            <div 
+              @click="focus('input_cpcMost' + scope.$index)"
+              slot="prefix"
+              style="lineHeight: 30px;">站点货币</div>
           </el-input>
           <!-- <div v-if="scope.row.mostMsg" class="msg">支持两位小数</div> -->
         </template>
@@ -328,7 +336,7 @@ export default {
   },
   mounted() {
     Object.keys(this.echo).length && this.echoFiled();
-    this.templateType === '投放词' ? this.launch = true : this.launch = false;
+    this.templateType === '投放' ? this.launch = true : this.launch = false;
   },
   watch: {
     tableData: {
@@ -344,10 +352,13 @@ export default {
     },
   },
   methods: {
+    focus(name) {
+      this.$refs[name].focus();
+    },
     wathcType(val) { //监听模板变化
       if (val === '搜索词') {
         this.launch = false;
-      } else if (val === '投放词') {
+      } else if (val === '投放') {
         this.launch = true;
       }
     },
@@ -420,12 +431,15 @@ export default {
     },
     hanlderAuto(val) {
       if (this.launch) {
+        this.tableData[0].bidType = '广告组默认竞价';
+        this.tableData[0].matchType = null;
         if (val === '自动归档' || val === '自动暂停') {
-          this.tableData[0].matchType = null;
           this.tableData[0].bid = null;
           this.tableData[0].bidType = null;
         }
-        this.tableData[0].bidType = '广告组默认竞价';
+        if (val === '添加到投放' || val === '添加到否定投放') {
+          this.tableData[0].matchType = '精准匹配';
+        }
         this.tableData[0].cpcType = '';
         this.tableData[0].cpcMost = '';
         this.tableData[0].cpcValue = '';

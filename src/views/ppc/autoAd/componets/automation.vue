@@ -171,16 +171,21 @@
             <div v-if="scope.row.bidType === '广告组默认竞价'">无需选择竞价</div>
             <div v-else-if="scope.row.bidType === '固定竞价'" class="bid">
                 <el-input 
+                  :ref="'input_bid' + scope.$index"
                   v-model="scope.row.bid" 
                   @blur="numberChange($event, 'bid', scope.$index)"
                   placeholder="站点货币"
                   min="0"
-                ><div slot="prefix" style="lineHeight: 30px;">{{ rowData.currency }}</div></el-input>
+                ><div 
+                  @click="focus('input_bid' + scope.$index)" 
+                  slot="prefix" 
+                  style="lineHeight: 30px;">{{ rowData.currency }}</div></el-input>
               <!-- <div v-if="scope.row.msg" class="msg">支持两位小数</div> -->
             </div>
             <div v-else-if="!scope.row.cpcType">无</div>
             <div v-else-if="scope.row.cpcType">
               <el-input
+                  :ref="'input_cpcValue' + scope.$index"
                   v-model="scope.row.cpcValue"
                   @blur="numberChange($event, 'cpcValue', scope.$index)"
                   placeholder="调整数值"
@@ -191,6 +196,7 @@
                     style="lineHeight: 30px;">%</div>
                     <div
                     v-else
+                    @click="focus('input_cpcValue' + scope.$index)"
                     slot="prefix"
                     style="lineHeight: 30px;">{{ rowData.currency }}</div>
                 </el-input>
@@ -206,11 +212,15 @@
       >
         <template slot-scope="scope" v-if="scope.row.cpcType">
           <el-input
+            :ref="'input_cpcMost' + scope.$index"
             v-model="scope.row.cpcMost"
             @blur="numberChange($event, 'cpcMost', scope.$index)"
             placeholder="竞价最大值"
           >
-            <div slot="prefix" style="lineHeight: 30px;">{{ rowData.currency }}</div>
+            <div 
+              @click="focus('input_cpcMost' + scope.$index)" 
+              slot="prefix" 
+              style="lineHeight: 30px;">{{ rowData.currency }}</div>
           </el-input>
           <!-- <div v-if="scope.row.mostMsg" class="msg">支持两位小数</div> -->
         </template>
@@ -525,6 +535,9 @@ export default {
     },
   },
   methods: {
+    focus(name) {
+      this.$refs[name].focus();
+    },
     loadmore() {
       const result = this.formData.size * this.formData.current;
       if (result < this.total) { //加载全部出来 停止请求

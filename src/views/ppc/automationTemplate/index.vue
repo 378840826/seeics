@@ -363,8 +363,8 @@ export default {
         label: '搜索词',
         value: '搜索词'
       }, {
-        label: '投放词',
-        value: '投放词'
+        label: '投放',
+        value: '投放'
       }],
       templateNameMsg: false, //模板名称校验
     };

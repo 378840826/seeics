@@ -1289,6 +1289,7 @@ export default {
           this.formInline.asinList = data.asinList;
           this.echoAtuomation = data;
           this.adGroupOption = data.groupIdList;
+          this.formInline.templateType = data.templateType;
           data.groupIdList.map(item => {
             this.adGroupVal.push(item.groupId);
           });
