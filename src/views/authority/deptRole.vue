@@ -182,7 +182,7 @@ import {
   getMemberOwnedMenu,
 } from '@/api/system/deptRole';
 import { mapGetters } from 'vuex';
-import website from '@/config/website';
+// import website from '@/config/website';
 
 export default {
   data() {
@@ -235,27 +235,27 @@ export default {
               }
             ]
           },
-          {
-            label: '所属租户',
-            prop: 'tenantId',
-            type: 'tree',
-            dicUrl: '/api/blade-system/tenant/select',
-            addDisplay: false,
-            editDisplay: false,
-            viewDisplay: website.tenantMode,
-            span: 24,
-            props: {
-              label: 'tenantName',
-              value: 'tenantId'
-            },
-            hide: !website.tenantMode,
-            search: website.tenantMode,
-            rules: [{
-              required: true,
-              message: '请输入所属租户',
-              trigger: 'click'
-            }]
-          },
+          // {
+          //   label: '所属租户',
+          //   prop: 'tenantId',
+          //   type: 'tree',
+          //   dicUrl: '/api/blade-system/tenant/select',
+          //   addDisplay: false,
+          //   editDisplay: false,
+          //   viewDisplay: website.tenantMode,
+          //   span: 24,
+          //   props: {
+          //     label: 'tenantName',
+          //     value: 'tenantId'
+          //   },
+          //   hide: !website.tenantMode,
+          //   search: website.tenantMode,
+          //   rules: [{
+          //     required: true,
+          //     message: '请输入所属租户',
+          //     trigger: 'click'
+          //   }]
+          // },
           {
             label: '角色别名',
             prop: 'roleAlias',
@@ -599,6 +599,7 @@ export default {
       modifyMemberOfRole(params).then(res => {
         this.$message.success(res.data.message || '操作成功');
         this.member.visible = false;
+        this.onLoad(this.page);
       });
     },
   },

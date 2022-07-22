@@ -368,7 +368,6 @@ export default {
                     value: 0,
                   },
                 ],
-                span: 24,
               },
               {
                 label: '所属租户',
@@ -389,7 +388,6 @@ export default {
                   message: '请输入所属租户',
                   trigger: 'click'
                 }],
-                span: 24,
               },
               {
                 label: '登录账号',
@@ -468,7 +466,12 @@ export default {
                 label: '电子邮箱',
                 prop: 'email',
                 hide: true,
-                overHidden: true
+                overHidden: true,
+                rules: [{
+                  required: true,
+                  message: '请输入电子邮箱',
+                  trigger: 'blur'
+                }],
               },
               {
                 label: '用户性别',

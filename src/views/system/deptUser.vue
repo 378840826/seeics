@@ -42,13 +42,13 @@
                     icon="el-icon-refresh"
                     @click="handleReset">密码重置
         </el-button>
-        <el-button type="info"
+        <!-- <el-button type="info"
                     size="small"
                     plain
                     v-if="userInfo.role_name.includes('admin')"
                     icon="el-icon-setting"
                     @click="handlePlatform">平台配置
-        </el-button>
+        </el-button> -->
         <el-button type="success"
                     size="small"
                     plain
@@ -75,10 +75,10 @@
         </template>
       </template>
 
-      <template slot-scope="{row}"
+      <!-- <template slot-scope="{row}"
                 slot="tenantName">
         <el-tag>{{row.tenantName}}</el-tag>
-      </template>
+      </template> -->
       <template slot-scope="{row}"
                 slot="roleName">
         <el-tag>{{row.roleName}}</el-tag>
@@ -125,7 +125,7 @@
         </template>
       </avue-form>
     </el-dialog>
-    <el-dialog title="用户平台配置"
+    <!-- <el-dialog title="用户平台配置"
                 append-to-body
                 :visible.sync="platformBox">
       <avue-crud :option="platformOption"
@@ -153,7 +153,7 @@
           <el-tag>{{row.userTypeName}}</el-tag>
         </template>
       </avue-crud>
-    </el-dialog>
+    </el-dialog> -->
   </basic-container>
 </template>
 
@@ -161,10 +161,10 @@
 import {
   getList,
   getUser,
-  getUserPlatform,
+  // getUserPlatform,
   remove,
   update,
-  updatePlatform,
+  // updatePlatform,
   add,
   grant,
   resetPassword
@@ -198,22 +198,22 @@ export default {
       search: {},
       roleBox: false,
       excelBox: false,
-      platformBox: false,
+      // platformBox: false,
       initFlag: true,
       selectionList: [],
       query: {},
       loading: true,
-      platformLoading: false,
+      // platformLoading: false,
       page: {
         pageSize: 20,
         currentPage: 1,
         total: 0
       },
-      platformPage: {
-        pageSize: 10,
-        currentPage: 1,
-        total: 0
-      },
+      // platformPage: {
+      //   pageSize: 10,
+      //   currentPage: 1,
+      //   total: 0
+      // },
       init: {
         roleTree: [],
         deptTree: [],
@@ -260,12 +260,12 @@ export default {
             search: true,
             display: false
           },
-          {
-            label: '所属租户',
-            prop: 'tenantName',
-            slot: true,
-            display: false
-          },
+          // {
+          //   label: '所属租户',
+          //   prop: 'tenantName',
+          //   slot: true,
+          //   display: false
+          // },
           {
             label: '用户姓名',
             prop: 'realName',
@@ -284,31 +284,31 @@ export default {
             slot: true,
             display: false
           },
-          {
-            label: '用户平台',
-            prop: 'userTypeName',
-            slot: true,
-            display: false
-          },
-          {
-            label: '用户平台',
-            type: 'select',
-            dicUrl: '/api/blade-system/dict/dictionary?code=user_type',
-            props: {
-              label: 'dictValue',
-              value: 'dictKey'
-            },
-            dataType: 'number',
-            search: true,
-            hide: true,
-            display: false,
-            prop: 'userType',
-            rules: [{
-              required: true,
-              message: '请选择用户平台',
-              trigger: 'blur'
-            }]
-          },
+          // {
+          //   label: '用户平台',
+          //   prop: 'userTypeName',
+          //   slot: true,
+          //   display: false
+          // },
+          // {
+          //   label: '用户平台',
+          //   type: 'select',
+          //   dicUrl: '/api/blade-system/dict/dictionary?code=user_type',
+          //   props: {
+          //     label: 'dictValue',
+          //     value: 'dictKey'
+          //   },
+          //   dataType: 'number',
+          //   search: true,
+          //   hide: true,
+          //   display: false,
+          //   prop: 'userType',
+          //   rules: [{
+          //     required: true,
+          //     message: '请选择用户平台',
+          //     trigger: 'blur'
+          //   }]
+          // },
         ],
         group: [
           {
@@ -316,6 +316,15 @@ export default {
             prop: 'baseInfo',
             icon: 'el-icon-user-solid',
             column: [
+              {
+                label: '登录账号',
+                prop: 'account',
+                rules: [{
+                  required: true,
+                  message: '请输入登录账号',
+                  trigger: 'blur'
+                }],
+              },
               {
                 label: '用户状态',
                 prop: 'isDisable',
@@ -330,49 +339,39 @@ export default {
                     value: 0,
                   },
                 ],
-                span: 24,
               },
-              {
-                label: '所属租户',
-                prop: 'tenantId',
-                type: 'tree',
-                dicUrl: '/api/blade-system/tenant/select',
-                props: {
-                  label: 'tenantName',
-                  value: 'tenantId'
-                },
-                value: '000000',
-                addDisplay: false,
-                editDisplay: false,
-                viewDisplay: false,
-              },
-              {
-                label: '登录账号',
-                prop: 'account',
-                rules: [{
-                  required: true,
-                  message: '请输入登录账号',
-                  trigger: 'blur'
-                }],
-              },
-              {
-                label: '用户平台',
-                type: 'select',
-                dicUrl: '/api/blade-system/dict/dictionary?code=user_type',
-                props: {
-                  label: 'dictValue',
-                  value: 'dictKey'
-                },
-                value: '1',
-                dataType: 'number',
-                slot: true,
-                prop: 'userType',
-                rules: [{
-                  required: true,
-                  message: '请选择用户平台',
-                  trigger: 'blur'
-                }]
-              },
+              // {
+              //   label: '所属租户',
+              //   prop: 'tenantId',
+              //   type: 'tree',
+              //   dicUrl: '/api/blade-system/tenant/select',
+              //   props: {
+              //     label: 'tenantName',
+              //     value: 'tenantId'
+              //   },
+              //   value: '000000',
+              //   addDisplay: false,
+              //   editDisplay: false,
+              //   viewDisplay: false,
+              // },
+              // {
+              //   label: '用户平台',
+              //   type: 'select',
+              //   dicUrl: '/api/blade-system/dict/dictionary?code=user_type',
+              //   props: {
+              //     label: 'dictValue',
+              //     value: 'dictKey'
+              //   },
+              //   value: '1',
+              //   dataType: 'number',
+              //   slot: true,
+              //   prop: 'userType',
+              //   rules: [{
+              //     required: true,
+              //     message: '请选择用户平台',
+              //     trigger: 'blur'
+              //   }]
+              // },
               {
                 label: '密码',
                 prop: 'password',
@@ -423,7 +422,12 @@ export default {
                 label: '电子邮箱',
                 prop: 'email',
                 hide: true,
-                overHidden: true
+                overHidden: true,
+                rules: [{
+                  required: true,
+                  message: '请输入电子邮箱',
+                  trigger: 'blur'
+                }],
               },
               {
                 label: '用户性别',
@@ -510,75 +514,75 @@ export default {
       data: [],
       platformQuery: {},
       platformSelectionList: [],
-      platformData: [],
-      platformForm: {},
-      platformOption: {
-        tip: false,
-        searchShow: true,
-        searchMenuSpan: 6,
-        border: true,
-        index: true,
-        selection: true,
-        viewBtn: true,
-        dialogClickModal: false,
-        menuWidth: 120,
-        editBtnText: '配置',
-        column: [
-          {
-            label: '登录账号',
-            prop: 'account',
-            search: true,
-            display: false
-          },
-          {
-            label: '所属租户',
-            prop: 'tenantName',
-            slot: true,
-            display: false
-          },
-          {
-            label: '用户姓名',
-            prop: 'realName',
-            search: true,
-            display: false
-          },
-          {
-            label: '用户平台',
-            prop: 'userTypeName',
-            slot: true,
-            display: false
-          },
-          {
-            label: '用户平台',
-            type: 'select',
-            dicUrl: '/api/blade-system/dict/dictionary?code=user_type',
-            props: {
-              label: 'dictValue',
-              value: 'dictKey'
-            },
-            dataType: 'number',
-            search: true,
-            hide: true,
-            display: false,
-            prop: 'userType',
-            rules: [{
-              required: true,
-              message: '请选择用户平台',
-              trigger: 'blur'
-            }]
-          },
-          {
-            label: '用户拓展',
-            prop: 'userExt',
-            type: 'textarea',
-            minRows: 8,
-            span: 24,
-            overHidden: true,
-            row: true,
-            hide: true,
-          },
-        ],
-      },
+      // platformData: [],
+      // platformForm: {},
+      // platformOption: {
+      //   tip: false,
+      //   searchShow: true,
+      //   searchMenuSpan: 6,
+      //   border: true,
+      //   index: true,
+      //   selection: true,
+      //   viewBtn: true,
+      //   dialogClickModal: false,
+      //   menuWidth: 120,
+      //   editBtnText: '配置',
+      //   column: [
+      //     {
+      //       label: '登录账号',
+      //       prop: 'account',
+      //       search: true,
+      //       display: false
+      //     },
+      //     {
+      //       label: '所属租户',
+      //       prop: 'tenantName',
+      //       slot: true,
+      //       display: false
+      //     },
+      //     {
+      //       label: '用户姓名',
+      //       prop: 'realName',
+      //       search: true,
+      //       display: false
+      //     },
+      //     {
+      //       label: '用户平台',
+      //       prop: 'userTypeName',
+      //       slot: true,
+      //       display: false
+      //     },
+      //     {
+      //       label: '用户平台',
+      //       type: 'select',
+      //       dicUrl: '/api/blade-system/dict/dictionary?code=user_type',
+      //       props: {
+      //         label: 'dictValue',
+      //         value: 'dictKey'
+      //       },
+      //       dataType: 'number',
+      //       search: true,
+      //       hide: true,
+      //       display: false,
+      //       prop: 'userType',
+      //       rules: [{
+      //         required: true,
+      //         message: '请选择用户平台',
+      //         trigger: 'blur'
+      //       }]
+      //     },
+      //     {
+      //       label: '用户拓展',
+      //       prop: 'userExt',
+      //       type: 'textarea',
+      //       minRows: 8,
+      //       span: 24,
+      //       overHidden: true,
+      //       row: true,
+      //       hide: true,
+      //     },
+      //   ],
+      // },
       excelForm: {},
       excelOption: {
         submitBtn: false,
@@ -656,14 +660,14 @@ export default {
         editBtn: this.vaildData(this.permission.user_edit, false)
       };
     },
-    platformPermissionList() {
-      return {
-        addBtn: false,
-        viewBtn: false,
-        delBtn: false,
-        editBtn: this.vaildData(this.permission.user_edit, false)
-      };
-    },
+    // platformPermissionList() {
+    //   return {
+    //     addBtn: false,
+    //     viewBtn: false,
+    //     delBtn: false,
+    //     editBtn: this.vaildData(this.permission.user_edit, false)
+    //   };
+    // },
     ids() {
       const ids = [];
       this.selectionList.forEach(ele => {
@@ -825,9 +829,9 @@ export default {
         this.roleBox = true;
       });
     },
-    handlePlatform() {
-      this.platformBox = true;
-    },
+    // handlePlatform() {
+    //   this.platformBox = true;
+    // },
     handleImport() {
       this.excelBox = true;
     },
@@ -886,63 +890,63 @@ export default {
         this.selectionClear();
       });
     },
-    platformRowUpdate(row, index, done, loading) {
-      updatePlatform(row.id, row.userType, row.userExt).then(() => {
-        this.platformOnLoad(this.platformPage);
-        this.$message({
-          type: 'success',
-          message: '操作成功!'
-        });
-        done();
-      }, error => {
-        window.console.log(error);
-        loading();
-      });
-    },
-    platformBeforeOpen(done, type) {
-      if (['edit', 'view'].includes(type)) {
-        getUserPlatform(this.platformForm.id).then(res => {
-          this.platformForm = res.data.data;
-        });
-      }
-      done();
-    },
-    platformSearchReset() {
-      this.platformQuery = {};
-      this.platformOnLoad(this.platformPage);
-    },
-    platformSearchChange(params, done) {
-      this.platformQuery = params;
-      this.platformPage.currentPage = 1;
-      this.platformOnLoad(this.platformPage, params);
-      done();
-    },
-    platformSelectionChange(list) {
-      this.platformSelectionList = list;
-    },
-    platformSelectionClear() {
-      this.platformSelectionList = [];
-      this.$refs.platformCrud.toggleSelection();
-    },
-    platformCurrentChange(currentPage) {
-      this.platformPage.currentPage = currentPage;
-    },
-    platformSizeChange(pageSize) {
-      this.platformPage.pageSize = pageSize;
-    },
-    platformRefreshChange() {
-      this.platformOnLoad(this.platformPage, this.platformQuery);
-    },
-    platformOnLoad(page, params = {}) {
-      this.platformLoading = true;
-      getList(page.currentPage, page.pageSize, Object.assign(params, this.query), this.treeDeptId).then(res => {
-        const data = res.data.data;
-        this.platformPage.total = data.total;
-        this.platformData = data.records;
-        this.platformLoading = false;
-        this.selectionClear();
-      });
-    }
+    // platformRowUpdate(row, index, done, loading) {
+    //   updatePlatform(row.id, row.userType, row.userExt).then(() => {
+    //     this.platformOnLoad(this.platformPage);
+    //     this.$message({
+    //       type: 'success',
+    //       message: '操作成功!'
+    //     });
+    //     done();
+    //   }, error => {
+    //     window.console.log(error);
+    //     loading();
+    //   });
+    // },
+    // platformBeforeOpen(done, type) {
+    //   if (['edit', 'view'].includes(type)) {
+    //     getUserPlatform(this.platformForm.id).then(res => {
+    //       this.platformForm = res.data.data;
+    //     });
+    //   }
+    //   done();
+    // },
+    // platformSearchReset() {
+    //   this.platformQuery = {};
+    //   this.platformOnLoad(this.platformPage);
+    // },
+    // platformSearchChange(params, done) {
+    //   this.platformQuery = params;
+    //   this.platformPage.currentPage = 1;
+    //   this.platformOnLoad(this.platformPage, params);
+    //   done();
+    // },
+    // platformSelectionChange(list) {
+    //   this.platformSelectionList = list;
+    // },
+    // platformSelectionClear() {
+    //   this.platformSelectionList = [];
+    //   this.$refs.platformCrud.toggleSelection();
+    // },
+    // platformCurrentChange(currentPage) {
+    //   this.platformPage.currentPage = currentPage;
+    // },
+    // platformSizeChange(pageSize) {
+    //   this.platformPage.pageSize = pageSize;
+    // },
+    // platformRefreshChange() {
+    //   this.platformOnLoad(this.platformPage, this.platformQuery);
+    // },
+    // platformOnLoad(page, params = {}) {
+    //   this.platformLoading = true;
+    //   getList(page.currentPage, page.pageSize, Object.assign(params, this.query), this.treeDeptId).then(res => {
+    //     const data = res.data.data;
+    //     this.platformPage.total = data.total;
+    //     this.platformData = data.records;
+    //     this.platformLoading = false;
+    //     this.selectionClear();
+    //   });
+    // }
   }
 };
 </script>

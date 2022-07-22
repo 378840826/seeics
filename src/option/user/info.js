@@ -56,6 +56,10 @@ export default function (isPay) {
           prop: 'email',
           span: 12,
           row: true,
+          rules: [
+            { required: true, message: '邮箱不能为空', trigger: 'blur' },
+            { pattern: /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((.[a-zA-Z0-9_-]{2,3}){1,2})$/, message: '邮箱格式不正确', trigger: 'blur' },
+          ]
         }, {
           label: '机构名称',
           span: 12,

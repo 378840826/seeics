@@ -192,7 +192,7 @@ import {
   modifyMemberOfPost,
 } from '@/api/system/deptPost';
 import { mapGetters } from 'vuex';
-import website from '@/config/website';
+// import website from '@/config/website';
 
 export default {
   data() {
@@ -255,26 +255,26 @@ export default {
         dialogClickModal: false,
         menuWidth: 300,
         column: [
-          {
-            label: '所属租户',
-            prop: 'tenantId',
-            type: 'tree',
-            dicUrl: '/api/blade-system/tenant/select',
-            addDisplay: false,
-            editDisplay: false,
-            viewDisplay: website.tenantMode,
-            span: 24,
-            props: {
-              label: 'tenantName',
-              value: 'tenantId'
-            },
-            hide: !website.tenantMode,
-            rules: [{
-              required: true,
-              message: '请输入所属租户',
-              trigger: 'click'
-            }]
-          },
+          // {
+          //   label: '所属租户',
+          //   prop: 'tenantId',
+          //   type: 'tree',
+          //   dicUrl: '/api/blade-system/tenant/select',
+          //   addDisplay: false,
+          //   editDisplay: false,
+          //   viewDisplay: website.tenantMode,
+          //   span: 24,
+          //   props: {
+          //     label: 'tenantName',
+          //     value: 'tenantId'
+          //   },
+          //   hide: !website.tenantMode,
+          //   rules: [{
+          //     required: true,
+          //     message: '请输入所属租户',
+          //     trigger: 'click'
+          //   }]
+          // },
           {
             label: '岗位类型',
             prop: 'category',

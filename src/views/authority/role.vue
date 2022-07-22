@@ -596,6 +596,7 @@ export default {
       modifyMemberOfRole(params).then(res => {
         this.$message.success(res.data.message || '操作成功');
         this.member.visible = false;
+        this.onLoad(this.page);
       });
     },
   },
