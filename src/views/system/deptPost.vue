@@ -24,7 +24,7 @@
                    size="small"
                    icon="el-icon-delete"
                    plain
-                   v-if="permission.post_delete"
+                   v-if="permission.deptPost_delete"
                    @click="handleDelete">删 除
         </el-button>
       </template>
@@ -340,10 +340,10 @@ export default {
     ...mapGetters(['permission']),
     permissionList() {
       return {
-        addBtn: this.vaildData(this.permission.post_add, false),
-        viewBtn: this.vaildData(this.permission.post_view, false),
-        delBtn: this.vaildData(this.permission.post_delete, false),
-        editBtn: this.vaildData(this.permission.post_edit, false)
+        addBtn: this.vaildData(this.permission.deptPost_add, false),
+        viewBtn: this.vaildData(this.permission.deptPost_view, false),
+        delBtn: this.vaildData(this.permission.deptPost_delete, false),
+        editBtn: this.vaildData(this.permission.deptPost_edit, false)
       };
     },
     ids() {

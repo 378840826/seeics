@@ -22,7 +22,7 @@
         <el-button type="danger"
                    size="small"
                    icon="el-icon-delete"
-                   v-if="permission.role_delete"
+                   v-if="permission.deptRole_delete"
                    plain
                    @click="handleDelete">删 除
         </el-button>
@@ -171,7 +171,7 @@ import {
   add,
   getList,
   getRole,
-  getRoleTreeById,
+  // getRoleTreeById,
   grant,
   grantTree,
   remove,
@@ -181,6 +181,7 @@ import {
   modifyMemberOfRole,
   getMemberOwnedMenu,
 } from '@/api/system/deptRole';
+import { getRoleTree } from '@/api/system/deptRole';
 import { mapGetters } from 'vuex';
 // import website from '@/config/website';
 
@@ -336,10 +337,10 @@ export default {
     ...mapGetters(['userInfo', 'permission']),
     permissionList() {
       return {
-        addBtn: this.vaildData(this.permission.role_add, false),
-        viewBtn: this.vaildData(this.permission.role_view, false),
-        delBtn: this.vaildData(this.permission.role_delete, false),
-        editBtn: this.vaildData(this.permission.role_edit, false)
+        addBtn: this.vaildData(this.permission.deptRole_add, false),
+        viewBtn: this.vaildData(this.permission.deptRole_view, false),
+        delBtn: this.vaildData(this.permission.deptRole_delete, false),
+        editBtn: this.vaildData(this.permission.deptRole_edit, false)
       };
     },
     ids() {
@@ -376,7 +377,7 @@ export default {
   },
   methods: {
     initData(roleId){
-      getRoleTreeById(roleId).then(res => {
+      getRoleTree(roleId).then(res => {
         const column = this.findObject(this.option.column, 'parentId');
         column.dicData = res.data.data;
       });

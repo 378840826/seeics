@@ -25,20 +25,20 @@
                     size="small"
                     plain
                     icon="el-icon-delete"
-                    v-if="permission.user_delete"
+                    v-if="permission.deptUser_delete"
                     @click="handleDelete">删 除
         </el-button>
         <el-button type="info"
                     size="small"
                     plain
-                    v-if="permission.user_role"
+                    v-if="permission.deptUser_role"
                     icon="el-icon-user"
                     @click="handleGrant">角色配置
         </el-button>
         <el-button type="info"
                     size="small"
                     plain
-                    v-if="permission.user_reset"
+                    v-if="permission.deptUser_reset"
                     icon="el-icon-refresh"
                     @click="handleReset">密码重置
         </el-button>
@@ -340,20 +340,20 @@ export default {
                   },
                 ],
               },
-              // {
-              //   label: '所属租户',
-              //   prop: 'tenantId',
-              //   type: 'tree',
-              //   dicUrl: '/api/blade-system/tenant/select',
-              //   props: {
-              //     label: 'tenantName',
-              //     value: 'tenantId'
-              //   },
-              //   value: '000000',
-              //   addDisplay: false,
-              //   editDisplay: false,
-              //   viewDisplay: false,
-              // },
+              {
+                label: '所属租户',
+                prop: 'tenantId',
+                type: 'tree',
+                // dicUrl: '/api/blade-system/tenant/select',
+                props: {
+                  label: 'tenantName',
+                  value: 'tenantId'
+                },
+                value: '000000',
+                addDisplay: false,
+                editDisplay: false,
+                viewDisplay: false,
+              },
               // {
               //   label: '用户平台',
               //   type: 'select',
@@ -654,10 +654,10 @@ export default {
     ...mapGetters(['userInfo', 'permission']),
     permissionList() {
       return {
-        addBtn: this.vaildData(this.permission.user_add, false),
-        viewBtn: this.vaildData(this.permission.user_view, false),
-        delBtn: this.vaildData(this.permission.user_delete, false),
-        editBtn: this.vaildData(this.permission.user_edit, false)
+        addBtn: this.vaildData(this.permission.deptUser_add, false),
+        viewBtn: this.vaildData(this.permission.deptUser_view, false),
+        delBtn: this.vaildData(this.permission.deptUser_delete, false),
+        editBtn: this.vaildData(this.permission.deptUser_edit, false)
       };
     },
     // platformPermissionList() {
