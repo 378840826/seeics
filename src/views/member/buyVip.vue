@@ -85,6 +85,7 @@
 import { buyInfo, buyPage } from '@/api/member/member';
 import buyDialog from './componets/buyDialog';
 export default {
+  name: 'buyVip',
   components: {
     buyDialog
   },
