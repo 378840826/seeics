@@ -26,10 +26,11 @@
                    plain
                    @click="handleDelete">删 除
         </el-button>
+        <!-- v-if="userInfo.role_name.includes('admin')" -->
         <el-button size="small"
                    icon="el-icon-setting"
                    @click="handleRole"
-                   v-if="userInfo.role_name.includes('admin')"
+                   v-if="permission.deptRole_permissionSetting"
                    plain>权限设置
         </el-button>
       </template>

@@ -40,6 +40,7 @@
                    plain>权限设置
         </el-button>
         <el-button size="small"
+                   v-if="permission.deptPost_storeSetting"
                    icon="el-icon-setting"
                    @click="handleClickStoreSet"
                    :loading="storeBtnLoading"
@@ -542,6 +543,10 @@ export default {
         // 获取当前岗位拥有的店铺
         getDeptPostStore(params).then(res => {
           const storeIds = res.data.data.map(item => item.id);
+          if (storeIds.length === 0) {
+            this.$message.warning('没有绑定店铺！请前往“我的店铺”进行绑定授权');
+            return;
+          }
           this.storeChecked = storeIds;
           this.storeVisible = true;
           this.handleCheckedStoreChange(storeIds);
