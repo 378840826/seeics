@@ -17,8 +17,8 @@
             <div>
               <p v-for="i in item.priceList" :key="i.id">{{i.price + '/' + i.unitName}}</p>
             </div>
-            <el-button v-if="item.name !== '普通会员'" size="mini" @click="handlePrice(idx, item.name)">购买</el-button>
-            <p v-else class="bot p">永久免费</p>
+            <!-- <el-button v-if="item.name !== '普通会员'" size="mini" @click="handlePrice(idx, item.name)">购买</el-button> -->
+            <p  class="bot p">永久免费</p>
           </el-card>
         </el-col>
         <el-col :span="4">
@@ -39,16 +39,64 @@
         prop="functionName"
         label="功能">
       </el-table-column>
-      <el-table-column
+      <!-- <el-table-column
         prop="普通会员"
         align="center"
         label="普通会员">
+        <template slot-scope="scope"> -->
+          <!-- <el-input v-model="scope.row['普通会员']" @input="inputs(scope.row)"/> -->
+          <!-- <div v-if="!scope.row.commonVip" class="nus">{{`${scope.row['普通会员'] || 0}` + scope.row.unitName}}
+            <el-button 
+              type="text" 
+              size="mini" 
+              @click="hanldeEdit(scope.row.function, 'commonVip', scope.row['普通会员'])"
+              class="el-icon-edit edit"/>
+          </div>
+          <div v-else>
+            <el-input v-model="scope.row['普通会员']"/>
+            <div style="width: 68px; float: right;">
+              <el-button 
+                size="mini" 
+                @click="hanldClose(scope.row.function, 'commonVip', '普通会员')"
+                class="el-icon-close"/>
+              <el-button size="mini" class="el-icon-check" style="marginLeft: 0"/>
+            </div>
+          </div>
+        </template>
+      </el-table-column> -->
+    
+      <el-table-column
+        v-for="item in column"
+        :key="item.prop"
+        align="center"
+        :prop="item.prop"
+        :label="item.label">
         <template slot-scope="scope">
           <!-- <el-input v-model="scope.row['普通会员']" @input="inputs(scope.row)"/> -->
-          <div>{{scope.row['普通会员'] + scope.row.unitName}}</div>
+          <div v-if="!scope.row['commonVip' + item.prop]" class="nus">{{`${scope.row[item.prop] || 0}` + scope.row.unitName}}
+            <el-button 
+              type="text" 
+              size="mini" 
+              @click="hanldeEdit(scope.row.function, 'commonVip' + item.prop, scope.row[item.prop], item.prop)"
+              class="el-icon-edit edit"/>
+          </div>
+          <div v-else>
+            <el-input v-model="scope.row[item.prop]" type="number"/>
+            <div style="width: 68px; float: right;">
+              <el-button 
+                size="mini" 
+                @click="hanldClose(scope.row.function, 'commonVip' + item.prop, item.prop)"
+                class="el-icon-close"/>
+              <el-button
+                size="mini" 
+                class="el-icon-check" 
+                :disabled="!scope.row[item.prop]"
+                style="marginLeft: 0"/>
+            </div>
+          </div>
         </template>
       </el-table-column>
-      <el-table-column
+      <!-- <el-table-column
         align="center"
         prop="VIP"
         label="VIP">
@@ -62,7 +110,7 @@
         align="center"
         prop="至尊VIP"
         label="至尊VIP">
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column
         align="center"
         prop="address"
@@ -97,6 +145,24 @@ export default {
       data: [],
       priceList: [],
       isBuyDialog: false,
+      column: [
+        {
+          label: '普通会员',
+          prop: '普通会员',
+        },
+        {
+          label: 'VIP',
+          prop: 'VIP',
+        },
+        {
+          label: '高级VIP',
+          prop: '高级VIP',
+        },
+        {
+          label: '至尊VIP',
+          prop: '至尊VIP',
+        },
+      ],
       option: {
         emptyText: '暂无数据',
         addBtn: false,
@@ -145,6 +211,10 @@ export default {
       //   pageSize: 20,
       //   pageSizes: [20, 50, 100],
       // },
+      inputVal: 0,
+      editFiled: '',
+      fun: 0,
+      filed: ''
     };
   },
   mounted() {
@@ -167,18 +237,43 @@ export default {
               ...obj[i + 1],
               [item.name]: s.frequency,
               functionName: s.functionName,
-              unitName: s.unitName
+              unitName: s.unitName,
+              function: s.function,
             } ;
           });
         });
         this.data = obj;
       });
+      
     },
     handlePrice(index, name) {
       
       this.isBuyDialog = true;
       this.title = name;
       this.priceLists = this.priceList[index].priceList;
+    },
+    hanldeEdit(fun, name, val, filed) {
+      this.hanldClose(this.fun, this.editFiled, this.filed);
+      this.inputVal = val;
+      this.editFiled = name;
+      this.fun = fun;
+      this.filed = filed;
+      this.data = this.data.map(item => {
+        item[name] = false;
+        if (item.function === fun) {
+          item[name] = true;
+        }
+        return item;
+      });
+    },
+    hanldClose(val, name, filed) {
+      this.data = this.data.map(item => {
+        if (item.function === val) {
+          item[name] = false;
+          item[filed] = this.inputVal;
+        }
+        return item;
+      });
     }
   }
 };
@@ -200,4 +295,24 @@ export default {
         margin-top: 95px;
       }
     }
+  ::v-deep {
+    .el-button--mini, .el-button--mini.is-round {
+      padding: 5px 10px;
+    }
+    .el-input__inner {
+      height: 28px;
+    }
+    .el-input__inner::-webkit-inner-spin-button,
+    .el-input__inner::-webkit-outer-spin-button {
+      -webkit-appearance: none !important;
+    }
+  }
+  .nus:hover {
+    .edit {
+    display: inline-block;
+  }
+  }
+  .edit {
+    display: none;
+  }
 </style>

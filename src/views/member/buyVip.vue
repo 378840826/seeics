@@ -78,6 +78,20 @@
         i
       }"
     />
+    <el-dialog
+      :visible.sync="dialogVisible"
+      width="400px"
+      :append-to-body="true"
+      :show-close="false"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      center
+      :before-close="handleClose">
+      <span>您已是会员，请到我的会员续费或升级！</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" size="mini" @click="dialogVisible = false; $router.push('/member/index')">确 定</el-button>
+      </span>
+    </el-dialog>
   </basic-container>
 </template>
 
@@ -94,6 +108,7 @@ export default {
       data: [],
       priceList: [],
       isBuyDialog: false,
+      dialogVisible: false,
       option: {
         emptyText: '暂无数据',
         addBtn: false,
@@ -145,17 +160,18 @@ export default {
     };
   },
   mounted() {
-    buyInfo().then(res => {
-      console.log(res);
-    });
+    // buyInfo().then(res => {
+    //   console.log(res);
+    // });
     this.buyPage();
   },
   methods: {
     buyPage() {
-      buyPage({ current: 1, size: 20, levelType: 1 }).then(res => {
-        const obj = new Array(res.data.data.records[0].functionList.length);
-        this.priceList = res.data.data.records;
-        res.data.data.records.map(item => {
+      buyInfo().then(res => {
+        const obj = new Array(res.data.data.memberLevelInfoListVoList[0].functionList.length);
+        this.priceList = res.data.data.memberLevelInfoListVoList;
+        this.dialogVisible = !res.data.data.currentIsDefaultMember;
+        res.data.data.memberLevelInfoListVoList.map(item => {
           item.functionList.map((s, i) => {
             obj[i + 1] = {
               ...obj[i + 1],
