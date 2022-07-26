@@ -61,7 +61,7 @@
                    :props="props">
           </el-tree>
         </el-tab-pane>
-        <el-tab-pane label="数据权限">
+        <!-- <el-tab-pane label="数据权限">
           <el-tree :data="dataScopeGrantList"
                    show-checkbox
                    node-key="id"
@@ -78,7 +78,7 @@
                    :default-checked-keys="apiScopeTreeObj"
                    :props="props">
           </el-tree>
-        </el-tab-pane>
+        </el-tab-pane> -->
       </el-tabs>
 
       <span slot="footer"

@@ -354,24 +354,22 @@ export default {
                 editDisplay: false,
                 viewDisplay: false,
               },
-              // {
-              //   label: '用户平台',
-              //   type: 'select',
-              //   dicUrl: '/api/blade-system/dict/dictionary?code=user_type',
-              //   props: {
-              //     label: 'dictValue',
-              //     value: 'dictKey'
-              //   },
-              //   value: '1',
-              //   dataType: 'number',
-              //   slot: true,
-              //   prop: 'userType',
-              //   rules: [{
-              //     required: true,
-              //     message: '请选择用户平台',
-              //     trigger: 'blur'
-              //   }]
-              // },
+              {
+                label: '用户平台',
+                type: 'select',
+                dicUrl: '/api/blade-system/dict/dictionary?code=user_type',
+                props: {
+                  label: 'dictValue',
+                  value: 'dictKey'
+                },
+                value: '1',
+                dataType: 'number',
+                slot: true,
+                prop: 'userType',
+                addDisplay: false,
+                editDisplay: false,
+                viewDisplay: false,
+              },
               {
                 label: '密码',
                 prop: 'password',
@@ -884,8 +882,11 @@ export default {
       this.loading = true;
       getList(page.currentPage, page.pageSize, Object.assign(params, this.query), this.treeDeptId).then(res => {
         const data = res.data.data;
-        this.page.total = data.total;
-        this.data = data.records;
+        // 不显示主账号，通过 createUser 判断， 为 null 时不显示
+        const records = data.records.filter(item => item.createUser && item);
+        const mainLength = data.records.length - records.length;
+        this.page.total = data.total - mainLength;
+        this.data = records;
         this.loading = false;
         this.selectionClear();
       });
