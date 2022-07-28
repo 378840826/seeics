@@ -467,11 +467,18 @@ export default {
                 prop: 'email',
                 hide: true,
                 overHidden: true,
-                rules: [{
-                  required: true,
-                  message: '请输入电子邮箱',
-                  trigger: 'blur'
-                }],
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入电子邮箱',
+                    trigger: 'blur'
+                  },
+                  {
+                    pattern: /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((.[a-zA-Z0-9_-]{2,3}){1,2})$/,
+                    message: '邮箱格式不正确',
+                    trigger: 'blur',
+                  },
+                ],
               },
               {
                 label: '用户性别',

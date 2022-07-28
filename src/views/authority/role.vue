@@ -620,10 +620,15 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-
 }
 
 .input-filter_name {
   width: 200px;
+}
+
+::v-deep {
+  .avue-crud--card .el-card__body {
+    padding-bottom: 20px;
+  }
 }
 </style>

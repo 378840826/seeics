@@ -37,7 +37,7 @@
                    icon="el-icon-setting"
                    @click="handleClickRoleSet"
                    :loading="roleBtnLoading"
-                   plain>权限设置
+                   plain>角色配置
         </el-button>
         <el-button size="small"
                    icon="el-icon-setting"

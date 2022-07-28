@@ -625,7 +625,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-
 }
 
 .input-filter_name {
@@ -636,5 +635,11 @@ export default {
   padding: 3px 10px;
   display: flex;
   justify-content: flex-end;
+}
+
+::v-deep {
+  .avue-crud--card .el-card__body {
+    padding-bottom: 20px;
+  }
 }
 </style>
