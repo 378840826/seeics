@@ -1,4 +1,4 @@
-<!-- 岗位管理 -->
+<!-- 机构岗位 -->
 <template>
   <basic-container>
     <avue-crud :option="option"
@@ -24,7 +24,7 @@
                    size="small"
                    icon="el-icon-delete"
                    plain
-                   v-if="permission.post_delete"
+                   v-if="permission.deptPost_delete"
                    @click="handleDelete">删 除
         </el-button>
       </template>
@@ -40,6 +40,7 @@
                    plain>角色配置
         </el-button>
         <el-button size="small"
+                   v-if="permission.deptPost_storeSetting"
                    icon="el-icon-setting"
                    @click="handleClickStoreSet"
                    :loading="storeBtnLoading"
@@ -175,22 +176,24 @@
 </template>
 
 <script>
-import { getList, getDetail, add, update, remove } from '@/api/system/post';
-// 权限改造新增的接口
 import {
-  getStoreList,
-  getPostStore,
-  modifyPostStore,
-  getRoleList,
-  getPostRole,
-  modifyPostRole,
+  getList,
+  getDetail,
+  add,
+  update,
+  remove,
+  getDeptStore,
+  getDeptPostStore,
+  modifyDeptPostStore,
+  getDeptRole,
+  getDeptPostRole,
+  modifyDeptPostRole,
   getMemberOwnedPost,
   getMemberNotOwnedPost,
   modifyMemberOfPost,
-} from '@/api/system/post';
-
+} from '@/api/system/deptPost';
 import { mapGetters } from 'vuex';
-import website from '@/config/website';
+// import website from '@/config/website';
 
 export default {
   data() {
@@ -253,26 +256,26 @@ export default {
         dialogClickModal: false,
         menuWidth: 300,
         column: [
-          {
-            label: '所属租户',
-            prop: 'tenantId',
-            type: 'tree',
-            dicUrl: '/api/blade-system/tenant/select',
-            addDisplay: false,
-            editDisplay: false,
-            viewDisplay: website.tenantMode,
-            span: 24,
-            props: {
-              label: 'tenantName',
-              value: 'tenantId'
-            },
-            hide: !website.tenantMode,
-            rules: [{
-              required: true,
-              message: '请输入所属租户',
-              trigger: 'click'
-            }]
-          },
+          // {
+          //   label: '所属租户',
+          //   prop: 'tenantId',
+          //   type: 'tree',
+          //   dicUrl: '/api/blade-system/tenant/select',
+          //   addDisplay: false,
+          //   editDisplay: false,
+          //   viewDisplay: website.tenantMode,
+          //   span: 24,
+          //   props: {
+          //     label: 'tenantName',
+          //     value: 'tenantId'
+          //   },
+          //   hide: !website.tenantMode,
+          //   rules: [{
+          //     required: true,
+          //     message: '请输入所属租户',
+          //     trigger: 'click'
+          //   }]
+          // },
           {
             label: '岗位类型',
             prop: 'category',
@@ -338,10 +341,10 @@ export default {
     ...mapGetters(['permission']),
     permissionList() {
       return {
-        addBtn: this.vaildData(this.permission.post_add, false),
-        viewBtn: this.vaildData(this.permission.post_view, false),
-        delBtn: this.vaildData(this.permission.post_delete, false),
-        editBtn: this.vaildData(this.permission.post_edit, false)
+        addBtn: this.vaildData(this.permission.deptPost_add, false),
+        viewBtn: this.vaildData(this.permission.deptPost_view, false),
+        delBtn: this.vaildData(this.permission.deptPost_delete, false),
+        editBtn: this.vaildData(this.permission.deptPost_edit, false)
       };
     },
     ids() {
@@ -351,7 +354,7 @@ export default {
       });
       return ids.join(',');
     },
-    // 全部店铺的 id 数组
+    // 机构全部店铺的 id 数组
     storeIds() {
       return this.storeList.map(item => item.id);
     },
@@ -490,14 +493,14 @@ export default {
       }
       this.roleBtnLoading = true;
       this.roleTreeObj = [];
-      // 获取全部角色
-      getRoleList({}).then(res => {
+      // 获取机构下的全部角色
+      getDeptRole().then(res => {
         this.roleList = res.data.data;
         const params = {
           postId: this.selectionList[0].id,
         };
         // 获取当前岗位拥有的角色
-        getPostRole(params).then(res => {
+        getDeptPostRole(params).then(res => {
           this.roleTreeObj = res.data.data.map(item => item.id);
           this.roleVisible = true;
         }).finally(() => {
@@ -513,7 +516,7 @@ export default {
         postId: this.selectionList[0].id,
         addIds: roleIds,
       };
-      modifyPostRole(params).then(() => {
+      modifyDeptPostRole(params).then(() => {
         this.roleVisible = false;
         this.$message({
           type: 'success',
@@ -530,16 +533,20 @@ export default {
       }
       this.storeBtnLoading = true;
       this.storeChecked = [];
-      // 获取全部店铺
-      getStoreList().then(res => {
+      // 获取机构下的全部店铺
+      getDeptStore().then(res => {
         const list = res.data.data.sort((a, b) => a.storeName.localeCompare(b.storeName));
         this.storeList = list;
         const params = {
           postId: this.selectionList[0].id,
         };
         // 获取当前岗位拥有的店铺
-        getPostStore(params).then(res => {
+        getDeptPostStore(params).then(res => {
           const storeIds = res.data.data.map(item => item.id);
+          if (storeIds.length === 0) {
+            this.$message.warning('没有绑定店铺！请前往“我的店铺”进行绑定授权');
+            return;
+          }
           this.storeChecked = storeIds;
           this.storeVisible = true;
           this.handleCheckedStoreChange(storeIds);
@@ -555,7 +562,7 @@ export default {
         postId: this.selectionList[0].id,
         addIds: this.storeChecked,
       };
-      modifyPostStore(params).then(() => {
+      modifyDeptPostStore(params).then(() => {
         this.storeVisible = false;
         this.$message({
           type: 'success',

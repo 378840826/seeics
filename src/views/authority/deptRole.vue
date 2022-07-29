@@ -1,4 +1,4 @@
-<!-- 角色管理 -->
+<!-- 机构角色 -->
 <template>
   <basic-container>
     <avue-crud :option="option"
@@ -22,14 +22,15 @@
         <el-button type="danger"
                    size="small"
                    icon="el-icon-delete"
-                   v-if="permission.role_delete"
+                   v-if="permission.deptRole_delete"
                    plain
                    @click="handleDelete">删 除
         </el-button>
+        <!-- v-if="userInfo.role_name.includes('admin')" -->
         <el-button size="small"
                    icon="el-icon-setting"
                    @click="handleRole"
-                   v-if="userInfo.role_name.includes('admin')"
+                   v-if="permission.deptRole_permissionSetting"
                    plain>权限设置
         </el-button>
       </template>
@@ -60,7 +61,7 @@
                    :props="props">
           </el-tree>
         </el-tab-pane>
-        <el-tab-pane label="数据权限">
+        <!-- <el-tab-pane label="数据权限">
           <el-tree :data="dataScopeGrantList"
                    show-checkbox
                    node-key="id"
@@ -77,7 +78,7 @@
                    :default-checked-keys="apiScopeTreeObj"
                    :props="props">
           </el-tree>
-        </el-tab-pane>
+        </el-tab-pane> -->
       </el-tabs>
 
       <span slot="footer"
@@ -109,10 +110,9 @@
               :no-data-text="未找到相关数据"
               size="small"
               class="select"
-              popper-class="seeics-st-select"
               @clear="handleClearMemberSelected"
             >
-              <div class="seeics-st-check_all">
+              <div class="check_all">
                 <el-checkbox
                   v-model="member.checkedAll"
                   @change="handleMemberCheckAllChange"
@@ -172,7 +172,7 @@ import {
   add,
   getList,
   getRole,
-  getRoleTreeById,
+  // getRoleTreeById,
   grant,
   grantTree,
   remove,
@@ -180,9 +180,11 @@ import {
   getMemberOwnedRole,
   getMemberNotOwnedRole,
   modifyMemberOfRole,
-} from '@/api/system/role';
+  getMemberOwnedMenu,
+} from '@/api/system/deptRole';
+import { getRoleTree } from '@/api/system/deptRole';
 import { mapGetters } from 'vuex';
-import website from '@/config/website';
+// import website from '@/config/website';
 
 export default {
   data() {
@@ -235,27 +237,27 @@ export default {
               }
             ]
           },
-          {
-            label: '所属租户',
-            prop: 'tenantId',
-            type: 'tree',
-            dicUrl: '/api/blade-system/tenant/select',
-            addDisplay: false,
-            editDisplay: false,
-            viewDisplay: website.tenantMode,
-            span: 24,
-            props: {
-              label: 'tenantName',
-              value: 'tenantId'
-            },
-            hide: !website.tenantMode,
-            search: website.tenantMode,
-            rules: [{
-              required: true,
-              message: '请输入所属租户',
-              trigger: 'click'
-            }]
-          },
+          // {
+          //   label: '所属租户',
+          //   prop: 'tenantId',
+          //   type: 'tree',
+          //   dicUrl: '/api/blade-system/tenant/select',
+          //   addDisplay: false,
+          //   editDisplay: false,
+          //   viewDisplay: website.tenantMode,
+          //   span: 24,
+          //   props: {
+          //     label: 'tenantName',
+          //     value: 'tenantId'
+          //   },
+          //   hide: !website.tenantMode,
+          //   search: website.tenantMode,
+          //   rules: [{
+          //     required: true,
+          //     message: '请输入所属租户',
+          //     trigger: 'click'
+          //   }]
+          // },
           {
             label: '角色别名',
             prop: 'roleAlias',
@@ -336,10 +338,10 @@ export default {
     ...mapGetters(['userInfo', 'permission']),
     permissionList() {
       return {
-        addBtn: this.vaildData(this.permission.role_add, false),
-        viewBtn: this.vaildData(this.permission.role_view, false),
-        delBtn: this.vaildData(this.permission.role_delete, false),
-        editBtn: this.vaildData(this.permission.role_edit, false)
+        addBtn: this.vaildData(this.permission.deptRole_add, false),
+        viewBtn: this.vaildData(this.permission.deptRole_view, false),
+        delBtn: this.vaildData(this.permission.deptRole_delete, false),
+        editBtn: this.vaildData(this.permission.deptRole_edit, false)
       };
     },
     ids() {
@@ -376,16 +378,16 @@ export default {
   },
   methods: {
     initData(roleId){
-      getRoleTreeById(roleId).then(res => {
+      getRoleTree(roleId).then(res => {
         const column = this.findObject(this.option.column, 'parentId');
         column.dicData = res.data.data;
       });
     },
     submit() {
       const menuList = this.$refs.treeMenu.getCheckedKeys();
-      const dataScopeList = this.$refs.treeDataScope.getCheckedKeys();
-      const apiScopeList = this.$refs.treeApiScope.getCheckedKeys();
-      grant(this.idsArray, menuList, dataScopeList, apiScopeList).then(() => {
+      // const dataScopeList = this.$refs.treeDataScope.getCheckedKeys();
+      // const apiScopeList = this.$refs.treeApiScope.getCheckedKeys();
+      grant(this.idsArray, menuList).then(() => {
         this.box = false;
         this.$message({
           type: 'success',
@@ -471,14 +473,17 @@ export default {
       this.apiScopeTreeObj = [];
       grantTree()
         .then(res => {
-          this.menuGrantList = res.data.data.menu;
           this.dataScopeGrantList = res.data.data.dataScope;
           this.apiScopeGrantList = res.data.data.apiScope;
-          getRole(this.ids).then(res => {
-            this.menuTreeObj = res.data.data.menu;
-            this.dataScopeTreeObj = res.data.data.dataScope;
-            this.apiScopeTreeObj = res.data.data.apiScope;
-            this.box = true;
+          // 获取菜单权限树（不用 grantTree获取的 menu）
+          getMemberOwnedMenu().then(res => {
+            this.menuGrantList = res.data.data.menu;
+            getRole(this.ids).then(res => {
+              this.menuTreeObj = res.data.data.menu;
+              this.dataScopeTreeObj = res.data.data.dataScope;
+              this.apiScopeTreeObj = res.data.data.apiScope;
+              this.box = true;
+            });
           });
         });
     },
@@ -624,6 +629,12 @@ export default {
 
 .input-filter_name {
   width: 200px;
+}
+
+.check_all {
+  padding: 3px 10px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 ::v-deep {

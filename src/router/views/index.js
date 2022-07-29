@@ -23,6 +23,24 @@ export default [{
       import( /* webpackChunkName: "views" */ '@/views/wel/dashboard')
   }]
 }, {
+  path: '/system',
+  component: Layout,
+  children: [
+    {
+      path: '/system/dept_post',
+      name: '机构岗位',
+      component: () => import('@/views/system/deptPost'),
+    }, {
+      path: '/authority/dept_role',
+      name: '机构角色',
+      component: () => import('@/views/authority/deptRole'),
+    }, {
+      path: '/system/dept_user',
+      name: '机构用户',
+      component: () => import('@/views/system/deptUser'),
+    },
+  ],
+}, {
   path: '/ppc',
   component: Layout,
   children: [

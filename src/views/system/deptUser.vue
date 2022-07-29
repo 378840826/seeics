@@ -1,189 +1,176 @@
+<!-- 机构用户 -->
 <template>
-  <el-row>
-    <el-col :span="5">
-      <div class="box">
-        <el-scrollbar>
-          <basic-container>
-            <avue-tree :option="treeOption" :data="treeData" @node-click="nodeClick"/>
-          </basic-container>
-        </el-scrollbar>
-      </div>
-    </el-col>
-    <el-col :span="19">
-      <basic-container>
-        <avue-crud :option="option"
-                   :search.sync="search"
-                   :table-loading="loading"
-                   :data="data"
-                   ref="crud"
-                   v-model="form"
-                   :permission="permissionList"
-                   @row-del="rowDel"
-                   @row-update="rowUpdate"
-                   @row-save="rowSave"
-                   :before-open="beforeOpen"
-                   :page.sync="page"
-                   @search-change="searchChange"
-                   @search-reset="searchReset"
-                   @selection-change="selectionChange"
-                   @current-change="currentChange"
-                   @size-change="sizeChange"
-                   @refresh-change="refreshChange"
-                   @on-load="onLoad">
-          <template slot="menuLeft">
-            <el-button type="danger"
-                       size="small"
-                       plain
-                       icon="el-icon-delete"
-                       v-if="permission.user_delete"
-                       @click="handleDelete">删 除
-            </el-button>
-            <el-button type="info"
-                       size="small"
-                       plain
-                       v-if="permission.user_role"
-                       icon="el-icon-user"
-                       @click="handleGrant">角色配置
-            </el-button>
-            <el-button type="info"
-                       size="small"
-                       plain
-                       v-if="permission.user_reset"
-                       icon="el-icon-refresh"
-                       @click="handleReset">密码重置
-            </el-button>
-            <el-button type="info"
-                       size="small"
-                       plain
-                       v-if="userInfo.role_name.includes('admin')"
-                       icon="el-icon-setting"
-                       @click="handlePlatform">平台配置
-            </el-button>
-            <el-button type="success"
-                       size="small"
-                       plain
-                       v-if="userInfo.role_name.includes('admin')"
-                       icon="el-icon-upload2"
-                       @click="handleImport">导入
-            </el-button>
-            <el-button type="warning"
-                       size="small"
-                       plain
-                       v-if="userInfo.role_name.includes('admin')"
-                       icon="el-icon-download"
-                       @click="handleExport">导出
-            </el-button>
-          </template>
-          <!-- 用户状态 -->
-          <template slot-scope="{row}"
-                    slot="isDisable">
-            <template v-if="row.isDisable === 0">
-              <span>启用</span>
-            </template>
-            <template v-if="row.isDisable === 1">
-              <span class="disable">禁用</span>
-            </template>
-          </template>
+  <basic-container>
+    <avue-crud :option="option"
+                :search.sync="search"
+                :table-loading="loading"
+                :data="data"
+                ref="crud"
+                v-model="form"
+                :permission="permissionList"
+                @row-del="rowDel"
+                @row-update="rowUpdate"
+                @row-save="rowSave"
+                :before-open="beforeOpen"
+                :page.sync="page"
+                @search-change="searchChange"
+                @search-reset="searchReset"
+                @selection-change="selectionChange"
+                @current-change="currentChange"
+                @size-change="sizeChange"
+                @refresh-change="refreshChange"
+                @on-load="onLoad">
+      <template slot="menuLeft">
+        <el-button type="danger"
+                    size="small"
+                    plain
+                    icon="el-icon-delete"
+                    v-if="permission.deptUser_delete"
+                    @click="handleDelete">删 除
+        </el-button>
+        <el-button type="info"
+                    size="small"
+                    plain
+                    v-if="permission.deptUser_role"
+                    icon="el-icon-user"
+                    @click="handleGrant">角色配置
+        </el-button>
+        <el-button type="info"
+                    size="small"
+                    plain
+                    v-if="permission.deptUser_reset"
+                    icon="el-icon-refresh"
+                    @click="handleReset">密码重置
+        </el-button>
+        <!-- <el-button type="info"
+                    size="small"
+                    plain
+                    v-if="userInfo.role_name.includes('admin')"
+                    icon="el-icon-setting"
+                    @click="handlePlatform">平台配置
+        </el-button> -->
+        <el-button type="success"
+                    size="small"
+                    plain
+                    v-if="userInfo.role_name.includes('admin')"
+                    icon="el-icon-upload2"
+                    @click="handleImport">导入
+        </el-button>
+        <el-button type="warning"
+                    size="small"
+                    plain
+                    v-if="userInfo.role_name.includes('admin')"
+                    icon="el-icon-download"
+                    @click="handleExport">导出
+        </el-button>
+      </template>
+      <!-- 用户状态 -->
+      <template slot-scope="{row}"
+                slot="isDisable">
+        <template v-if="row.isDisable === 0">
+          <span>启用</span>
+        </template>
+        <template v-if="row.isDisable === 1">
+          <span class="disable">禁用</span>
+        </template>
+      </template>
 
-          <template slot-scope="{row}"
-                    slot="tenantName">
-            <el-tag>{{row.tenantName}}</el-tag>
-          </template>
-          <template slot-scope="{row}"
-                    slot="roleName">
-            <el-tag>{{row.roleName}}</el-tag>
-          </template>
-          <template slot-scope="{row}"
-                    slot="deptName">
-            <el-tag>{{row.deptName}}</el-tag>
-          </template>
-          <template slot-scope="{row}"
-                    slot="userTypeName">
-            <el-tag>{{row.userTypeName}}</el-tag>
-          </template>
-        </avue-crud>
-        <el-dialog title="用户角色配置"
-                   append-to-body
-                   :visible.sync="roleBox"
-                   width="345px">
+      <!-- <template slot-scope="{row}"
+                slot="tenantName">
+        <el-tag>{{row.tenantName}}</el-tag>
+      </template> -->
+      <template slot-scope="{row}"
+                slot="roleName">
+        <el-tag>{{row.roleName}}</el-tag>
+      </template>
+      <template slot-scope="{row}"
+                slot="deptName">
+        <el-tag>{{row.deptName}}</el-tag>
+      </template>
+      <template slot-scope="{row}"
+                slot="userTypeName">
+        <el-tag>{{row.userTypeName}}</el-tag>
+      </template>
+    </avue-crud>
+    <el-dialog title="用户角色配置"
+                append-to-body
+                :visible.sync="roleBox"
+                width="345px">
 
-          <el-tree :data="roleGrantList"
-                   show-checkbox
-                   check-strictly
-                   default-expand-all
-                   node-key="id"
-                   ref="treeRole"
-                   :default-checked-keys="roleTreeObj"
-                   :props="props">
-          </el-tree>
+      <el-tree :data="roleGrantList"
+                show-checkbox
+                check-strictly
+                default-expand-all
+                node-key="id"
+                ref="treeRole"
+                :default-checked-keys="roleTreeObj"
+                :props="props">
+      </el-tree>
 
-          <span slot="footer" class="dialog-footer">
-            <el-button @click="roleBox = false">取 消</el-button>
-            <el-button type="primary"
-                       @click="submitRole">确 定</el-button>
-          </span>
-        </el-dialog>
-        <el-dialog title="用户数据导入"
-                   append-to-body
-                   :visible.sync="excelBox"
-                   width="555px">
-          <avue-form :option="excelOption" v-model="excelForm" :upload-after="uploadAfter">
-            <template slot="excelTemplate">
-              <el-button type="primary" @click="handleTemplate">
-                点击下载<i class="el-icon-download el-icon--right"></i>
-              </el-button>
-            </template>
-          </avue-form>
-        </el-dialog>
-        <el-dialog title="用户平台配置"
-                   append-to-body
-                   :visible.sync="platformBox">
-          <avue-crud :option="platformOption"
-                     :table-loading="platformLoading"
-                     :data="platformData"
-                     ref="platformCrud"
-                     v-model="platformForm"
-                     :before-open="platformBeforeOpen"
-                     :page.sync="platformPage"
-                     :permission="platformPermissionList"
-                     @row-update="platformRowUpdate"
-                     @search-change="platformSearchChange"
-                     @search-reset="platformSearchReset"
-                     @selection-change="platformSelectionChange"
-                     @current-change="platformCurrentChange"
-                     @size-change="platformSizeChange"
-                     @refresh-change="platformRefreshChange"
-                     @on-load="platformOnLoad">
-            <template slot-scope="{row}"
-                      slot="tenantName">
-              <el-tag>{{row.tenantName}}</el-tag>
-            </template>
-            <template slot-scope="{row}"
-                      slot="userTypeName">
-              <el-tag>{{row.userTypeName}}</el-tag>
-            </template>
-          </avue-crud>
-        </el-dialog>
-      </basic-container>
-    </el-col>
-  </el-row>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="roleBox = false">取 消</el-button>
+        <el-button type="primary"
+                    @click="submitRole">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog title="用户数据导入"
+                append-to-body
+                :visible.sync="excelBox"
+                width="555px">
+      <avue-form :option="excelOption" v-model="excelForm" :upload-after="uploadAfter">
+        <template slot="excelTemplate">
+          <el-button type="primary" @click="handleTemplate">
+            点击下载<i class="el-icon-download el-icon--right"></i>
+          </el-button>
+        </template>
+      </avue-form>
+    </el-dialog>
+    <!-- <el-dialog title="用户平台配置"
+                append-to-body
+                :visible.sync="platformBox">
+      <avue-crud :option="platformOption"
+                  :table-loading="platformLoading"
+                  :data="platformData"
+                  ref="platformCrud"
+                  v-model="platformForm"
+                  :before-open="platformBeforeOpen"
+                  :page.sync="platformPage"
+                  :permission="platformPermissionList"
+                  @row-update="platformRowUpdate"
+                  @search-change="platformSearchChange"
+                  @search-reset="platformSearchReset"
+                  @selection-change="platformSelectionChange"
+                  @current-change="platformCurrentChange"
+                  @size-change="platformSizeChange"
+                  @refresh-change="platformRefreshChange"
+                  @on-load="platformOnLoad">
+        <template slot-scope="{row}"
+                  slot="tenantName">
+          <el-tag>{{row.tenantName}}</el-tag>
+        </template>
+        <template slot-scope="{row}"
+                  slot="userTypeName">
+          <el-tag>{{row.userTypeName}}</el-tag>
+        </template>
+      </avue-crud>
+    </el-dialog> -->
+  </basic-container>
 </template>
 
 <script>
 import {
   getList,
   getUser,
-  getUserPlatform,
+  // getUserPlatform,
   remove,
   update,
-  updatePlatform,
+  // updatePlatform,
   add,
   grant,
   resetPassword
-} from '@/api/system/user';
-import { getDeptTree, getDeptLazyTree } from '@/api/system/dept';
-import { getRoleTree } from '@/api/system/role';
-import { getPostList } from '@/api/system/post';
+} from '@/api/system/deptUser';
+import { getRoleTree } from '@/api/system/deptRole';
+import { getPostList } from '@/api/system/deptPost';
 import { mapGetters } from 'vuex';
 import website from '@/config/website';
 import { getToken } from '@/util/auth';
@@ -211,22 +198,22 @@ export default {
       search: {},
       roleBox: false,
       excelBox: false,
-      platformBox: false,
+      // platformBox: false,
       initFlag: true,
       selectionList: [],
       query: {},
       loading: true,
-      platformLoading: false,
+      // platformLoading: false,
       page: {
         pageSize: 20,
         currentPage: 1,
         total: 0
       },
-      platformPage: {
-        pageSize: 10,
-        currentPage: 1,
-        total: 0
-      },
+      // platformPage: {
+      //   pageSize: 10,
+      //   currentPage: 1,
+      //   total: 0
+      // },
       init: {
         roleTree: [],
         deptTree: [],
@@ -238,31 +225,6 @@ export default {
       roleGrantList: [],
       roleTreeObj: [],
       treeDeptId: '',
-      treeData: [],
-      treeOption: {
-        nodeKey: 'id',
-        lazy: true,
-        treeLoad: function (node, resolve) {
-          const parentId = (node.level === 0) ? 0 : node.data.id;
-          getDeptLazyTree(parentId).then(res => {
-            resolve(res.data.data.map(item => {
-              return {
-                ...item,
-                leaf: !item.hasChildren
-              };
-            }));
-          });
-        },
-        addBtn: false,
-        menu: false,
-        size: 'small',
-        props: {
-          labelText: '标题',
-          label: 'title',
-          value: 'value',
-          children: 'children'
-        }
-      },
       option: {
         height: 'auto',
         calcHeight: 80,
@@ -298,12 +260,12 @@ export default {
             search: true,
             display: false
           },
-          {
-            label: '所属租户',
-            prop: 'tenantName',
-            slot: true,
-            display: false
-          },
+          // {
+          //   label: '所属租户',
+          //   prop: 'tenantName',
+          //   slot: true,
+          //   display: false
+          // },
           {
             label: '用户姓名',
             prop: 'realName',
@@ -322,31 +284,31 @@ export default {
             slot: true,
             display: false
           },
-          {
-            label: '用户平台',
-            prop: 'userTypeName',
-            slot: true,
-            display: false
-          },
-          {
-            label: '用户平台',
-            type: 'select',
-            dicUrl: '/api/blade-system/dict/dictionary?code=user_type',
-            props: {
-              label: 'dictValue',
-              value: 'dictKey'
-            },
-            dataType: 'number',
-            search: true,
-            hide: true,
-            display: false,
-            prop: 'userType',
-            rules: [{
-              required: true,
-              message: '请选择用户平台',
-              trigger: 'blur'
-            }]
-          },
+          // {
+          //   label: '用户平台',
+          //   prop: 'userTypeName',
+          //   slot: true,
+          //   display: false
+          // },
+          // {
+          //   label: '用户平台',
+          //   type: 'select',
+          //   dicUrl: '/api/blade-system/dict/dictionary?code=user_type',
+          //   props: {
+          //     label: 'dictValue',
+          //     value: 'dictKey'
+          //   },
+          //   dataType: 'number',
+          //   search: true,
+          //   hide: true,
+          //   display: false,
+          //   prop: 'userType',
+          //   rules: [{
+          //     required: true,
+          //     message: '请选择用户平台',
+          //     trigger: 'blur'
+          //   }]
+          // },
         ],
         group: [
           {
@@ -354,6 +316,15 @@ export default {
             prop: 'baseInfo',
             icon: 'el-icon-user-solid',
             column: [
+              {
+                label: '登录账号',
+                prop: 'account',
+                rules: [{
+                  required: true,
+                  message: '请输入登录账号',
+                  trigger: 'blur'
+                }],
+              },
               {
                 label: '用户状态',
                 prop: 'isDisable',
@@ -373,30 +344,15 @@ export default {
                 label: '所属租户',
                 prop: 'tenantId',
                 type: 'tree',
-                dicUrl: '/api/blade-system/tenant/select',
+                // dicUrl: '/api/blade-system/tenant/select',
                 props: {
                   label: 'tenantName',
                   value: 'tenantId'
                 },
                 value: '000000',
-                hide: !website.tenantMode,
-                addDisplay: website.tenantMode,
-                editDisplay: website.tenantMode,
-                viewDisplay: website.tenantMode,
-                rules: [{
-                  required: true,
-                  message: '请输入所属租户',
-                  trigger: 'click'
-                }],
-              },
-              {
-                label: '登录账号',
-                prop: 'account',
-                rules: [{
-                  required: true,
-                  message: '请输入登录账号',
-                  trigger: 'blur'
-                }],
+                addDisplay: false,
+                editDisplay: false,
+                viewDisplay: false,
               },
               {
                 label: '用户平台',
@@ -410,11 +366,9 @@ export default {
                 dataType: 'number',
                 slot: true,
                 prop: 'userType',
-                rules: [{
-                  required: true,
-                  message: '请选择用户平台',
-                  trigger: 'blur'
-                }]
+                addDisplay: false,
+                editDisplay: false,
+                viewDisplay: false,
               },
               {
                 label: '密码',
@@ -543,23 +497,6 @@ export default {
                 }]
               },
               {
-                label: '所属部门',
-                prop: 'deptId',
-                type: 'tree',
-                multiple: true,
-                dicData: [],
-                props: {
-                  label: 'title'
-                },
-                checkStrictly: true,
-                slot: true,
-                rules: [{
-                  required: true,
-                  message: '请选择所属部门',
-                  trigger: 'click'
-                }]
-              },
-              {
                 label: '所属岗位',
                 prop: 'postId',
                 type: 'tree',
@@ -582,75 +519,75 @@ export default {
       data: [],
       platformQuery: {},
       platformSelectionList: [],
-      platformData: [],
-      platformForm: {},
-      platformOption: {
-        tip: false,
-        searchShow: true,
-        searchMenuSpan: 6,
-        border: true,
-        index: true,
-        selection: true,
-        viewBtn: true,
-        dialogClickModal: false,
-        menuWidth: 120,
-        editBtnText: '配置',
-        column: [
-          {
-            label: '登录账号',
-            prop: 'account',
-            search: true,
-            display: false
-          },
-          {
-            label: '所属租户',
-            prop: 'tenantName',
-            slot: true,
-            display: false
-          },
-          {
-            label: '用户姓名',
-            prop: 'realName',
-            search: true,
-            display: false
-          },
-          {
-            label: '用户平台',
-            prop: 'userTypeName',
-            slot: true,
-            display: false
-          },
-          {
-            label: '用户平台',
-            type: 'select',
-            dicUrl: '/api/blade-system/dict/dictionary?code=user_type',
-            props: {
-              label: 'dictValue',
-              value: 'dictKey'
-            },
-            dataType: 'number',
-            search: true,
-            hide: true,
-            display: false,
-            prop: 'userType',
-            rules: [{
-              required: true,
-              message: '请选择用户平台',
-              trigger: 'blur'
-            }]
-          },
-          {
-            label: '用户拓展',
-            prop: 'userExt',
-            type: 'textarea',
-            minRows: 8,
-            span: 24,
-            overHidden: true,
-            row: true,
-            hide: true,
-          },
-        ],
-      },
+      // platformData: [],
+      // platformForm: {},
+      // platformOption: {
+      //   tip: false,
+      //   searchShow: true,
+      //   searchMenuSpan: 6,
+      //   border: true,
+      //   index: true,
+      //   selection: true,
+      //   viewBtn: true,
+      //   dialogClickModal: false,
+      //   menuWidth: 120,
+      //   editBtnText: '配置',
+      //   column: [
+      //     {
+      //       label: '登录账号',
+      //       prop: 'account',
+      //       search: true,
+      //       display: false
+      //     },
+      //     {
+      //       label: '所属租户',
+      //       prop: 'tenantName',
+      //       slot: true,
+      //       display: false
+      //     },
+      //     {
+      //       label: '用户姓名',
+      //       prop: 'realName',
+      //       search: true,
+      //       display: false
+      //     },
+      //     {
+      //       label: '用户平台',
+      //       prop: 'userTypeName',
+      //       slot: true,
+      //       display: false
+      //     },
+      //     {
+      //       label: '用户平台',
+      //       type: 'select',
+      //       dicUrl: '/api/blade-system/dict/dictionary?code=user_type',
+      //       props: {
+      //         label: 'dictValue',
+      //         value: 'dictKey'
+      //       },
+      //       dataType: 'number',
+      //       search: true,
+      //       hide: true,
+      //       display: false,
+      //       prop: 'userType',
+      //       rules: [{
+      //         required: true,
+      //         message: '请选择用户平台',
+      //         trigger: 'blur'
+      //       }]
+      //     },
+      //     {
+      //       label: '用户拓展',
+      //       prop: 'userExt',
+      //       type: 'textarea',
+      //       minRows: 8,
+      //       span: 24,
+      //       overHidden: true,
+      //       row: true,
+      //       hide: true,
+      //     },
+      //   ],
+      // },
       excelForm: {},
       excelOption: {
         submitBtn: false,
@@ -722,20 +659,20 @@ export default {
     ...mapGetters(['userInfo', 'permission']),
     permissionList() {
       return {
-        addBtn: this.vaildData(this.permission.user_add, false),
-        viewBtn: this.vaildData(this.permission.user_view, false),
-        delBtn: this.vaildData(this.permission.user_delete, false),
-        editBtn: this.vaildData(this.permission.user_edit, false)
+        addBtn: this.vaildData(this.permission.deptUser_add, false),
+        viewBtn: this.vaildData(this.permission.deptUser_view, false),
+        delBtn: this.vaildData(this.permission.deptUser_delete, false),
+        editBtn: this.vaildData(this.permission.deptUser_edit, false)
       };
     },
-    platformPermissionList() {
-      return {
-        addBtn: false,
-        viewBtn: false,
-        delBtn: false,
-        editBtn: this.vaildData(this.permission.user_edit, false)
-      };
-    },
+    // platformPermissionList() {
+    //   return {
+    //     addBtn: false,
+    //     viewBtn: false,
+    //     delBtn: false,
+    //     editBtn: this.vaildData(this.permission.user_edit, false)
+    //   };
+    // },
     ids() {
       const ids = [];
       this.selectionList.forEach(ele => {
@@ -751,18 +688,9 @@ export default {
     }
   },
   methods: {
-    nodeClick(data) {
-      this.treeDeptId = data.id;
-      this.page.currentPage = 1;
-      this.onLoad(this.page);
-    },
     initData(tenantId) {
       getRoleTree(tenantId).then(res => {
         const column = this.findObject(this.option.group, 'roleId');
-        column.dicData = res.data.data;
-      });
-      getDeptTree(tenantId).then(res => {
-        const column = this.findObject(this.option.group, 'deptId');
         column.dicData = res.data.data;
       });
       getPostList(tenantId).then(res => {
@@ -782,7 +710,6 @@ export default {
       });
     },
     rowSave(row, done, loading) {
-      row.deptId = row.deptId.join(',');
       row.roleId = row.roleId.join(',');
       row.postId = row.postId.join(',');
       add(row).then(() => {
@@ -907,9 +834,9 @@ export default {
         this.roleBox = true;
       });
     },
-    handlePlatform() {
-      this.platformBox = true;
-    },
+    // handlePlatform() {
+    //   this.platformBox = true;
+    // },
     handleImport() {
       this.excelBox = true;
     },
@@ -962,69 +889,72 @@ export default {
       this.loading = true;
       getList(page.currentPage, page.pageSize, Object.assign(params, this.query), this.treeDeptId).then(res => {
         const data = res.data.data;
-        this.page.total = data.total;
-        this.data = data.records;
+        // 不显示主账号，通过 createUser 判断， 为 null 时不显示
+        const records = data.records.filter(item => item.createUser && item);
+        const mainLength = data.records.length - records.length;
+        this.page.total = data.total - mainLength;
+        this.data = records;
         this.loading = false;
         this.selectionClear();
       });
     },
-    platformRowUpdate(row, index, done, loading) {
-      updatePlatform(row.id, row.userType, row.userExt).then(() => {
-        this.platformOnLoad(this.platformPage);
-        this.$message({
-          type: 'success',
-          message: '操作成功!'
-        });
-        done();
-      }, error => {
-        window.console.log(error);
-        loading();
-      });
-    },
-    platformBeforeOpen(done, type) {
-      if (['edit', 'view'].includes(type)) {
-        getUserPlatform(this.platformForm.id).then(res => {
-          this.platformForm = res.data.data;
-        });
-      }
-      done();
-    },
-    platformSearchReset() {
-      this.platformQuery = {};
-      this.platformOnLoad(this.platformPage);
-    },
-    platformSearchChange(params, done) {
-      this.platformQuery = params;
-      this.platformPage.currentPage = 1;
-      this.platformOnLoad(this.platformPage, params);
-      done();
-    },
-    platformSelectionChange(list) {
-      this.platformSelectionList = list;
-    },
-    platformSelectionClear() {
-      this.platformSelectionList = [];
-      this.$refs.platformCrud.toggleSelection();
-    },
-    platformCurrentChange(currentPage) {
-      this.platformPage.currentPage = currentPage;
-    },
-    platformSizeChange(pageSize) {
-      this.platformPage.pageSize = pageSize;
-    },
-    platformRefreshChange() {
-      this.platformOnLoad(this.platformPage, this.platformQuery);
-    },
-    platformOnLoad(page, params = {}) {
-      this.platformLoading = true;
-      getList(page.currentPage, page.pageSize, Object.assign(params, this.query), this.treeDeptId).then(res => {
-        const data = res.data.data;
-        this.platformPage.total = data.total;
-        this.platformData = data.records;
-        this.platformLoading = false;
-        this.selectionClear();
-      });
-    }
+    // platformRowUpdate(row, index, done, loading) {
+    //   updatePlatform(row.id, row.userType, row.userExt).then(() => {
+    //     this.platformOnLoad(this.platformPage);
+    //     this.$message({
+    //       type: 'success',
+    //       message: '操作成功!'
+    //     });
+    //     done();
+    //   }, error => {
+    //     window.console.log(error);
+    //     loading();
+    //   });
+    // },
+    // platformBeforeOpen(done, type) {
+    //   if (['edit', 'view'].includes(type)) {
+    //     getUserPlatform(this.platformForm.id).then(res => {
+    //       this.platformForm = res.data.data;
+    //     });
+    //   }
+    //   done();
+    // },
+    // platformSearchReset() {
+    //   this.platformQuery = {};
+    //   this.platformOnLoad(this.platformPage);
+    // },
+    // platformSearchChange(params, done) {
+    //   this.platformQuery = params;
+    //   this.platformPage.currentPage = 1;
+    //   this.platformOnLoad(this.platformPage, params);
+    //   done();
+    // },
+    // platformSelectionChange(list) {
+    //   this.platformSelectionList = list;
+    // },
+    // platformSelectionClear() {
+    //   this.platformSelectionList = [];
+    //   this.$refs.platformCrud.toggleSelection();
+    // },
+    // platformCurrentChange(currentPage) {
+    //   this.platformPage.currentPage = currentPage;
+    // },
+    // platformSizeChange(pageSize) {
+    //   this.platformPage.pageSize = pageSize;
+    // },
+    // platformRefreshChange() {
+    //   this.platformOnLoad(this.platformPage, this.platformQuery);
+    // },
+    // platformOnLoad(page, params = {}) {
+    //   this.platformLoading = true;
+    //   getList(page.currentPage, page.pageSize, Object.assign(params, this.query), this.treeDeptId).then(res => {
+    //     const data = res.data.data;
+    //     this.platformPage.total = data.total;
+    //     this.platformData = data.records;
+    //     this.platformLoading = false;
+    //     this.selectionClear();
+    //   });
+    // }
   }
 };
 </script>

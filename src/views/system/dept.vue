@@ -154,11 +154,14 @@ export default {
             width: 120,
             prop: 'deptCategory',
             slot: true,
-            rules: [{
-              required: true,
-              message: '请输入机构类型',
-              trigger: 'blur'
-            }]
+            // 目前仅支持"公司", 不支持 “部门、小组”
+            value: 1,
+            addDisabled: true,
+            // rules: [{
+            //   required: true,
+            //   message: '请输入机构类型',
+            //   trigger: 'blur'
+            // }]
           },
           {
             label: '排序',
