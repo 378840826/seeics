@@ -213,4 +213,31 @@ export default [{
     component: () => 
     import(/* webpackChunkName: "views" */ '@/views/keywordRanking/asinRanking')
   }]
+}, {
+  path: '/member',
+  component: Layout,
+  redirect: '/member/index',
+  children: [{
+    path: 'index',
+    name: '我的会员',
+    component: () => import('@/views/member')
+  }]
+}, {
+  path: '/buy-vip',
+  component: Layout,
+  redirect: '/buy-vip/index',
+  children: [{
+    path: 'index',
+    name: 'VIP购买',
+    component: () => import('@/views/member/buyVip')
+  }]
+}, {
+  path: '/vip-config',
+  component: Layout,
+  redirect: '/vip-config/index',
+  children: [{
+    path: 'index',
+    name: 'VIP配置',
+    component: () => import('@/views/member/configVip')
+  }]
 }];
