@@ -44,9 +44,10 @@
       </span>
     </el-dialog>
     <p>
-      <span>当前会员等级：{{info.levelName}}</span>
+      <span >当前会员等级：{{info.levelName}}</span>
       <span style="marginLeft: 50px">有效期剩余：
-        <span style="color: #009900">{{info.effectiveDays}}</span>天（{{info.expirationTime}}到期）</span>
+      <span style="color: #009900">{{info.levelName === '普通会员' ? '—' : info.effectiveDays}}
+        </span>{{ info.levelName === '普通会员' ? '' : `天（${info.expirationTime}到期）`}}</span>
     </p>
         <p 
           v-for="item in (info.renew ? 

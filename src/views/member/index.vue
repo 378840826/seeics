@@ -4,7 +4,7 @@
       <h2>我的会员</h2>
       <p>
         当前会员等级：<span style="color: #ff0000; fontWeight: 600">{{levelName}}</span>
-        <span style="marginLeft: 40px">有效期剩余：<span style="color: #009900">{{effectiveDays}}</span>天</span>
+        <span style="marginLeft: 40px">有效期剩余：<span style="color: #009900">{{levelName === '普通会员' ? '—' : effectiveDays + '天'}}</span></span>
         <el-button 
           v-if="levelName !== '普通会员'" 
           type="text" @click="handleUpgrade('renew')" style="marginLeft: 10px">续费</el-button>
@@ -25,7 +25,7 @@
     <div class="upgrade">
 
       <span v-if="levelName !== '至尊VIP'">升级：
-        <el-button type="primary" @click="handleUpgrade('upgrade')">{{vip(levelName)}}</el-button>
+        <el-button type="primary" @click="handleUpgrade('upgrade')">{{nextLevelName}}</el-button>
       </span> 
       <el-button type="primary" disabled @click="handleRefuel()" style="marginLeft: 30px">购买订单加油包</el-button>
       <el-button type="primary" @click="handleRefuel(4, '购买关键词分析加油包')" style="marginLeft: 30px">购买关键词分析加油包</el-button>
@@ -37,7 +37,11 @@
       :data="data"
       :page.sync="page"
       @on-load="queryIndentPage"
-    ></avue-crud>
+    >
+      <template slot="payType" slot-scope="scope">
+         <div>{{ payTypeMethos(scope.row.payType) }}</div>
+      </template>
+    </avue-crud>
     <upgrade-dialog
       v-if="isvibist"
       v-model="isvibist"
@@ -86,6 +90,7 @@ export default {
     return {
       // 基本信息
       levelName: '', //会员名
+      nextLevelName: '',
       effectiveDays: 0, //有效天数
       expirationTime: '', //过期时间
       // priceVoList: [], //会员价格列表
@@ -127,6 +132,7 @@ export default {
           {
             label: '支付方式',
             prop: 'payType',
+            slot: true
           },
           {
             label: '支付金额(￥)',
@@ -174,13 +180,11 @@ export default {
         return { background: '#ccc', color: '#303133', padding: '5px 0' };
       }
     },
-    vip(val) {
-      if (val === '普通会员') {
-        return 'VIP';
-      } else if (val === 'VIP') {
-        return '高级VIP';
-      } else if (val === '高级VIP') {
-        return '至尊VIP';
+    payTypeMethos(val) {
+      if (val === 1) {
+        return '微信';
+      } else if (val === 2) {
+        return '支付宝';
       }
     },
     handleUpgrade(flag) {
@@ -219,6 +223,7 @@ export default {
       queryInfo().then(res => {
         if (res.data.code === 200) {
           this.levelName = res.data.data.levelName;
+          this.nextLevelName = res.data.data.nextLevelName;
           this.effectiveDays = res.data.data.effectiveDays;
           this.table = res.data.data.surplusVoList;
           this.expirationTime = res.data.data.expirationTime;
