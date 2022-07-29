@@ -19,15 +19,16 @@ export const grantTree = () => {
   });
 };
 
-export const grant = (roleIds, menuIds, dataScopeIds, apiScopeIds) => {
+export const grant = (roleIds, menuIds) => {
   return request({
-    url: '/api/blade-system/role/grant',
+    // url: '/api/blade-system/role/grant',
+    url: '/api/blade-system/role/grant_menu',
     method: 'post',
     data: {
       roleIds,
       menuIds,
-      dataScopeIds,
-      apiScopeIds
+      // dataScopeIds,
+      // apiScopeIds
     }
   });
 };
