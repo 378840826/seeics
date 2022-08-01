@@ -15,7 +15,7 @@ export const getList = (current, size, params, deptId) => {
 
 export const remove = (ids) => {
   return request({
-    url: '/api/blade-user/remove',
+    url: '/api/blade-user/remove_deptUser',
     method: 'post',
     params: {
       ids,
