@@ -258,4 +258,13 @@ export default [{
     name: 'VIP配置',
     component: () => import('@/views/member/configVip')
   }]
+}, {
+  path: '/corporate',
+  component: Layout,
+  redirect: '/corporate/index',
+  children: [{
+    path: 'index',
+    name: '企业会员',
+    component: () => import('@/views/member/corporate')
+  }]
 }];
