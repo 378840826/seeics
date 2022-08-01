@@ -170,7 +170,6 @@ export default {
           label: item.functionName
         });
       });
-      console.log(this.filterList);
     });
   },
 
