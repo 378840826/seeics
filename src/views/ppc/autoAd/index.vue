@@ -388,7 +388,7 @@
         <el-button type="text" style="padding: 0" @click="$router.push('/ppc/automation-template')">去设置</el-button>
       </div>
       <h4>规则范围： </h4>
-      <div class="tabel">
+      <div v-if="!launchFlag" class="tabel">
         搜索词来源：
         <div style="width: 400px">
 
@@ -473,6 +473,7 @@
         v-if="ruleIs"
         ref="rule"
         :filterecho="ruleFiled"
+        :fields="launchFlag ? 'launchFileds' : 'tatolFileds'"
         style="marginTop: 15px"
         v-model="btnDisabled"
       />
@@ -1023,21 +1024,21 @@ export default {
         if (item.bidType === '固定竞价' && !item.bid) {
           msg = false;
         }
-        if ((item.cpcType === '上浮(%)' 
-          || item.cpcType === '下调(%)'
-          || item.cpcType === '下调(绝对值)'
-          || item.cpcType === '上浮(绝对值)')
-          && !item.cpcValue) {
+        if ((item.rule === '上浮(%)' 
+          || item.rule === '下调(%)'
+          || item.rule === '下调(绝对值)'
+          || item.rule === '上浮(绝对值)')
+          && !item.adjustTheValue) {
           cpcValue = false;
         }
-        if ((item.cpcType === '下调(%)'
-          || item.cpcType === '下调(绝对值)')
-          && !item.cpcMost) {
+        if ((item.rule === '下调(%)'
+          || item.rule === '下调(绝对值)')
+          && !item.bidLimitValue) {
           minCpcMost = false;
         }
-        if ((item.cpcType === '上浮(%)'
-          || item.cpcType === '上浮(绝对值)')
-          && !item.cpcMost) {
+        if ((item.rule === '上浮(%)'
+          || item.rule === '上浮(绝对值)')
+          && !item.bidLimitValue) {
           maxCpcMost = false;
         }
       });
@@ -1107,7 +1108,7 @@ export default {
         });
         return true;
       }
-      if (this.radio === 1 && !this.formInline.asinList.filter(Boolean).length) {
+      if (this.radio === 1 && !this.formInline.asinList.filter(Boolean).length && !this.launchFlag) {
         this.$message({
           type: 'error',
           message: 'ASIN不能为空'
@@ -1159,8 +1160,8 @@ export default {
         asinList: this.radio === 1 ? this.formInline.asinList.filter(Boolean) : [],
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState,
-        ruleType: this.radio,
-        excludeTerms: this.searchWord,
+        ruleType: this.launchFlag ? 1 : this.radio,
+        excludeTerms: this.launchFlag ? 3 : this.searchWord,
         groupIdList: this.radio === 2 ? this.adGroupOption : []
       };
       if (this.ruleMsg()) {
@@ -1197,8 +1198,8 @@ export default {
         asinList: this.radio === 1 ? this.formInline.asinList.filter(Boolean) : [],
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState,
-        ruleType: this.radio,
-        excludeTerms: this.searchWord,
+        ruleType: this.launchFlag ? 1 : this.radio,
+        excludeTerms: this.launchFlag ? 3 : this.searchWord,
         groupIdList: this.radio === 2 ? this.adGroupOption : []
       };
       if (this.ruleMsg()) {
@@ -1282,7 +1283,6 @@ export default {
       this.adGroupPage.storeId = row.adStoreId;
       this.templateId = id;
       templateDetail({ id, campaignId: row.campaignId }).then(res => {
-        console.log(res.data.data)
         if (res.data.code === 200) {
           const data = res.data.data;
           this.ruleFiled = data.roleList;
@@ -1290,7 +1290,7 @@ export default {
           this.formInline.templateName = data.templateName;
           this.formInline.templateIllustrate = data.templateIllustrate;
           this.formInline.templateState = data.status;
-          this.asinMskuKeyword = data.asinList.join('\n');
+          this.asinMskuKeyword = data.asinList && data.asinList.join('\n') || [];
           this.formInline.asinList = data.asinList;
           this.echoAtuomation = data;
           this.adGroupOption = data.groupIdList;

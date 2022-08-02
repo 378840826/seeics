@@ -140,7 +140,7 @@
       </el-table-column>
       <el-table-column
         label=""
-        prop="cpcType"
+        prop="rule"
         align="center"
       >
         <template 
@@ -154,7 +154,7 @@
           || scope.row.bidType === '建议竞价最大值'
           || scope.row.bidType === '建议竞价')">
           <el-select 
-            v-model="scope.row.cpcType" 
+            v-model="scope.row.rule" 
             placeholder="请选择"
             @change="cpcTypeSelect(scope.$index)"
           >
@@ -188,21 +188,21 @@
                   style="lineHeight: 30px;">{{ rowData.currency }}</div></el-input>
               <!-- <div v-if="scope.row.msg" class="msg">支持两位小数</div> -->
             </div>
-            <div v-else-if="!scope.row.cpcType">无</div>
-            <div v-else-if="scope.row.cpcType">
+            <div v-else-if="!scope.row.rule">无</div>
+            <div v-else-if="scope.row.rule">
               <el-input
-                  :ref="'input_cpcValue' + scope.$index"
-                  v-model="scope.row.cpcValue"
-                  @blur="numberChange($event, 'cpcValue', scope.$index)"
+                  :ref="'input_adjustTheValue' + scope.$index"
+                  v-model="scope.row.adjustTheValue"
+                  @blur="numberChange($event, 'adjustTheValue', scope.$index)"
                   placeholder="调整数值"
                 >
                   <div
-                    v-if="scope.row.cpcType === '上浮(%)' || scope.row.cpcType === '下调(%)'"
+                    v-if="scope.row.rule === '上浮(%)' || scope.row.rule === '下调(%)'"
                     slot="suffix"
                     style="lineHeight: 30px;">%</div>
                     <div
                     v-else
-                    @click="focus('input_cpcValue' + scope.$index)"
+                    @click="focus('input_adjustTheValue' + scope.$index)"
                     slot="prefix"
                     style="lineHeight: 30px;">{{ rowData.currency }}</div>
                 </el-input>
@@ -213,18 +213,18 @@
       </el-table-column>
       <el-table-column
         label=""
-        prop="cpcMost"
+        prop="bidLimitValue"
         align="center"
       >
-        <template slot-scope="scope" v-if="scope.row.cpcType">
+        <template slot-scope="scope" v-if="scope.row.rule">
           <el-input
-            :ref="'input_cpcMost' + scope.$index"
-            v-model="scope.row.cpcMost"
-            @blur="numberChange($event, 'cpcMost', scope.$index)"
-            :placeholder="minValue(scope.row.cpcType)"
+            :ref="'input_bidLimitValue' + scope.$index"
+            v-model="scope.row.bidLimitValue"
+            @blur="numberChange($event, 'bidLimitValue', scope.$index)"
+            :placeholder="minValue(scope.row.rule)"
           >
             <div 
-              @click="focus('input_cpcMost' + scope.$index)" 
+              @click="focus('input_bidLimitValue' + scope.$index)" 
               slot="prefix" 
               style="lineHeight: 30px;">{{ rowData.currency }}</div>
           </el-input>
@@ -308,9 +308,9 @@ export default {
           matchType: '精准匹配',
           bidType: '广告组默认竞价',
           bid: '',
-          cpcType: '',
-          cpcValue: '',
-          cpcMost: '',
+          rule: '',
+          adjustTheValue: '', //调整数值
+          bidLimitValue: '', //竞价限值
           msg: false,
           add: true,
           adGroupList: [],
@@ -500,15 +500,15 @@ export default {
             adGroupId.push(item.adGroup);
           }
           if (item.bidType === '固定竞价' && !item.bid
-              || item.cpcType === '上浮(%)' && (!item.cpcMost || !item.cpcValue)
-              || item.cpcType === '下调(%)' && (!item.cpcMost || !item.cpcValue)
-              || item.cpcType === '下调(绝对值)' && (!item.cpcMost || !item.cpcValue)
-              || item.cpcType === '上浮(绝对值)' && (!item.cpcMost || !item.cpcValue)
+              || item.rule === '上浮(%)' && (!item.bidLimitValue || !item.adjustTheValue)
+              || item.rule === '下调(%)' && (!item.bidLimitValue || !item.adjustTheValue)
+              || item.rule === '下调(绝对值)' && (!item.bidLimitValue || !item.adjustTheValue)
+              || item.rule === '上浮(绝对值)' && (!item.bidLimitValue || !item.adjustTheValue)
           ) {
             item.addDisabled = true;
           } else {
             item.addDisabled = false;
-            if (!reg.test(Number(item.bid)) || !reg.test(Number(item.cpcMost)) || !reg.test(Number(item.cpcValue))) {
+            if (!reg.test(Number(item.bid)) || !reg.test(Number(item.bidLimitValue)) || !reg.test(Number(item.adjustTheValue))) {
               item.msg = true;
               item.addDisabled = true;
             
@@ -546,10 +546,10 @@ export default {
     },
   },
   methods: {
-    minValue(cpcType) {
-      if (cpcType === '下调(绝对值)' || cpcType === '下调(%)') {
+    minValue(rule) {
+      if (rule === '下调(绝对值)' || rule === '下调(%)') {
         return '竞价最小值';
-      } else if (cpcType === '上浮(%)' || cpcType === '上浮(绝对值)') {
+      } else if (rule === '上浮(%)' || rule === '上浮(绝对值)') {
         return '竞价最大值';
       }
     },
@@ -690,16 +690,16 @@ export default {
     bidTypeSelect(index) {
       this.tableData[index].bid = '';
       if (this.tableData[index].bidType === '广告组默认竞价' || this.tableData[index].bidType === '固定竞价') {
-        this.tableData[index].cpcType = '';
+        this.tableData[index].rule = '';
       } else {
-        this.tableData[index].cpcType = '上浮(%)';
+        this.tableData[index].rule = '上浮(%)';
       }
-      this.tableData[index].cpcMost = '';
-      this.tableData[index].cpcValue = '';
+      this.tableData[index].bidLimitValue = '';
+      this.tableData[index].adjustTheValue = '';
     },
     cpcTypeSelect(index) {
-      this.tableData[index].cpcMost = '';
-      this.tableData[index].cpcValue = '';
+      this.tableData[index].bidLimitValue = '';
+      this.tableData[index].adjustTheValue = '';
     },
     campaignChange(value, index) {
       this.tableData[index].adGroup = '';
@@ -744,9 +744,9 @@ export default {
           this.tableData[0].bidType = null;
         }
         this.tableData[0].bidType = '广告组默认竞价';
-        this.tableData[0].cpcType = '';
-        this.tableData[0].cpcMost = '';
-        this.tableData[0].cpcValue = '';
+        this.tableData[0].rule = '';
+        this.tableData[0].bidLimitValue = '';
+        this.tableData[0].adjustTheValue = '';
         this.tableData[0].bid = '';
       }
       if (!val) {
@@ -766,9 +766,9 @@ export default {
         matchType: '精准匹配',
         bidType: '广告组默认竞价',
         bid: '',
-        cpcType: '',
-        cpcValue: '',
-        cpcMost: '',
+        rule: '',
+        adjustTheValue: '',
+        bidLimitValue: '',
         msg: false,
         add: true,
         adGroupList: []

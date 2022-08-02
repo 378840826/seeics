@@ -104,5 +104,64 @@ export const fields = {
       integer: false,
       percentage: true
     },
+  ],
+  launchFileds: [
+    {
+      label: '销售额',
+      value: 'ad_sales',
+      integer: false
+    },
+    {
+      label: '订单量',
+      value: 'ad_order_quantity',
+      integer: true
+    },
+    {
+      label: 'Impressions',
+      value: 'impressions',
+      integer: true
+    },
+    {
+      label: 'Clicks',
+      value: 'clicks',
+      integer: true
+    },
+    {
+      label: 'CPC',
+      value: 'cpc',
+      integer: false
+    },
+    {
+      label: 'CPA',
+      value: 'cpa',
+      integer: false
+    },
+    {
+      label: 'Spend',
+      value: 'spend',
+      integer: false
+    },
+    {
+      label: 'CTR',
+      value: 'ctr',
+      integer: false,
+      percentage: true
+    },
+    {
+      label: 'ACoS',
+      value: 'acos',
+      integer: false,
+      percentage: true
+    },
+    {
+      label: 'RoAS',
+      value: 'roas'
+    },
+    {
+      label: '转化率',
+      value: 'conversions_rate',
+      integer: false,
+      percentage: true
+    },
   ]
 };
