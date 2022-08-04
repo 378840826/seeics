@@ -442,7 +442,8 @@ export default {
       }
       console.log(fun);
       const param = {
-        userAccount: 
+        userAccount: this.form.userAccount,
+        
       };
       console.log(fun);
       queryEnterpriseList(Object.assign({ current: this.page.current, size: this.page.size }, param, fun)).then(res => {
