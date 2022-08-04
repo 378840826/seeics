@@ -1,7 +1,13 @@
 <template>
   <basic-container>
     <div>
-      <el-select v-model="account" filterable placeholder="请输入企业会员账号" size="small" class="search">
+      <el-select 
+        v-model="form.userIds" 
+        @change="handleAccout($event, 'search')"
+        filterable 
+        placeholder="请输入企业会员账号" 
+        size="small" 
+        class="search">
         <el-option
           v-for="item in options"
           :key="item.value"
@@ -214,6 +220,7 @@ import { getDateRangeForKey } from '@/util/date';
 import RangeInput from '@/views/ppc/searchTerm/components/RangeInput.vue';
 import { strToMoneyStr } from '@/util/numberString';
 import { setStore, getStore } from '@/util/store';
+import page from '@/router/page';
 
 const gets = getStore({ name: 'funList' });
 const fixedMeun = getStore({ name: 'fixedMeun' });
@@ -278,6 +285,8 @@ export default {
       pickerOptions,
       form: {
         status: '状态',
+        userAccount: '',
+        userIds: '',
         dateRange: getDateRangeForKey(30),
         filter: {
           levelPrice: { min: '', max: '' }
@@ -285,7 +294,6 @@ export default {
       },
       options: [],
       funList: [],
-      account: '',
       accountList: [],
       fixedMeun: fixedMeun || [
         {
@@ -422,12 +430,25 @@ export default {
     strToMoneyStr,
 
     queryEnterpriseList() {
-        
-      queryEnterpriseList({ current: 1, size: 20 }).then(res => {
+      let fun = {};
+      for (const key in this.form.filter) {
+        // eslint-disable-next-line no-loop-func
+        Object.keys(this.form.filter[key]).map(item => {
+          fun = {
+            ...fun,
+            [`${key}${item.trim().toLowerCase().replace(item[0], item[0].toUpperCase())}`]: this.form.filter[key][item],
+          };
+        });
+      }
+      console.log(fun);
+      const param = {
+        userAccount: 
+      };
+      console.log(fun);
+      queryEnterpriseList(Object.assign({ current: this.page.current, size: this.page.size }, param, fun)).then(res => {
         this.data = res.data.data.records;
         this.page.total = res.data.data.total;
-        console.log(this.data[0])
-        this.data.push(this.addObj)
+
       });
     },
 
@@ -440,7 +461,7 @@ export default {
     },
 
     nonPayment() {
-      this.fixedMeun[1].disabled = !this.fixedMeun[1].disabled;
+      this.queryEnterpriseList();
       console.log(this.data)
     },
 
@@ -454,6 +475,14 @@ export default {
     },
 
     handleAccout(val, idx) {
+      if (idx === 'search') {
+        this.accountList.map(item => {
+          if (item.value === val) {
+            this.form.userAccount = item.label;
+          }
+        });
+        return;
+      }
       this.accountList.map(item => {
         if (item.value === val) {
           this.data[idx].userAccount = item.label;
