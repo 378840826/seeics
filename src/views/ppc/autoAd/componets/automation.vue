@@ -57,6 +57,7 @@
             :loading="loading"
             v-loadmore="loadmore"
             @focus="name=''; queryCampaignList(formData)"
+            :disabled="launch && automatedOperation !== '添加到投放'"
           >
             <el-option
               class="option"
