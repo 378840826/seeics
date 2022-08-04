@@ -1,7 +1,7 @@
 <template>
   <basic-container>
     <div>
-      <el-select v-model="value" filterable placeholder="请输入企业会员账号" size="small" class="search">
+      <el-select v-model="account" filterable placeholder="请输入企业会员账号" size="small" class="search">
         <el-option
           v-for="item in options"
           :key="item.value"
@@ -89,7 +89,25 @@
         prop="account"
         min-width="180"
         fixed="left"
-      ></el-table-column>
+        align="center"
+      >
+        <template slot-scope="scope">
+          <el-select 
+            v-if="scope.row.add" 
+            v-model="scope.row.userId" 
+            @change="handleAccout($event, scope.$index)"
+            placeholder="请输入企业会员" 
+            size="small">
+              <el-option
+                v-for="item in accountList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+            <div v-else>{{ scope.row.account }}</div>
+        </template>
+      </el-table-column>
 
       <el-table-column
         label="角色"
@@ -124,7 +142,7 @@
           <div 
             v-if="!scope.row['common' + item.value]" 
             :class="(item.value === 'expiredTime' || item.value === 'payTime' || item.value === 'cost') 
-            ? '' : 'nus'">{{ scope.row[item.value] || 0 }}
+            ? '' : 'nus'">{{ scope.row[item.value] }}
             <el-button 
               type="text" 
               size="mini" 
@@ -141,7 +159,11 @@
               <el-button
                 size="mini" 
                 class="el-icon-check" 
-                @click="handleSeve(scope.row[item.value + (item.value === 'levelPrice' ? 'Id' : 'InterestId')], scope.row[item.value], item.value)"
+                @click="handleSeve(scope.row[item.value + (item.value === 'levelPrice' ? 'Id' : 'InterestId')], 
+                  scope.row[item.value], 
+                  item.value, 
+                  scope.row.add,
+                  scope.$index)"
                 :disabled="!scope.row[item.value]"
                 style="marginLeft: 0"/>
             </div>
@@ -155,7 +177,13 @@
         width="100"
         fixed="right"
       >
-
+        <template slot-scope="scope">
+          <el-button
+            v-if="scope.row.add" 
+            @click="handleAdd(scope.row)"
+            type="text"
+          >添加</el-button>
+        </template>
       </el-table-column>
     </el-table>
 
@@ -174,7 +202,14 @@
 
 <script>
 
-import { getHeader, queryEnterpriseList, updateLevelNum, updateLevePrice } from '@/api/member/corporate';
+import { 
+  getHeader, 
+  queryEnterpriseList, 
+  updateLevelNum, 
+  updateLevePrice, 
+  queryMemberUserList,
+  addLeve,
+} from '@/api/member/corporate';
 import { getDateRangeForKey } from '@/util/date';
 import RangeInput from '@/views/ppc/searchTerm/components/RangeInput.vue';
 import { strToMoneyStr } from '@/util/numberString';
@@ -250,6 +285,8 @@ export default {
       },
       options: [],
       funList: [],
+      account: '',
+      accountList: [],
       fixedMeun: fixedMeun || [
         {
           label: '购买时间',
@@ -307,6 +344,14 @@ export default {
       editFiled: '',
       fun: 0,
       filed: '',
+      addObj: {
+        add: true,
+        account: '',
+        status: '',
+        payTime: '',
+        levelPrice: 0,
+        cost: ''
+      }
     };
   },
 
@@ -320,8 +365,28 @@ export default {
   },
 
   mounted() {
+    queryMemberUserList({ isEnterprise: true }).then(res => {
+      this.options = res.data.data.map(item => {
+        return {
+          label: item.account,
+          value: item.id
+        };
+      });
+    });
+    queryMemberUserList({ isEnterprise: false }).then(res => {
+      this.accountList = res.data.data.map(item => {
+        return {
+          label: item.account,
+          value: item.id
+        };
+      });
+    });
     getHeader().then(res => {
       res.data.map(item => {
+        this.addObj = {
+          ...this.addObj,
+          [item.functionVarName]: 0
+        };
         this.form.filter = {
           ...this.form.filter,
           [item.functionVarName]: { min: '', max: '' }
@@ -331,12 +396,14 @@ export default {
           label: item.functionName
         });
         this.funList = gets || res.data.map(item => {
+          
           return {
             value: item.functionVarName,
             label: item.functionName,
             disabled: true
           };
         });
+        
       });
     });
     this.queryEnterpriseList();
@@ -355,9 +422,12 @@ export default {
     strToMoneyStr,
 
     queryEnterpriseList() {
+        
       queryEnterpriseList({ current: 1, size: 20 }).then(res => {
         this.data = res.data.data.records;
         this.page.total = res.data.data.total;
+        console.log(this.data[0])
+        this.data.push(this.addObj)
       });
     },
 
@@ -371,6 +441,7 @@ export default {
 
     nonPayment() {
       this.fixedMeun[1].disabled = !this.fixedMeun[1].disabled;
+      console.log(this.data)
     },
 
     handleFixed() {
@@ -380,6 +451,14 @@ export default {
     handleFun() {
       setStore({ name: 'funList', content: this.funList });
       console.log(getStore({ name: 'funList' }));
+    },
+
+    handleAccout(val, idx) {
+      this.accountList.map(item => {
+        if (item.value === val) {
+          this.data[idx].userAccount = item.label;
+        }
+      });
     },
 
     handleEdit(fun, name, val, filed) {
@@ -397,17 +476,26 @@ export default {
       });
     },
 
-    handleClose(val, name, filed) {
+    handleClose(val, name, filed, addVal) {
       this.data = this.data.map(item => {
         if (item.id === val) {
           item[name] = false;
-          item[filed] = this.inputVal;
+          item[filed] = addVal || this.inputVal;
+          addVal && delete item[name];
         }
         return item;
       });
     },
 
-    handleSeve(id, frequency, filed) {
+    handleSeve(id, frequency, filed, add, idx) {
+      if (add) {
+        this.data[idx][filed] = frequency;
+        this.handleClose(id, `common${filed}`, filed, frequency);
+        this.editFiled = '';
+        this.fun = '';
+        this.filed = '';
+        return;
+      }
       if (filed === 'levelPrice') {
         updateLevePrice({
           id,
@@ -442,6 +530,11 @@ export default {
       });
     },
     
+    handleAdd(row) {
+      addLeve({ ...row, price: row.levelPrice }).then(res => {
+        console.log(res)
+      });
+    }
   }
 };
 </script>

@@ -1,6 +1,17 @@
 // 企业会员
 import request from '@/router/axios';
 
+// 获取用户会员
+export const queryMemberUserList = data => {
+  return request({
+    url: '/api/seeics-member/information/queryMemberUserList',
+    method: 'get',
+    params: {
+      ...data
+    }
+  });
+};
+
 export const getHeader = () => {
   return request({
     url: '/api/seeics-member/common/queryFunctionHeaderList',
@@ -38,5 +49,14 @@ export const updateLevePrice = data => {
     params: {
       ...data
     }
+  });
+};
+
+// 新增会员
+export const addLeve = data => {
+  return request({
+    url: '/api/seeics-member/level/create',
+    method: 'post',
+    data,
   });
 };
