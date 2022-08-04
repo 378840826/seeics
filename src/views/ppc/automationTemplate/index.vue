@@ -25,7 +25,8 @@
           @click="centerDialogVisible = true; 
             flag = 'add'; 
             ruleIs = true; 
-            automaticIs = true"
+            automaticIs = true;
+            isLaunch(formInline.templateType);"
         >创建模板</el-button>
       </el-col>
     </el-row>
@@ -105,8 +106,9 @@
         <el-popover
           width="200"
           trigger="click"
+          v-if="!launch"
         >
-        <el-button slot="reference" size="mini" style="marginLeft: 30px">ASIN批量查询</el-button>
+        <el-button  slot="reference" size="mini" style="marginLeft: 30px">ASIN批量查询</el-button>
           <div>
             <el-input
               class="asin-textarea"
@@ -122,7 +124,7 @@
       <global-filter 
         v-if="ruleIs"
         ref="filters" 
-        fields="tatolFileds" 
+        :fields="launch ? 'launchFileds' : 'tatolFileds'" 
         :filterecho="ruleFiled"
         v-model="saveDisabled"
         dateSelect 
@@ -367,15 +369,24 @@ export default {
         value: '投放'
       }],
       templateNameMsg: false, //模板名称校验
+      launch: false, //监听是否投放
     };
   },
   methods: {
+    isLaunch(val) {
+      if (val === '投放') {
+        this.launch = true;
+      } else if (val === '搜索词') {
+        this.launch = false;
+      }
+    },
     handleType(val) { //监听模板变化
       this.$refs.automatic.wathcType(val);
-      // this.automaticIs = this.automaticIs ? true : false;
-      // this.$nextTick(() => {
-      //   this.automaticIs = this.automaticIs ? true : false;
-      // });
+      this.isLaunch(val);
+      this.ruleIs = this.ruleIs ? false : true;
+      this.$nextTick(() => {
+        this.ruleIs = this.ruleIs ? false : true;
+      });
     },
     empty() {
       this.formInline.templateName = '';
@@ -440,7 +451,7 @@ export default {
         });
         return true;
       }
-      if (!this.formInline.asinList.filter(Boolean).length) {
+      if (!this.formInline.asinList.filter(Boolean).length && !this.launch) {
         this.$message({
           type: 'error',
           message: 'ASIN不能为空'
@@ -466,29 +477,29 @@ export default {
         });
         return true;
       }
-      if ((automatic.cpcType === '上浮(%)' 
-          || automatic.cpcType === '下调(%)'
-          || automatic.cpcType === '下调(绝对值)'
-          || automatic.cpcType === '上浮(绝对值)')
-          && !automatic.cpcValue) {
+      if ((automatic.rule === '上浮(%)' 
+          || automatic.rule === '下调(%)'
+          || automatic.rule === '下调(绝对值)'
+          || automatic.rule === '上浮(绝对值)')
+          && !automatic.adjustTheValue) {
         this.$message({
           type: 'error',
           message: '请输入调整数值'
         });
         return true;
       }
-      if ((automatic.cpcType === '上浮(%)'
-          || automatic.cpcType === '上浮(绝对值)')
-          && !automatic.cpcMost) {
+      if ((automatic.rule === '上浮(%)'
+          || automatic.rule === '上浮(绝对值)')
+          && !automatic.bidLimitValue) {
         this.$message({
           type: 'error',
           message: '请输入竞价最大值'
         });
         return true;
       }
-      if ((automatic.cpcType === '下调(%)'
-          || automatic.cpcType === '下调(绝对值)')
-          && !automatic.cpcMost) {
+      if ((automatic.rule === '下调(%)'
+          || automatic.rule === '下调(绝对值)')
+          && !automatic.bidLimitValue) {
         this.$message({
           type: 'error',
           message: '请输入竞价最小值'
@@ -576,9 +587,9 @@ export default {
             bidType: result.bidType,
             matchType: result.matchType,
             bid: result.bid,
-            cpcType: result.cpcType,
-            cpcValue: result.cpcValue,
-            cpcMost: result.cpcMost,
+            rule: result.rule,
+            adjustTheValue: result.adjustTheValue,
+            bidLimitValue: result.bidLimitValue,
           };
           this.formInline = {
             ...this.formInline,
@@ -589,6 +600,7 @@ export default {
             asinList: result.asinList
           };
           this.asinMskuKeyword = result.asinList.join('\n');
+          this.isLaunch(this.formInline.templateType);
         }
       }).catch(res => {
         this.$message({

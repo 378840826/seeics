@@ -388,7 +388,7 @@
         <el-button type="text" style="padding: 0" @click="$router.push('/ppc/automation-template')">去设置</el-button>
       </div>
       <h4>规则范围： </h4>
-      <div class="tabel">
+      <div v-if="!launchFlag" class="tabel">
         搜索词来源：
         <div style="width: 400px">
 
@@ -473,6 +473,7 @@
         v-if="ruleIs"
         ref="rule"
         :filterecho="ruleFiled"
+        :fields="launchFlag ? 'launchFileds' : 'tatolFileds'"
         style="marginTop: 15px"
         v-model="btnDisabled"
       />
@@ -498,6 +499,7 @@
             adGroupVal = [];
             campaignCheckedAll = false;
             templateId = '';
+            autoMationTemplate = '';
             echoAtuomation = {}"
           >取 消</el-button>
         <el-button 
@@ -750,12 +752,7 @@ export default {
         },
       ],
       autoMationTemplate: '',
-      automationList: [
-        {
-          value: '',
-          label: '无'
-        }
-      ],
+      automationList: [],
       msgDialog: false,
       msgData: [],
       btnDisabled: false, //弹窗按钮限制
@@ -788,16 +785,6 @@ export default {
       // 用第一个店铺名称来请求站点列表和表格数据
       if (Array.isArray(list) && list.length) {
         this.getMarketplaceListAndTableData(list[0]);
-      }
-    });
-    getAutomationList().then(res => {
-      if (res.data.code === 200) {
-        res.data.data.map(item => {
-          this.automationList.push({
-            value: item.id,
-            label: item.templateName
-          });
-        });
       }
     });
   },
@@ -932,6 +919,24 @@ export default {
       }
     },
 
+    // 获取自动化模板
+    getAutomationList(param) {
+      getAutomationList({ templateType: param }).then(res => {
+        if (res.data.code === 200) {
+          const obj = [{
+            value: '',
+            label: '无'
+          }];
+          this.automationList = [...obj, ...res.data.data.map(item => {
+            return {
+              value: item.id,
+              label: item.templateName
+            };
+          })];
+        }
+      });
+    },
+
     // 添加模板按钮
     handleTemplate(row, launch) {
       if (launch) {
@@ -943,6 +948,7 @@ export default {
         this.formInline.templateType = '搜索词';
         this.dialogName = '创建搜索词';
       }
+      this.getAutomationList(this.formInline.templateType);
       this.dialogCreateVisible = true; 
       this.rowData = row;
       this.ruleIs = true;
@@ -1023,21 +1029,21 @@ export default {
         if (item.bidType === '固定竞价' && !item.bid) {
           msg = false;
         }
-        if ((item.cpcType === '上浮(%)' 
-          || item.cpcType === '下调(%)'
-          || item.cpcType === '下调(绝对值)'
-          || item.cpcType === '上浮(绝对值)')
-          && !item.cpcValue) {
+        if ((item.rule === '上浮(%)' 
+          || item.rule === '下调(%)'
+          || item.rule === '下调(绝对值)'
+          || item.rule === '上浮(绝对值)')
+          && !item.adjustTheValue) {
           cpcValue = false;
         }
-        if ((item.cpcType === '下调(%)'
-          || item.cpcType === '下调(绝对值)')
-          && !item.cpcMost) {
+        if ((item.rule === '下调(%)'
+          || item.rule === '下调(绝对值)')
+          && !item.bidLimitValue) {
           minCpcMost = false;
         }
-        if ((item.cpcType === '上浮(%)'
-          || item.cpcType === '上浮(绝对值)')
-          && !item.cpcMost) {
+        if ((item.rule === '上浮(%)'
+          || item.rule === '上浮(绝对值)')
+          && !item.bidLimitValue) {
           maxCpcMost = false;
         }
       });
@@ -1107,7 +1113,7 @@ export default {
         });
         return true;
       }
-      if (this.radio === 1 && !this.formInline.asinList.filter(Boolean).length) {
+      if (this.radio === 1 && !this.formInline.asinList.filter(Boolean).length && !this.launchFlag) {
         this.$message({
           type: 'error',
           message: 'ASIN不能为空'
@@ -1159,8 +1165,8 @@ export default {
         asinList: this.radio === 1 ? this.formInline.asinList.filter(Boolean) : [],
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState,
-        ruleType: this.radio,
-        excludeTerms: this.searchWord,
+        ruleType: this.launchFlag ? 1 : this.radio,
+        excludeTerms: this.launchFlag ? 3 : this.searchWord,
         groupIdList: this.radio === 2 ? this.adGroupOption : []
       };
       if (this.ruleMsg()) {
@@ -1179,6 +1185,7 @@ export default {
           this.ruleIs = false;
           this.automationIs = false;
           this.templateId = '';
+          this.autoMationTemplate = '';
           this.adGroupOption = [];
           this.adGroupVal = [];
           this.echoAtuomation = {};
@@ -1197,8 +1204,8 @@ export default {
         asinList: this.radio === 1 ? this.formInline.asinList.filter(Boolean) : [],
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState,
-        ruleType: this.radio,
-        excludeTerms: this.searchWord,
+        ruleType: this.launchFlag ? 1 : this.radio,
+        excludeTerms: this.launchFlag ? 3 : this.searchWord,
         groupIdList: this.radio === 2 ? this.adGroupOption : []
       };
       if (this.ruleMsg()) {
@@ -1218,6 +1225,7 @@ export default {
             this.ruleIs = false;
             this.automationIs = false;
             this.templateId = '';
+            this.autoMationTemplate = '';
             this.adGroupOption = [];
             this.adGroupVal = [];
             this.echoAtuomation = {};
@@ -1235,6 +1243,7 @@ export default {
           this.dialogCreateVisible = false;
           this.ruleIs = false;
           this.automationIs = false;
+          this.autoMationTemplate = '';
           this.templateId = '';
           this.adGroupOption = [];
           this.adGroupVal = [];
@@ -1282,7 +1291,6 @@ export default {
       this.adGroupPage.storeId = row.adStoreId;
       this.templateId = id;
       templateDetail({ id, campaignId: row.campaignId }).then(res => {
-        console.log(res.data.data)
         if (res.data.code === 200) {
           const data = res.data.data;
           this.ruleFiled = data.roleList;
@@ -1290,11 +1298,12 @@ export default {
           this.formInline.templateName = data.templateName;
           this.formInline.templateIllustrate = data.templateIllustrate;
           this.formInline.templateState = data.status;
-          this.asinMskuKeyword = data.asinList.join('\n');
+          this.asinMskuKeyword = data.asinList && data.asinList.join('\n') || [];
           this.formInline.asinList = data.asinList;
           this.echoAtuomation = data;
           this.adGroupOption = data.groupIdList;
           this.formInline.templateType = data.templateType;
+          this.getAutomationList(this.formInline.templateType);
           data.groupIdList && data.groupIdList.map(item => {
             this.adGroupVal.push(item.groupId);
           });

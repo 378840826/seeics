@@ -42,10 +42,13 @@ export const getGroupList = (campaignIds) => {
 };
 
 //自动化模板列表
-export const getAutomationList = () => {
+export const getAutomationList = (data) => {
   return request({
     url: '/api/seeics-analysis/automation-template/list',
-    method: 'get'
+    method: 'get',
+    params: {
+      ...data
+    }
   });
 };
 

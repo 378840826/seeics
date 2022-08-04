@@ -56,7 +56,7 @@
           <el-button type="text" slot="reference">词频选项</el-button>
         </el-popover>
       </el-form>
-      <div class="warningtext">今日还剩{{restnum}}次免费搜索机会</div>
+      <!-- <div class="warningtext">今日还剩{{restnum}}次免费搜索机会</div> -->
       <div class="avuecrudclass">
       <avue-crud 
         :data="data" 

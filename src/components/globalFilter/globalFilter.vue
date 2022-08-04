@@ -319,6 +319,7 @@ export default {
     }).filter(Boolean);
   },
   mounted() {
+    this.formInline[0].label = this.fields === 'launchFileds' ? 'ad_sales' : 'search_result_page_no';
     //回显
     this.filterecho.length && this.filterecho[0].item.length < 1 && this.$emit('change', true);
     this.filterecho.length && this.filterecho[0].item.length 

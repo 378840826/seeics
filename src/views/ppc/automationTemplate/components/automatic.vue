@@ -85,7 +85,7 @@
       </el-table-column>
       <el-table-column
         label=""
-        prop="cpcType"
+        prop="rule"
         align="center"
       >
         <template 
@@ -99,7 +99,7 @@
           || scope.row.bidType === '建议竞价最大值'
           || scope.row.bidType === '建议竞价')">
           <el-select 
-            v-model="scope.row.cpcType" 
+            v-model="scope.row.rule" 
             placeholder="请选择"
             @change="cpcTypeSelect(scope.$index)"
           >
@@ -134,22 +134,22 @@
               </el-input>
             <!-- <div v-if="msg" class="msg">支持两位小数</div> -->
           </div>
-          <div v-else-if="!scope.row.cpcType">无</div>
-          <div v-else-if="scope.row.cpcType">
+          <div v-else-if="!scope.row.rule">无</div>
+          <div v-else-if="scope.row.rule">
             <el-input
-                :ref="'input_cpcValue' + scope.$index"
-                v-model="scope.row.cpcValue"
-                @blur="numberChange($event, 'cpcValue')"
+                :ref="'input_adjustTheValue' + scope.$index"
+                v-model="scope.row.adjustTheValue"
+                @blur="numberChange($event, 'adjustTheValue')"
                 placeholder="调整数值"
               >
                 <div
-                  v-if="scope.row.cpcType === '上浮(%)' || scope.row.cpcType === '下调(%)'"
+                  v-if="scope.row.rule === '上浮(%)' || scope.row.rule === '下调(%)'"
                   slot="suffix"
                   style="lineHeight: 30px;">%</div>
                   <div
                   v-else
                   slot="prefix"
-                  @click="focus('input_cpcValue' + scope.$index)"
+                  @click="focus('input_adjustTheValue' + scope.$index)"
                   style="lineHeight: 30px;">站点货币</div>
               </el-input>
               <!-- <div v-if="scope.row.valueMsg" class="msg">支持两位小数</div> -->
@@ -166,18 +166,18 @@
       </el-table-column> -->
       <el-table-column
         label=""
-        prop="cpcMost"
+        prop="bidLimitValue"
         align="center"
       >
-        <template slot-scope="scope" v-if="scope.row.cpcType">
+        <template slot-scope="scope" v-if="scope.row.rule">
           <el-input
-            :ref="'input_cpcMost' + scope.$index"
-            v-model="scope.row.cpcMost"
-            @blur="numberChange($event, 'cpcMost')"
-            :placeholder="minValue(scope.row.cpcType)"
+            :ref="'input_bidLimitValue' + scope.$index"
+            v-model="scope.row.bidLimitValue"
+            @blur="numberChange($event, 'bidLimitValue')"
+            :placeholder="minValue(scope.row.rule)"
           >
             <div 
-              @click="focus('input_cpcMost' + scope.$index)"
+              @click="focus('input_bidLimitValue' + scope.$index)"
               slot="prefix"
               style="lineHeight: 30px;">站点货币</div>
           </el-input>
@@ -209,9 +209,9 @@ export default {
           matchType: '精准匹配',
           bidType: '广告组默认竞价',
           bid: '',
-          cpcType: '',
-          cpcValue: '',
-          cpcMost: '',
+          rule: '',
+          adjustTheValue: '',
+          bidLimitValue: '',
         },
       ],
       matchType: [{
@@ -352,10 +352,10 @@ export default {
     },
   },
   methods: {
-    minValue(cpcType) {
-      if (cpcType === '下调(绝对值)' || cpcType === '下调(%)') {
+    minValue(rule) {
+      if (rule === '下调(绝对值)' || rule === '下调(%)') {
         return '竞价最小值';
-      } else if (cpcType === '上浮(%)' || cpcType === '上浮(绝对值)') {
+      } else if (rule === '上浮(%)' || rule === '上浮(绝对值)') {
         return '竞价最大值';
       }
     },
@@ -400,9 +400,9 @@ export default {
       this.tableData[0].matchType = this.echo.matchType || '精准匹配';
       this.tableData[0].bid = this.echo.bid;
       this.tableData[0].bidType = this.echo.bidType || '广告组默认竞价';
-      this.tableData[0].cpcType = this.echo.cpcType;
-      this.tableData[0].cpcValue = this.echo.cpcValue;
-      this.tableData[0].cpcMost = this.echo.cpcMost;
+      this.tableData[0].rule = this.echo.rule;
+      this.tableData[0].adjustTheValue = this.echo.adjustTheValue;
+      this.tableData[0].bidLimitValue = this.echo.bidLimitValue;
       this.automatedOperation = this.echo.automatedOperation;
       if (!this.echo.automatedOperation) {
         this.isAutoShow = false;
@@ -414,20 +414,20 @@ export default {
         bidType: this.automatedOperation ? this.tableData[0].bidType : null,
         bid: this.automatedOperation ? this.tableData[0].bid : null,
         automatedOperation: this.automatedOperation,
-        cpcType: this.automatedOperation ? this.tableData[0].cpcType : null,
-        cpcValue: this.automatedOperation ? this.tableData[0].cpcValue || '' : null,
-        cpcMost: this.automatedOperation ? this.tableData[0].cpcMost || '' : null,
+        rule: this.automatedOperation ? this.tableData[0].rule : null,
+        adjustTheValue: this.automatedOperation ? this.tableData[0].adjustTheValue || '' : null,
+        bidLimitValue: this.automatedOperation ? this.tableData[0].bidLimitValue || '' : null,
       };
     },
     bidTypeSelect(index) {
       this.tableData[index].bid = '';
       if (this.tableData[index].bidType === '广告组默认竞价' || this.tableData[index].bidType === '固定竞价') {
-        this.tableData[index].cpcType = '';
+        this.tableData[index].rule = '';
       } else {
-        this.tableData[index].cpcType = '上浮(%)';
+        this.tableData[index].rule = '上浮(%)';
       }
-      this.tableData[index].cpcMost = '';
-      this.tableData[index].cpcValue = '';
+      this.tableData[index].bidLimitValue = '';
+      this.tableData[index].adjustTheValue = '';
     },
     matchTypeSelect() {
       // this.tableData[0].bidType = '广告组默认竞价';
@@ -436,8 +436,8 @@ export default {
     },
     cpcTypeSelect() {
       this.tableData[0].bid = '';
-      this.tableData[0].cpcMost = '';
-      this.tableData[0].cpcValue = '';
+      this.tableData[0].bidLimitValue = '';
+      this.tableData[0].adjustTheValue = '';
     },
     hanlderAuto(val) {
       if (this.launch) {
@@ -450,9 +450,9 @@ export default {
         if (val === '添加到投放' || val === '添加到否定投放') {
           this.tableData[0].matchType = '精准匹配';
         }
-        this.tableData[0].cpcType = '';
-        this.tableData[0].cpcMost = '';
-        this.tableData[0].cpcValue = '';
+        this.tableData[0].rule = '';
+        this.tableData[0].bidLimitValue = '';
+        this.tableData[0].adjustTheValue = '';
         this.tableData[0].bid = '';
       }
       if (!val) {
