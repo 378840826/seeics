@@ -19,12 +19,12 @@ export const getHeader = () => {
   });
 };
 
-export const queryEnterpriseList = data => {
+export const queryEnterpriseList = (page, data) => {
   return request({
     url: '/api/seeics-member/level/enterpriseList',
     method: 'post',
     params: {
-      ...data
+      ...page
     },
     data,
   });

@@ -2,9 +2,11 @@
   <basic-container>
     <div>
       <el-select 
+        style="width: 300px"
         v-model="form.userIds" 
         @change="handleAccout($event, 'search')"
         multiple
+        collapse-tags
         filterable
         remote
         :remote-method="remoteMethod"
@@ -168,7 +170,11 @@
               class="el-icon-edit edit"/>
           </div>
           <div v-else class="input">
-            <el-input v-model="scope.row[item.value]" type="number"/>
+            <el-input 
+              :ref="`${item.value}` + scope.$index"
+              v-model="scope.row[item.value]" 
+              @blur="numberChange($event, item.value, scope.$index)"
+              type="number"/>
             <div style="width: 68px; float: right;">
               <el-button 
                 size="mini" 
@@ -326,7 +332,7 @@ export default {
       form: {
         status: null,
         userAccount: '',
-        userIds: '',
+        userIds: [],
         dateRange: getDateRangeForKey(30),
         filter: {
           levelPrice: { min: '', max: '' }
@@ -445,14 +451,7 @@ export default {
   },
 
   mounted() {
-    queryMemberUserList({ isEnterprise: false }).then(res => {
-      this.accountList = res.data.data.map(item => {
-        return {
-          label: item.account,
-          value: item.id
-        };
-      });
-    });
+    this.queryMemberUserList();
     
     getHeader().then(res => {
       res.data.map(item => {
@@ -483,15 +482,6 @@ export default {
     this.queryEnterpriseList();
   },
 
-  watch: {
-    form: {
-      handler(val) {
-        console.log(val);
-      },
-      deep: true
-    }
-  },
-
   methods: {
     strToMoneyStr,
 
@@ -502,6 +492,47 @@ export default {
       const diffSeconds = diff / 1000;
       const HH = Math.floor(diffSeconds / 3600);
       return HH;
+    },
+
+    // 修改不合法字符以及数字
+    numberChange (val, name, index) { // name字段名，index索引
+      // 校验正数，带两位小数
+      const reg = /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/;
+      val.target.style.borderColor = '';
+      // this.$emit('change', false);
+      if (isNaN(val.target.value)) { 
+        val.target.value = parseFloat(val.target.value) ;
+      } 
+      // 修改超出两位小数值
+      if (val.target.value.indexOf('.') > 0){
+        val.target.value = val.target.value.slice(0, val.target.value.indexOf('.') + ( name === 'levelPrice' ? 3 : 1));
+        this.data[index][name] = val.target.value;
+      }
+      if (val.target.value > 100000) {
+        val.target.style.borderColor = 'red';
+        this.$message({
+          type: 'error',
+          message: '值不能超过100000'
+        });
+        val.target.value = '';
+        // this.$emit('change', true);
+      }
+      if (!reg.test(val.target.value)) {
+        val.target.value = '';
+        val.target.style.borderColor = 'red';
+        this.data[index][name] = '';
+      }
+    },
+
+    queryMemberUserList() {
+      queryMemberUserList({ isEnterprise: false }).then(res => {
+        this.accountList = res.data.data.map(item => {
+          return {
+            label: item.account,
+            value: item.id
+          };
+        });
+      });
     },
     
     queryEnterpriseList(date) {
@@ -522,7 +553,7 @@ export default {
         startTime: date && date[0] || null,
         endTime: date && date[1] || null
       };
-      queryEnterpriseList(Object.assign({ current: this.page.current, size: this.page.size }, param, fun)).then(res => {
+      queryEnterpriseList({ current: this.page.current, size: this.page.size }, Object.assign(param, fun)).then(res => {
         this.data = res.data.data.records.map(item => {
           if (this.diffDate(item.createTime) > 24) {
             item.delete = true;
@@ -531,7 +562,7 @@ export default {
         });
         this.page.total = res.data.data.total;
         if (this.page.total / this.page.size <= this.page.current) {
-          this.data.push(this.addObj);
+          this.data.push(JSON.parse(JSON.stringify(this.addObj)));
         }
         
       });
@@ -604,16 +635,17 @@ export default {
     
     handleFun() {
       setStore({ name: 'funList', content: this.funList });
-      console.log(getStore({ name: 'funList' }));
+      // console.log(getStore({ name: 'funList' }));
     },
 
     handleAccout(val, idx) {
       if (idx === 'search') {
-        this.accountList.map(item => {
+        this.options.map(item => {
           if (item.value === val) {
             this.form.userAccount = item.label;
           }
         });
+        this.queryEnterpriseList();
         return;
       }
       this.accountList.map(item => {
@@ -659,6 +691,13 @@ export default {
         return;
       }
       if (filed === 'levelPrice') {
+        if (frequency <= 0) {
+          this.$message({
+            type: 'error',
+            message: '购买价格不能低于等于0'
+          });
+          return;
+        }
         updateLevePrice({
           id,
           price: frequency
@@ -693,10 +732,18 @@ export default {
     },
     
     handleAdd(row) {
+      if (row.levelPrice <= 0) {
+        this.$message({
+          type: 'error',
+          message: '请输入购买价格'
+        });
+        return;
+      }
       addLeve({ ...row, price: row.levelPrice }).then(res => {
         if (res.data.code === 200) {
           this.dialogVisible = true;
           this.content = `${window.location.href.split('index')[0]}buy?levelPrice=${res.data.data.levelPrice}&levelPriceId=${res.data.data.levelPriceId}`;
+          this.queryMemberUserList();
           this.queryEnterpriseList();
         }
       });
