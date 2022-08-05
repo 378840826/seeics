@@ -266,5 +266,10 @@ export default [{
     path: 'index',
     name: '企业会员',
     component: () => import('@/views/member/corporate')
+  },
+  {
+    path: 'buy',
+    name: '购买企业会员',
+    component: () => import('@/views/member/componets/buyCorporate')
   }]
 }];

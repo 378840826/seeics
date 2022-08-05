@@ -60,3 +60,11 @@ export const addLeve = data => {
     data,
   });
 };
+
+// 删除会员等级
+export const deleteLeve = id => {
+  return request({
+    url: `/api/seeics-member/level/delete/${id}`,
+    method: 'delete',
+  });
+};

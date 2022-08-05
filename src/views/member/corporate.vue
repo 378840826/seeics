@@ -4,7 +4,10 @@
       <el-select 
         v-model="form.userIds" 
         @change="handleAccout($event, 'search')"
-        filterable 
+        multiple
+        filterable
+        remote
+        :remote-method="remoteMethod"
         placeholder="请输入企业会员账号" 
         size="small" 
         class="search">
@@ -17,7 +20,8 @@
       </el-select>
 
        <el-popover
-            placement="bottom-start"  
+            placement="bottom-start" 
+            ref="filterPorover" 
             width="800"
             trigger="click">
             <div class="filtrate-content">
@@ -29,10 +33,18 @@
                 v-model="form.filter[item.value]"
               />
             </div>
+            <div style="float: right;">
+              <el-button @click="handleFilter" size="small">确定</el-button>
+              <el-button @click="handleClaer" size="small">清空</el-button>
+            </div>
             <el-button slot="reference" size="small" class="search">高级筛选</el-button>
         </el-popover>
 
-      <el-select v-model="form.status" size="small" class="search">
+      <el-select 
+        v-model="form.status" 
+        @change="handleStatus"
+        size="small" 
+        class="search">
         <el-option
           v-for="item in statusList"
           :key="item.value"
@@ -53,7 +65,7 @@
         range-separator="至"
         start-placeholder="开始日期"
         end-placeholder="结束日期"
-   
+        @change="handleDate"
         :picker-options="pickerOptions"
         size="small"
         class="search"
@@ -132,16 +144,16 @@
         min-width="60"
       >
         <template slot-scope="scope">
-            <div>{{handleStatus(scope.row.status)}}</div>
+            <div>{{getStatus(scope.row.status)}}</div>
         </template>
       </el-table-column>
 
       <el-table-column
         v-for="item in handlerList"
         :key="item.value"
-        :label="item.label"
+        :label="`${item.label}${item.unitName ? `(${item.unitName})` : ''}`"
         :prop="item.value"
-        min-width="140"
+        min-width="180"
         align="center"
       >
         <template slot-scope="scope">
@@ -180,7 +192,7 @@
       <el-table-column
         label="操作"
         align="center"
-        width="100"
+        width="150"
         fixed="right"
       >
         <template slot-scope="scope">
@@ -188,7 +200,18 @@
             v-if="scope.row.add" 
             @click="handleAdd(scope.row)"
             type="text"
+            size="mini"
           >添加</el-button>
+           <el-button 
+            v-if="scope.row.delete" 
+            @click="handleAdd(scope.row)"
+            type="text"
+            size="mini">重新添加</el-button>
+          <el-button 
+            v-if="scope.row.delete" 
+            @click="handleDelete(scope.row.id)"
+            type="text"
+            size="mini">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -203,6 +226,21 @@
       :total="page.total"
       class="page">
     </el-pagination>
+
+    <el-dialog
+      width="850px"
+      :visible.sync="dialogVisible"
+      :show-close="false"
+      center
+      append-to-body>
+      <div class="explain">
+       {{content}}
+      <button v-copy="content">复制路径</button>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="mini" @click="dialogVisible = false">确定</el-button>
+      </span>
+    </el-dialog>
   </basic-container>
 </template>
 
@@ -215,12 +253,12 @@ import {
   updateLevePrice, 
   queryMemberUserList,
   addLeve,
+  deleteLeve
 } from '@/api/member/corporate';
 import { getDateRangeForKey } from '@/util/date';
 import RangeInput from '@/views/ppc/searchTerm/components/RangeInput.vue';
 import { strToMoneyStr } from '@/util/numberString';
 import { setStore, getStore } from '@/util/store';
-import page from '@/router/page';
 
 const gets = getStore({ name: 'funList' });
 const fixedMeun = getStore({ name: 'fixedMeun' });
@@ -283,8 +321,10 @@ export default {
   data() {
     return {
       pickerOptions,
+      dialogVisible: false,
+      content: '33',
       form: {
-        status: '状态',
+        status: null,
         userAccount: '',
         userIds: '',
         dateRange: getDateRangeForKey(30),
@@ -327,19 +367,19 @@ export default {
       statusList: [
         {
           label: '有效',
-          value: '有效'
+          value: 1
         },
-        {
-          label: '状态',
-          value: '状态'
-        },
+        // {
+        //   label: '状态',
+        //   value: ''
+        // },
         {
           label: '失效',
-          value: '失效'
+          value: 0
         },
         {
           label: '不限',
-          value: '不限'
+          value: null
         },
       ],
       data: [],
@@ -372,15 +412,39 @@ export default {
     },
   },
 
-  mounted() {
-    queryMemberUserList({ isEnterprise: true }).then(res => {
-      this.options = res.data.data.map(item => {
-        return {
-          label: item.account,
-          value: item.id
+  directives: {
+    'copy': {
+      bind(el, { value }) {
+        el.$value = value;
+        el.handler = () => {
+          if (!el.$value) {
+            return alert('无复制内容'); //全局提示
+          }
+          const textarea = document.createElement('textarea');
+          textarea.style.position = 'absolute';
+          textarea.style.left = '-9999px';
+          textarea.value = el.$value;
+          el.appendChild(textarea);
+          textarea.select();
+          const result = document.execCommand('Copy');
+          if (result) {
+            alert('复制成功');
+          }
+          document.body.removeChild(textarea);
         };
-      });
-    });
+        el.addEventListener('click', el.handler);
+      },
+      componentUpdated(el, { value }) {
+        el.$value = value;
+      },
+      unbind(el) {
+        el.removeEventListener('click', el.handler);
+      }
+
+    }
+  },
+
+  mounted() {
     queryMemberUserList({ isEnterprise: false }).then(res => {
       this.accountList = res.data.data.map(item => {
         return {
@@ -389,6 +453,7 @@ export default {
         };
       });
     });
+    
     getHeader().then(res => {
       res.data.map(item => {
         this.addObj = {
@@ -408,6 +473,7 @@ export default {
           return {
             value: item.functionVarName,
             label: item.functionName,
+            unitName: item.unitName,
             disabled: true
           };
         });
@@ -429,7 +495,16 @@ export default {
   methods: {
     strToMoneyStr,
 
-    queryEnterpriseList() {
+    diffDate(val) {
+      const star = new Date(val);
+      const end = new Date();
+      const diff = end - star;
+      const diffSeconds = diff / 1000;
+      const HH = Math.floor(diffSeconds / 3600);
+      return HH;
+    },
+    
+    queryEnterpriseList(date) {
       let fun = {};
       for (const key in this.form.filter) {
         // eslint-disable-next-line no-loop-func
@@ -440,20 +515,78 @@ export default {
           };
         });
       }
-      console.log(fun);
       const param = {
         userAccount: this.form.userAccount,
-        
+        userIds: this.form.userIds,
+        status: this.form.status,
+        startTime: date && date[0] || null,
+        endTime: date && date[1] || null
       };
-      console.log(fun);
       queryEnterpriseList(Object.assign({ current: this.page.current, size: this.page.size }, param, fun)).then(res => {
-        this.data = res.data.data.records;
+        this.data = res.data.data.records.map(item => {
+          if (this.diffDate(item.createTime) > 24) {
+            item.delete = true;
+          }
+          return item;
+        });
         this.page.total = res.data.data.total;
-
+        if (this.page.total / this.page.size <= this.page.current) {
+          this.data.push(this.addObj);
+        }
+        
       });
     },
 
-    handleStatus(val) {
+    handleSizeChange(size) {
+      this.page.size = size;
+      this.queryEnterpriseList();
+    },
+
+    handleCurrentChange(current) {
+      this.page.current = current;
+      this.queryEnterpriseList();
+    },
+
+    remoteMethod(query) {
+      queryMemberUserList({ isEnterprise: true, account: query }).then(res => {
+        this.options = res.data.data.map(item => {
+          return {
+            label: item.account,
+            value: item.id
+          };
+        });
+      });
+    },
+
+    clear() {
+      for (const key in this.form.filter) {
+        Object.keys(this.form.filter[key]).forEach(item => {
+          this.form.filter[key][item] = '';
+        });
+      }
+    },
+
+    handleFilter() {
+      this.queryEnterpriseList();
+      //   this.clear();
+      this.$refs.filterPorover.doClose();
+    },
+
+    handleClaer() {
+      this.clear();
+      this.queryEnterpriseList();
+      this.$refs.filterPorover.doClose();
+    },
+
+    handleStatus() {
+      this.queryEnterpriseList();
+    },
+
+    handleDate() {
+      this.queryEnterpriseList(this.form.dateRange);
+    },
+
+    getStatus(val) {
       if (val === 1) {
         return '失效';
       } else if (val === 2) {
@@ -462,8 +595,7 @@ export default {
     },
 
     nonPayment() {
-      this.queryEnterpriseList();
-      console.log(this.data)
+    //   this.queryEnterpriseList();
     },
 
     handleFixed() {
@@ -562,7 +694,23 @@ export default {
     
     handleAdd(row) {
       addLeve({ ...row, price: row.levelPrice }).then(res => {
-        console.log(res)
+        if (res.data.code === 200) {
+          this.dialogVisible = true;
+          this.content = `${window.location.href.split('index')[0]}buy?levelPrice=${res.data.data.levelPrice}&levelPriceId=${res.data.data.levelPriceId}`;
+          this.queryEnterpriseList();
+        }
+      });
+    },
+
+    handleDelete(id) {
+      deleteLeve(id).then(res => {
+        if (res.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: '删除成功'
+          });
+          this.queryEnterpriseList();
+        }
       });
     }
   }
