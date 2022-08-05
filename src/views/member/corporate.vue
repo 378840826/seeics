@@ -599,7 +599,6 @@ export default {
 
     handleFilter() {
       this.queryEnterpriseList();
-      //   this.clear();
       this.$refs.filterPorover.doClose();
     },
 
@@ -635,7 +634,6 @@ export default {
     
     handleFun() {
       setStore({ name: 'funList', content: this.funList });
-      // console.log(getStore({ name: 'funList' }));
     },
 
     handleAccout(val, idx) {
