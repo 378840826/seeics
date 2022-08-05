@@ -36,7 +36,7 @@
               />
             </div>
             <div style="float: right;">
-              <el-button @click="handleFilter" size="small">确定</el-button>
+              <el-button @click="handleFilter" size="small" :disabled="filterBtn">确定</el-button>
               <el-button @click="handleClaer" size="small">清空</el-button>
             </div>
             <el-button slot="reference" size="small" class="search">高级筛选</el-button>
@@ -116,7 +116,7 @@
             v-if="scope.row.add" 
             v-model="scope.row.userId" 
             @change="handleAccout($event, scope.$index)"
-            placeholder="请输入企业会员" 
+            placeholder="请选择企业会员" 
             size="small">
               <el-option
                 v-for="item in accountList"
@@ -328,7 +328,8 @@ export default {
     return {
       pickerOptions,
       dialogVisible: false,
-      content: '33',
+      filterBtn: false,
+      content: '',
       form: {
         status: null,
         userAccount: '',
@@ -447,6 +448,26 @@ export default {
         el.removeEventListener('click', el.handler);
       }
 
+    }
+  },
+
+  watch: {
+    'form.filter': {
+      handler(val) {
+        const arr = [];
+        for (const key in val) {
+          Object.keys(val[key]).map(() => {
+            if (val[key]['min'] > val[key]['max']) {
+              arr.push(true);
+            } else {
+              arr.push(false);
+              this.filterBtn = false;
+            }
+          });
+        }
+        this.filterBtn = arr.filter(Boolean).length ? true : false;
+      },
+      deep: true,
     }
   },
 
@@ -730,6 +751,13 @@ export default {
     },
     
     handleAdd(row) {
+      if (!row.userId) {
+        this.$message({
+          type: 'error',
+          message: '请选择企业会员'
+        });
+        return;
+      }
       if (row.levelPrice <= 0) {
         this.$message({
           type: 'error',
@@ -754,6 +782,7 @@ export default {
             type: 'success',
             message: '删除成功'
           });
+          this.queryMemberUserList();
           this.queryEnterpriseList();
         }
       });

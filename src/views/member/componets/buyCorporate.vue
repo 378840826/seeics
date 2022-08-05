@@ -25,6 +25,11 @@
           :src="url"/>
         <div v-else class="load">二维码已过期，<el-button type="text" @click="placeAnOrder">刷新</el-button></div>
       </div>
+      <div style="marginTop: 30px">
+
+        <el-button @click="$router.push('/member/index')" size="small">确 认</el-button>
+        <el-button @click="close" size="small">取 消</el-button>
+      </div>
     <el-dialog
         width="850px"
         :visible.sync="innerVisible"
@@ -62,7 +67,7 @@
 
 <script>
 import { placeAnOrder } from '@/api/member/member';
-
+import { mapGetters } from 'vuex';
 export default {
   name: 'buyCorporate',
   data() {
@@ -74,6 +79,10 @@ export default {
       payType: 1,
       url: ''
     };
+  },
+
+  computed: {
+    ...mapGetters(['tagWel', 'tagList', 'tag', 'website']),
   },
 
   mounted() {
@@ -105,7 +114,45 @@ export default {
       placeAnOrder(params).then(res => {
         this.url = res.data.data.url;
       });
-    }
+    },
+
+    close() {
+      const tagObj = this.findTag(`${window.location.pathname}${window.location.search}`);
+      let { tag } = tagObj;
+      const { key } = tagObj;
+      this.$store.commit('DEL_TAG', tag);
+      if (tag.value === this.tag.value) {
+        tag = this.tagList[key === 0 ? key : key - 1]; //如果关闭本标签让前推一个
+        this.openTag(tag);
+      }
+    },
+
+    openTag(item) {
+      let tag;
+      if (item.name) {
+        tag = this.findTag(item.name).tag;
+      } else {
+        tag = item;
+      }
+      this.$router.push({
+        path: this.$router.$avueRouter.getPath({
+          name: tag.label,
+          src: tag.value
+        }, tag.meta),
+        query: tag.query
+      });
+    },
+
+    findTag(value) {
+      let tag, key;
+      this.tagList.map((item, index) => {
+        if (item.value === value) {
+          tag = item;
+          key = index;
+        }
+      });
+      return { tag: tag, key: key };
+    },
   }
 };
 </script>
