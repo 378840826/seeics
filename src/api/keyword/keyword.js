@@ -105,7 +105,7 @@ export const getDetial = (id) => {
 // 批量分析
 export const batchAnalyze = (searchCountry, data) => {
   return request({
-    url: '/api/keyword-analyze/batch-analyze',
+    url: '/api/seeics-analysis/keyword-analyze/batch-analyze',
     method: 'post',
     params: {
       searchCountry
