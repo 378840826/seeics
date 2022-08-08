@@ -623,29 +623,11 @@ export default {
       if (!files) {
         return;
       }
-      //自动重命名上传
-      // const arr = [];
-      // this.selectData.map(item => {
-      //   if (item.name.indexOf(files.name.slice(0, -5)) !== -1) {
-      //     arr.push(item);
-      //   }
-      // });
-      // this.renameFile = arr.length > 0 && `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx`;
-      // const reFormData = new FormData();
-      // reFormData.append('file', files, this.renameFile);
-      // this.reFormData = reFormData;
-    
-      //正常上传
-      // this.fileName = files.name;
       const formData = new FormData();
       formData.append('file', files);
-      batchAnalyze(this.formInline.searchCountry, formData).then(res => {
-        console.log(res);
+      batchAnalyze(this.formInline.searchCountry, formData).then(() => {
+        this.getkeywordLists();
       });
-      // this.isrefresh = this.isrefresh ? false : true;
-      // this.$nextTick(() => {
-      //   this.isrefresh = this.isrefresh ? false : true;
-      // });
     },
   },
   watch: {
@@ -818,5 +800,10 @@ export default {
   margin: 0;
   font-size: 10px;
   padding: 3px 4px 3px 4px;
+}
+.selectFile {
+  color: #409EFF;
+  font-size: 14px;
+  cursor: pointer;
 }
 </style>
