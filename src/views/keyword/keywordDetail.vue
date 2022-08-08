@@ -19,7 +19,9 @@
            <div style=" width: 70%; height: 100%">
              <p v-for="(item, index) in data" :key="item.props" class="column" style=" width: 100%; display: flex;">
                 <span class="span" style="width: 10%; textAlign: center;">{{index + 1}}</span>
-                <a @click="hanlderColumn(item.props)" class="span column" style="width: 40%; textAlign: center; cursor: pointer;">{{item.column}}
+                <a 
+                  @click="hanlderColumn(item.props)" 
+                  class="span column" style="width: 40%; textAlign: center; cursor: pointer;">{{item.column}}
                   <el-tooltip>
                     <div slot="content">
                        <div v-for="item in  strSplit(item.tip)" :key="item">{{item}}</div>
@@ -36,12 +38,15 @@
            <div class="total">
               <!-- {{total}} -->
               <div>
+                 <div style="textAlign: center; fontSize: 20px; color: #01E3E3">
+                   {{$route.query.name.split('详情')[0]}}</div>
                  <div style="textAlign: center; fontSize: 50px; color: #01E3E3">{{total}}</div>
-                 评估建议：
-                 <div v-if="total >= 120 && total <= 150">强烈建议进入</div>
-                 <div v-else-if="total >= 90 && total <= 120">建议进入</div>
-                 <div v-else-if="total >= 60 && total <= 90">可以进入</div>
-                 <div v-else-if="total < 60">不建议进入</div>
+                 
+                 <div style="fontSize: 30px;" >评估建议：</div>
+                 <div style="fontSize: 30px;" v-if="total >= 120 && total <= 150">强烈建议进入</div>
+                 <div style="fontSize: 30px" v-else-if="total >= 90 && total <= 120">建议进入</div>
+                 <div style="fontSize: 30px" v-else-if="total >= 60 && total <= 90">可以进入</div>
+                 <div style="fontSize: 30px" v-else-if="total < 60">不建议进入</div>
               </div>
            </div>
          </div>
@@ -67,7 +72,8 @@
     <el-row :gutter="24">
       <el-col :span="12" id="reviewCount">
         <Title :title="'评论数量'"/>
-        <bar-chart :chartData="listDataMap(reviewCountVo.countCommentsRangeMap)" italic :title="'评论数量区间个数'" :height="'398px'"/>
+        <bar-chart 
+          :chartData="listDataMap(reviewCountVo.countCommentsRangeMap)" italic :title="'评论数量区间个数'" :height="'398px'"/>
         <div class="div1"></div>
         <div class="div2"></div>
       </el-col>
@@ -277,6 +283,7 @@ export default {
   },
   destroyed() {
     window.onresize = null;
+    
   },
   watch: {
     '$route.query': {
@@ -323,35 +330,40 @@ export default {
     getDetial(id) {
       getDetial(id).then(res => {
         this.total = 0;
-        this.reviewCountVo = res.data.data['reviewCountVo'];
-        this.listingPriceList = res.data.data['listingPriceList'].sort((a, b) => a.listingPrice - b.listingPrice);
-        this.hijackerVo = res.data.data['hijackerVo'];
-        this.bigRankingMap = res.data.data['rankingVo'].bigRankingMap;
-        this.smallRankingMap = res.data.data['rankingVo'].smallRankingMap;
-        this.variationRangeMap = res.data.data['variationVo'].variationRangeMap;
-        this.fulfillmentChannel = res.data.data['fulfillmentChannelVo'];
-        this.imageNumber = res.data.data['imageCountVo'].haveImageNumberMap;
-        this.video = res.data.data['listingVideoVo'];
-        this.EBC = res.data.data['hasEbcVo'];
-        this.timeQuantum = res.data.data['firstDateVo'].timeQuantumMap;
-        this.seller = res.data.data['sellerVo'];
-        this.country = res.data.data['companyAddressVo'];
-        this.feedback = res.data.data['thirtyDaysFeedbackVo'].thirtyDaysFeedbackMap;
-        this.acKeyword = res.data.data['acKeywordVo'];
-        this.reviewStar = res.data.data['reviewStarVo'].commentsRangeMap;
-        this.color = res.data.data['colorList'];
-        this.brand = res.data.data['brandNameVo'].brandNameCountList;
-        this.data = res.data.data['tableScores'].map(item => {
-          this.total += item.score;
-          if (this.tipList[item.props]) {
-            item.tip = this.tipList[item.props];
-          }
-          return item;
-        }).sort((a, b) => b.score - a.score);
+        this.empty();
+        this.data = [];
+        if (res.data.data) {
+          this.reviewCountVo = res.data.data['reviewCountVo'];
+          this.listingPriceList = res.data.data['listingPriceList'].sort((a, b) => a.listingPrice - b.listingPrice);
+          this.hijackerVo = res.data.data['hijackerVo'];
+          this.bigRankingMap = res.data.data['rankingVo'].bigRankingMap;
+          this.smallRankingMap = res.data.data['rankingVo'].smallRankingMap;
+          this.variationRangeMap = res.data.data['variationVo'].variationRangeMap;
+          this.fulfillmentChannel = res.data.data['fulfillmentChannelVo'];
+          this.imageNumber = res.data.data['imageCountVo'].haveImageNumberMap;
+          this.video = res.data.data['listingVideoVo'];
+          this.EBC = res.data.data['hasEbcVo'];
+          this.timeQuantum = res.data.data['firstDateVo'].timeQuantumMap;
+          this.seller = res.data.data['sellerVo'];
+          this.country = res.data.data['companyAddressVo'];
+          this.feedback = res.data.data['thirtyDaysFeedbackVo'].thirtyDaysFeedbackMap;
+          this.acKeyword = res.data.data['acKeywordVo'];
+          this.reviewStar = res.data.data['reviewStarVo'].commentsRangeMap;
+          this.color = res.data.data['colorList'];
+          this.brand = res.data.data['brandNameVo'].brandNameCountList;
+          this.data = res.data.data['tableScores'].map(item => {
+            this.total += item.score;
+            if (this.tipList[item.props]) {
+              item.tip = this.tipList[item.props];
+            }
+            return item;
+          }).sort((a, b) => b.score - a.score);
+        }
       });
     },
     objectOrder(obj) { //排序的函数
-      const newkey = Object.keys(obj).sort(); //先用Object内置类的keys方法获取要排序对象的属性名，再利用Array原型上的sort方法对获取的属性名进行排序，newkey是一个数组，这行是最重要的代码！
+    //先用Object内置类的keys方法获取要排序对象的属性名，再利用Array原型上的sort方法对获取的属性名进行排序，newkey是一个数组，这行是最重要的代码！
+      const newkey = Object.keys(obj).sort(); 
       const newObj = {};//创建一个新的对象，用于存放排好序的键值对
       for (let i = 0; i < newkey.length; i ++) { //遍历newkey数组
         newObj[newkey[i]] = obj[newkey[i]];//向新创建的对象中按照排好的顺序依次增加键值对
@@ -524,6 +536,28 @@ export default {
         };
       }
     },
+
+    empty() {
+      this.reviewCountVo = {};
+      this.listingPriceList = [];
+      this.hijackerVo = {};
+      this.bigRankingMap = {};
+      this.smallRankingMap = {};
+      this.variationRangeMap = {};
+      this.fulfillmentChannel = {};
+      this.imageNumber = {};
+      this.video = {};
+      this.EBC = {};
+      this.timeQuantum = {};
+      this.seller = {};
+      this.country = {};
+      this.feedback = {};
+      this.acKeyword = {};
+      this.reviewStar = {};
+      this.color = {};
+      this.brand = {};
+    },
+
     drawLine(){
       // 基于准备好的dom，初始化echarts实例
       const myChart = echarts.init(this.$refs.echart);
@@ -671,11 +705,14 @@ export default {
   .total {
     // font-size: 40px; 
     // color: #01E3E3; 
+    width: 30%;
     font-family: MicrosoftYaHei;
     margin: auto;
     div {
       font-size: 30px; 
       color: #9AA8D4;
+      text-align: center; 
+      font-size: 20px; color: #01E3E3
     }
   }
   .tableBox {
