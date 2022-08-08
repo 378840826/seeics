@@ -101,3 +101,15 @@ export const getDetial = (id) => {
     method: 'get',
   });
 };
+
+// 批量分析
+export const batchAnalyze = (searchCountry, data) => {
+  return request({
+    url: '/api/keyword-analyze/batch-analyze',
+    method: 'post',
+    params: {
+      searchCountry
+    },
+    data,
+  });
+};

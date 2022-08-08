@@ -55,6 +55,17 @@
           </div>
           <el-button type="text" slot="reference">词频选项</el-button>
         </el-popover>
+        <label style="width: 0px; height: 30px">
+          <span class="selectFile">批量分析</span>
+          <input
+            type="file"
+            accept="xlsx"
+            @change="importChange"
+            id="file"
+            
+            style="visibility: hidden; width: 1px"
+          />
+        </label>
       </el-form>
       <!-- <div class="warningtext">今日还剩{{restnum}}次免费搜索机会</div> -->
       <div class="avuecrudclass">
@@ -197,7 +208,17 @@
 </template>
 
 <script>
-import { getkeywordList, analysiskeyword, wordStatistics, download, keyWordReset, keywordOptions, analyzeDownload, overallOption, getGlobalOption } from '@/api/keyword/keyword';
+import { 
+  getkeywordList,
+  analysiskeyword,
+  wordStatistics,
+  download,
+  keyWordReset,
+  keywordOptions,
+  analyzeDownload,
+  overallOption,
+  getGlobalOption,
+  batchAnalyze } from '@/api/keyword/keyword';
 import { downloadFile, setPageSetup, getPageSetup } from '@/util/util';
 
 export default {
@@ -209,6 +230,7 @@ export default {
         searchKeyword: '',
         searchTopPage: '2',
       },
+      formData: '',
       user: {},
       data: [],
       popoverVisible: false, //词频选项框
@@ -593,7 +615,38 @@ export default {
         const fileName = `${this.$t(`${row.searchCountry}_analyze_${row.searchKeyword}`) }.xlsx`;
         downloadFile(content, fileName);
       });
-    }
+    },
+
+    // 批量分析
+    importChange() {
+      const files = document.getElementById('file').files[0];
+      if (!files) {
+        return;
+      }
+      //自动重命名上传
+      // const arr = [];
+      // this.selectData.map(item => {
+      //   if (item.name.indexOf(files.name.slice(0, -5)) !== -1) {
+      //     arr.push(item);
+      //   }
+      // });
+      // this.renameFile = arr.length > 0 && `${arr[0].name.slice(0, -5)}-副本(${arr.length + 1}).xlsx`;
+      // const reFormData = new FormData();
+      // reFormData.append('file', files, this.renameFile);
+      // this.reFormData = reFormData;
+    
+      //正常上传
+      // this.fileName = files.name;
+      const formData = new FormData();
+      formData.append('file', files);
+      batchAnalyze(this.formInline.searchCountry, formData).then(res => {
+        console.log(res);
+      });
+      // this.isrefresh = this.isrefresh ? false : true;
+      // this.$nextTick(() => {
+      //   this.isrefresh = this.isrefresh ? false : true;
+      // });
+    },
   },
   watch: {
     'formInline.searchTopPage'(){
