@@ -270,20 +270,17 @@ export default {
       }
     };
   },
+
   mounted(){
-    document.querySelector('#avue-view').addEventListener('scroll', () => {
-      const top = document.querySelector('#avue-view').scrollTop;
-      const returnTop = document.querySelector('.returnTop');
-      if (top > 20) {
-        returnTop.style.display = 'block';
-      } else {
-        returnTop.style.display = 'none';
-      }
-    });
+    document.querySelector('#avue-view').addEventListener('scroll', this.showTop);
   },
+
+  beforeDestroy() {
+    document.querySelector('#avue-view').removeEventListener('scroll', this.showTop);
+  },
+
   destroyed() {
     window.onresize = null;
-    
   },
   watch: {
     '$route.query': {
@@ -294,6 +291,7 @@ export default {
       },
     },
   },
+
   directives: {
     resize: { // 指令的名称
       bind(el, binding) { // el为绑定的元素，binding为绑定给指令的对象
@@ -313,7 +311,17 @@ export default {
       }
     }
   },
+
   methods: {
+    showTop() {
+      const top = document.querySelector('#avue-view').scrollTop;
+      const returnTop = document.querySelector('.returnTop');
+      if (top > 20) {
+        returnTop.style.display = 'block';
+      } else {
+        returnTop.style.display = 'none';
+      }
+    },
     returnTop() {
       document.querySelector('#avue-view').scrollTop = 0;
     },
