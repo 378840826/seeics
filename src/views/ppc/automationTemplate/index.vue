@@ -257,7 +257,7 @@ export default {
         menuAlign: 'left',
         rowKey: 'id',
         tip: false,
-        maxHeight: 'calc(100vh - 290px)',
+        height: 'calc(100vh - 290px)',
         column: [
           {
             label: '模板名称',
