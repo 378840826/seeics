@@ -292,10 +292,12 @@ export default {
               batchTemplateList: this.formLabelAlign.data.map(item => {
                 return {
                   automationTemplateId: item.automationTemplateId,
-                  templateName: item.templateName
+                  templateName: item.templateName,
+                  templateType: this.formLabelAlign.adType
                 };
               }),
-              marketplace: this.marketplace
+              marketplace: this.marketplace,
+
             };
             batchTemplate(params).then(res => {
               if (res.data.code === 200) {
