@@ -91,6 +91,8 @@
       @cancel="portfolioEdit.visible = false"
       @save="handleSavePortfolioEdit"
     />
+
+    <create-campaign-dialog/>
   </basic-container>
 </template>
 
@@ -109,6 +111,7 @@ import { stateIconDict, tabsStateDict, allTabs } from './utils/dict';
 import Campaign from './pages/Campaign';
 import Group from './pages/Group';
 import Ad from './pages/Ad';
+import createCampaignDialog from './components/createCampaignDialog.vue';
 
 export default{
   name: 'adManage',
@@ -119,6 +122,7 @@ export default{
     Campaign,
     Group,
     Ad,
+    createCampaignDialog,
   },
 
   data() {
