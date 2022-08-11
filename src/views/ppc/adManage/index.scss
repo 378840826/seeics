@@ -1,0 +1,111 @@
+// 店铺和时间
+.store_time-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+
+  .store {
+    width: 160px;
+  }
+
+  .marketplace-time {
+    font-size: 12px;
+    padding: 0 6px;
+  }
+}
+
+// 左边栏
+.left-aside {
+  width: 300px;
+  box-shadow: 1px 0px 0px 0px #ccc;
+}
+
+.left-tabs {
+  font-size: $textSize;
+  border: none;
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  box-shadow: 0px -1px 0px 0px #ccc;
+
+  // 左侧菜单滚动区域
+  .tab-pane-roll {
+    overflow: auto;
+    height: calc(100vh - 300px);
+  }
+
+  // 广告组合 portfolio 列表
+  .ul-portfolio {
+    li {
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      &.active .portfolio {
+        color: $primaryColor;
+      }
+    }
+
+    .el-icon-edit {
+      font-size: 14px;
+      color: #666;
+      cursor: pointer;
+      &:hover {
+        color: $primaryColor;
+      }
+    }
+
+    .portfolio {
+      cursor: pointer;
+      &:hover {
+        color: $primaryColor;
+      }
+    }
+
+    // 广告组合选中时
+    .selected {
+      background: #F5F7FA;
+
+      .portfolio {
+        color: $primaryColor;
+      }
+    }
+  }
+
+  .input-with-select {
+    margin-bottom: 10px;
+
+    ::v-deep {
+      .el-input-group__append {
+        padding: 0 10px;
+      }
+    }
+  }
+
+  ::v-deep {
+    // tabs
+    .el-tabs__item {
+      height: 30px;
+      line-height: 30px;
+    }
+  }
+}
+
+// 右侧
+.right-main {
+  margin-left: 20px;
+
+  // 标签页数量
+  .tabs-cell-count {
+    color: $secondaryTextColor;
+    font-weight: 400;
+  }
+
+  ::v-deep {
+    // tabs
+    .el-tabs__item {
+      font-weight: 400;
+      font-size: 13px;
+    }
+  }
+}
