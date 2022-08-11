@@ -4,6 +4,7 @@ import oauth from './oauth';
 import param from './param';
 import autoAd from './autoAd';
 import ppc from './ppc';
+import adManage from './adManage';
 
 /**
  * 模拟数据mock
@@ -26,3 +27,6 @@ autoAd(options);
 
 ppc(options);
 // ppc({ mock: true });
+
+// adManage(options);
+adManage({ mock: true });
