@@ -125,6 +125,21 @@ export default {
       order: null
     };
   },
+
+  watch: {
+    payType: {
+      handler(val) {
+        if (val === 'ali_pcPay') {
+          this.form.appId = '2021003143612160';
+          this.form.mchId = '2088441743103441';
+        } else {
+          this.form.appId = '';
+          this.form.mchId = '';
+        }
+      }
+    }
+  },
+
   methods: {
     onSubmit(){
       this.$refs['form'].validate((valid) => {
@@ -250,8 +265,11 @@ export default {
 
         case 'ali_pcPay':{
           aliPcPay(this.form).then((jsresponse) => {
-            const data = jsresponse.data.data;
-            window.location.href = data.url;
+            const data = jsresponse.data.data.form;
+            const div = document.createElement('div');
+            div.innerHTML = data;
+            document.body.appendChild(div);
+            document.forms[1].submit();
           });
           break;
         }
