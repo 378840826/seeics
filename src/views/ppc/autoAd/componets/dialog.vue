@@ -16,7 +16,8 @@
               <avue-select
                 v-model="formLabelAlign.adType"
                 :clearable="false"
-                :dic="[{label: '搜索词', value: '搜索词'}]"
+                :dic="[{label: '搜索词', value: '搜索词'}, {label: '投放', value: '投放'}]"
+                @change="handleType"
                 placeholder="请选择"
               />
             </el-form-item>
@@ -165,26 +166,7 @@ export default {
   },
   mounted() {
     if (this.batch === 'batchTemplate') {
-      getAutomationList().then(res => {
-        if (res.data.code === 200) {
-          if (!res.data.data.length) {
-            this.$message({
-              type: 'error',
-              message: '暂无自动化模板，请前往自动化模板设置模板'
-            });
-            return;
-          }
-          this.templateList = res.data.data.map(item => {
-            return {
-              label: item.templateName,
-              value: item.id
-            };
-          });
-          
-          //默认选中第一个
-          this.formLabelAlign.data[0].automationTemplateId = this.templateList[0].value;
-        }
-      });
+      this.getAutomationList();
     }
   },
   watch: {
@@ -208,6 +190,40 @@ export default {
     }
   },
   methods: {
+    // 获取自动模板
+    getAutomationList() {
+      getAutomationList({ templateType: this.formLabelAlign.adType }).then(res => {
+        if (res.data.code === 200) {
+          if (!res.data.data.length) {
+            this.$message({
+              type: 'error',
+              message: '暂无自动化模板，请前往自动化模板设置模板'
+            });
+            return;
+          }
+         
+          this.templateList = res.data.data.map(item => {
+            return {
+              label: item.templateName,
+              value: item.id
+            };
+          });
+          
+          //默认选中第一个
+          this.formLabelAlign.data[0].automationTemplateId = this.templateList[0].value;
+        }
+      });
+    },
+
+    handleType() {
+      this.getAutomationList();
+      this.formLabelAlign.data = [{
+        automationTemplateId: '',
+        templateName: '',
+        add: true
+      }];
+    },
+
     // 默认选择第一个
     labelFilter(arr) {
       const arrs = arr.filter(item => !item.disabled);
@@ -276,10 +292,12 @@ export default {
               batchTemplateList: this.formLabelAlign.data.map(item => {
                 return {
                   automationTemplateId: item.automationTemplateId,
-                  templateName: item.templateName
+                  templateName: item.templateName,
+                  templateType: this.formLabelAlign.adType
                 };
               }),
-              marketplace: this.marketplace
+              marketplace: this.marketplace,
+
             };
             batchTemplate(params).then(res => {
               if (res.data.code === 200) {

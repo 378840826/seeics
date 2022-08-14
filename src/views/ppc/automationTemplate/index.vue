@@ -257,7 +257,7 @@ export default {
         menuAlign: 'left',
         rowKey: 'id',
         tip: false,
-        maxHeight: 'calc(100vh - 290px)',
+        height: 'calc(100vh - 290px)',
         column: [
           {
             label: '模板名称',
@@ -422,8 +422,10 @@ export default {
     hanlderName(e) {
       repeatName(e.target.value).then(res => {
         if (res.data.success) {
+          this.saveDisabled = false;
           this.templateNameMsg = false;
         } else {
+          this.saveDisabled = true;
           this.templateNameMsg = true;
         }
       });
@@ -568,6 +570,7 @@ export default {
       }
       this.formInline.templateType = '搜索词';
       this.centerDialogVisible = false;
+      this.templateNameMsg = false;
     },
     hidden() {
       this.ruleIs = false;
@@ -577,6 +580,7 @@ export default {
     async update(id) {
       this.flag = 'update';
       this.updateId = id;
+      this.templateNameMsg = false;
       
       await detailTemplate(id).then(res => {
         if (res.data.code === 200) {

@@ -550,7 +550,7 @@
       :batch="batch"
       v-model="dialogVisible"
       :tableSelected="tableSelected"
-      :marketplace="marketplace"
+      :marketplace="form.marketplace"
       :getTableData="getTableData"
     />
     <el-dialog
@@ -677,7 +677,6 @@ export default {
       // 批量设置模板参数
       dialogVisible: false,
       batch: '',
-      marketplace: '',
       templateForm: {
         type: '搜索词自动化标签',
         itemList: [
@@ -852,7 +851,6 @@ export default {
     // 表格行选中
     handleSelectionChange(val) {
       this.tableSelected = val.map(item => item.campaignId);
-      this.marketplace = val[0].marketplace;
     },
 
     // 排序（广告活动名称排序）
