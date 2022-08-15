@@ -52,14 +52,14 @@
         <el-button type="success"
                     size="small"
                     plain
-                    v-if="userInfo.role_name.includes('admin')"
+                    v-if="permission.deptUser_import"
                     icon="el-icon-upload2"
                     @click="handleImport">导入
         </el-button>
         <el-button type="warning"
                     size="small"
                     plain
-                    v-if="userInfo.role_name.includes('admin')"
+                    v-if="permission.deptUser_export"
                     icon="el-icon-download"
                     @click="handleExport">导出
         </el-button>
