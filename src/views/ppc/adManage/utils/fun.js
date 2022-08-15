@@ -39,3 +39,65 @@ export function getValueLocaleString(params) {
   );
   return `${prefix || ''}${v || empty}${suffix || ''}`;
 }
+
+// 获取 销售额 订单量 impressions clicks 等通用的、不可交互的列配置
+export function getCommonColOption(currency) {
+  return [
+    {
+      label: '销售额',
+      prop: 'sales',
+      formatter: (_, value) => getValueLocaleString({ value, isFraction: true, prefix: currency }),
+      width: 110,
+    }, {
+      label: '订单量',
+      prop: 'orderNum',
+      formatter: (_, value) => getValueLocaleString({ value }),
+      width: 80,
+    }, {
+      label: 'CPC',
+      prop: 'cpc',
+      formatter: (_, value) => getValueLocaleString({ value, isFraction: true, prefix: currency }),
+      width: 80,
+    }, {
+      label: 'CPA',
+      prop: 'cpa',
+      formatter: (_, value) => getValueLocaleString({ value, isFraction: true, prefix: currency }),
+      width: 80,
+    }, {
+      label: 'Spend',
+      prop: 'spend',
+      formatter: (_, value) => getValueLocaleString({ value, isFraction: true, prefix: currency }),
+      width: 90,
+    }, {
+      label: 'ACoS',
+      prop: 'acos',
+      formatter: (_, value) => getValueLocaleString({ value, isFraction: true, suffix: '%' }),
+      width: 80,
+    }, {
+      label: 'RoAS',
+      prop: 'roas',
+      formatter: (_, value) => getValueLocaleString({ value, isFraction: true, }),
+      width: 80,
+    }, {
+      label: 'Impressions',
+      prop: 'impressions',
+      formatter: (_, value) => getValueLocaleString({ value }),
+      width: 100,
+    }, {
+      label: 'Clicks',
+      prop: 'clicks',
+      formatter: (_, value) => getValueLocaleString({ value }),
+      width: 80,
+    }, {
+      label: 'CTR',
+      prop: 'ctr',
+      formatter: (_, value) => getValueLocaleString({ value, isFraction: true, suffix: '%' }),
+      width: 80,
+    }, {
+      label: '转化率',
+      prop: 'conversionsRate',
+      formatter: (_, value) => getValueLocaleString({ value, isFraction: true, suffix: '%' }),
+      width: 80,
+    },
+  ];
+}

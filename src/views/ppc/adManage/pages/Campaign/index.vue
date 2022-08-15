@@ -1,112 +1,79 @@
 <!-- 广告活动 -->
 <template>
   <div class="table-container">
-    <el-table
-        ref="elTableRef"
-        :data="tableData"
-        v-loading="tableLoading"
-        tooltip-effect="dark"
-        height="calc(100vh - 200px)"
-        empty-text="没有查询到数据，请修改查询条件"
-        @selection-change="handleSelectionChange"
-        @sort-change="handleSortChange"
-        :size="size"
-        show-summary
-        :summary-method="getSummaries"
-      >
-        <el-table-column type="selection" width="50" align="center" />
+    <!-- 表格 -->
+    <avue-crud
+      ref="tableRef"
+      :data="tableData"
+      :option="getTableOption(this.currency)"
+      @on-load="getList()"
+      @row-del="handleDelte"
+      :page.sync="tablePageOption"
+      @current-change="handleCurrentPageChange"
+      @size-change="handlePageSizeChange"
+      :table-loading="tableLoading"
+      :summary-method="summaryMethod"
+    >
+      <template type="selection" width="50" align="center" />
 
-        <el-table-column prop="state" label="状态" width="60">
-          <template slot-scope="scope">{{ stateNameDict[scope.row.state] }}</template>
-        </el-table-column>
+      <!-- 店铺站点 -->
+      <template slot-scope="{row}" slot="state">
+        {{ stateNameDict[row.state] }}
+      </template>
 
-        <el-table-column prop="portfolioId" label="Portfolios">
-          <template slot-scope="scope">{{ scope.row.portfolioName }}</template>
-        </el-table-column>
+      <template slot-scope="{row}" slot="portfolioId">{{ row.portfolioName }}</template>
 
-        <el-table-column prop="name" label="广告活动" width="200" />
+      <template slot-scope="{row}" slot="name">{{ row.name }}</template>
 
-        <el-table-column prop="targetingType" label="投放方式" width="100">
-          <template slot-scope="scope">{{ targetingTypeDict[scope.row.targetingType] }}</template>
-        </el-table-column>
+      <template slot-scope="{row}" slot="targetingType">{{ targetingTypeDict[row.targetingType] }}</template>
 
-        <el-table-column prop="createdTime" label="创建时间" width="100">
-          <div slot="header">
-            创建时间
-            <el-tooltip effect="dark" content="北京时间" placement="top">
-              <i class="el-icon-info icon-time_info"></i>
-            </el-tooltip>
-          </div>
-          <span slot-scope="scope" class="created_time">
-            {{ scope.row.createdTime }}
-          </span>
-        </el-table-column>
+      <template slot="createdTimeHeader">
+        创建时间
+        <el-tooltip effect="dark" content="北京时间" placement="top">
+          <i class="el-icon-info icon-time_info"></i>
+        </el-tooltip>
+      </template>
+      <template slot-scope="{row}" slot="createdTime">
+        <span class="td_date_time">{{ row.createdTime }}</span>
+      </template>
 
-        <el-table-column prop="groupNumber" label="广告组数量">
-          <el-button
-            slot-scope="scope"
-            type="text"
-            :size="size"
-            @click="handleClickGroupCount(scope.row)"
-          > {{ scope.row.groupNumber }} </el-button>
-        </el-table-column>
+      <template slot-scope="{row}" slot="groupNumber">
+        <el-button
+          type="text"
+          :size="size"
+          @click="handleClickGroupCount(row)"
+        > {{ row.groupNumber }} </el-button>
+      </template>
 
-        <el-table-column prop="biddingStrategy" label="竞价策略" width="150">
-          <el-select slot-scope="scope" :value="scope.row.biddingStrategy" :size="size">
-            <el-option
-              v-for="(value, key) in biddingStrategyDict"
-              :key="key"
-              :label="value"
-              :value="key">
-            </el-option>
-          </el-select>
-        </el-table-column>
+      <template slot-scope="{row}" slot="biddingStrategy">
+        <el-select :value="row.biddingStrategy" :size="size">
+          <el-option
+            v-for="(value, key) in biddingStrategyDict"
+            :key="key"
+            :label="value"
+            :value="key">
+          </el-option>
+        </el-select>
+      </template>
 
-        <el-table-column prop="biddingPlacementTop" label="Top of Search" width="110">
-          <template slot-scope="scope">{{ scope.row.biddingPlacementTop }}</template>
-        </el-table-column>
+      <template slot-scope="{row}" slot="startDate">
+        <span class="td_date_time">{{ row.startDate }}</span>
+      </template>
 
-        <el-table-column prop="biddingPlacementProductPage" label="Product page" width="110">
-          <template slot-scope="scope">{{ scope.row.biddingPlacementProductPage }}</template>
-        </el-table-column>
-        
-        <el-table-column prop="dailyBudget" label="日预算" width="110">
-          <template slot-scope="scope">{{ scope.row.dailyBudget }}</template>
-        </el-table-column>
+      <template slot-scope="{row}" slot="endDate">
+        <span class="td_date_time">{{ row.endDate }}</span>
+      </template>
 
-        <el-table-column prop="negativeTargetingNumber" label="否定Targeting" width="110">
-          <template slot-scope="scope">{{ scope.row.negativeTargetingNumber }}</template>
-        </el-table-column>
-
-        <el-table-column prop="startDate" label="开始时间" width="110">
-          <template slot-scope="scope">{{ scope.row.startDate }}</template>
-        </el-table-column>
-        
-        <el-table-column prop="endDate" label="结束时间" width="110">
-          <template slot-scope="scope">{{ scope.row.endDate }}</template>
-        </el-table-column>
-
-        <el-table-column prop="sales" label="销售额" width="110">
-          <template slot-scope="scope">
-            {{ getValueLocaleString({ value: scope.row.sales, isFraction: true, prefix: currency }) }}
-          </template>
-        </el-table-column>
-      
-        <el-table-column prop="orderNum" label="订单量" width="110">
-          <template slot-scope="scope">{{ scope.row.orderNum }}</template>
-        </el-table-column>
-
-        <el-table-column label="操作" fixed="right" width="60">
-          <template slot-scope="scope">
-            <el-button
-              @click="handleCharts(scope.row)"
-              style="color: #C0C4CC"
-              type="text"
-              :size="size"
-            >分析</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <!-- 操作 -->
+      <template slot-scope="{row}" slot="menu">
+        <el-button
+          @click="handleCharts(row)"
+          style="color: #C0C4CC"
+          type="text"
+          :size="size"
+        >分析</el-button>
+      </template>
+    </avue-crud>
   </div>
 </template>
 
@@ -116,7 +83,91 @@ import {
 } from '@/api/ppc/adManage';
 import { stateNameDict, targetingTypeDict, biddingStrategyDict } from '../../utils/dict';
 import { log } from '@/util/util';
-import { getValueLocaleString } from '../../utils/fun';
+import { getValueLocaleString, getCommonColOption } from '../../utils/fun';
+
+// 表格的配置
+function getTableOption(currency) {
+  const tableOption = {
+    emptyText: '未查询到数据',
+    delBtn: false,
+    addBtn: false,
+    editBtn: false,
+    border: true,
+    cellBtn: true,
+    selection: true,
+    selectClearBtn: false,
+    refreshBtn: false,
+    columnBtn: false,
+    height: 'auto',
+    calcHeight: 120,
+    menuWidth: 60,
+    showSummary: true,
+    column: [
+      {
+        label: '状态',
+        prop: 'state',
+        fixed: 'left',
+        width: 60,
+      }, {
+        label: 'Portfolios',
+        prop: 'portfolioId',
+        fixed: 'left',
+        width: 100,
+      }, {
+        label: '广告活动',
+        prop: 'name',
+        fixed: 'left',
+        width: 200,
+      }, {
+        label: '投放方式',
+        prop: 'targetingType',
+        width: 100,
+      }, {
+        label: '创建时间',
+        prop: 'createdTime',
+        headerslot: true,
+        width: 100,
+      }, {
+        label: '广告组数量',
+        prop: 'groupNumber',
+        width: 100,
+      }, {
+        label: '竞价策略',
+        prop: 'biddingStrategy',
+        width: 150,
+      }, {
+        label: 'Top of Search',
+        prop: 'biddingPlacementTop',
+        formatter: (_, value) => getValueLocaleString({ value, isFraction: true, suffix: '%' }),
+        width: 110,
+      }, {
+        label: 'Product page',
+        prop: 'biddingPlacementProductPage',
+        formatter: (_, value) => getValueLocaleString({ value, isFraction: true, suffix: '%' }),
+        width: 110,
+      }, {
+        label: '日预算',
+        prop: 'dailyBudget',
+        formatter: (_, value) => getValueLocaleString({ value, isFraction: true, prefix: currency }),
+        width: 110,
+      }, {
+        label: '否定Targeting',
+        prop: 'negativeTargetingNumber',
+        width: 110,
+      }, {
+        label: '开始时间',
+        prop: 'startDate',
+        width: 110,
+      }, {
+        label: '结束时间',
+        prop: 'endDate',
+        width: 110,
+      },
+      ...getCommonColOption(currency),
+    ],
+  };
+  return tableOption;
+}
 
 export default {
   name: 'Campaign',
@@ -126,20 +177,31 @@ export default {
       type: String,
       required: true,
     },
+    storeId: {
+      type: String,
+      required: true,
+    },
     currency: {
       type: String,
       required: true,
     },
   },
 
-  data() {
+  data: function() {
     return {
       size: 'mini',
       stateNameDict,
       targetingTypeDict,
       biddingStrategyDict,
       tableData: [],
+      tableTotalData: {},
       tableLoading: false,
+      tablePageOption: { 
+        total: 100,
+        currentPage: 1, 
+        pageSize: 20,
+        pageSizes: [20, 50, 100],
+      },
     };
   },
 
@@ -148,24 +210,49 @@ export default {
   },
 
   created() {
-    this.getList();
+    // this.getList();
   },
 
   updated () {
-    this.$nextTick(() => {
-      // 解决合计样式问题
-      this.$refs.elTableRef.doLayout();
-    });
-    // console.log('.....', this.$store.state.shop.list);
-
+    // 解决表格合计行样式问题
+    // this.$refs.tableRef.refreshTable();
   },
 
   methods: {
     getValueLocaleString,
+    getTableOption,
     // 获取列表
     getList() {
-      queryCampaignList().then(res => {
-        this.tableData = res.data.records;
+      const queryParams = {
+        current: this.tablePageOption.currentPage,
+        size: this.tablePageOption.pageSize,
+      };
+      const bodyParams = { storeId: this.storeId, marketplace: this.marketplace };
+      log('获取列表', queryParams, bodyParams);
+      queryCampaignList(queryParams, bodyParams).then(res => {
+        this.tableData = res.data.data.page.records;
+        this.tablePageOption.total = res.data.data.page.total;
+        this.tablePageOption.currentPage = res.data.data.page.current;
+        this.tablePageOption.pageSize = res.data.data.page.size;
+        // 合计数据格式化
+        const {
+          sales, orderNum, impressions, clicks, spend, acos, roas, ctr, cpc, cpa, conversionsRate,
+        } = res.data.data.total;
+        this.tableTotalData = {
+          sales: getValueLocaleString({ value: sales, isFraction: true, prefix: this.currency }),
+          orderNum: getValueLocaleString({ value: orderNum }),
+          impressions: getValueLocaleString({ value: impressions }),
+          clicks: getValueLocaleString({ value: clicks }),
+          spend: getValueLocaleString({ value: spend, isFraction: true, prefix: this.currency }),
+          acos: getValueLocaleString({ value: acos, isFraction: true, suffix: '%' }),
+          roas: getValueLocaleString({ value: roas, isFraction: true, }),
+          ctr: getValueLocaleString({ value: ctr, isFraction: true, suffix: '%' }),
+          cpc: getValueLocaleString({ value: cpc, isFraction: true, prefix: this.currency }),
+          cpa: getValueLocaleString({ value: cpa, isFraction: true, prefix: this.currency }),
+          conversionsRate: getValueLocaleString({ value: conversionsRate, isFraction: true, suffix: '%' }),
+        };
+        // 解决表格合计行样式问题
+        this.$refs.tableRef.refreshTable();
       });
     },
 
@@ -175,10 +262,14 @@ export default {
     },
 
     // 合计行数据
-    getSummaries(param) {
-      const { columns, data } = param;
-      log('param', columns, data);
-      const sums = ['', '合计:'];
+    summaryMethod({ columns }){
+      const keys = Object.keys(this.tableTotalData);
+      const sums = ['', '', '', '合计'];
+      columns.forEach((column, index) => {
+        if (keys.includes(column.property)) {
+          sums[index] = this.tableTotalData[column.property];
+        }
+      });
       return sums;
     },
 
@@ -187,11 +278,15 @@ export default {
       log('分析', row);
     },
   },
+
+  watch: {
+
+  },
 };
 </script>
 
 <style scoped lang="scss">
-.created_time {
+.td_date_time {
   word-break: break-word;
 }
 
@@ -200,8 +295,12 @@ export default {
 }
 
 ::v-deep {
-  .el-table th {
-    color: $textColor;
+  .avue-crud__menu {
+    display: none;
+  }
+
+  .avue-crud__tip {
+    display: none;
   }
 }
 </style>

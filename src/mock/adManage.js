@@ -16,7 +16,7 @@ export default ({ mock }) => {
   }
 
   // 标签页数量
-  Mock.mock('/api/seeics-ad/management/campaign/child-count', 'get', () => {
+  Mock.mock(RegExp('/api/seeics-ad/management/campaign/child-count' + '.*?'), 'get', () => {
     return {
       data: {
         campaignCount: Random.integer(1, 200),
@@ -68,7 +68,7 @@ export default ({ mock }) => {
 
   // 广告组合
   // 广告组合-列表
-  Mock.mock('/api/seeics-ad/management/campaign/portfolio/list', 'get', {
+  Mock.mock(RegExp('/api/seeics-ad/management/campaign/portfolio/list' + '.*?'), 'get', {
     'data|0-50': [
       {
         id: /\d{5,10}/,
@@ -102,25 +102,55 @@ export default ({ mock }) => {
   // 广告活动
   // 广告活动-列表
   Mock.mock(RegExp('/api/seeics-ad/campaign/page' + '.*?'), 'get', {
-    'records|1-20': [{
-      id: /\d{5,10}/,
-      name: '广告活动-' + '@string("upper", 1, 128)',
-      'state|1': stateList,
-      portfolioId: /\d{5,10}/,
-      portfolioName: 'portfolio-' + '@cword(2,20)',
-      'targetingType|1': targetingTypeList,
-      createdTime: '@datetime',
-      groupNumber: '@integer(0, 2000)',
-      'biddingStrategy|1': biddingStrategyList,
-      biddingPlacementTop: '@float(0, 100, 0, 2)',
-      biddingPlacementProductPage: '@float(0, 100, 0, 2)',
-      dailyBudget: '@float(0, 50, 0, 2)',
-      negativeTargetingNumber: '@integer(0, 2000)',
-      startDate: '@datetime',
-      endDate: '@datetime',
-      sales: '@float(0, 1000000, 0, 2)',
-      orderNum: '@integer(0, 2000)',
-    }]
+    data: {
+      page: {
+        'records|1-20': [{
+          id: /\d{5,10}/,
+          name: '广告活动-' + '@string("upper", 1, 128)',
+          'state|1': stateList,
+          portfolioId: /\d{5,10}/,
+          portfolioName: 'portfolio-' + '@cword(2,15)',
+          'targetingType|1': targetingTypeList,
+          createdTime: '@datetime',
+          groupNumber: '@integer(0, 2000)',
+          'biddingStrategy|1': biddingStrategyList,
+          biddingPlacementTop: '@float(0, 100, 0, 2)',
+          biddingPlacementProductPage: '@float(0, 100, 0, 2)',
+          dailyBudget: '@float(0, 50, 0, 2)',
+          negativeTargetingNumber: '@integer(0, 2000)',
+          startDate: '@datetime',
+          endDate: '@datetime',
+          sales: '@float(0, 1000000, 0, 2)',
+          orderNum: '@integer(0, 2000)',
+          impressions: '@integer(0, 20000)',
+          clicks: '@integer(0, 20000)',
+          spend: '@float(0, 10000, 0, 2)',
+          acos: '@float(0, 1000, 0, 2)',
+          roas: '@float(0, 10000, 0, 2)',
+          ctr: '@float(0, 20, 0, 2)',
+          cpc: '@float(0, 20, 0, 2)',
+          cpa: '@float(0, 20, 0, 2)',
+          conversionsRate: '@float(0, 100, 0, 2)',
+        }],
+        total: 1155,
+        size: 20,
+        current: 1,
+        pages: 116,
+        orders: [],
+      },
+      total: {
+        sales: '@float(0, 10000000, 0, 2)',
+        orderNum: '@integer(0, 20000)',
+        impressions: '@integer(0, 200000)',
+        clicks: '@integer(0, 200000)',
+        spend: '@float(0, 100000, 0, 2)',
+        acos: '@float(0, 1000, 0, 2)',
+        roas: '@float(0, 10000, 0, 2)',
+        ctr: '@float(0, 20, 0, 2)',
+        cpc: '@float(0, 20, 0, 2)',
+        cpa: '@float(0, 20, 0, 2)',
+        conversionsRate: '@float(0, 100, 0, 2)',
+      },
+    },
   });
-
 };

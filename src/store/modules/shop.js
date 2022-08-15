@@ -14,6 +14,33 @@ const shop = {
       // 按店铺名称排序
       list.sort((a, b) => a.storeName.localeCompare(b.storeName));
       state.list = list;
+      // 生成站点: 店铺 对象
+      const marketplaceObj = {};
+      list.forEach(shop => {
+        const marketplace = shop.marketplace;
+        if (marketplaceObj.hasOwnProperty(marketplace)) {
+          marketplaceObj[marketplace].push(shop);
+        } else {
+          marketplaceObj[marketplace] = [shop];
+        }
+      });
+      // 生成级联选择器对象
+      const marketplaceList = Object.keys(marketplaceObj).sort();
+      const cascader = marketplaceList.map(marketplace => {
+        const marketplaceStoreList = marketplaceObj[marketplace];
+        return {
+          value: marketplace,
+          label: marketplace,
+          children: marketplaceStoreList.map(store => {
+            return {
+              value: store.id,
+              label: store.storeName,
+            };
+          }),
+        };
+      });
+      state.marketplaceObj = marketplaceObj;
+      state.cascader = cascader;
     },
 
     updateList(state, payload) {

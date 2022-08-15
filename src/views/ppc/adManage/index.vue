@@ -7,12 +7,12 @@
         <div class="store_time-container">
           <!-- 店铺和时间 -->
           <el-cascader
-            v-model="store"
-            :options="storeCascaderData"
+            :value="[currentStore.marketplace, currentStore.id]"
+            :options="$store.state.shop.cascader"
             :props="{ expandTrigger: 'hover' }"
             @change="handleStoreChange"
             :size="size"
-            class="store"
+            class="store-cascader"
           />
           <div class="marketplace-time">2022-10-22 02:23:45</div>
         </div>
@@ -22,6 +22,7 @@
             <CampaignTree
               :treeSelectedKey="treeSelectedKey"
               @treeSelect="handleTreeSelect"
+              :key="currentStore.id"
             />
           </el-tab-pane>
           <el-tab-pane label="广告组合">
@@ -76,8 +77,10 @@
             </span>
             <component
               :is="allTabs[item].tabPane"
-              marketplace="US"
-              currency="$"
+              :key="currentStore.id"
+              :marketplace="currentStore.marketplace"
+              :currency="currentStore.currency"
+              :storeId="currentStore.id"
             />
           </el-tab-pane>
         </el-tabs>
@@ -128,6 +131,12 @@ export default{
       stateIconDict,
       size: 'small',
       pageLoading: false,
+      // 当前店铺
+      currentStore: {
+        marketplace: '',
+        id: '',
+        currency: '',
+      },
       // 广告树选中的节点 key
       treeSelectedKey: '',
       // 广告组合
@@ -149,45 +158,6 @@ export default{
   },
 
   computed: {
-    // 按级联选择器的格式生成店铺数据
-    storeCascaderData() {
-      const list = this.$store.state.shop.list;
-      const obj = {};
-      list.forEach(shop => {
-        const marketplace = shop.marketplace;
-        if (obj.hasOwnProperty(marketplace)) {
-          obj[marketplace].push(shop);
-        } else {
-          obj[marketplace] = [shop];
-        }
-      });
-      const marketplaceList = Object.keys(obj).sort();
-      const result = marketplaceList.map(marketplace => {
-        const marketplaceStoreList = obj[marketplace];
-        return {
-          value: marketplace,
-          label: marketplace,
-          children: marketplaceStoreList.map(store => {
-            return {
-              value: store.id,
-              label: store.storeName,
-            };
-          }),
-        };
-      });
-      return result;
-    },
-    
-    // 初始默认店铺
-    store() {
-      if (!this.storeCascaderData.length) {
-        return [];
-      }
-      const store = this.storeCascaderData[0];
-      const result = [store.value, store.children[0].value];
-      return result;
-    },
-
     // 右侧标签页的状态
     tabsState() {
       const treeSelectedNodeInfo = parseTreeKey(this.treeSelectedKey);
@@ -208,27 +178,47 @@ export default{
       const _this = this;
       // filterByUser 获取当前账号绑定的店铺
       this.$store.dispatch('getShopList', { filterByUser: true }).finally(() => {
+        this.currentStore = {
+          marketplace: this.$store.state.shop.list[0].marketplace,
+          id: this.$store.state.shop.list[0].id,
+          currency: this.$store.state.shop.list[0].currency,
+        };
         _this.pageLoading = false;
       });
     },
 
     // 获取标签页数量
     getTabsCellCount() {
-      queryTabsCellCount().then(res => {
+      if (!this.currentStore.id) {
+        return;
+      }
+      const selectedTreeInfo = parseTreeKey(this.treeSelectedKey);
+      const params = {
+        storeId: this.currentStore.id,
+        campaignId: selectedTreeInfo.camId,
+        groupId: selectedTreeInfo.groupId,
+      };
+      queryTabsCellCount(params).then(res => {
         log('请求标签页数量res', res.data.data);
         this.tabsCellCount = res.data.data;
       });
     },
 
     // 切换店铺
-    handleStoreChange(store) {
-      log('handleStoreChange', store);
-      log('store list', this.$store.state.shop.list);
+    handleStoreChange(newStore) {
+      // 从店铺列表中找到
+      const storeInfo = this.$store.state.shop.marketplaceObj[newStore[0]].find(s => s.id === newStore[1]);
+      log('切换店铺', newStore, storeInfo);
+      this.currentStore = {
+        marketplace: storeInfo.marketplace,
+        id: storeInfo.id,
+        currency: storeInfo.currency,
+      };
     },
 
     // 广告组合-获取列表
     getPortfolioList() {
-      queryPortfolioList().then(res => {
+      queryPortfolioList({ storeId: this.currentStore.id }).then(res => {
         this.portfolioList = res.data.data;
       });
     },
@@ -306,6 +296,16 @@ export default{
       this.getTabsCellCount();
       // 取消广告组合的选中
       this.portfolioSelectedId = '';
+    },
+  },
+
+  watch: {
+    currentStore() {
+      // 请求广告组合
+      this.getPortfolioList();
+      // 请求标签页数量
+      this.getTabsCellCount();
+      
     },
   },
 };
