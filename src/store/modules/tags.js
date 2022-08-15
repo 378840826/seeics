@@ -42,7 +42,6 @@ const navs = {
       if (state.tagList.some(ele => diff(ele, action))) {
         return; 
       }
-      console.log(state.tagList, state.tag)
       state.tagList.push(action);
       setFistTag(state.tagList);
       setStore({ name: 'tagList', content: state.tagList });
