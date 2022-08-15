@@ -314,6 +314,11 @@ export default {
             slot: true,            
           },
           {
+            label: '分数',
+            prop: 'aggregateScore',
+            width: 90
+          },
+          {
             label: '操作',
             prop: 'menu',
             align: 'left',
@@ -580,7 +585,7 @@ export default {
     },
     detail (row) {
       // wordStatistics(id).then(res => console.log(res))
-      this.$router.push({ path: '/keywordDetail/index', query: { detailId: row.id, name: `${row.searchKeyword}详情` } });  
+      this.$router.push({ path: '/keywordDetail/index', query: { detailId: row.id, name: `${row.searchKeyword}详情`, total: row.aggregateScore } });  
     },
     //下载模板
     download () {

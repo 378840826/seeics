@@ -226,7 +226,7 @@ export default {
       brand: {},
       // value: 3,
       data: [],
-      total: 0,
+      total: this.$route.query.total,
       thWidth: '',
       tipList: { //n/表示换行符
         acKeyword: 'AC关键词是被亚马逊判定为拥有一定权重的搜索词，获取到AC关键词的ASIN是被判定为某个时段内综合表现最好的ASIN，n/可以对这些AC关键词再次进行反查，并围绕该AC关键词进行选品。',
@@ -337,7 +337,6 @@ export default {
     },
     getDetial(id) {
       getDetial(id).then(res => {
-        this.total = 0;
         this.empty();
         this.data = [];
         if (res.data.data) {
@@ -360,7 +359,6 @@ export default {
           this.color = res.data.data['colorList'];
           this.brand = res.data.data['brandNameVo'].brandNameCountList;
           this.data = res.data.data['tableScores'].map(item => {
-            this.total += item.score;
             if (this.tipList[item.props]) {
               item.tip = this.tipList[item.props];
             }
