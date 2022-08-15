@@ -40,13 +40,13 @@
               <div>
                  <div style="textAlign: center; fontSize: 20px; color: #01E3E3">
                    {{$route.query.name.split('详情')[0]}}</div>
-                 <div style="textAlign: center; fontSize: 50px; color: #01E3E3">{{total}}</div>
+                 <div style="textAlign: center; fontSize: 50px; color: #01E3E3">{{$route.query.total}}</div>
                  
                  <div style="fontSize: 30px;" >评估建议：</div>
-                 <div style="fontSize: 30px;" v-if="total >= 120 && total <= 150">强烈建议进入</div>
-                 <div style="fontSize: 30px" v-else-if="total >= 90 && total <= 120">建议进入</div>
-                 <div style="fontSize: 30px" v-else-if="total >= 60 && total <= 90">可以进入</div>
-                 <div style="fontSize: 30px" v-else-if="total < 60">不建议进入</div>
+                 <div style="fontSize: 30px;" v-if="$route.query.total >= 120 && $route.query.total <= 150">强烈建议进入</div>
+                 <div style="fontSize: 30px" v-else-if="$route.query.total >= 90 && $route.query.total <= 120">建议进入</div>
+                 <div style="fontSize: 30px" v-else-if="$route.query.total >= 60 && $route.query.total <= 90">可以进入</div>
+                 <div style="fontSize: 30px" v-else-if="$route.query.total < 60">不建议进入</div>
               </div>
            </div>
          </div>
@@ -226,7 +226,6 @@ export default {
       brand: {},
       // value: 3,
       data: [],
-      total: 0,
       thWidth: '',
       tipList: { //n/表示换行符
         acKeyword: 'AC关键词是被亚马逊判定为拥有一定权重的搜索词，获取到AC关键词的ASIN是被判定为某个时段内综合表现最好的ASIN，n/可以对这些AC关键词再次进行反查，并围绕该AC关键词进行选品。',
@@ -336,10 +335,9 @@ export default {
       this.thWidth = height;
     },
     getDetial(id) {
+      this.empty();
+      this.data = [];
       getDetial(id).then(res => {
-        this.total = 0;
-        this.empty();
-        this.data = [];
         if (res.data.data) {
           this.reviewCountVo = res.data.data['reviewCountVo'];
           this.listingPriceList = res.data.data['listingPriceList'].sort((a, b) => a.listingPrice - b.listingPrice);
@@ -360,7 +358,6 @@ export default {
           this.color = res.data.data['colorList'];
           this.brand = res.data.data['brandNameVo'].brandNameCountList;
           this.data = res.data.data['tableScores'].map(item => {
-            this.total += item.score;
             if (this.tipList[item.props]) {
               item.tip = this.tipList[item.props];
             }
