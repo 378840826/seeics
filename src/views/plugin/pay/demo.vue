@@ -38,8 +38,8 @@
             <el-form-item label="附加参数">
                 <el-input v-model="form.attach"></el-input>
             </el-form-item>
-            <el-form-item label="异步回调地址">
-                <el-input v-model="form.notifyUrl"></el-input>
+            <el-form-item label="同步回调地址">
+                <el-input v-model="form.returnUrl"></el-input>
             </el-form-item>
         </el-form>
       </basic-container>
@@ -101,7 +101,8 @@ export default {
         money: '0.01',
         appId: '',
         mchId: '',
-        openId: ''
+        openId: '',
+        returnUrl: 'https://seeics.com/plugin/pay/demo'
       },
       payType: '',
       dialogVisible: false,
