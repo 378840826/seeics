@@ -97,6 +97,8 @@
         <deny-keyword/>
 
         <deny-keyword/>
+
+        <manual-sort/>
         
       </div>
 
@@ -113,12 +115,14 @@
 import Table from './CampaignTable.vue';
 import TgBidTalbe from './tgBidTable.vue';
 import DenyKeyword from './denyKeyword.vue';
+import ManualSort from './manualCategory.vue';
 
 export default {
   components: {
     Table,
     TgBidTalbe,
-    DenyKeyword
+    DenyKeyword,
+    ManualSort
   },
   
   data() {

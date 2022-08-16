@@ -1,7 +1,9 @@
 <template>
   <div class="denyBox">
-    <h3>▌否定关键词（选填）</h3>
-
+    
+    <el-row>
+      <el-col><h3>▌否定关键词（选填）</h3></el-col>
+    </el-row>
     <el-row>
       <el-col :span="12" style="lineHeight: 32px">
         <span>匹配方式：</span>
@@ -29,24 +31,24 @@
       </el-col>
 
       <el-col :span="2" style="lineHeight: 200px; fontSize: 20px">
-          <el-button type="text" size="medium">添加</el-button>
+          <el-button type="text" size="medium" @click="handleAdd">添加</el-button>
       </el-col>
 
       <el-col :span="10">
         <el-table
-          :data="tableData"
+          :data="data"
           stripe
           border
           height="200"
           style="width: 100%">
           <el-table-column
-            prop="name"
+            prop="keyword"
             label="否定商品"
             align="center"
           >
           </el-table-column>
           <el-table-column
-            prop="address"
+            prop="type"
             label="匹配方式"
             width="96"
             align="center">
@@ -56,6 +58,9 @@
             :render-header="headerDelete"
             width="96"
             align="center">
+              <template scope="row">
+                <el-button type="text" size="min" @click="handleDelete(row.$index)" style="padding: 0">删除</el-button>
+              </template>
           </el-table-column>
         </el-table>
       </el-col>
@@ -69,7 +74,9 @@ export default {
   data() {
     return {
       radio: '词组否定',
-      textarea: ''
+      data: [],
+      textarea: '',
+      textareaArr: []
     };
   },
 
@@ -81,12 +88,32 @@ export default {
     },
 
     handleAllDelete() {
-      console.log(666)
+      this.data = [];
+    },
+
+    handleDelete(idx) {
+      this.data = this.data.splice(1, idx);
     },
 
     handleTextarea(value) {
+      const maxLines = 20;
       let valueArr = value.split(/\r\n|\r|\n/);
-      console.log(valueArr);
+      if (valueArr.length > maxLines) {
+        valueArr = valueArr.slice(0, maxLines);
+        value = valueArr.join('\n');
+        this.textarea = value;
+      }
+      this.textareaArr = valueArr;
+    },
+    
+    handleAdd() {
+    //   this.data.forEach()
+      this.textareaArr.map(item => {
+        this.data.push({
+          keyword: item,
+          type: this.radio
+        });
+      });
     }
   }
 };
@@ -95,12 +122,21 @@ export default {
 
 <style lang="scss" scoped>
   .denyBox {
-    height: 290px;
+    height: 300px;
     background-color: rgba(242, 242, 242, 1);
+    box-sizing: border-box;
+    margin-top: 20px;
+
+    h3 {
+      margin: 10px;
+    }
 
     .added {
       line-height: 32px;
       background-color: white;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
 
     ::v-deep .el-radio {
