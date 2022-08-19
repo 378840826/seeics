@@ -28,5 +28,5 @@ autoAd(options);
 ppc(options);
 // ppc({ mock: true });
 
-// adManage(options);
-adManage({ mock: true });
+adManage(options);
+// adManage({ mock: true });

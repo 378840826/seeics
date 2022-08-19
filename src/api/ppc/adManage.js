@@ -55,9 +55,22 @@ export const updatePortfolio = params => {
 
 // 广告活动
 // 广告活动-列表
-export const queryCampaignList = params => {
+export const queryCampaignList = (params, data) => {
   return request({
     url: '/api/seeics-ad/campaign/page',
+    method: 'post',
     params,
+    data,
+  });
+};
+
+// 广告组
+// 广告组-列表
+export const queryGroupList = (params, data) => {
+  return request({
+    url: '/api/seeics-ad/group/page',
+    method: 'post',
+    params,
+    data,
   });
 };

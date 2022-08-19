@@ -1,71 +1,131 @@
 <!-- 广告活动 -->
 <template>
-  <div class="table-container">
-    <!-- 表格 -->
-    <avue-crud
-      ref="tableRef"
-      :data="tableData"
-      :option="getTableOption(this.currency)"
-      @on-load="getList()"
-      @row-del="handleDelte"
-      :page.sync="tablePageOption"
-      @current-change="handleCurrentPageChange"
-      @size-change="handlePageSizeChange"
-      :table-loading="tableLoading"
-      :summary-method="summaryMethod"
-    >
-      <template type="selection" width="50" align="center" />
+<!-- 表格 -->
+<div class="table-container">
+  <el-table
+    ref="tableRef"
+    :data="tableData"
+    v-loading="tableLoading"
+    tooltip-effect="dark"
+    height="calc(100vh - 252px)"
+    empty-text="没有查询到数据，请修改查询条件"
+    @selection-change="handleSelectionChange"
+    @sort-change="handleSortChange"
+    border
+    show-summary
+    :summary-method="summaryMethod"
+    :size="size"
+  >
+    <el-table-column type="selection" width="55" />
 
-      <!-- 店铺站点 -->
-      <template slot-scope="{row}" slot="state">
-        {{ stateNameDict[row.state] }}
-      </template>
-
-      <template slot-scope="{row}" slot="portfolioId">{{ row.portfolioName }}</template>
-
-      <template slot-scope="{row}" slot="name">{{ row.name }}</template>
-
-      <template slot-scope="{row}" slot="targetingType">{{ targetingTypeDict[row.targetingType] }}</template>
-
-      <template slot="createdTimeHeader">
-        创建时间
-        <el-tooltip effect="dark" content="北京时间" placement="top">
-          <i class="el-icon-info icon-time_info"></i>
-        </el-tooltip>
-      </template>
-      <template slot-scope="{row}" slot="createdTime">
-        <span class="td_date_time">{{ row.createdTime }}</span>
-      </template>
-
-      <template slot-scope="{row}" slot="groupNumber">
-        <el-button
-          type="text"
+    <el-table-column prop="state" label="状态" width="80" fixed>
+      <span slot-scope="{row}" :class="row.state">{{ stateNameDict[row.state]}}</span>
+      <!-- <template slot-scope="{row}">
+        <el-select
+          :value="row.state"
           :size="size"
-          @click="handleClickGroupCount(row)"
-        > {{ row.groupNumber }} </el-button>
-      </template>
-
-      <template slot-scope="{row}" slot="biddingStrategy">
-        <el-select :value="row.biddingStrategy" :size="size">
+          :disabled="row.state === 'archived'"
+          :class="row.state"
+        >
           <el-option
-            v-for="(value, key) in biddingStrategyDict"
+            v-for="(value, key) in stateNameDict"
             :key="key"
             :label="value"
-            :value="key">
+            :value="key"
+          >
+            <span :class="key">{{ value }}</span>
           </el-option>
         </el-select>
-      </template>
+      </template> -->
+    </el-table-column>
 
-      <template slot-scope="{row}" slot="startDate">
-        <span class="td_date_time">{{ row.startDate }}</span>
+    <el-table-column prop="portfolioId" label="Portfolios" width="120" fixed>
+      <template slot-scope="{row}">
+        {{ row.portfolioName }}
       </template>
+    </el-table-column>
 
-      <template slot-scope="{row}" slot="endDate">
-        <span class="td_date_time">{{ row.endDate }}</span>
+    <el-table-column prop="name" label="广告活动" width="120" sortable="custom"  fixed>
+    </el-table-column>
+
+    <el-table-column prop="targetingType" label="投放方式" width="120" >
+      <template slot-scope="{row}">
+        {{ targetingTypeDict[row.targetingType] }}
       </template>
+    </el-table-column>
 
-      <!-- 操作 -->
-      <template slot-scope="{row}" slot="menu">
+    <el-table-column prop="createdTime" label="创建时间" width="120" sortable="custom" >
+      <template slot="header">
+        <span>
+          创建时间
+          <el-tooltip effect="dark" content="北京时间" placement="top">
+            <i class="el-icon-info icon-time_info"></i>
+          </el-tooltip>
+        </span>
+      </template>
+      <span slot-scope="{row}" class="td_date_time">{{ row.createdTime }}</span>
+    </el-table-column>
+
+    <el-table-column prop="groupNumber" label="广告组数量" width="100">
+      <el-button
+        slot-scope="{row}"
+        type="text"
+        :size="size"
+        @click="handleClickGroupCount(row)"
+      > {{ row.groupNumber }} </el-button>
+    </el-table-column>
+
+    <el-table-column prop="biddingStrategy" label="竞价策略" width="130">
+      <template slot-scope="{row}">
+        {{ biddingStrategyDict[row.biddingStrategy] }}
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="biddingPlacementTop" label="Top of Search" width="110">
+      <template slot-scope="{row}">
+        {{ row.biddingPlacementTop }}
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="biddingPlacementProductPage" label="Product page" width="110">
+      <template slot-scope="{row}">
+        {{ row.biddingPlacementProductPage }}
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="dailyBudget" label="日预算" width="110">
+      <template slot-scope="{row}">
+        {{ row.dailyBudget }}
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="negativeTargetingNumber" label="否定Targeting" width="110">
+      <template slot-scope="{row}">
+        {{ row.negativeTargetingNumber }}
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="startDate" label="开始时间" width="110">
+      <span slot-scope="{row}" class="td_date_time">{{ row.startDate }}</span>
+    </el-table-column>
+
+    <el-table-column prop="endDate" label="结束时间" width="110">
+      <span slot-scope="{row}" class="td_date_time">{{ row.endDate }}</span>
+    </el-table-column>
+
+    <el-table-column
+      v-for="item in commonColOption"
+      :key="item.prop"
+      :prop="item.prop"
+      :label="item.label"
+      :width="item.width"
+    >
+      <span slot-scope="{row}">{{ item.formatter(row[item.prop]) }}</span>
+    </el-table-column>
+
+    <!-- 操作 -->
+    <el-table-column label="操作" fixed="right" width="60">
+      <template slot-scope="{row}">
         <el-button
           @click="handleCharts(row)"
           style="color: #C0C4CC"
@@ -73,8 +133,23 @@
           :size="size"
         >分析</el-button>
       </template>
-    </avue-crud>
-  </div>
+    </el-table-column>
+  </el-table>
+
+  <!-- 分页器 -->
+  <el-pagination
+    :disabled="tableLoading"
+    @current-change="getList()"
+    @size-change="getList({ current: 1 })"
+    :current-page.sync="tablePageOption.currentPage"
+    :page-size.sync="tablePageOption.pageSize"
+    :total="tablePageOption.total"
+    :page-sizes="[20, 50, 100]"
+    background
+    layout="total, sizes, prev, pager, next, jumper"
+    class="pagination"
+  />
+</div>
 </template>
 
 <script>
@@ -83,91 +158,11 @@ import {
 } from '@/api/ppc/adManage';
 import { stateNameDict, targetingTypeDict, biddingStrategyDict } from '../../utils/dict';
 import { log } from '@/util/util';
-import { getValueLocaleString, getCommonColOption } from '../../utils/fun';
-
-// 表格的配置
-function getTableOption(currency) {
-  const tableOption = {
-    emptyText: '未查询到数据',
-    delBtn: false,
-    addBtn: false,
-    editBtn: false,
-    border: true,
-    cellBtn: true,
-    selection: true,
-    selectClearBtn: false,
-    refreshBtn: false,
-    columnBtn: false,
-    height: 'auto',
-    calcHeight: 120,
-    menuWidth: 60,
-    showSummary: true,
-    column: [
-      {
-        label: '状态',
-        prop: 'state',
-        fixed: 'left',
-        width: 60,
-      }, {
-        label: 'Portfolios',
-        prop: 'portfolioId',
-        fixed: 'left',
-        width: 100,
-      }, {
-        label: '广告活动',
-        prop: 'name',
-        fixed: 'left',
-        width: 200,
-      }, {
-        label: '投放方式',
-        prop: 'targetingType',
-        width: 100,
-      }, {
-        label: '创建时间',
-        prop: 'createdTime',
-        headerslot: true,
-        width: 100,
-      }, {
-        label: '广告组数量',
-        prop: 'groupNumber',
-        width: 100,
-      }, {
-        label: '竞价策略',
-        prop: 'biddingStrategy',
-        width: 150,
-      }, {
-        label: 'Top of Search',
-        prop: 'biddingPlacementTop',
-        formatter: (_, value) => getValueLocaleString({ value, isFraction: true, suffix: '%' }),
-        width: 110,
-      }, {
-        label: 'Product page',
-        prop: 'biddingPlacementProductPage',
-        formatter: (_, value) => getValueLocaleString({ value, isFraction: true, suffix: '%' }),
-        width: 110,
-      }, {
-        label: '日预算',
-        prop: 'dailyBudget',
-        formatter: (_, value) => getValueLocaleString({ value, isFraction: true, prefix: currency }),
-        width: 110,
-      }, {
-        label: '否定Targeting',
-        prop: 'negativeTargetingNumber',
-        width: 110,
-      }, {
-        label: '开始时间',
-        prop: 'startDate',
-        width: 110,
-      }, {
-        label: '结束时间',
-        prop: 'endDate',
-        width: 110,
-      },
-      ...getCommonColOption(currency),
-    ],
-  };
-  return tableOption;
-}
+import {
+  getValueLocaleString,
+  formatTableSortParams,
+  getCommonColOption,
+} from '../../utils/fun';
 
 export default {
   name: 'Campaign',
@@ -184,6 +179,9 @@ export default {
     currency: {
       type: String,
       required: true,
+    },
+    portfolioId: {
+      type: String,
     },
   },
 
@@ -202,33 +200,45 @@ export default {
         pageSize: 20,
         pageSizes: [20, 50, 100],
       },
+      tableSort: { prop: 'createdTime', order: 'descending' },
     };
   },
 
   computed: {
-
+    commonColOption() {
+      return getCommonColOption(this.currency);
+    },
   },
 
   created() {
-    // this.getList();
+    this.getList();
   },
 
   updated () {
     // 解决表格合计行样式问题
-    // this.$refs.tableRef.refreshTable();
+    this.$refs.tableRef.doLayout();
   },
 
   methods: {
     getValueLocaleString,
-    getTableOption,
+    formatTableSortParams,
     // 获取列表
-    getList() {
+    getList(query, body) {
+      this.tableLoading = true;
+      // 排序参数格式化
+      const sortParams = this.formatTableSortParams(this.tableSort);
       const queryParams = {
         current: this.tablePageOption.currentPage,
         size: this.tablePageOption.pageSize,
+        ...sortParams,
+        ...query,
       };
-      const bodyParams = { storeId: this.storeId, marketplace: this.marketplace };
-      log('获取列表', queryParams, bodyParams);
+      const bodyParams = {
+        storeId: this.storeId,
+        marketplace: this.marketplace,
+        portfolioId: this.portfolioId,
+        ...body,
+      };
       queryCampaignList(queryParams, bodyParams).then(res => {
         this.tableData = res.data.data.page.records;
         this.tablePageOption.total = res.data.data.page.total;
@@ -251,9 +261,17 @@ export default {
           cpa: getValueLocaleString({ value: cpa, isFraction: true, prefix: this.currency }),
           conversionsRate: getValueLocaleString({ value: conversionsRate, isFraction: true, suffix: '%' }),
         };
-        // 解决表格合计行样式问题
-        this.$refs.tableRef.refreshTable();
+      }).finally(() => {
+        this.tableLoading = false;
       });
+    },
+
+    // 表格排序变化
+    handleSortChange(val) {
+      this.tableSort = { prop: val.prop, order: val.order };
+      // 排序后回到第一页
+      this.tablePageOption.currentPage = 1;
+      this.getList();
     },
 
     // 点击广告组数量
@@ -280,10 +298,16 @@ export default {
   },
 
   watch: {
-
+    // portfolioId(val) {
+    //   log('广告活动 watch portfolioId', val);
+    // },
   },
 };
 </script>
+
+<style scoped lang="scss">
+  @import "../common.scss";
+</style>
 
 <style scoped lang="scss">
 .td_date_time {
@@ -294,13 +318,9 @@ export default {
   color: $warningColor; 
 }
 
-::v-deep {
-  .avue-crud__menu {
-    display: none;
-  }
-
-  .avue-crud__tip {
-    display: none;
-  }
+.pagination {
+  position: relative;
+  padding: 20px 0 20px 20px;
+  text-align: right;
 }
 </style>

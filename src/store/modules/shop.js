@@ -24,23 +24,23 @@ const shop = {
           marketplaceObj[marketplace] = [shop];
         }
       });
-      // 生成级联选择器对象
+      // 生成广告管理级联选择器对象（未过滤没有授权广告的店铺，只是把 value 设为 adStoreId）
       const marketplaceList = Object.keys(marketplaceObj).sort();
-      const cascader = marketplaceList.map(marketplace => {
+      const adCascader = marketplaceList.map(marketplace => {
         const marketplaceStoreList = marketplaceObj[marketplace];
         return {
           value: marketplace,
           label: marketplace,
           children: marketplaceStoreList.map(store => {
             return {
-              value: store.id,
+              value: store.adStoreId,
               label: store.storeName,
             };
           }),
         };
       });
       state.marketplaceObj = marketplaceObj;
-      state.cascader = cascader;
+      state.adCascader = adCascader;
     },
 
     updateList(state, payload) {

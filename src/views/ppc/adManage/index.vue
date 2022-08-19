@@ -7,14 +7,14 @@
         <div class="store_time-container">
           <!-- 店铺和时间 -->
           <el-cascader
-            :value="[currentStore.marketplace, currentStore.id]"
-            :options="$store.state.shop.cascader"
+            :value="[currentStore.marketplace, currentStore.adStoreId]"
+            :options="$store.state.shop.adCascader"
             :props="{ expandTrigger: 'hover' }"
             @change="handleStoreChange"
             :size="size"
             class="store-cascader"
           />
-          <div class="marketplace-time">2022-10-22 02:23:45</div>
+          <div class="marketplace-time">{{ currentStore.time }}</div>
         </div>
         <!-- 广告活动和 portfolio 标签页切换 -->
         <el-tabs type="border-card" class="left-tabs">
@@ -22,7 +22,7 @@
             <CampaignTree
               :treeSelectedKey="treeSelectedKey"
               @treeSelect="handleTreeSelect"
-              :key="currentStore.id"
+              :key="currentStore.adStoreId"
             />
           </el-tab-pane>
           <el-tab-pane label="广告组合">
@@ -76,11 +76,14 @@
               </span>
             </span>
             <component
+              v-if="currentStore.adStoreId"
               :is="allTabs[item].tabPane"
-              :key="currentStore.id"
+              :key="currentStore.adStoreId"
+              :treeSelectedKey="treeSelectedKey"
+              :portfolioId="portfolioSelectedId"
               :marketplace="currentStore.marketplace"
               :currency="currentStore.currency"
-              :storeId="currentStore.id"
+              :storeId="currentStore.adStoreId"
             />
           </el-tab-pane>
         </el-tabs>
@@ -107,7 +110,7 @@ import {
 import { log } from '@/util/util';
 import DialogPortfoiloEdit from './components/DialogPortfoiloEdit';
 import CampaignTree from './components/CampaignTree';
-import { parseTreeKey } from './utils/fun';
+import { parseTreeKey, getMarketplaceTime } from './utils/fun';
 import { stateIconDict, tabsStateDict, allTabs } from './utils/dict';
 import Campaign from './pages/Campaign';
 import Group from './pages/Group';
@@ -134,8 +137,9 @@ export default{
       // 当前店铺
       currentStore: {
         marketplace: '',
-        id: '',
+        adStoreId: '',
         currency: '',
+        time: '',
       },
       // 广告树选中的节点 key
       treeSelectedKey: '',
@@ -180,8 +184,9 @@ export default{
       this.$store.dispatch('getShopList', { filterByUser: true }).finally(() => {
         this.currentStore = {
           marketplace: this.$store.state.shop.list[0].marketplace,
-          id: this.$store.state.shop.list[0].id,
+          adStoreId: this.$store.state.shop.list[0].adStoreId,
           currency: this.$store.state.shop.list[0].currency,
+          time: getMarketplaceTime(this.$store.state.shop.list[0].timezone),
         };
         _this.pageLoading = false;
       });
@@ -189,36 +194,41 @@ export default{
 
     // 获取标签页数量
     getTabsCellCount() {
-      if (!this.currentStore.id) {
+      if (!this.currentStore.adStoreId) {
         return;
       }
       const selectedTreeInfo = parseTreeKey(this.treeSelectedKey);
       const params = {
-        storeId: this.currentStore.id,
+        storeId: this.currentStore.adStoreId,
         campaignId: selectedTreeInfo.camId,
         groupId: selectedTreeInfo.groupId,
       };
       queryTabsCellCount(params).then(res => {
-        log('请求标签页数量res', res.data.data);
+        // log('请求标签页数量res', res.data.data);
         this.tabsCellCount = res.data.data;
       });
     },
 
     // 切换店铺
     handleStoreChange(newStore) {
+      if (!newStore[1]) {
+        this.$message.error('该店铺未授权广告，请前往"我的店铺"进行授权');
+        this.currentStore = { ...this.currentStore };
+        return;
+      }
       // 从店铺列表中找到
-      const storeInfo = this.$store.state.shop.marketplaceObj[newStore[0]].find(s => s.id === newStore[1]);
+      const storeInfo = this.$store.state.shop.marketplaceObj[newStore[0]].find(s => s.adStoreId === newStore[1]);
       log('切换店铺', newStore, storeInfo);
       this.currentStore = {
         marketplace: storeInfo.marketplace,
-        id: storeInfo.id,
+        adStoreId: storeInfo.adStoreId,
         currency: storeInfo.currency,
       };
     },
 
     // 广告组合-获取列表
     getPortfolioList() {
-      queryPortfolioList({ storeId: this.currentStore.id }).then(res => {
+      queryPortfolioList({ storeId: this.currentStore.adStoreId }).then(res => {
         this.portfolioList = res.data.data;
       });
     },

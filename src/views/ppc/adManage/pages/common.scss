@@ -1,0 +1,30 @@
+// 广告管理 page 公共样式
+// 
+.table-container {
+  ::v-deep {
+    .el-table {
+      thead {
+        color: $primaryTextColor;
+      }
+
+      th {
+        background-color: #fafafa;
+      }
+    }
+  }
+}
+
+// 开启
+.enabled {
+  color: $successColor;
+}
+
+// 暂停
+.paused {
+  color: $danger;
+}
+
+// 归档
+.archived {
+  color: $disabledColor;
+}

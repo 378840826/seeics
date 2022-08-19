@@ -1,3 +1,9 @@
+import dayjs from 'dayjs';
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 // 解析左侧广告树的 key
 export function parseTreeKey(key) {
   if ([null, undefined].includes(key)) {
@@ -41,7 +47,7 @@ export function getValueLocaleString(params) {
 }
 
 // 获取 销售额 订单量 impressions clicks 等通用的、不可交互的列配置
-export function getCommonColOption(currency) {
+export function getCommonColOptionAvue(currency) {
   return [
     {
       label: '销售额',
@@ -100,4 +106,88 @@ export function getCommonColOption(currency) {
       width: 80,
     },
   ];
+}
+
+// 获取 销售额 订单量 impressions clicks 等通用的、不可交互的列配置
+export function getCommonColOption(currency) {
+  return [
+    {
+      label: '销售额',
+      prop: 'sales',
+      formatter: (value) => getValueLocaleString({ value, isFraction: true, prefix: currency }),
+      width: 110,
+    }, {
+      label: '订单量',
+      prop: 'orderNum',
+      formatter: (value) => getValueLocaleString({ value }),
+      width: 80,
+    }, {
+      label: 'CPC',
+      prop: 'cpc',
+      formatter: (value) => getValueLocaleString({ value, isFraction: true, prefix: currency }),
+      width: 80,
+    }, {
+      label: 'CPA',
+      prop: 'cpa',
+      formatter: (value) => getValueLocaleString({ value, isFraction: true, prefix: currency }),
+      width: 80,
+    }, {
+      label: 'Spend',
+      prop: 'spend',
+      formatter: (value) => getValueLocaleString({ value, isFraction: true, prefix: currency }),
+      width: 90,
+    }, {
+      label: 'ACoS',
+      prop: 'acos',
+      formatter: (value) => getValueLocaleString({ value, isFraction: true, suffix: '%' }),
+      width: 80,
+    }, {
+      label: 'RoAS',
+      prop: 'roas',
+      formatter: (value) => getValueLocaleString({ value, isFraction: true, }),
+      width: 80,
+    }, {
+      label: 'Impressions',
+      prop: 'impressions',
+      formatter: (value) => getValueLocaleString({ value }),
+      width: 100,
+    }, {
+      label: 'Clicks',
+      prop: 'clicks',
+      formatter: (value) => getValueLocaleString({ value }),
+      width: 80,
+    }, {
+      label: 'CTR',
+      prop: 'ctr',
+      formatter: (value) => getValueLocaleString({ value, isFraction: true, suffix: '%' }),
+      width: 80,
+    }, {
+      label: '转化率',
+      prop: 'conversionsRate',
+      formatter: (value) => getValueLocaleString({ value, isFraction: true, suffix: '%' }),
+      width: 80,
+    },
+  ];
+}
+
+// el-table 的排序参数转换为后端接口所需的格式
+export function formatTableSortParams(elSortParams) {
+  const { prop, order } = elSortParams;
+  if (!order) {
+    return;
+  }
+  const dict = {
+    ascending: true,
+    descending: false,
+  };
+  return {
+    // 未排序时，取消 order 参数
+    order: prop,
+    asc: dict[order],
+  };
+}
+
+// 获取站点当前时间
+export function getMarketplaceTime(timezone, format = 'YYYY-MM-DD HH:mm:ss') {
+  return dayjs(new Date()).tz(timezone).format(format);
 }

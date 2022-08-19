@@ -101,10 +101,10 @@ export default ({ mock }) => {
 
   // 广告活动
   // 广告活动-列表
-  Mock.mock(RegExp('/api/seeics-ad/campaign/page' + '.*?'), 'get', {
+  Mock.mock(RegExp('/api/seeics-ad/campaign/page' + '.*?'), 'post', {
     data: {
       page: {
-        'records|1-20': [{
+        'records|20': [{
           id: /\d{5,10}/,
           name: '广告活动-' + '@string("upper", 1, 128)',
           'state|1': stateList,
@@ -136,6 +136,59 @@ export default ({ mock }) => {
         size: 20,
         current: 1,
         pages: 116,
+        orders: [],
+      },
+      total: {
+        sales: '@float(0, 10000000, 0, 2)',
+        orderNum: '@integer(0, 20000)',
+        impressions: '@integer(0, 200000)',
+        clicks: '@integer(0, 200000)',
+        spend: '@float(0, 100000, 0, 2)',
+        acos: '@float(0, 1000, 0, 2)',
+        roas: '@float(0, 10000, 0, 2)',
+        ctr: '@float(0, 20, 0, 2)',
+        cpc: '@float(0, 20, 0, 2)',
+        cpa: '@float(0, 20, 0, 2)',
+        conversionsRate: '@float(0, 100, 0, 2)',
+      },
+    },
+  });
+
+  // 广告组
+  // 广告组-列表
+  Mock.mock(RegExp('/api/seeics-ad/group/page' + '.*?'), 'post', {
+    data: {
+      page: {
+        'records|20': [{
+          id: /\d{5,10}/,
+          name: '广告组-' + '@string("upper", 1, 128)',
+          'state|1': stateList,
+          campaignId: /\d{5,10}/,
+          campaignName: '广告活动-' + '@string("upper", 1, 128)',
+          createdTime: '@datetime',
+          defaultBid: '@float(0, 20, 0, 2)',
+          productNumber: '@integer(0, 2000)',
+          targetingNumber: '@integer(0, 2000)',
+          negativeTargetingNumber: '@integer(0, 2000)',
+          startDate: '@datetime',
+          endDate: '@datetime',
+          budgetLimit: '@float(0, 200, 0, 2)',
+          sales: '@float(0, 1000000, 0, 2)',
+          orderNum: '@integer(0, 2000)',
+          impressions: '@integer(0, 20000)',
+          clicks: '@integer(0, 20000)',
+          spend: '@float(0, 10000, 0, 2)',
+          acos: '@float(0, 1000, 0, 2)',
+          roas: '@float(0, 10000, 0, 2)',
+          ctr: '@float(0, 20, 0, 2)',
+          cpc: '@float(0, 20, 0, 2)',
+          cpa: '@float(0, 20, 0, 2)',
+          conversionsRate: '@float(0, 100, 0, 2)',
+        }],
+        total: 115,
+        size: 20,
+        current: 1,
+        pages: 16,
         orders: [],
       },
       total: {
