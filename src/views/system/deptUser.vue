@@ -604,7 +604,7 @@ export default {
               res: 'data'
             },
             tip: '请上传 .xls,.xlsx 标准格式文件',
-            action: '/api/blade-user/import-user'
+            action: '/api/blade-user/import-dept-user'
           },
           {
             label: '数据覆盖',
@@ -651,7 +651,7 @@ export default {
     'excelForm.isCovered'() {
       if (this.excelForm.isCovered !== '') {
         const column = this.findObject(this.excelOption.column, 'excelFile');
-        column.action = `/api/blade-user/import-user?isCovered=${this.excelForm.isCovered}`;
+        column.action = `/api/blade-user/import-dept-user?isCovered=${this.excelForm.isCovered}`;
       }
     }
   },
