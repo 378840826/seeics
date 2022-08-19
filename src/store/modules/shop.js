@@ -14,6 +14,33 @@ const shop = {
       // 按店铺名称排序
       list.sort((a, b) => a.storeName.localeCompare(b.storeName));
       state.list = list;
+      // 生成站点: 店铺 对象
+      const marketplaceObj = {};
+      list.forEach(shop => {
+        const marketplace = shop.marketplace;
+        if (marketplaceObj.hasOwnProperty(marketplace)) {
+          marketplaceObj[marketplace].push(shop);
+        } else {
+          marketplaceObj[marketplace] = [shop];
+        }
+      });
+      // 生成广告管理级联选择器对象（未过滤没有授权广告的店铺，只是把 value 设为 adStoreId）
+      const marketplaceList = Object.keys(marketplaceObj).sort();
+      const adCascader = marketplaceList.map(marketplace => {
+        const marketplaceStoreList = marketplaceObj[marketplace];
+        return {
+          value: marketplace,
+          label: marketplace,
+          children: marketplaceStoreList.map(store => {
+            return {
+              value: store.adStoreId,
+              label: store.storeName,
+            };
+          }),
+        };
+      });
+      state.marketplaceObj = marketplaceObj;
+      state.adCascader = adCascader;
     },
 
     updateList(state, payload) {

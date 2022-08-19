@@ -3,6 +3,12 @@ import { validatenull } from './validate';
 
 // log
 export const log = function () {
+  try {
+    JSON.stringify([...arguments]);
+  } catch (error) {
+    console.log.apply(console, [...arguments]);
+    return;
+  }
   console.log.apply(console, JSON.parse(JSON.stringify([...arguments])));
 };
 
