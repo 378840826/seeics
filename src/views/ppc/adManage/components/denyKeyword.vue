@@ -2,7 +2,7 @@
   <div class="denyBox">
     
     <el-row>
-      <el-col><h3>▌否定关键词（选填）</h3></el-col>
+      <el-col><h3>▌否定{{title}}（选填）</h3></el-col>
     </el-row>
     <el-row>
       <el-col :span="12" style="lineHeight: 32px">
@@ -13,7 +13,7 @@
         </el-radio-group>
       </el-col>
       <el-col :span="10" style="lineHeight: 32px">
-          <div class="added">已添加 3个否定关键词 （最多可添加1000个，会过滤重复的否定关键词）</div>
+          <div class="added">已添加 3个否定{{title}} （最多可添加1000个，会过滤重复的否定{{title}}）</div>
       </el-col>
     </el-row>
 
@@ -30,7 +30,7 @@
         </el-input>
       </el-col>
 
-      <el-col :span="2" style="lineHeight: 200px; fontSize: 20px">
+      <el-col :span="2" style="text-align: center;line-height: 200px;">
           <el-button type="text" size="medium" @click="handleAdd">添加</el-button>
       </el-col>
 
@@ -43,7 +43,7 @@
           style="width: 100%">
           <el-table-column
             prop="keyword"
-            label="否定商品"
+            :label="'否定' + title"
             align="center"
           >
           </el-table-column>
@@ -71,6 +71,14 @@
 <script>
 
 export default {
+
+  props: {
+    title: {
+      type: String,
+      default: ''
+    }
+  },
+
   data() {
     return {
       radio: '词组否定',

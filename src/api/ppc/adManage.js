@@ -61,3 +61,55 @@ export const queryCampaignList = params => {
     params,
   });
 };
+
+//创建广告活动商品信息列表
+export const queryPriceList = params => {
+  return request({
+    url: '/api/seeics-mws/product/list',
+    method: 'post',
+    params: {
+      current: params.current,
+      size: params.size
+    },
+    data: {
+      storeId: params.storeId,
+      keyword: params.keyword
+    },
+  });
+};
+
+// 查询建议关键词
+export const querySuggestKeyword = params => {
+  return request({
+    url: '/api/seeics-ad/keyword/suggestedKeywordsByAsins',
+    method: 'post',
+    data: params,
+  });
+};
+
+// 手动输入关键词查询列表
+export const manualQueryKeyword = params => {
+  return request({
+    url: '/api/seeics-ad/keyword/queryKeywordSuggestedBid',
+    method: 'post',
+    data: params,
+  });
+};
+
+//target 列表
+export const queryTargeList = params => {
+  return request({
+    url: '/api/seeics-ad/targeting/autoTargetingSuggestedBid',
+    method: 'post',
+    data: params,
+  });
+};
+
+//商品查询列表
+export const getPriceList = params => {
+  return request({
+    url: '/api/seeics-ad/product/suggestedProductByAsins',
+    method: 'post',
+    data: params,
+  });
+};

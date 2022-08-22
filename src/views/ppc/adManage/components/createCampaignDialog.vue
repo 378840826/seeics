@@ -5,7 +5,7 @@
     :append-to-body="true"
     :close-on-press-escape="false"
     top="1vh"
-    width="70%">
+    width="1140px">
     <div class="dialogBox">
       <h3>▌广告活动</h3>
       
@@ -80,7 +80,10 @@
         <el-input style="width: 80%" size="small"/>
       </div>
 
-      <Table/>
+      <Table 
+        ref="priceInfo"
+        :priceAsin.sync="priceAsin"
+        style="marginTop: 20px"/>
 
       <div>
         <el-radio :label="6">默认竞价：
@@ -92,14 +95,38 @@
         </el-radio>
         </div>
 
-        <tg-bid-talbe/>
+        <tg-bid-talbe
+          :asinList.sync="priceAsin"
+        />
 
-        <deny-keyword/>
+         <h3>
+          <span @click="KeywordFlag = '关键词'" :style="{color: KeywordFlag === '关键词' && '#409EFF' || ''}">关键词</span>
+          <span 
+            @click="KeywordFlag = '分类/商品'" 
+            :style="{marginLeft: '30px', color: KeywordFlag === '分类/商品' && '#409EFF' || ''}">分类/商品</span>
+        </h3>
 
-        <deny-keyword/>
+        <keyword
+          v-if="KeywordFlag === '关键词'"
+          :asinList.sync="priceAsin"
+        />
 
-        <manual-sort/>
-        
+        <deny-keyword
+          v-if="KeywordFlag === '关键词'"
+          :title="'关键词'"
+        />
+
+        <!-- <manual-category v-if="KeywordFlag === '分类/商品'"/> -->
+
+        <price-category
+          v-if="KeywordFlag === '分类/商品'"
+          :asinList.sync="priceAsin"/>
+
+        <deny-keyword
+          v-if="KeywordFlag === '分类/商品'"
+          :title="'商品'"
+        />
+
       </div>
 
     </div>
@@ -115,21 +142,37 @@
 import Table from './CampaignTable.vue';
 import TgBidTalbe from './tgBidTable.vue';
 import DenyKeyword from './denyKeyword.vue';
-import ManualSort from './manualCategory.vue';
+import ManualCategory from './manualCategory.vue';
+import Keyword from './keyword.vue';
+import PriceCategory from './PriceTab.vue';
 
 export default {
   components: {
     Table,
     TgBidTalbe,
     DenyKeyword,
-    ManualSort
+    ManualCategory,
+    Keyword,
+    PriceCategory
   },
   
   data() {
     return {
-      dialogVisible: true
+      dialogVisible: true,
+      KeywordFlag: '关键词',
+      priceAsin: []
     };
   },
+
+  watch: {
+    priceAsin: {
+      handler(val) {
+        console.log(val)
+      },
+      deep: true,
+    }
+  },
+
   methods: {
     handleClose(done) {
       this.$confirm('确认关闭？')
