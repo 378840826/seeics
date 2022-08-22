@@ -79,14 +79,14 @@
       </div>
     <span slot="footer" class="dialog-footer">
       <el-button @click="refuelVisible = false; $emit('change', false)">取 消</el-button>
-      <el-button type="primary" @click="refuelVisible = false; $emit('change', false)">确 定</el-button>
+      <el-button type="primary" @click="handleSubmit">确 定</el-button>
     </span>
   </el-dialog>
   </div>
 </template>
 
 <script>
-import { placeAnOrder, queryOrderInfo } from '@/api/member/member';
+import { placeAnOrder } from '@/api/member/member';
 export default{
   name: 'refuelDialog',
   props: {
@@ -117,7 +117,7 @@ export default{
       active: '',
       businessId: '',
       orderId: '',
-      url: 'https://d1icd6shlvmxi6.cloudfront.net/gsc/XTEPHL/90/a6/d4/90a6d47195614b5db966ae2e9e6a33a5/images/购买vip/u7396.jpg',
+      url: 'https://seeics.com/member/index',
       payType: 1,
       time: null,
       overdue: false,
@@ -128,27 +128,24 @@ export default{
     this.active = this.info.refuelList[0].price;
     this.price = this.info.refuelList[0].price;
     this.businessId = this.info.refuelList[0].id;
-    this.placeAnOrder();
   },
   methods: {
     handlePrice(item) {
       this.price = item.price;
       this.active = item.price;
       this.businessId = item.id;
-      this.placeAnOrder();
     },
     handleQR(val) {
       if (!this.checked) {
         return;
       }
       if (val === 'wechat') {
-        this.qrName = '微信';
         this.payType = 1;
+        this.qrName = '微信';
       } else if (val === 'alipay') {
-        this.qrName = '支付宝';
         this.payType = 2;
+        this.qrName = '支付宝';
       }
-      this.placeAnOrder();
     },
     spread(val) {
       if (val === 'VIP') {
@@ -164,37 +161,24 @@ export default{
         businessId: this.businessId,
         orderType: 4, //下单类型 1.购买会员 2.升级会员 3.续费会员 4.购买加油包
         payAmount: this.price,
-        payType: this.payType
+        payType: this.payType,
+        returnUrl: this.url,
       };
       placeAnOrder(params).then(res => {
         if (res.data.code === 200) {
-          this.url = res.data.data.url;
-          this.orderId = res.data.data.orderId;
+          const data = res.data.data.form;
+          const div = document.createElement('div');
+          div.innerHTML = data;
+          document.body.appendChild(div);
+          document.forms[2].submit();
         }
       });
     },
-    queryOrderInfo() {
-      queryOrderInfo(this.orderId).then(res => {
-        if (res.data.code) {
-          if (res.data.data.status === 3) {
-            this.$message({
-              type: 'error',
-              message: '已取消支付'
-            });
-          } else if (res.data.data.status === 2) {
-            this.time = null;
-            this.$message({
-              type: 'success',
-              message: '支付成功'
-            });
-            this.queryIndentPage();
-            this.queryInfo();
-            this.$emit('change', false);
-          } else if (res.data.data.status === 4) {
-            this.overdue = true;
-          }
-        }
-      });
+
+    handleSubmit() {
+      this.refuelVisible = false;
+      this.$emit('change', false);
+      this.placeAnOrder();
     }
   }
 };

@@ -114,7 +114,7 @@ export default{
       active: '',
       payType: 1, //付款类型
       businessId: '', //价格id
-      url: 'https://d1icd6shlvmxi6.cloudfront.net/gsc/XTEPHL/90/a6/d4/90a6d47195614b5db966ae2e9e6a33a5/images/购买vip/u7396.jpg',
+      url: 'https://seeics.com/member/index',
       time: null,
       overdue: false, //二维码过期标识
       orderId: ''
@@ -123,39 +123,16 @@ export default{
   mounted() {
     this.price = this.info.priceLists[0].price;
     this.businessId = this.info.priceLists[0].id;
-    this.placeAnOrder();
   },
-  watch: {
-    url: {
-      handler() {
-        this.time = setInterval(() => {
-          this.queryOrderInfo();
-        }, 100);
-      },
-      deep: true
-    }
-  },
+
   methods: {
     // 测试升级
     changeLevel() {
-      changeLevel({
-        userId: userId,
-        type: 2,
-        levelPriceId: this.businessId
-      }).then(res => {
-        if (res.data.code === 200) {
-          this.$message({
-            type: 'success',
-            message: `购买${this.info.title}会员成功！`
-          });
-          this.$emit('change', false);
-        }
-      });
+      this.placeAnOrder();
     },
     handleRadio(val) {
       this.price = val.price;
       this.businessId = val.id;
-      this.placeAnOrder();
     },
     // handlePrice(price) {
     //   this.price = price;
@@ -172,7 +149,6 @@ export default{
         this.qrName = '支付宝';
         this.payType = 2;
       }
-      this.placeAnOrder();
     },
     placeAnOrder() {
       this.time = null;
@@ -181,36 +157,21 @@ export default{
         businessId: this.businessId,
         orderType: 1, //下单类型 1.购买会员 2.升级会员 3.续费会员 4.购买加油包
         payAmount: Number(this.price),
-        payType: this.payType
+        payType: this.payType,
+        returnUrl: this.url,
       };
       placeAnOrder(params).then(res => {
         if (res.data.code === 200) {
-          this.url = res.data.data.url;
-          this.orderId = res.data.data.orderId;
+          const data = res.data.data.form;
+          const div = document.createElement('div');
+          div.innerHTML = data;
+          document.body.appendChild(div);
+          document.forms[2].submit();
+          this.$emit('change', false);
+          this.dialogVisible = false;
         }
       });
     },
-    queryOrderInfo() {
-      queryOrderInfo(this.orderId).then(res => {
-        if (res.data.code) {
-          if (res.data.data.status === 3) {
-            this.$message({
-              type: 'error',
-              message: '已取消支付'
-            });
-          } else if (res.data.data.status === 2) {
-            this.time = null;
-            this.$message({
-              type: 'success',
-              message: '支付成功'
-            });
-            this.$emit('change', false);
-          } else if (res.data.data.status === 4) {
-            this.overdue = true;
-          }
-        }
-      });
-    }
   }
 };
 </script>
