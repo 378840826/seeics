@@ -166,7 +166,7 @@ export default{
           const div = document.createElement('div');
           div.innerHTML = data;
           document.body.appendChild(div);
-          document.forms[2].submit();
+          document.forms[0].submit();
           this.$emit('change', false);
           this.dialogVisible = false;
         }
