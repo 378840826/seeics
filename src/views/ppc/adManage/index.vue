@@ -67,7 +67,7 @@
             <span slot="label">
               {{ allTabs[item].label }}
               <span class="tabs-cell-count">
-                <template v-if="tabsCellCount[allTabs[item].countKey] === undefined">
+                <template v-if="tabsCellCount[allTabs[item].countKey] === undefined || tabsCellCountLoading">
                   (...)
                 </template>
                 <template v-else>
@@ -115,6 +115,7 @@ import { stateIconDict, tabsStateDict, allTabs } from './utils/dict';
 import Campaign from './pages/Campaign';
 import Group from './pages/Group';
 import Ad from './pages/Ad';
+import Keyword from './pages/Keyword';
 
 export default{
   name: 'adManage',
@@ -125,6 +126,7 @@ export default{
     Campaign,
     Group,
     Ad,
+    Keyword,
   },
 
   data() {
@@ -151,14 +153,13 @@ export default{
       // 右侧标签页
       tabsActive: 'campaign',
       tabsCellCount: {},
+      tabsCellCountLoading: false,
       mainPage: '',
     };
   },
 
   created() {
     this.getShopList();
-    this.getPortfolioList();
-    this.getTabsCellCount();
   },
 
   computed: {
@@ -189,23 +190,25 @@ export default{
           time: getMarketplaceTime(this.$store.state.shop.list[0].timezone),
         };
         _this.pageLoading = false;
+        this.getPortfolioList();
+        this.getTabsCellCount();
       });
     },
 
     // 获取标签页数量
     getTabsCellCount() {
-      if (!this.currentStore.adStoreId) {
-        return;
-      }
+      this.tabsCellCountLoading = true;
       const selectedTreeInfo = parseTreeKey(this.treeSelectedKey);
       const params = {
-        storeId: this.currentStore.adStoreId,
+        adStoreId: this.currentStore.adStoreId,
         campaignId: selectedTreeInfo.camId,
         groupId: selectedTreeInfo.groupId,
       };
       queryTabsCellCount(params).then(res => {
         // log('请求标签页数量res', res.data.data);
         this.tabsCellCount = res.data.data;
+      }).finally(() => {
+        this.tabsCellCountLoading = false;
       });
     },
 
@@ -310,12 +313,14 @@ export default{
   },
 
   watch: {
-    currentStore() {
-      // 请求广告组合
-      this.getPortfolioList();
-      // 请求标签页数量
-      this.getTabsCellCount();
-      
+    currentStore(_, old) {
+      // 非初始化时才需要
+      if (old.adStoreId) {
+        // 请求广告组合
+        this.getPortfolioList();
+        // 请求标签页数量
+        this.getTabsCellCount();
+      }
     },
   },
 };

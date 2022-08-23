@@ -17,13 +17,14 @@ export const allTabs = {
   campaign: { label: '广告活动', name: 'campaign', countKey: 'campaignCount', tabPane: 'Campaign' },
   group: { label: '广告组', name: 'group', countKey: 'groupCount', tabPane: 'Group' },
   ad: { label: '广告', name: 'ad', countKey: 'adCount', tabPane: 'Ad' },
+  keyword: { label: '关键词', name: 'keyword', countKey: 'keywordCount', tabPane: 'Keyword' },
 };
 
 // 右侧标签页的三个状态，根据当前选中的广告树节点来区分
 export const tabsStateDict = {
-  default: ['campaign', 'group', 'ad'],
-  campaign: ['group', 'ad'],
-  group: ['ad'],
+  default: ['campaign', 'group', 'ad', 'keyword'],
+  campaign: ['group', 'ad', 'keyword'],
+  group: ['ad', 'keyword'],
 };
 
 // 投放方式字典
@@ -41,5 +42,9 @@ export const biddingStrategyDict = {
   manual: 'Fixed Bid',
 };
 
-// 需要格式化为金额的字段 key
-// export const moneyKeys = [];
+// 匹配方式名称
+export const matchTypeNameDict = {
+  broad: '广泛',
+  phrase: '词组',
+  exact: '精准',
+};

@@ -4,7 +4,7 @@ import request from '@/router/axios';
 // 各标签页的数量
 export const queryTabsCellCount = params => {
   return request({
-    url: '/api/seeics-ad/management/campaign/child-count',
+    url: '/api/seeics-ad/campaign/all_count',
     params,
   });
 };
@@ -71,6 +71,37 @@ export const queryGroupList = (params, data) => {
     url: '/api/seeics-ad/group/page',
     method: 'post',
     params,
+    data,
+  });
+};
+
+// 广告
+// 广告-列表
+export const queryAdList = (params, data) => {
+  return request({
+    url: '/api/seeics-ad/product/page',
+    method: 'post',
+    params,
+    data,
+  });
+};
+
+// 关键词
+// 关键词-列表
+export const queryKwList = (params, data) => {
+  return request({
+    url: '/api/seeics-ad/keyword/page',
+    method: 'post',
+    params,
+    data,
+  });
+};
+
+// 关键词-获取建议竞价
+export const queryKwSuggestedBid = (data) => {
+  return request({
+    url: '/api/seeics-ad/keyword/bid-recommendation',
+    method: 'post',
     data,
   });
 };
