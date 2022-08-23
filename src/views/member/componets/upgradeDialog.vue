@@ -172,7 +172,7 @@ export default{
       const params = {
         businessId: this.businessId,
         orderType: this.info.renew ? 3 : 2, //下单类型 1.购买会员 2.升级会员 3.续费会员 4.购买加油包
-        payAmount: 0.01,
+        payAmount: Number(this.price),
         payType: this.payType,
         returnUrl: this.url,
       };
