@@ -17,17 +17,17 @@
           <span style="margin-right: 10px;">支付宝</span>
         </div>
       </div>
-      <div class="QRcode">
+      <!-- <div class="QRcode">
         <div style="height: 30px; lineHeight: 30px;">{{checked ? `请用${qrName}扫码进行支付` : ''}}</div>
         <el-image 
           v-if="!overdue" 
           :style="{ width: '150px', height: '150px', opacity: checked ? 1 : '0.02' }" 
           :src="url"/>
         <div v-else class="load">二维码已过期，<el-button type="text" @click="placeAnOrder">刷新</el-button></div>
-      </div>
+      </div> -->
       <div style="marginTop: 30px">
 
-        <el-button @click="$router.push('/member/index')" size="small">确 认</el-button>
+        <el-button @click="placeAnOrder" size="small" :disabled="!checked">确 认</el-button>
         <el-button @click="close" size="small">取 消</el-button>
       </div>
     <el-dialog
@@ -76,8 +76,8 @@ export default {
       innerVisible: false,
       checked: false,
       qrName: '微信',
-      payType: 1,
-      url: ''
+      payType: 2,
+      url: 'https://seeics.com/corporate'
     };
   },
 
@@ -86,7 +86,7 @@ export default {
   },
 
   mounted() {
-    this.placeAnOrder();
+    // this.placeAnOrder();
   },
 
   methods: {
@@ -101,7 +101,6 @@ export default {
         this.qrName = '支付宝';
         this.payType = 2;
       }
-      this.placeAnOrder();
     },
 
     placeAnOrder() {
@@ -109,10 +108,19 @@ export default {
         businessId: this.$route.query.levelPriceId,
         orderType: 1, //下单类型 1.购买会员 2.升级会员 3.续费会员 4.购买加油包
         payAmount: Number(this.$route.query.levelPrice),
-        payType: this.payType
+        payType: this.payType,
+        returnUrl: this.url,
       };
       placeAnOrder(params).then(res => {
-        this.url = res.data.data.url;
+        if (res.data.code === 200) {
+          const data = res.data.data.form;
+          const div = document.createElement('div');
+          div.innerHTML = data;
+          document.body.appendChild(div);
+          document.forms[2].submit();
+          this.$emit('change', false);
+          this.dialogVisible = false;
+        }
       });
     },
 
