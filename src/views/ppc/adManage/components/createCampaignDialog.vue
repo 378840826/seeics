@@ -11,12 +11,13 @@
       
       <div class="label">
         <span>广告活动名称：</span>
-        <el-input style="width: 80%" size="small"/>
+        <el-input v-model="form.name" style="width: 80%" size="small"/>
       </div>
 
       <div class="label">
         <span>日预算：</span>
         <el-input 
+          v-model="form.budget"
           style="width: 30%"
           placeholder="至少1"
           size="small">
@@ -28,7 +29,7 @@
         <span>日期范围：</span>
         <el-date-picker
           style="width: 80%"
-          v-model="value1"
+          v-model="form.startDate"
           type="daterange"
           range-separator="——"
           start-placeholder="开始日期"
@@ -39,24 +40,24 @@
 
       <div class="label">
         <span>投放类型：</span>
-        <el-radio-group v-model="radio">
-          <el-radio :label="3">自动</el-radio>
-          <el-radio :label="6">手动</el-radio>
+        <el-radio-group v-model="form.targetingMode">
+          <el-radio label="auto">自动</el-radio>
+          <el-radio label="manual">手动</el-radio>
         </el-radio-group>
       </div>
 
       <div class="label">
         <span>竞价策略：</span>
         <div style="width: 80%">
-          <el-radio-group v-model="radio">
-          <el-radio :label="3">动态竞价 - 仅降低
+          <el-radio-group v-model="form.biddingStrategy">
+          <el-radio label="legacyForSales">动态竞价 - 仅降低
             <p>当您的广告不太可能带来销售时，我们将实时降低您的竞价。</p>
           </el-radio>
-          <el-radio :label="6">动态竞价 - 提高和降低
+          <el-radio label="autoForSales">动态竞价 - 提高和降低
             <p>当您的广告很有可能带来销售时，我们将实时提高您的竞价（最高可达 </p>
             <p>100%），并在您的广告不太可能带来销售时降低您的竞价。</p>
           </el-radio>
-          <el-radio :label="6">固定竞价
+          <el-radio label="manual">固定竞价
             <p>我们将使用您的确切竞价和您设置的任何手动调整，而不会根据售出可能性对</p>
             <p>您的竞价进行更改。</p>
             <p>除了竞价策略外，您可以将竞价最多提高 900%。</p>
@@ -86,18 +87,34 @@
         style="marginTop: 20px"/>
 
       <div>
-        <el-radio :label="6">默认竞价：
-          <el-input style="width: 80%" size="small"></el-input>
-        </el-radio>
-        <div>
-          
-        <el-radio :label="6">按Targeting Group设置竞价
-        </el-radio>
+        <div v-if="form.targetingMode === 'auto'">
+          <el-radio v-model="defaultRadio" label="1">默认竞价：
+            <el-input
+              v-if="defaultRadio === '1'"
+              v-model="defaultBid"
+              placeholder="至少1"
+              size="small">
+              <i slot="prefix" style="lineHeight: 32px">$</i>
+            </el-input>
+          </el-radio>
+          <div>
+            
+          <el-radio v-model="defaultRadio" label="2">按Targeting Group设置竞价
+          </el-radio>
+          </div>
+
+          <tg-bid-talbe
+            v-if="defaultRadio === '2'"
+            :asinList.sync="priceAsin"
+          />
         </div>
 
-        <tg-bid-talbe
-          :asinList.sync="priceAsin"
-        />
+        <div v-if="form.targetingMode === 'manual'" class="label">
+          <span>默认竞价：</span>
+          <el-input v-model="defaultBid" placeholder="至少1" style="width: 40%" size="small">
+            <i slot="prefix">$</i>
+          </el-input>
+        </div>
 
          <h3>
           <span @click="KeywordFlag = '关键词'" :style="{color: KeywordFlag === '关键词' && '#409EFF' || ''}">关键词</span>
@@ -160,7 +177,16 @@ export default {
     return {
       dialogVisible: true,
       KeywordFlag: '关键词',
-      priceAsin: []
+      priceAsin: [],
+      form: {
+        name: '',
+        budget: '',
+        endDate: '',
+        startDate: '',
+        targetingMode: 'auto',
+        biddingStrategy: 'legacyForSales'
+      },
+      defaultRadio: '1'
     };
   },
 
@@ -170,6 +196,12 @@ export default {
         console.log(val)
       },
       deep: true,
+    },
+    form: {
+      handler() {
+        console.log(this.form)
+      },
+      deep: true
     }
   },
 
@@ -199,6 +231,7 @@ export default {
     width: 600px;
     display: flex;
     line-height: 32px;
+    margin-top: 20px;
 
     span {
       width: 20%;
