@@ -55,11 +55,11 @@
           || item) : info.priceVoList)" 
           :key="item">
           <el-radio 
-            v-model="price" 
-            :label="item.payAmount" @change="handleRadio(item)" style="width: 400px; position: relative">
+            v-model="orginPrice" 
+            :label="item.orginPrice" @change="handleRadio(item)" style="width: 400px; position: relative">
             <span>{{`${item.levelName} 1` + `${item.unitName === '月' ? '个' : ''}` + item.unitName}}</span>
             <div class="radioDiv">
-              <span style="color: #999999;">原价：{{item.price + '元/' + item.unitName}}</span>
+              <span style="color: #999999;">原价：{{item.orginPrice + '元/' + item.unitName}}</span>
               <span >{{item.payAmount + '元/' + item.unitName}}</span>
             </div>
           </el-radio>
@@ -72,7 +72,7 @@
       <el-checkbox v-model="checked">本人已阅且同意</el-checkbox>
       <el-button type="text" @click="innerVisible = true">会员协议</el-button>
       <div class="selectQR">
-        <div :class="checked ? 'pay pointer' : 'pay not-allowed'" @click="handleQR('wechat')">
+        <div :class="'pay not-allowed'" @click="handleQR('wechat')">
           <el-image style="width: 30px; height: 30px" src="/img/wechat.png"/>
           <span>微信支付</span>
         </div>
@@ -125,6 +125,7 @@ export default{
   data() {
     return {
       price: '',
+      orginPrice: '',
       checked: false,
       innerVisible: false,
       qrName: '微信',
@@ -140,6 +141,7 @@ export default{
   },
   mounted() {
     this.price = this.info.priceVoList[0].payAmount;
+    this.orginPrice = this.info.priceVoList[0].orginPrice;
     this.explain = this.info.priceVoList[0].explain;
     this.extensionDate = this.info.priceVoList[0].extensionDate;
     this.businessId = this.info.priceVoList[0].id;
@@ -150,13 +152,10 @@ export default{
       this.placeAnOrder();
     },
     handleQR(val) {
-      if (!this.checked) {
+      if (!this.checked || val === 'wechat') {
         return;
       }
-      if (val === 'wechat') {
-        this.payType = 1;
-        this.qrName = '微信';
-      } else if (val === 'alipay') {
+      if (val === 'alipay') {
         this.payType = 2;
         this.qrName = '支付宝';
       }
@@ -165,6 +164,7 @@ export default{
       this.explain = val.explain;
       this.extensionDate = val.extensionDate;
       this.businessId = val.id;
+      this.price = val.price;
     },
     placeAnOrder() {
       this.time = null;

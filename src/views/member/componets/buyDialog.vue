@@ -45,13 +45,13 @@
        </el-dialog>
       <p v-for="item in info.priceLists" :key="item">
           <el-radio 
-            v-model="price" 
-            :label="item.price" 
+            v-model="orginPrice" 
+            :label="item.orginPrice" 
             @change="handleRadio(item)"  
             style="width: 400px; position: relative">
             <span>{{`${info.title} 1` + `${item.unitName === '月' ? '个' : ''}` + item.unitName}}</span>
             <div class="radioDiv">
-              <span style="color: #999999;">原价：{{item.price + '元/' + item.unitName}}</span>
+              <span style="color: #999999;">原价：{{item.orginPrice + '元/' + item.unitName}}</span>
               <span >{{item.price + '元/' + item.unitName}}</span>
             </div>
           </el-radio>
@@ -61,7 +61,7 @@
       <el-checkbox v-model="checked">本人已阅且同意</el-checkbox>
       <el-button type="text" @click="innerVisible = true">会员协议</el-button>
       <div class="selectQR">
-        <div :class="checked ? 'pay pointer' : 'pay not-allowed'" @click="handleQR('wechat')">
+        <div :class="'pay not-allowed'">
           <el-image style="width: 30px; height: 30px" src="/img/wechat.png"/>
           <span>微信支付</span>
         </div>
@@ -108,6 +108,7 @@ export default{
   data() {
     return {
       price: '', //实付价格
+      orginPrice: '',
       checked: false,
       innerVisible: false,
       qrName: '微信',
@@ -123,6 +124,7 @@ export default{
   mounted() {
     this.price = this.info.priceLists[0].price;
     this.businessId = this.info.priceLists[0].id;
+    this.orginPrice = this.info.priceLists[0].orginPrice;
   },
 
   methods: {
