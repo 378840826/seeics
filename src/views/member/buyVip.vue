@@ -166,6 +166,25 @@ export default {
     this.buyPage();
   },
   methods: {
+
+    orginPrice(val) {
+      switch (val) {
+      case 'VIP月':
+        return '299.00';
+      case 'VIP年':
+        return '2999.00';
+      case '高级VIP月': 
+        return '499.00';
+      case '高级VIP年':
+        return '4999.00';
+      case '至尊VIP月':
+        return '999.00';
+      case '至尊VIP年':
+        return '9999.00';
+      default: '';
+      }
+    },
+
     buyPage() {
       buyInfo().then(res => {
         const obj = new Array(res.data.data.memberLevelInfoListVoList[0].functionList.length);
@@ -187,7 +206,12 @@ export default {
       
       this.isBuyDialog = true;
       this.title = name;
-      this.priceLists = this.priceList[index].priceList;
+      this.priceLists = this.priceList[index].priceList.map(item => {
+        return {
+          ...item,
+          orginPrice: this.orginPrice(`${this.priceList[index].defaultRoleName}${item.unitName}`)
+        };
+      });
     }
   }
 };

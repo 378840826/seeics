@@ -60,7 +60,7 @@
       <el-checkbox v-model="checked">本人已阅且同意</el-checkbox>
       <el-button type="text" @click="innerVisible = true">会员协议</el-button>
       <div class="selectQR">
-        <div :class="checked ? 'pay pointer' : 'pay not-allowed'" @click="handleQR('wechat')">
+        <div :class="'pay not-allowed'">
           <el-image style="width: 30px; height: 30px" src="/img/wechat.png"/>
           <span>微信支付</span>
         </div>
@@ -136,13 +136,10 @@ export default{
       this.businessId = item.id;
     },
     handleQR(val) {
-      if (!this.checked) {
+      if (!this.checked || val === 'wechat') {
         return;
       }
-      if (val === 'wechat') {
-        this.payType = 1;
-        this.qrName = '微信';
-      } else if (val === 'alipay') {
+      if (val === 'alipay') {
         this.payType = 2;
         this.qrName = '支付宝';
       }

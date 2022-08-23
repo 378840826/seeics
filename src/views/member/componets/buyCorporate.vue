@@ -8,7 +8,7 @@
     <el-checkbox v-model="checked">本人已阅且同意</el-checkbox>
     <el-button type="text" @click="innerVisible = true">会员协议</el-button>
     <div class="selectQR">
-        <div :class="checked ? 'pay pointer' : 'pay not-allowed'" @click="handleQR('wechat')">
+        <div :class="'pay not-allowed'">
           <el-image style="width: 30px; height: 30px" src="/img/wechat.png"/>
           <span>微信支付</span>
         </div>

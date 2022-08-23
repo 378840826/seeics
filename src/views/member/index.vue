@@ -38,6 +38,11 @@
       :page.sync="page"
       @on-load="queryIndentPage"
     >
+      <template slot="itemName" slot-scope="scope">
+         <div>
+           {{`${format(scope.row.type)}${scope.row.itemName}一${scope.row.unitName}` }}</div>
+      </template>
+
       <template slot="payType" slot-scope="scope">
          <div>{{ payTypeMethos(scope.row.payType) }}</div>
       </template>
@@ -128,6 +133,7 @@ export default {
           {
             label: '订单详情',
             prop: 'itemName',
+            slot: true
           },
           {
             label: '支付方式',
@@ -162,9 +168,57 @@ export default {
         }
       },
       deep: true
+    },
+    $router: {
+      handler() {
+        if (window.location.href.split('?').length > 1) {
+          window.location.href = window.location.href.split('?')[0];
+        }
+      },
+      immediate: true,
     }
   },
+
+  beforeRouteUpdate() {
+    console.log(666)
+  },
+
   methods: {
+    format(val) {
+      // if (val === 1) {
+      //   return '购买会员';
+      // } else if (val === 2)
+      switch (val) {
+      case 1:
+        return '购买会员';
+      case 2:
+        return '升级会员';
+      case 3: 
+        return '续费会员';
+      case 4:
+        return '购买加油包';
+      default: '';
+      }
+    },
+
+    orginPrice(val) {
+      switch (val) {
+      case 'VIP月':
+        return '299.00';
+      case 'VIP年':
+        return '2999.00';
+      case '高级VIP月': 
+        return '499.00';
+      case '高级VIP年':
+        return '4999.00';
+      case '至尊VIP月':
+        return '999.00';
+      case '至尊VIP年':
+        return '9999.00';
+      default: '';
+      }
+    },
+
     changeLevel() {
       changeLevel({
         userId: '1123598821738675201',
@@ -194,6 +248,12 @@ export default {
         renewInfo().then(res => {
           if (res.data.code === 200) {
             this.priceVoList = res.data.data.priceVoList;
+            this.priceVoList = this.priceVoList.map(item => {
+              return {
+                ...item,
+                orginPrice: this.orginPrice(`${item.levelName}${item.unitName}`)
+              };
+            });
             this.dialogVisible = true;
             this.isvibist = true;
           }
@@ -202,6 +262,12 @@ export default {
         upgradeInfo().then(res => {
           if (res.data.code === 200) {
             this.priceVoList = res.data.data.priceVoList.filter(item => item.levelName !== this.levelName);
+            this.priceVoList = this.priceVoList.map(item => {
+              return {
+                ...item,
+                orginPrice: this.orginPrice(`${item.levelName}${item.unitName}`)
+              };
+            });
             this.dialogVisible = true;
             this.isvibist = true;
           }
