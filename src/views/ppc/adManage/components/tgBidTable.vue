@@ -78,6 +78,9 @@ export default {
     asinList: {
       type: Array
     },
+    targetingMode: {
+      type: String
+    }
   },
 
   data() {
@@ -89,6 +92,14 @@ export default {
   watch: {
     asinList: {
       handler() {
+        this.tableData = [];
+        this.queryTargeList();
+      },
+      deep: true
+    },
+    targetingMode: {
+      handler() {
+        this.tableData = [];
         this.queryTargeList();
       },
       deep: true
@@ -96,10 +107,21 @@ export default {
   },
 
   mounted() {
-    console.log(this.asinList)
+    this.queryTargeList();
   },
 
   methods: {
+
+    getField() {
+      const arr = this.tableData.map(item => {
+        return {
+          bid: item.bid,
+          state: item.state ? 'enabled' : 'paused',
+          type: item.name
+        };
+      });
+      return arr;
+    },
 
     isObjectValueEqual(a, b) {
       const arr1 = Object.keys(a);
@@ -120,7 +142,7 @@ export default {
     queryTargeList() {
       const params = {
         storeId: '1525044033420210177',
-        strategy: 'legacyForSales',
+        strategy: this.targetingMode,
         asinList: this.asinList,
       };
       queryTargeList(params).then(res => {

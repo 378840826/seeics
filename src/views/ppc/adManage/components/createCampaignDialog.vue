@@ -29,7 +29,7 @@
         <span>日期范围：</span>
         <el-date-picker
           style="width: 80%"
-          v-model="form.startDate"
+          v-model="date"
           type="daterange"
           range-separator="——"
           start-placeholder="开始日期"
@@ -62,11 +62,11 @@
             <p>您的竞价进行更改。</p>
             <p>除了竞价策略外，您可以将竞价最多提高 900%。</p>
             <p>搜索结果顶部（首页）
-              <el-input style="width: 150px" size="small"/>%
+              <el-input v-model="form.biddingPlacementTop" style="width: 150px" size="small"/>%
             </p>
             <p style="marginLeft: 140px;">示例： 对于此广告位，$0.75 竞价将为 $0.90。动态竞价可以将其提高至 $1.80</p>
             <p>商品页面
-              <el-input style="marginLeft: 82px;width: 150px" size="small"/>%
+              <el-input v-model="form.biddingPlacementProductPage" style="marginLeft: 82px;width: 150px" size="small"/>%
             </p>
              <p style="marginLeft: 140px;">示例： 对于此广告位，$0.75 竞价将保持 $0.75 不变。动态竞价可以将其提高至 $1.13</p>
           </el-radio>
@@ -78,7 +78,7 @@
 
       <div class="label">
         <span>广告组名称：</span>
-        <el-input style="width: 80%" size="small"/>
+        <el-input v-model="form.groupRo.name" style="width: 80%" size="small"/>
       </div>
 
       <Table 
@@ -91,7 +91,7 @@
           <el-radio v-model="defaultRadio" label="1">默认竞价：
             <el-input
               v-if="defaultRadio === '1'"
-              v-model="defaultBid"
+              v-model="form.groupRo.defaultBid"
               placeholder="至少1"
               size="small">
               <i slot="prefix" style="lineHeight: 32px">$</i>
@@ -106,12 +106,13 @@
           <tg-bid-talbe
             v-if="defaultRadio === '2'"
             :asinList.sync="priceAsin"
+            :targetingMode.sync="form.biddingStrategy"
           />
         </div>
 
         <div v-if="form.targetingMode === 'manual'" class="label">
           <span>默认竞价：</span>
-          <el-input v-model="defaultBid" placeholder="至少1" style="width: 40%" size="small">
+          <el-input v-model="form.groupRo.defaultBid" placeholder="至少1" style="width: 40%" size="small">
             <i slot="prefix">$</i>
           </el-input>
         </div>
@@ -126,6 +127,7 @@
         <keyword
           v-if="KeywordFlag === '关键词'"
           :asinList.sync="priceAsin"
+          :targetingMode.sync="form.biddingStrategy"
         />
 
         <deny-keyword
@@ -137,7 +139,8 @@
 
         <price-category
           v-if="KeywordFlag === '分类/商品'"
-          :asinList.sync="priceAsin"/>
+          :asinList.sync="priceAsin"
+          :targetingMode.sync="form.biddingStrategy"/>
 
         <deny-keyword
           v-if="KeywordFlag === '分类/商品'"
@@ -156,6 +159,7 @@
 
 <script>
 
+import dayjs from 'dayjs';
 import Table from './CampaignTable.vue';
 import TgBidTalbe from './tgBidTable.vue';
 import DenyKeyword from './denyKeyword.vue';
@@ -178,13 +182,25 @@ export default {
       dialogVisible: true,
       KeywordFlag: '关键词',
       priceAsin: [],
+      date: null,
       form: {
         name: '',
         budget: '',
         endDate: '',
         startDate: '',
         targetingMode: 'auto',
-        biddingStrategy: 'legacyForSales'
+        biddingStrategy: 'legacyForSales',
+        biddingPlacementProductPage: '', //商品页面 百分比
+        biddingPlacementTop: '', //搜索结果顶部 百分比
+        groupRo: {
+          name: '',
+          defaultBid: '',
+          negativeKeywordItemRoList: [], //否定关键词集合
+          negativeTargetingAsinList: [], //否定投放商品（ASIN）集合
+          productItemRoListL: [], //商品广告集合
+          targetingAsinList: [], //投放商品（ASIN）集合
+          targetingExpressionRoList: [], //targetingGroup  自动投放表达式
+        }
       },
       defaultRadio: '1'
     };
@@ -197,9 +213,10 @@ export default {
       },
       deep: true,
     },
-    form: {
+    date: {
       handler() {
-        console.log(this.form)
+        this.form.startDate = dayjs(this.date[0]).format('YYYY-MM-DD');
+        this.form.endDate = dayjs(this.date[1]).format('YYYY-MM-DD');
       },
       deep: true
     }

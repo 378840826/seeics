@@ -131,7 +131,7 @@ export default {
   props: {
     priceAsin: {
       type: Array,
-    }
+    },
   },
 
   data() {
@@ -152,6 +152,16 @@ export default {
   },
 
   methods: {
+
+    getField () {
+      const arr = this.tableData.map(item => {
+        return {
+          sellerSku: item.sellerSku,
+          asin: item.asin,
+        };
+      });
+      return arr;
+    },
 
     queryPriceList() {
       queryPriceList({

@@ -33,36 +33,38 @@
         <!-- <el-button size="small">批量删除</el-button>
         <el-button size="small">应用建议竞价</el-button>
         <el-button size="small">设置竞价</el-button>
-        <el-select v-model="bid" size="small" style="width: 140px">
-          <el-option
-            v-for="item in bidList"
-            :key="item.label"
-            :value="item.label"
-            style="textAlign: center"
-          >{{item.label}}</el-option>
-        </el-select>
+        <span>
+          <el-select v-model="bid" size="small" style="width: 140px">
+            <el-option
+              v-for="item in bidList"
+              :key="item.label"
+              :value="item.label"
+              style="textAlign: center"
+            >{{item.label}}</el-option>
+          </el-select>
 
-        <el-select v-model="jia" size="small" style="width: 50px">
-          <el-option
-            v-for="item in jiaList"
-            :key="item.label"
-            :value="item.label"
-            style="textAlign: center"
-          >{{item.label}}</el-option>
-        </el-select>
+          <el-select v-model="jia" size="small" style="width: 50px">
+            <el-option
+              v-for="item in jiaList"
+              :key="item.label"
+              :value="item.label"
+              style="textAlign: center"
+            >{{item.label}}</el-option>
+          </el-select>
 
-         <el-select v-model="qian" size="small" style="width: 50px">
-          <el-option
-            v-for="item in qianList"
-            :key="item.label"
-            :value="item.label"
-            style="textAlign: center"
-          >{{item.label}}</el-option>
-        </el-select>
+          <el-select v-model="qian" size="small" style="width: 50px">
+            <el-option
+              v-for="item in qianList"
+              :key="item.label"
+              :value="item.label"
+              style="textAlign: center"
+            >{{item.label}}</el-option>
+          </el-select>
 
-        <el-input size="small" value="1000" style="width: 50px"/>
-        <el-button size="small" style="marginLeft: 10px;">取消</el-button>
-        <el-button type="primary" size="small">确定</el-button> -->
+          <el-input size="small" value="1000" style="width: 50px"/>
+          <el-button size="small" style="marginLeft: 10px;">取消</el-button>
+          <el-button type="primary" size="small">确定</el-button>
+        </span> -->
       </el-col>
     </el-row>
 
@@ -144,6 +146,9 @@
             style="width: 100%"
             height="200"
             class="table">
+            <!-- <el-table-column
+              type="selection"
+              width="50"/> -->
             <el-table-column
               prop="priceInfo"
               label="商品信息">
@@ -151,6 +156,26 @@
               <template slot-scope="scope">
                 <div>
                   ASIN：{{scope.row.priceInfo}}
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="bid"
+              align="center"
+              label="商品竞价"
+              width="100">
+
+              <template slot-scope="scope">
+                <div 
+                  @mouseenter="handleKeyword(scope.row)"
+                  @mouseleave="handleLeaveKeyword(scope.row)"
+                >
+                  <div v-if="!scope.row.isInput">{{scope.row.bid}}</div>
+                  <el-input
+                    v-else
+                    v-model="scope.row.bid"
+                    size="small"
+                  />
                 </div>
               </template>
             </el-table-column>
@@ -190,6 +215,9 @@ export default {
   props: {
     asinList: {
       type: Array
+    },
+    targetingMode: {
+      type: String,
     }
   },
 
@@ -251,6 +279,12 @@ export default {
       },
       deep: true
     },
+    targetingMode: {
+      handler() {
+        this.getPriceList();
+      },
+      deep: true
+    },
   },
 
   mounted() {
@@ -259,6 +293,32 @@ export default {
   
 
   methods: {
+
+    getField() {
+      const arr = this.tableData.map(item => {
+        return {
+          asin: item.priceInfo,
+          bid: item.bid
+        };
+      });
+      return arr;
+    },
+
+    handleKeyword(row) {
+      this.tableData.forEach(item => {
+        if (item.priceInfo === row.priceInfo) {
+          item.isInput = true;
+        }
+      });
+    },
+
+    handleLeaveKeyword(row) {
+      this.tableData.forEach(item => {
+        if (item.priceInfo === row.priceInfo) {
+          item.isInput = false;
+        }
+      });
+    },
 
     headerDelete() {
       return (
@@ -269,7 +329,7 @@ export default {
     getPriceList() {
       const params = {
         storeId: '1525044033420210177',
-        strategy: 'legacyForSales',
+        strategy: this.targetingMode,
         asinList: this.asinList,
       };
       getPriceList(params).then(res => {
@@ -277,7 +337,9 @@ export default {
           this.data = res.data.data.map(item => {
             return {
               priceInfo: item,
-              checked: false
+              checked: false,
+              bid: '0.02',
+              isInput: false
             };
           });
         }

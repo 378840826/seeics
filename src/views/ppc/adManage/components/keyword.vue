@@ -239,6 +239,9 @@ export default {
   props: {
     asinList: {
       type: Array
+    },
+    targetingMode: {
+      type: String,
     }
   },
 
@@ -304,10 +307,27 @@ export default {
         this.querySuggestKeyword();
       },
       deep: true
-    }
+    },
+    targetingMode: {
+      handler() {
+        this.querySuggestKeyword();
+      },
+      deep: true
+    },
   },
 
   methods: {
+
+    getField() {
+      const arr = this.tableData.map(item => {
+        return {
+          bid: item.keywordBid,
+          keywordText: item.suggestedKeyword,
+          matchType: item.matchType
+        };
+      });
+      return arr;
+    },
 
     empty() {
       this.ifBid = false;
@@ -370,7 +390,7 @@ export default {
     querySuggestKeyword() {
       const params = {
         storeId: '1525044033420210177',
-        strategy: 'legacyForSales',
+        strategy: this.targetingMode,
         suggestionKeywordMatchType: this.suggestionKeywordMatchType,
         asinList: this.asinList,
       };

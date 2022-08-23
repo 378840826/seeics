@@ -89,6 +89,14 @@ export default {
   },
 
   methods: {
+
+    getField() {
+      const arr = this.data.map(item => {
+        return this.title === '关键词' ? { keywordText: item.keyword, matchType: item.type } : { keywordText: item.keyword };
+      });
+      return arr;
+    },
+
     headerDelete() {
       return (
         <el-button type="text" style="padding: 0" onClick={this.handleAllDelete}>全部删除</el-button>
