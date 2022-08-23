@@ -21,6 +21,8 @@ export default {
   urlWhiteList: [
     // st报表导出
     '/api/seeics-analysis/searchTerm/download',
+    // 机构用户导入
+    '/api/blade-user/import-dept-user',
     // 自动化模板名称校验
     '/api/seeics-analysis/automation-template/repeat-name',
   ],

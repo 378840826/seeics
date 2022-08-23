@@ -58,7 +58,7 @@ axios.interceptors.response.use(res => {
   //获取状态码
   const status = res.data.code || res.status;
   const statusWhiteList = website.statusWhiteList || [];
-  const url = res.config.url;
+  const url = res.config.url.split('?')[0];
   const urlWhiteList = website.urlWhiteList || [];
   const message = res.data.msg || res.data.error_description || '未知错误';
   // 如果再路由白名单中，则自行处理全部逻辑
