@@ -81,17 +81,17 @@
           <span style="margin-right: 10px;">支付宝</span>
         </div>
       </div>
-      <div class="QRcode">
+      <!-- <div class="QRcode">
         <div style="height: 30px; lineHeight: 30px;">{{checked ? `请用${qrName}扫码进行支付` : ''}}</div>
         <el-image 
          v-if="!overdue" 
          :style="{ width: '150px', height: '150px', opacity: checked ? 1 : '0.02' }" 
          :src="url"/>
         <div v-else class="load">二维码已过期，<el-button type="text" @click="placeAnOrder">刷新</el-button></div>
-      </div>
+      </div> -->
     <span slot="footer" class="dialog-footer">
       <el-button @click="dialogVisible = false; $emit('change', false)">取 消</el-button>
-      <el-button type="primary" @click="changeLevel">确 定</el-button>
+      <el-button type="primary" @click="changeLevel" :disabled="!checked">确 定</el-button>
     </span>
   </el-dialog>
   </div>
@@ -133,7 +133,7 @@ export default{
       businessId: '',
       orderId: '',
       url: 'https://seeics.com/member/index',
-      payType: 1,
+      payType: 2,
       time: null,
       overdue: false,
     };
