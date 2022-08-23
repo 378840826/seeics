@@ -601,7 +601,7 @@ export default {
             loadText: '模板上传中，请稍等',
             span: 24,
             propsHttp: {
-              res: 'data'
+              res: ''
             },
             tip: '请上传 .xls,.xlsx 标准格式文件',
             action: '/api/blade-user/import-dept-user'
@@ -840,11 +840,19 @@ export default {
     handleImport() {
       this.excelBox = true;
     },
-    uploadAfter(res, done, loading, column) {
-      window.console.log(column);
+    uploadAfter(res, done, loading) {
+      if (res.code !== 200) {
+        loading();
+        this.$alert(res.msg, '导入出现问题', {
+          confirmButtonText: '确定',
+          type: 'warning',
+        });
+        return;
+      }
       this.excelBox = false;
       this.refreshChange();
       done();
+      this.$message.success('导入成功');
     },
     handleExport() {
       this.$confirm('是否导出用户数据?', '提示', {
@@ -852,7 +860,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        window.open(`/api/blade-user/export-user?${this.website.tokenHeader}=${getToken()}&account=${this.search.account}&realName=${this.search.realName}`);
+        window.open(`/api/blade-user/export-deptUser?${this.website.tokenHeader}=${getToken()}&account=${this.search.account}&realName=${this.search.realName}`);
       });
     },
     handleTemplate() {
