@@ -78,7 +78,11 @@ export default {
     },
     targetingMode: {
       type: String
-    }
+    },
+    mwsStoreId: {
+      type: String,
+      require: true,
+    },
   },
 
   data() {
@@ -139,7 +143,7 @@ export default {
 
     queryTargeList() {
       const params = {
-        storeId: '1525044033420210177',
+        storeId: this.mwsStoreId,
         strategy: this.targetingMode,
         asinList: this.asinList,
       };

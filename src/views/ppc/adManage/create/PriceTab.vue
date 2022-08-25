@@ -109,7 +109,7 @@
         </div> -->
         <div  class="tableBox">
           
-        <table border="1" style="width: 100%;borderColor: #ccc;">
+        <table border="1" style="width: 100%;borderColor: #EBEEF5;backgroundColor: white;">
           <tr v-for="item in searchData" :key="item.priceInfo" style="lineHeight: 32px">
             <td style="paddingLeft: 10px;">ASIN：{{item.priceInfo}}</td>
             <td style="textAlign: center">
@@ -218,7 +218,11 @@ export default {
     },
     targetingMode: {
       type: String,
-    }
+    },
+    mwsStoreId: {
+      type: String,
+      require: true,
+    },
   },
 
   data() {
@@ -328,13 +332,13 @@ export default {
 
     getPriceList() {
       const params = {
-        storeId: '1525044033420210177',
+        storeId: this.mwsStoreId,
         strategy: this.targetingMode,
         asinList: this.asinList,
       };
       getPriceList(params).then(res => {
         if (res.data.code === 200) {
-          this.data = res.data.data.map(item => {
+          this.data = res.data.data.length && res.data.data.map(item => {
             return {
               priceInfo: item,
               checked: false,
@@ -398,16 +402,18 @@ export default {
 
     handleSearch() {
       const params = {
-        storeId: '1525044033420210177',
-        strategy: 'legacyForSales',
+        storeId: this.mwsStoreId,
+        strategy: this.targetingMode,
         asinList: [this.search],
       };
       getPriceList(params).then(res => {
         if (res.data.code === 200) {
-          this.searchData = res.data.data.map(item => {
+          this.searchData = res.data.data.length && res.data.data.map(item => {
             return {
               priceInfo: item,
-              checked: false
+              checked: false,
+              bid: '0.02',
+              isInput: false
             };
           });
         }
@@ -437,17 +443,20 @@ export default {
 
     textareaSelect() {
       const params = {
-        storeId: '1525044033420210177',
-        strategy: 'legacyForSales',
+        storeId: this.mwsStoreId,
+        strategy: this.targetingMode,
         asinList: this.textareaArr,
       };
       const arr = this.tableData.length && this.tableData.map(item => item.priceInfo) || [];
       getPriceList(params).then(res => {
         if (res.data.code === 200) {
-          res.data.data.map(item => {
+          res.data.data.length && res.data.data.map(item => {
             if (!arr.includes(item)) {
               this.tableData.push({
                 priceInfo: item,
+                checked: false,
+                bid: '0.02',
+                isInput: false
               });
             }
           });
@@ -489,7 +498,7 @@ export default {
     max-height: 200px;
     overflow: hidden;
     overflow-y: auto;
-    border: 1px solid #ccc;
+    border: 1px solid #EBEEF5;
     box-sizing: border-box;
   }
 
