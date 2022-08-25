@@ -113,3 +113,12 @@ export const getPriceList = params => {
     data: params,
   });
 };
+
+// 创建广告活动
+export const createAdManage = params => {
+  return request({
+    url: '/api/seeics-ad/campaign/create',
+    method: 'post',
+    data: params,
+  });
+};

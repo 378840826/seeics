@@ -26,9 +26,7 @@
         label="Targeting Group"
         >
 
-        <template slot-scope="scope">
-          <div>{{scope.row.name.length === 2 ? `${scope.row.name[0]} ${scope.row.name[1]}` : scope.row.name[0]}}</div>
-        </template>
+        
       </el-table-column>
       <el-table-column
         prop="address"
@@ -115,7 +113,7 @@ export default {
     getField() {
       const arr = this.tableData.map(item => {
         return {
-          bid: item.bid,
+          bid: item.keywordBid,
           state: item.state ? 'enabled' : 'paused',
           type: item.name
         };
@@ -159,7 +157,7 @@ export default {
             obj.name = 
             obj.bid = data[key];
             this.tableData.push({
-              name: key.toLowerCase().split('_'),
+              name: key,
               bid: data[key],
               status: 0,
               isInput: false,

@@ -39,18 +39,18 @@
             />
           </el-select>
 
-          <el-select v-model="jia" size="small" style="width: 50px">
+          <el-select v-model="modified" size="small" style="width: 50px">
             <el-option
-              v-for="item in jiaList"
+              v-for="item in modifiedList"
               :key="item.label"
               :value="item.label"
               style="textAlign: center"
             >{{item.label}}</el-option>
           </el-select>
 
-          <el-select v-model="qian" size="small" style="width: 50px">
+          <el-select v-model="symbol" size="small" style="width: 50px">
             <el-option
-              v-for="item in qianList"
+              v-for="item in symbolList"
               :key="item.label"
               :value="item.label"
               style="textAlign: center"
@@ -134,7 +134,7 @@
           <el-input
           type="textarea"
           :rows="2"
-          placeholder="请输入内容"
+          placeholder="请输入否定关键词，每行一个，回车换行；"
           v-model="textarea"
           @input="handleTextarea"
         >
@@ -249,8 +249,8 @@ export default {
     return {
       category: '建议关键词',
       bid: 'suggestedBid',
-      jia: '+',
-      qian: '$',
+      modified: '+',
+      symbol: '$',
       bidval: '',
       textarea: '',
       suggestionKeywordMatchType: ['exact', 'phrase', 'broad'],
@@ -273,7 +273,7 @@ export default {
           value: 'minSuggestedBid',
         },
       ],
-      jiaList: [
+      modifiedList: [
         {
           label: '+',
         },
@@ -281,7 +281,7 @@ export default {
           label: '-',
         },
       ],
-      qianList: [
+      symbolList: [
         {
           label: '$',
         },
@@ -295,10 +295,6 @@ export default {
       dialogVisible: false,
       ifBid: false
     };
-  },
-
-  mounted() {
-
   },
 
   watch: {
@@ -331,8 +327,8 @@ export default {
 
     empty() {
       this.ifBid = false;
-      this.qian = '$';
-      this.jia = '+';
+      this.symbol = '$';
+      this.modified = '+';
       this.bidval = '';
       this.bid = 'suggestedBid';
       this.tableData = this.tableData.map(item => item);
@@ -511,9 +507,9 @@ export default {
         if ([...this.selectData].includes(item)) {
           for (const key in item) {
             if (key === this.bid) {
-              const chu = this.jia === '-' ? Number(item[key]) - Number(item[key]) * (Number(this.bidval) / 100) : Number(item[key]) + Number(item[key]) * (Number(this.bidval) / 100);
-              const jia = this.jia === '-' ? Number(item[key]) - Number(this.bidval) : Number(item[key]) + Number(this.bidval);
-              const res = this.qian === '$' ? jia : chu;
+              const chu = this.modified === '-' ? Number(item[key]) - Number(item[key]) * (Number(this.bidval) / 100) : Number(item[key]) + Number(item[key]) * (Number(this.bidval) / 100);
+              const modified = this.modified === '-' ? Number(item[key]) - Number(this.bidval) : Number(item[key]) + Number(this.bidval);
+              const res = this.symbol === '$' ? modified : chu;
               if (res > 0.02) {
                 item[key] = res.toFixed(2);
                 this.empty();

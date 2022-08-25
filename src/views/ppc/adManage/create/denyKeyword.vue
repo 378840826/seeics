@@ -6,11 +6,13 @@
     </el-row>
     <el-row>
       <el-col :span="12" style="lineHeight: 32px">
-        <span>匹配方式：</span>
-        <el-radio-group v-model="radio">
-          <el-radio label="词组否定">词组否定</el-radio>
-          <el-radio label="精准否定">精准否定</el-radio>
-        </el-radio-group>
+        <div v-if="title === '关键词'">
+          <span style="marginLeft: 10px">匹配方式：</span>
+          <el-radio-group v-model="radio">
+            <el-radio label="negativePhrase">词组否定</el-radio>
+            <el-radio label="negativeExact">精准否定</el-radio>
+          </el-radio-group>
+        </div>
       </el-col>
       <el-col :span="10" style="lineHeight: 32px">
           <div class="added">已添加 3个否定{{title}} （最多可添加1000个，会过滤重复的否定{{title}}）</div>
@@ -22,11 +24,11 @@
         <el-input
           type="textarea"
           :rows="2"
-          placeholder="请输入内容"
+          :placeholder="title === '关键词' ? '请输入否定关键词，每行一个，回车换行；' : '请输入多个ASIN，每行一个，回车换行'"
           v-model="textarea"
           @header-click="handleAllDelete"
           @input="handleTextarea"
-          style="maxHeight: 200px;minHeight: 200px;">
+          style="marginLeft: 10px">
         </el-input>
       </el-col>
 
@@ -48,10 +50,15 @@
           >
           </el-table-column>
           <el-table-column
+            v-if="title === '关键词'"
             prop="type"
             label="匹配方式"
             width="96"
             align="center">
+
+            <template slot-scope="scope">
+              <div>{{format(scope.row.type)}}</div>
+            </template>
           </el-table-column>
           <el-table-column
             prop="address"
@@ -81,7 +88,7 @@ export default {
 
   data() {
     return {
-      radio: '词组否定',
+      radio: 'negativePhrase',
       data: [],
       textarea: '',
       textareaArr: []
@@ -89,6 +96,30 @@ export default {
   },
 
   methods: {
+
+    isObjectValueEqual(a, b) {
+      const arr1 = Object.keys(a);
+      const arr2 = Object.keys(b);
+
+      if (arr1.length !== arr2.length) {
+        return false;
+      }
+
+      for (const k in a) {
+        if (a[k] !== b[k]) {
+          return false;
+        }
+      }
+      return true;
+    },
+
+    format(val) {
+      if (val === 'negativePhrase') {
+        return '词组否定';
+      } else if (val === 'negativeExact') {
+        return '精准否定';
+      }
+    },
 
     getField() {
       const arr = this.data.map(item => {
@@ -123,12 +154,26 @@ export default {
     },
     
     handleAdd() {
-    //   this.data.forEach()
+      const keywordArr = this.data.length && this.data.map(item => item.keyword) || [];
+      const idArr = this.data.length && this.data.map(item => item.id) || [];
       this.textareaArr.map(item => {
-        this.data.push({
-          keyword: item,
-          type: this.radio
-        });
+        if (this.title === '关键词') {
+          if (!idArr.includes(`${item}${this.radio}`)) {
+            this.data.push({
+              keyword: item,
+              type: this.radio,
+              id: `${item}${this.radio}`
+            });
+          }
+        } else {
+          if (!keywordArr.includes(item)) {
+            this.data.push({
+              keyword: item,
+              type: this.radio,
+              id: `${item}${this.radio}`
+            });
+          }
+        }
       });
     }
   }

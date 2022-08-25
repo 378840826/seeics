@@ -79,7 +79,7 @@
                 prop="address"
                 width="100"
                 label="操作">
-                <template scope="row">
+                <template>
                   <el-button type="text" style="padding: 0">选择</el-button>
                 </template>
             </el-table-column>

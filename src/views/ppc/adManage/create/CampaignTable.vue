@@ -154,7 +154,7 @@ export default {
   methods: {
 
     getField () {
-      const arr = this.tableData.map(item => {
+      const arr = this.selectData.map(item => {
         return {
           sellerSku: item.sellerSku,
           asin: item.asin,
