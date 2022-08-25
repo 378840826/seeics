@@ -1,5 +1,15 @@
 <!-- 广告活动 -->
 <template>
+<div>
+<!-- 工具栏 -->
+<div class="toolbar">
+  <el-button
+    type="primary"
+    @click="createCampaignDialogVisible = true"
+    :size="size"
+  >创建广告活动</el-button>
+</div>
+
 <!-- 表格 -->
 <div class="table-container">
   <el-table
@@ -7,7 +17,7 @@
     :data="tableData"
     v-loading="tableLoading"
     tooltip-effect="dark"
-    height="calc(100vh - 252px)"
+    height="calc(100vh - 296px)"
     empty-text="没有查询到数据，请修改查询条件"
     @selection-change="handleSelectionChange"
     @sort-change="handleSortChange"
@@ -150,6 +160,14 @@
     class="pagination"
   />
 </div>
+
+<!-- 创建广告活动弹窗 -->
+<CreateCampaignDialog
+  :dialogVisible.sync="createCampaignDialogVisible"
+  :mwsStoreId="mwsStoreId"
+/>
+
+</div>
 </template>
 
 <script>
@@ -164,9 +182,14 @@ import {
   getCommonColOption,
   getFormatTotal,
 } from '../../utils/fun';
+import CreateCampaignDialog from '../../create/createCampaignDialog';
 
 export default {
   name: 'Campaign',
+
+  components: {
+    CreateCampaignDialog,
+  },
 
   props: {
     marketplace: {
@@ -174,6 +197,10 @@ export default {
       required: true,
     },
     storeId: {
+      type: String,
+      required: true,
+    },
+    mwsStoreId: {
       type: String,
       required: true,
     },
@@ -202,6 +229,7 @@ export default {
         pageSizes: [20, 50, 100],
       },
       tableSort: { prop: 'createdTime', order: 'descending' },
+      createCampaignDialogVisible: false,
     };
   },
 
