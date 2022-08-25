@@ -132,6 +132,10 @@ export default {
     priceAsin: {
       type: Array,
     },
+    mwsStoreId: {
+      type: String,
+      require: true,
+    },
   },
 
   data() {
@@ -166,7 +170,7 @@ export default {
     queryPriceList() {
       queryPriceList({
         ...this.page,
-        storeId: '1525044033420210177',
+        storeId: this.mwsStoreId,
         keyword: this.search
       }).then(res => {
         if (res.data.code === 200) {

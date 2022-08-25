@@ -5,6 +5,7 @@
     :append-to-body="true"
     :close-on-press-escape="false"
     destroy-on-close
+    @close="close"
     v-loading="loading"
     top="1vh"
     width="1140px">
@@ -100,7 +101,7 @@
       <h3>▌广告活动</h3>
 
       <el-form-item label="广告组名称：" prop="groupRo.name">
-        <el-input v-model="form.groupRo.name" style="width: 80%" size="small"/>
+        <el-input v-model="form.groupRo.name" size="small"/>
       </el-form-item>
       <!-- <div class="label">
         <span>广告组名称：</span>
@@ -117,6 +118,7 @@
       <Table 
         ref="priceTable"
         :priceAsin.sync="priceAsin"
+        :mwsStoreId="mwsStoreId"
         style="marginTop: 20px"/>
 
       <div>
@@ -142,6 +144,7 @@
             ref="tgTable"
             :asinList.sync="priceAsin"
             :targetingMode.sync="form.biddingStrategy"
+            :mwsStoreId="mwsStoreId"
             style="marginTop: 20px"
           />
 
@@ -185,6 +188,7 @@
             ref="keywordTable"
             :asinList.sync="priceAsin"
             :targetingMode.sync="form.biddingStrategy"
+            :mwsStoreId="mwsStoreId"
           />
 
           <deny-keyword
@@ -199,7 +203,8 @@
             v-if="KeywordFlag === '分类/商品'"
             ref="priceCategory"
             :asinList.sync="priceAsin"
-            :targetingMode.sync="form.biddingStrategy"/>
+            :targetingMode.sync="form.biddingStrategy"
+            :mwsStoreId="mwsStoreId"/>
 
           <deny-keyword
             v-if="KeywordFlag === '分类/商品'"
@@ -250,6 +255,10 @@ export default {
       type: String,
       required: true,
     },
+    marketplace: {
+      type: String,
+      required: true,
+    }
   },
   
   data() {
@@ -257,10 +266,37 @@ export default {
       if (!value) {
         return callback(new Error('广告组默认竞价不能为空'));
       }
-      if (value < 0.02) {
-        return callback(new Error('广告组默认竞价必须大于等于0.02'));
-      } else if (value > 1000) {
-        return callback(new Error('广告组默认竞价最大值不超过1000'));
+      if (this.marketplace === 'JP') {
+        if (value < 2) {
+          return callback(new Error('广告组默认竞价必须大于等于2'));
+        } else if (value > 100000) {
+          return callback(new Error('广告组默认竞价最大值不超过100000'));
+        }
+      } else {
+        if (value < 0.02) {
+          return callback(new Error('广告组默认竞价必须大于等于0.02'));
+        } else if (value > 1000) {
+          return callback(new Error('广告组默认竞价最大值不超过1000'));
+        }
+      }
+    };
+
+    const checkBudget = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('广告活动每日预算至少$1'));
+      }
+      if (this.marketplace === 'JP') {
+        if (value < 100) {
+          return callback(new Error('广告活动每日预算至少$1'));
+        } else if (value > 21000000) {
+          return callback(new Error('广告活动每日预算不能超过￥21,000,000'));
+        }
+      } else {
+        if (value < 1) {
+          return callback(new Error('广告活动每日预算至少$1'));
+        } else if (value > 1000000) {
+          return callback(new Error('广告活动每日预算不能超过1000000'));
+        }
       }
     };
 
@@ -277,7 +313,6 @@ export default {
         startDate: '',
         targetingMode: 'auto',
         biddingStrategy: 'legacyForSales',
-        storeId: '1525044033420210177',
         biddingPlacementProductPage: '', //商品页面 百分比
         biddingPlacementTop: '', //搜索结果顶部 百分比
         groupRo: {
@@ -300,8 +335,7 @@ export default {
           { max: 128, message: '最长128个字符', trigger: 'blur' }
         ],
         budget: [
-          { required: true, message: '广告活动每日预算至少$1', trigger: 'blur' },
-          { pattern: /^(?!0{1,6})(\d{1,6}|10{6}|0)$/, message: '广告活动每日预算不能超过1000000', trigger: 'blur' }
+          { validator: checkBudget, trigger: 'blur' },
         ],
         ['groupRo.name']: [
           { required: true, message: '请输入广告组名称', trigger: 'blur' },
@@ -309,7 +343,6 @@ export default {
         ],
         ['groupRo.defaultBid']: [
           { validator: checkDefaultBid, trigger: 'blur' },
-          
         ]
       }
     };  
@@ -338,6 +371,20 @@ export default {
       this.$emit('update:dialogVisible', false);
     },
 
+    empty() {
+      this.form.name = '';
+      this.form.budget = '';
+      this.date = null;
+      this.form.targetingMode = 'auto';
+      this.form.biddingStrategy = 'legacyForSales';
+      this.form.biddingPlacementProductPage = '';
+      this.form.biddingPlacementTop = '';
+      this.state = false;
+      this.groupState = false;
+      this.defaultRadio = '1';
+      this.KeywordFlag = '关键词';
+    },
+
     saveBtn() {
       // this.dialogVisible = false;
       const denyPrice = this.form.targetingMode === 'auto' && this.KeywordFlag === '分类/商品' && this.$refs.denyPrice.getField() || [];
@@ -351,6 +398,7 @@ export default {
         ...this.form,
         campaignType: 'sponsoredProducts',
         state: this.state ? 'enabled' : 'paused',
+        storeId: this.mwsStoreId,
       };
       this.form.groupRo = {
         ...this.form.groupRo,
@@ -371,11 +419,16 @@ export default {
           });
           this.loading = false;
           this.dialogVisible = false;
+          this.empty();
         }
       }).catch(() => {
         this.loading = false;
       });
 
+    },
+
+    close() {
+      this.$emit('update:dialogVisible', false);
     }
   },
 };

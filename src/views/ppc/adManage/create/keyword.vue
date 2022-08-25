@@ -242,7 +242,11 @@ export default {
     },
     targetingMode: {
       type: String,
-    }
+    },
+    mwsStoreId: {
+      type: String,
+      require: true,
+    },
   },
 
   data() {
@@ -310,6 +314,10 @@ export default {
       },
       deep: true
     },
+  },
+
+  mounted() {
+    this.querySuggestKeyword();
   },
 
   methods: {
@@ -385,7 +393,7 @@ export default {
 
     querySuggestKeyword() {
       const params = {
-        storeId: '1525044033420210177',
+        storeId: this.mwsStoreId,
         strategy: this.targetingMode,
         suggestionKeywordMatchType: this.suggestionKeywordMatchType,
         asinList: this.asinList,
@@ -412,6 +420,7 @@ export default {
             suggestedKeyword: item.suggestedKeyword,
             isInput: false,
             keywordBid: '',
+            flag: `${item.suggestedKeyword}${t.matchType}`
           });
         });
         return item;
@@ -436,6 +445,7 @@ export default {
         suggestedKeyword: keyword,
         isInput: false,
         keywordBid: '',
+        flag: `${keyword}${matchType}`
       });
     },
 
@@ -451,6 +461,7 @@ export default {
         delete item.suggestedKeyword;
         delete item.keywordBid;
         delete item.isInput;
+        delete item.flag;
         return item;
       });
 
@@ -544,31 +555,33 @@ export default {
 
     searchKeyword() {
       const params = {
-        storeId: '1525044033420210177',
-        strategy: 'legacyForSales',
+        storeId: this.mwsStoreId,
+        strategy: this.targetingMode,
         suggestionKeywordMatchType: this.suggestionKeywordMatchType,
         asinList: this.asinList,
-        keywordList: this.keywordList
+        keywordList: this.keywordList.filter(Boolean)
       };
-
-      const tableData = [];
-
+      
       manualQueryKeyword(params).then(res => {
         if (res.data.code === 200) {
-          res.data.data.map(item => {
+          this.textarea = '';
+          res.data.data.length && res.data.data.map(item => {
             item.matchTypeSuggestedBids.forEach(t => {
-              tableData.push({
-                ...t,
-                suggestedKeyword: item.suggestedKeyword,
-                isInput: false,
-                keywordBid: '',
-              });
+              const arr = this.tableData.length && this.tableData.map(item => item.flag) || [];
+              if (!arr.includes(`${item.suggestedKeyword}${t.matchType}`)) {
+                this.tableData.push({
+                  ...t,
+                  suggestedKeyword: item.suggestedKeyword,
+                  isInput: false,
+                  keywordBid: '',
+                  flag: `${item.suggestedKeyword}${t.matchType}`
+                });
+              }
             });
           });
         }
       });
 
-      this.tableData = tableData;
     }
 
   }

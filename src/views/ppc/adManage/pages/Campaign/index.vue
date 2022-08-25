@@ -165,6 +165,7 @@
 <CreateCampaignDialog
   :dialogVisible.sync="createCampaignDialogVisible"
   :mwsStoreId="mwsStoreId"
+  :marketplace="marketplace"
 />
 
 </div>
