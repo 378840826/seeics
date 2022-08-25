@@ -11,6 +11,11 @@
         background-color: #fafafa;
       }
     }
+
+    // 解决横向滚动条在固定列时无法拖动的问题
+    .el-table__body-wrapper {
+      z-index: 2;
+    }
   }
 }
 
@@ -27,4 +32,21 @@
 // 归档
 .archived {
   color: $disabledColor;
+}
+
+// 表格中的日期
+.td_date_time {
+  word-break: break-word;
+}
+
+// 表头日期 tip 图标
+.icon-time_info {
+  color: $warningColor;
+}
+
+// 分页器
+.pagination {
+  position: relative;
+  padding: 20px 0 20px 20px;
+  text-align: right;
 }

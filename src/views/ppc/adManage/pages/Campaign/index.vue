@@ -246,7 +246,7 @@ export default {
         this.tablePageOption.currentPage = res.data.data.page.current;
         this.tablePageOption.pageSize = res.data.data.page.size;
         // 合计数据格式化
-        this.tableTotalData = getFormatTotal(res.data.data.total);
+        this.tableTotalData = getFormatTotal(res.data.data.total, this.currency);
       }).finally(() => {
         this.tableLoading = false;
       });
@@ -293,20 +293,4 @@ export default {
 
 <style scoped lang="scss">
   @import "../common.scss";
-</style>
-
-<style scoped lang="scss">
-.td_date_time {
-  word-break: break-word;
-}
-
-.icon-time_info {
-  color: $warningColor; 
-}
-
-.pagination {
-  position: relative;
-  padding: 20px 0 20px 20px;
-  text-align: right;
-}
 </style>

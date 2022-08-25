@@ -222,7 +222,7 @@ export default {
         this.tablePageOption.currentPage = res.data.data.page.current;
         this.tablePageOption.pageSize = res.data.data.page.size;
         // 合计数据格式化
-        this.tableTotalData = getFormatTotal(res.data.data.total);
+        this.tableTotalData = getFormatTotal(res.data.data.total, this.currency);
         // 获取建议竞价
         this.suggestedBidLoading = true;
         const params = {
@@ -298,36 +298,6 @@ export default {
 </style>
 
 <style scoped lang="scss">
-.td_date_time {
-  word-break: break-word;
-}
-
-.icon-time_info {
-  color: $warningColor; 
-}
-
-.pagination {
-  position: relative;
-  padding: 20px 0 20px 20px;
-  text-align: right;
-}
-
-.delivery {
-  color: $successColor;
-}
-
-.qualificationMessage {
-  color: $danger;
-  width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.popper-qualificationMessage {
-  width: 300px;
-}
-
 .btn-apply_suggested_bid {
   padding: 4px 8px;
 }

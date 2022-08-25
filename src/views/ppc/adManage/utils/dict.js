@@ -18,12 +18,13 @@ export const allTabs = {
   group: { label: '广告组', name: 'group', countKey: 'groupCount', tabPane: 'Group' },
   ad: { label: '广告', name: 'ad', countKey: 'adCount', tabPane: 'Ad' },
   keyword: { label: '关键词', name: 'keyword', countKey: 'keywordCount', tabPane: 'Keyword' },
+  targeting: { label: '分类/商品投放', name: 'targeting', countKey: 'targetCount', tabPane: 'Targeting' },
 };
 
 // 右侧标签页的三个状态，根据当前选中的广告树节点来区分
 export const tabsStateDict = {
-  default: ['campaign', 'group', 'ad', 'keyword'],
-  campaign: ['group', 'ad', 'keyword'],
+  default: ['campaign', 'group', 'ad', 'keyword', 'targeting'],
+  campaign: ['group', 'ad', 'keyword', 'targeting'],
   group: ['ad', 'keyword'],
 };
 

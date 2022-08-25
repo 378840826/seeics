@@ -105,3 +105,23 @@ export const queryKwSuggestedBid = (data) => {
     data,
   });
 };
+
+// Targeting
+// Targeting-列表
+export const queryTargetingList = (params, data) => {
+  return request({
+    url: '/api/seeics-ad/targeting/page',
+    method: 'post',
+    params,
+    data,
+  });
+};
+
+// Targeting-获取建议竞价
+export const queryTargetingSuggestedBid = (data) => {
+  return request({
+    url: '/api/seeics-ad/targeting/bid-recommendation',
+    method: 'post',
+    data,
+  });
+};

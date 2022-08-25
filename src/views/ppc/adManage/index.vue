@@ -1,13 +1,13 @@
 <!-- 广告管理 -->
 <template>
   <basic-container>
-    <el-container>
+    <el-container v-loading="pageLoading">
       <!-- 左侧菜单 -->
       <el-aside class="left-aside">
         <div class="store_time-container">
           <!-- 店铺和时间 -->
           <el-cascader
-            :value="[currentStore.marketplace, currentStore.adStoreId]"
+            :value="[currentStore.storeName, currentStore.adStoreId]"
             :options="$store.state.shop.adCascader"
             :props="{ expandTrigger: 'hover' }"
             @change="handleStoreChange"
@@ -102,7 +102,7 @@
 
 <script>
 import {
-  queryPortfolioList,
+  // queryPortfolioList,
   addPortfolio,
   updatePortfolio,
   queryTabsCellCount,
@@ -116,6 +116,7 @@ import Campaign from './pages/Campaign';
 import Group from './pages/Group';
 import Ad from './pages/Ad';
 import Keyword from './pages/Keyword';
+import Targeting from './pages/Targeting';
 
 export default{
   name: 'adManage',
@@ -127,6 +128,7 @@ export default{
     Group,
     Ad,
     Keyword,
+    Targeting,
   },
 
   data() {
@@ -188,10 +190,12 @@ export default{
           adStoreId: this.$store.state.shop.list[0].adStoreId,
           currency: this.$store.state.shop.list[0].currency,
           time: getMarketplaceTime(this.$store.state.shop.list[0].timezone),
+          storeName: this.$store.state.shop.list[0].storeName,
         };
         _this.pageLoading = false;
         this.getPortfolioList();
         this.getTabsCellCount();
+        log('store', this.$store.state.shop);
       });
     },
 
@@ -220,20 +224,22 @@ export default{
         return;
       }
       // 从店铺列表中找到
-      const storeInfo = this.$store.state.shop.marketplaceObj[newStore[0]].find(s => s.adStoreId === newStore[1]);
+      const storeInfo = this.$store.state.shop.storeNameObj[newStore[0]].find(s => s.adStoreId === newStore[1]);
       log('切换店铺', newStore, storeInfo);
       this.currentStore = {
         marketplace: storeInfo.marketplace,
         adStoreId: storeInfo.adStoreId,
         currency: storeInfo.currency,
+        time: getMarketplaceTime(storeInfo.timezone),
+        storeName: storeInfo.storeName,
       };
     },
 
     // 广告组合-获取列表
     getPortfolioList() {
-      queryPortfolioList({ storeId: this.currentStore.adStoreId }).then(res => {
-        this.portfolioList = res.data.data;
-      });
+      // queryPortfolioList({ storeId: this.currentStore.adStoreId }).then(res => {
+      //   this.portfolioList = res.data.data;
+      // });
     },
 
     // 广告组合-点击选中
