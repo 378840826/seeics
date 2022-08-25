@@ -84,6 +84,7 @@
               :marketplace="currentStore.marketplace"
               :currency="currentStore.currency"
               :storeId="currentStore.adStoreId"
+              :mwsStoreId="currentStore.mwsStoreId"
             />
           </el-tab-pane>
         </el-tabs>
@@ -188,6 +189,7 @@ export default{
         this.currentStore = {
           marketplace: this.$store.state.shop.list[0].marketplace,
           adStoreId: this.$store.state.shop.list[0].adStoreId,
+          mwsStoreId: this.$store.state.shop.list[0].id,
           currency: this.$store.state.shop.list[0].currency,
           time: getMarketplaceTime(this.$store.state.shop.list[0].timezone),
           storeName: this.$store.state.shop.list[0].storeName,

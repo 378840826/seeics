@@ -214,7 +214,7 @@
     </div>
     </el-form>
     <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button @click="cancel">取 消</el-button>
         <el-button type="primary" @click="saveBtn">确 定</el-button>
     </span>
     </el-dialog>
@@ -240,6 +240,17 @@ export default {
     Keyword,
     PriceCategory
   },
+
+  props: {
+    dialogVisible: {
+      type: Boolean,
+      required: true,
+    },
+    mwsStoreId: {
+      type: String,
+      required: true,
+    },
+  },
   
   data() {
     const checkDefaultBid = (rule, value, callback) => {
@@ -255,7 +266,7 @@ export default {
 
     return {
       loading: false,
-      dialogVisible: true,
+      // dialogVisible: true,
       KeywordFlag: '关键词',
       priceAsin: [],
       date: null,
@@ -323,6 +334,9 @@ export default {
   },
 
   methods: {
+    cancel() {
+      this.$emit('update:dialogVisible', false);
+    },
 
     saveBtn() {
       // this.dialogVisible = false;
