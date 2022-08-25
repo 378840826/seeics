@@ -162,6 +162,7 @@ import {
   getValueLocaleString,
   formatTableSortParams,
   getCommonColOption,
+  getFormatTotal,
 } from '../../utils/fun';
 
 export default {
@@ -245,22 +246,7 @@ export default {
         this.tablePageOption.currentPage = res.data.data.page.current;
         this.tablePageOption.pageSize = res.data.data.page.size;
         // 合计数据格式化
-        const {
-          sales, orderNum, impressions, clicks, spend, acos, roas, ctr, cpc, cpa, conversionsRate,
-        } = res.data.data.total;
-        this.tableTotalData = {
-          sales: getValueLocaleString({ value: sales, isFraction: true, prefix: this.currency }),
-          orderNum: getValueLocaleString({ value: orderNum }),
-          impressions: getValueLocaleString({ value: impressions }),
-          clicks: getValueLocaleString({ value: clicks }),
-          spend: getValueLocaleString({ value: spend, isFraction: true, prefix: this.currency }),
-          acos: getValueLocaleString({ value: acos, isFraction: true, suffix: '%' }),
-          roas: getValueLocaleString({ value: roas, isFraction: true, }),
-          ctr: getValueLocaleString({ value: ctr, isFraction: true, suffix: '%' }),
-          cpc: getValueLocaleString({ value: cpc, isFraction: true, prefix: this.currency }),
-          cpa: getValueLocaleString({ value: cpa, isFraction: true, prefix: this.currency }),
-          conversionsRate: getValueLocaleString({ value: conversionsRate, isFraction: true, suffix: '%' }),
-        };
+        this.tableTotalData = getFormatTotal(res.data.data.total, this.currency);
       }).finally(() => {
         this.tableLoading = false;
       });
@@ -307,20 +293,4 @@ export default {
 
 <style scoped lang="scss">
   @import "../common.scss";
-</style>
-
-<style scoped lang="scss">
-.td_date_time {
-  word-break: break-word;
-}
-
-.icon-time_info {
-  color: $warningColor; 
-}
-
-.pagination {
-  position: relative;
-  padding: 20px 0 20px 20px;
-  text-align: right;
-}
 </style>

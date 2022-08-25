@@ -170,6 +170,23 @@ export function getCommonColOption(currency) {
   ];
 }
 
+// 获取合计数据
+export function getFormatTotal(total, currency) {
+  return {
+    sales: getValueLocaleString({ value: total.sales, isFraction: true, prefix: currency }),
+    orderNum: getValueLocaleString({ value: total.orderNum }),
+    impressions: getValueLocaleString({ value: total.impressions }),
+    clicks: getValueLocaleString({ value: total.clicks }),
+    spend: getValueLocaleString({ value: total.spend, isFraction: true, prefix: currency }),
+    acos: getValueLocaleString({ value: total.acos, isFraction: true, suffix: '%' }),
+    roas: getValueLocaleString({ value: total.roas, isFraction: true, }),
+    ctr: getValueLocaleString({ value: total.ctr, isFraction: true, suffix: '%' }),
+    cpc: getValueLocaleString({ value: total.cpc, isFraction: true, prefix: currency }),
+    cpa: getValueLocaleString({ value: total.cpa, isFraction: true, prefix: currency }),
+    conversionsRate: getValueLocaleString({ value: total.conversionsRate, isFraction: true, suffix: '%' }),
+  };
+}
+
 // el-table 的排序参数转换为后端接口所需的格式
 export function formatTableSortParams(elSortParams) {
   const { prop, order } = elSortParams;

@@ -1,13 +1,13 @@
 <!-- 广告管理 -->
 <template>
   <basic-container>
-    <el-container>
+    <el-container v-loading="pageLoading">
       <!-- 左侧菜单 -->
       <el-aside class="left-aside">
         <div class="store_time-container">
           <!-- 店铺和时间 -->
           <el-cascader
-            :value="[currentStore.marketplace, currentStore.adStoreId]"
+            :value="[currentStore.storeName, currentStore.adStoreId]"
             :options="$store.state.shop.adCascader"
             :props="{ expandTrigger: 'hover' }"
             @change="handleStoreChange"
@@ -67,7 +67,7 @@
             <span slot="label">
               {{ allTabs[item].label }}
               <span class="tabs-cell-count">
-                <template v-if="tabsCellCount[allTabs[item].countKey] === undefined">
+                <template v-if="tabsCellCount[allTabs[item].countKey] === undefined || tabsCellCountLoading">
                   (...)
                 </template>
                 <template v-else>
@@ -103,7 +103,7 @@
 
 <script>
 import {
-  queryPortfolioList,
+  // queryPortfolioList,
   addPortfolio,
   updatePortfolio,
   queryTabsCellCount,
@@ -116,6 +116,8 @@ import { stateIconDict, tabsStateDict, allTabs } from './utils/dict';
 import Campaign from './pages/Campaign';
 import Group from './pages/Group';
 import Ad from './pages/Ad';
+import Keyword from './pages/Keyword';
+import Targeting from './pages/Targeting';
 
 export default{
   name: 'adManage',
@@ -126,6 +128,8 @@ export default{
     Campaign,
     Group,
     Ad,
+    Keyword,
+    Targeting,
   },
 
   data() {
@@ -152,14 +156,13 @@ export default{
       // 右侧标签页
       tabsActive: 'campaign',
       tabsCellCount: {},
+      tabsCellCountLoading: false,
       mainPage: '',
     };
   },
 
   created() {
     this.getShopList();
-    this.getPortfolioList();
-    this.getTabsCellCount();
   },
 
   computed: {
@@ -188,25 +191,29 @@ export default{
           adStoreId: this.$store.state.shop.list[0].adStoreId,
           currency: this.$store.state.shop.list[0].currency,
           time: getMarketplaceTime(this.$store.state.shop.list[0].timezone),
+          storeName: this.$store.state.shop.list[0].storeName,
         };
         _this.pageLoading = false;
+        this.getPortfolioList();
+        this.getTabsCellCount();
+        log('store', this.$store.state.shop);
       });
     },
 
     // 获取标签页数量
     getTabsCellCount() {
-      if (!this.currentStore.adStoreId) {
-        return;
-      }
+      this.tabsCellCountLoading = true;
       const selectedTreeInfo = parseTreeKey(this.treeSelectedKey);
       const params = {
-        storeId: this.currentStore.adStoreId,
+        adStoreId: this.currentStore.adStoreId,
         campaignId: selectedTreeInfo.camId,
         groupId: selectedTreeInfo.groupId,
       };
       queryTabsCellCount(params).then(res => {
         // log('请求标签页数量res', res.data.data);
         this.tabsCellCount = res.data.data;
+      }).finally(() => {
+        this.tabsCellCountLoading = false;
       });
     },
 
@@ -218,20 +225,22 @@ export default{
         return;
       }
       // 从店铺列表中找到
-      const storeInfo = this.$store.state.shop.marketplaceObj[newStore[0]].find(s => s.adStoreId === newStore[1]);
+      const storeInfo = this.$store.state.shop.storeNameObj[newStore[0]].find(s => s.adStoreId === newStore[1]);
       log('切换店铺', newStore, storeInfo);
       this.currentStore = {
         marketplace: storeInfo.marketplace,
         adStoreId: storeInfo.adStoreId,
         currency: storeInfo.currency,
+        time: getMarketplaceTime(storeInfo.timezone),
+        storeName: storeInfo.storeName,
       };
     },
 
     // 广告组合-获取列表
     getPortfolioList() {
-      queryPortfolioList({ storeId: this.currentStore.adStoreId }).then(res => {
-        this.portfolioList = res.data.data;
-      });
+      // queryPortfolioList({ storeId: this.currentStore.adStoreId }).then(res => {
+      //   this.portfolioList = res.data.data;
+      // });
     },
 
     // 广告组合-点击选中
@@ -311,12 +320,14 @@ export default{
   },
 
   watch: {
-    currentStore() {
-      // 请求广告组合
-      this.getPortfolioList();
-      // 请求标签页数量
-      this.getTabsCellCount();
-      
+    currentStore(_, old) {
+      // 非初始化时才需要
+      if (old.adStoreId) {
+        // 请求广告组合
+        this.getPortfolioList();
+        // 请求标签页数量
+        this.getTabsCellCount();
+      }
     },
   },
 };

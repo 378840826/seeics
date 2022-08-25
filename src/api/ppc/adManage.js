@@ -4,7 +4,7 @@ import request from '@/router/axios';
 // 各标签页的数量
 export const queryTabsCellCount = params => {
   return request({
-    url: '/api/seeics-ad/management/campaign/child-count',
+    url: '/api/seeics-ad/campaign/all_count',
     params,
   });
 };
@@ -75,6 +75,59 @@ export const queryGroupList = (params, data) => {
   });
 };
 
+// 广告
+// 广告-列表
+export const queryAdList = (params, data) => {
+  return request({
+    url: '/api/seeics-ad/product/page',
+    method: 'post',
+    params,
+    data,
+  });
+};
+
+// 关键词
+// 关键词-列表
+export const queryKwList = (params, data) => {
+  return request({
+    url: '/api/seeics-ad/keyword/page',
+    method: 'post',
+    params,
+    data,
+  });
+};
+
+// 关键词-获取建议竞价
+export const queryKwSuggestedBid = (data) => {
+  return request({
+    url: '/api/seeics-ad/keyword/bid-recommendation',
+    method: 'post',
+    data,
+  });
+};
+
+// Targeting
+// Targeting-列表
+export const queryTargetingList = (params, data) => {
+  return request({
+    url: '/api/seeics-ad/targeting/page',
+    method: 'post',
+    params,
+    data,
+  });
+};
+
+// Targeting-获取建议竞价
+export const queryTargetingSuggestedBid = (data) => {
+  return request({
+    url: '/api/seeics-ad/targeting/bid-recommendation',
+    method: 'post',
+    data,
+  });
+};
+
+
+// 创建广告活动--------------------
 //创建广告活动商品信息列表
 export const queryPriceList = params => {
   return request({
@@ -135,3 +188,4 @@ export const createAdManage = params => {
     data: params,
   });
 };
+// --------------------创建广告活动

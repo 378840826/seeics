@@ -1,4 +1,4 @@
-<!-- 广告 -->
+<!-- Targeting（分类/商品投放） -->
 <template>
 <!-- 表格 -->
 <div class="table-container">
@@ -22,26 +22,43 @@
       <span slot-scope="{row}" :class="row.state">{{ stateNameDict[row.state]}}</span>
     </el-table-column>
 
-    <el-table-column prop="qualification" label="投放资格" width="130" fixed>
-      <template slot-scope="{row}">
-        <div :class="row.qualification">{{ row.qualification }}</div>
-        <el-tooltip v-if="row.qualificationMessage" effect="dark" placement="top">
-          <div slot="content" class="popper-qualification_message">{{ row.qualificationMessage }}</div>
-          <div>
-            <div slot="reference" class="qualification_message">{{ row.qualificationMessage }}</div>
-          </div>
-        </el-tooltip>
-      </template>
-    </el-table-column>
+    <el-table-column prop="targeting" label="Targeting" width="200" sortable="custom" fixed />
 
-    <el-table-column prop="name" label="广告" width="200" sortable="custom"  fixed>
-    </el-table-column>
+    <el-table-column prop="matchType" label="匹配方式" width="80" />
 
     <el-table-column prop="campaignName" label="广告活动" width="200">
       <span slot-scope="{row}" class="campaignName">{{ row.campaignName }}</span>
     </el-table-column>
 
     <el-table-column prop="groupName" label="广告组" width="200">
+    </el-table-column>
+
+    <el-table-column prop="suggestedBid" label="建议竞价" width="150">
+      <template slot-scope="{row}">
+        <span v-if="suggestedBidLoading">正在加载...</span>
+        <div v-else-if="row.suggestedBid" class="suggested_bid">
+          <div>
+            {{ row.suggestedBid.suggested }}
+            <el-button
+              @click="handleApplySuggestedBid(row)"
+              :size="size"
+              class="btn-apply_suggested_bid"
+            >应用</el-button>
+            </div>
+          <div>
+            ({{ getValueLocaleString({ value: row.suggestedBid.rangeStart, isFraction: true, prefix: currency }) }}
+            -
+            {{ getValueLocaleString({ value: row.suggestedBid.rangeEnd, isFraction: true, prefix: currency }) }})
+          </div>
+        </div>
+        <span v-else>—</span>
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="bid" label="竞价" width="80">
+      <span slot-scope="{row}">
+        {{ getValueLocaleString({ value: row.bid, isFraction: true, prefix: currency }) }}
+      </span>
     </el-table-column>
 
     <el-table-column prop="addTime" label="添加时间" width="110" sortable="custom" >
@@ -97,7 +114,8 @@
 
 <script>
 import {
-  queryAdList,
+  queryTargetingList,
+  queryTargetingSuggestedBid,
 } from '@/api/ppc/adManage';
 import { stateNameDict } from '../../utils/dict';
 import { log } from '@/util/util';
@@ -110,7 +128,7 @@ import {
 } from '../../utils/fun';
 
 export default {
-  name: 'Ad',
+  name: 'Keyword',
 
   props: {
     marketplace: {
@@ -147,6 +165,7 @@ export default {
         pageSizes: [20, 50, 100],
       },
       tableSort: { prop: 'addTime', order: 'descending' },
+      suggestedBidLoading: false,
     };
   },
 
@@ -185,20 +204,39 @@ export default {
         ...query,
       };
       const bodyParams = {
-        storeId: this.storeId,
+        adStoreId: this.storeId,
         marketplace: this.marketplace,
         portfolioId: this.portfolioId,
         campaignId: this.campaignId,
         ...body,
       };
-      queryAdList(queryParams, bodyParams).then(res => {
-        log('获取广告列表成功', queryParams, bodyParams);
+      queryTargetingList(queryParams, bodyParams).then(res => {
+        log('获取Targeting列表成功', queryParams, bodyParams);
         this.tableData = res.data.data.page.records;
         this.tablePageOption.total = res.data.data.page.total;
         this.tablePageOption.currentPage = res.data.data.page.current;
         this.tablePageOption.pageSize = res.data.data.page.size;
         // 合计数据格式化
         this.tableTotalData = getFormatTotal(res.data.data.total, this.currency);
+        // 获取建议竞价
+        this.suggestedBidLoading = true;
+        const params = {
+          adStoreId: this.storeId,
+          ids: res.data.data.page.records.map(tg => tg.id),
+        };
+        queryTargetingSuggestedBid(params).then(suggestedBidRes => {
+          const suggestedBidRecords = suggestedBidRes.data.data.records;
+          // 更新列表
+          const tableData = this.tableData.map(kw => {
+            return {
+              ...kw,
+              suggestedBid: suggestedBidRecords.find(item => item.id === kw.id && item.suggested),
+            };
+          });
+          this.tableData = tableData;
+        }).finally(() => {
+          this.suggestedBidLoading = false;
+        });
       }).finally(() => {
         this.tableLoading = false;
       });
@@ -224,6 +262,11 @@ export default {
       return sums;
     },
 
+    // 点击应用建议竞价
+    handleApplySuggestedBid(row) {
+      log('点击应用建议竞价', row);
+    },
+
     // 点击分析
     handleCharts(row) {
       log('分析', row);
@@ -243,15 +286,7 @@ export default {
 </style>
 
 <style scoped lang="scss">
-.qualification_message {
-  color: $danger;
-  width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.popper-qualification_message {
-  width: 300px;
+.btn-apply_suggested_bid {
+  padding: 4px 8px;
 }
 </style>

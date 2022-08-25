@@ -16,7 +16,7 @@ export default ({ mock }) => {
   }
 
   // 标签页数量
-  Mock.mock(RegExp('/api/seeics-ad/management/campaign/child-count' + '.*?'), 'get', () => {
+  Mock.mock(RegExp('/api/seeics-ad/campaign/all_count' + '.*?'), 'get', () => {
     return {
       data: {
         campaignCount: Random.integer(1, 200),
