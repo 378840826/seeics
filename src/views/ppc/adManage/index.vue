@@ -97,6 +97,7 @@
       @cancel="portfolioEdit.visible = false"
       @save="handleSavePortfolioEdit"
     />
+    
   </basic-container>
 </template>
 
