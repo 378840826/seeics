@@ -280,6 +280,20 @@
     <el-button type="primary" @click="refeshList">确 定</el-button>
     </span>
   </el-dialog>
+
+    <el-dialog
+      title="付费会员专属"
+      :visible.sync="memberVisible"
+      width="30%"
+      center=true
+      append-to-body=true
+    >
+      <span>点击【取消】返回当前页，点击【升级会员】，跳转到我的会员页面</span>
+      <span slot="footer" class="dialog-footer">
+      <el-button @click="memberVisible = false">取 消</el-button>
+      <el-button type="primary" @click="$router.push('/member/index')">升级会员</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -431,6 +445,7 @@ export default {
       },
 
       // 筛选 批量导出导入参数
+      memberVisible: false, //跳转会员
       msg: false,
       isFiletBtn: false,
       isrefresh: true,
@@ -894,8 +909,22 @@ export default {
     },
 
     submit() {
-      batchAnalyze(this.formInline.searchCountry, this.formData).then(() => {
-        this.getkeywordLists();
+      batchAnalyze(this.formInline.searchCountry, this.formData).then(res => {
+        if (res.data.msg === '付费会员专属') {
+          this.memberVisible = true;
+        } else if (res.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: '批量导入成功'
+          });
+          this.getkeywordLists();
+        } else if (res.data.msg === '导入模板有误，请选择有效模板') {
+          this.$message({
+            type: 'error',
+            message: res.data.msg,
+          });
+        }
+        this.$refs.popover.doClose();
       });
     },
 

@@ -91,7 +91,7 @@ export default {
   watch: {
     error: {
       handler(val) {
-        this.$emit('update:msg', val)
+        this.$emit('update:msg', val);
       },
       deep: true,
     }
