@@ -154,7 +154,8 @@
         <el-table-column
           label="操作"
           width="230"
-          align="center">
+          align="center"
+          fixed="right">
            <template slot-scope="scope">
            <div
             v-if="scope.row.status === 'COMPLETED' && scope.row.crawlingProgress === '1.00'" class="derivedresultbtn"

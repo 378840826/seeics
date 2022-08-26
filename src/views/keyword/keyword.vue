@@ -2,7 +2,7 @@
   <div>
   <third-register></third-register>
   <el-card>
-      <el-form :inline="true" :model="formInline" class="demo-form-inline">
+      <el-form :inline="true" size="small" :model="formInline" class="demo-form-inline">
         <el-form-item>
           <el-select v-model="formInline.searchCountry" @change="selectState">
             <el-option label="美国" value="US"></el-option>
@@ -17,57 +17,123 @@
           </el-select>
         </el-form-item>
         <el-form-item  class="inputclass">
-          <el-input v-model="formInline.searchKeyword" placeholder="请输入需要分析的关键词"
+          <el-input v-model="formInline.searchKeyword" size="small" placeholder="请输入需要分析的关键词"
           ></el-input>
         </el-form-item>       
         <el-form-item>
-          <el-button type="primary" @click="analysiskeywords()">分析</el-button>
+          <el-button type="primary" size="small" @click="analysiskeywords()">分析</el-button>
         </el-form-item>
         <el-form-item label="亚马逊搜索结果前: ">
-          <el-select v-model="formInline.searchTopPage" class="pageselectclass">
+          <el-select v-model="formInline.searchTopPage" size="small" class="pageselectclass">
             <el-option label="2" value="2"></el-option>
             <el-option label="4" value=4 ></el-option>
             <el-option label="6" value=6 ></el-option>
             <el-option label="8" value=8 ></el-option>
             <el-option label="10" value=10 ></el-option>
           </el-select>
+          
         </el-form-item>
-        <span class="formspan">页</span>
-        <el-button class="download" @click="download">下载可视化模板</el-button>
-        <el-popover
-          placement="bottom"
-          width="100"
-          trigger="click"
-          @click.stop="isShowWhole = false"
-          @show="globalCheckAll = globalChecked.length ===  4 ? true : false"
-          v-model="popoverVisible">
-          <p>分词：
-            <el-checkbox
-              v-model="globalCheckAll" 
-              @change="globalHandleCheckAllChange">全选</el-checkbox>
-          </p>
-          <el-checkbox-group v-model="globalChecked" @change="globalHandleCheckedCitiesChange">
-            <el-checkbox v-for="item in keywordNums" :label="item.value" :key="item.label">{{item.label}}</el-checkbox>
-          </el-checkbox-group>
-          <div style="text-align: center;">
-            <el-button size="mini" type="primary" @click="overallBtn" style="height: 24px; margin: 10px; fontSize: 10px; padding: 3px 4px 3px 4px;" :disabled="globalChecked.length ? false : true">全局应用</el-button>
-            <el-button size="mini" @click="popoverVisible = false"  style="height: 24px; margin: 0; fontSize: 10px; padding: 3px 4px 3px 4px;">取消</el-button>
-          </div>
-          <el-button type="text" slot="reference">词频选项</el-button>
-        </el-popover>
-        <label style="width: 0px; height: 30px">
-          <span class="selectFile">批量分析</span>
-          <input
-            type="file"
-            accept="xlsx"
-            @change="importChange"
-            id="file"
-            
-            style="visibility: hidden; width: 1px"
+
+        <el-form-item>
+          <span>页</span>
+          <el-button class="download" size="small" @click="download">下载可视化模板</el-button>
+        </el-form-item>
+        
+        <el-form-item>
+          <el-date-picker
+            v-model="date"
+            size="small"
+            type="daterange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            align="right">
+          </el-date-picker>
+        </el-form-item>
+ 
+        <el-form-item>
+          <range-input
+            label="综合评分："
+            :valueFilter="valueFilter"
+            v-model="score" 
           />
-        </label>
+        </el-form-item>
+       
+        <el-form-item>
+
+          <el-popover
+            placement="bottom"
+            width="100"
+            trigger="click"
+            @click.stop="isShowWhole = false"
+            @show="globalCheckAll = globalChecked.length ===  4 ? true : false"
+            v-model="popoverVisible">
+            <p>分词：
+              <el-checkbox
+                v-model="globalCheckAll" 
+                @change="globalHandleCheckAllChange">全选</el-checkbox>
+            </p>
+            <el-checkbox-group v-model="globalChecked" @change="globalHandleCheckedCitiesChange">
+              <el-checkbox v-for="item in keywordNums" :label="item.value" :key="item.label">{{item.label}}</el-checkbox>
+            </el-checkbox-group>
+            <div style="text-align: center;">
+              <el-button size="mini" type="primary" 
+                @click="overallBtn" style="height: 24px; margin: 10px; fontSize: 10px; padding: 3px 4px 3px 4px;" 
+                :disabled="globalChecked.length ? false : true">全局应用</el-button>
+              <el-button size="mini" @click="popoverVisible = false"
+                style="height: 24px; margin: 0; fontSize: 10px; padding: 3px 4px 3px 4px;">取消</el-button>
+            </div>
+            <el-button type="text" slot="reference">词频选项</el-button>
+          </el-popover>
+
+            <el-popover
+            :ref="'popover'"
+            placement="bottom"
+            title="导入关键词"
+            width="300"
+            :visible-arrow= "false"
+            @click.stop="isShowWhole = false"
+            trigger="click"
+            >
+            <div class="importLy">
+              <span>选择文件：</span>
+              <div>
+                <label style="width: 0px; height: 30px">
+                  <span class="selectFile">+选择文件</span>
+                  <input
+                    type="file"
+                    accept="xlsx"
+                    @change="batchImport"
+                    id="batchFile"
+                    v-if="isrefresh"
+                    style="visibility: hidden; width: 1px"
+                  />
+                </label>
+                <a @click="batchDownload">下载模板</a>
+                <div slot="tip" class="el-upload__tip">{{fileName ? fileName : '未选择文件'}}</div>
+              </div>
+            </div>
+            <div class="submitBtn">
+              <el-button size="mini" type="text" @click="$refs.popover.doClose()">取消</el-button>
+              <el-button type="primary" size="mini" @click="submit" :disabled="fileName ? false : true">确定</el-button>
+            </div>
+            <el-button type="primary" size="small" slot="reference" @click="visible = !visible">导入关键词</el-button>
+          </el-popover>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button type="primary" size="small" @click="batchExport" :disabled="!batchParams.length">批量导出综合评分</el-button>
+        </el-form-item>
+
+        <el-form-item>
+           <el-button type="primary" size="small" @click="handleFilter">搜索</el-button>
+        </el-form-item>
+        
       </el-form>
       <!-- <div class="warningtext">今日还剩{{restnum}}次免费搜索机会</div> -->
+
+      
       <div class="avuecrudclass">
       <avue-crud 
         :data="data" 
@@ -78,6 +144,7 @@
         @current-change="currentChange"
         @sort-change="sortChange"
         @on-load="getkeywordLists"
+        @selection-change="selectionChange"
         >
         <template slot="name" slot-scope="scope" >
           <div>{{scope}}</div>
@@ -218,10 +285,18 @@ import {
   analyzeDownload,
   overallOption,
   getGlobalOption,
-  batchAnalyze } from '@/api/keyword/keyword';
+  batchAnalyze,
+  batchDownload,
+  batchExport } from '@/api/keyword/keyword';
 import { downloadFile, setPageSetup, getPageSetup } from '@/util/util';
+import RangeInput from '@/components/range-input';
+import dayjs from 'dayjs';
 
 export default {
+
+  components: {
+    RangeInput
+  },
  
   data() {
     return {
@@ -294,6 +369,8 @@ export default {
         align: 'center',
         menuAlign: 'left',
         rowKey: 'id',
+        selection: true,
+        tip: false,
         column: [
           {
             label: '更新时间',
@@ -314,7 +391,7 @@ export default {
             slot: true,            
           },
           {
-            label: '分数',
+            label: '综合评分',
             prop: 'aggregateScore',
             width: 90
           },
@@ -322,9 +399,118 @@ export default {
             label: '操作',
             prop: 'menu',
             align: 'left',
+            fixed: 'right',
             width: 230,
           },
         ]
+      },
+
+      // 筛选 批量导出导入参数
+      isrefresh: true,
+      reFormData: null,
+      fileName: '',
+      score: { min: '', max: '' },
+      batchParams: [],
+      date: '',
+      dataValue: {
+        startingTime: '',
+        endTime: ''
+      },
+      pickerOptions: {
+        shortcuts: [{
+          text: '本周',
+          onClick(picker) {
+            const end = dayjs().endOf('week').format();
+            const start = dayjs().startOf('week').format();
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '本月',
+          onClick(picker) {
+            const end = dayjs().endOf('months').format();
+            const start = dayjs().startOf('months').format();
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '上周',
+          onClick(picker) {
+            const end = dayjs().add(-1, 'week').endOf('week').format();
+            const start = dayjs().add(-1, 'week').startOf('week').format();
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '上月',
+          onClick(picker) {
+            const end = dayjs().add(-1, 'months').endOf('months').format();
+            const start = dayjs().add(-1, 'months').startOf('months').format();
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近7天',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近30天',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近60天',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 60);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近90天',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近180天',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 180);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近365天',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 365);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '今年',
+          onClick(picker) {
+            const end = dayjs().endOf('year').format();
+            const start = dayjs().startOf('year').format();
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '上年',
+          onClick(picker) {
+            const end = dayjs().add(-1, 'year').endOf('year').format();
+            const start = dayjs().add(-1, 'year').startOf('year').format();
+            picker.$emit('pick', [start, end]);
+          }
+        }],
+        disabledDate: (item) => {
+          return item.getTime() > Date.now(); //当日前禁用判断语句 item.getTime() < Date.now() - 8.64e7
+        }
       },
     };
   },
@@ -453,7 +639,18 @@ export default {
     },
     //获取表格数据
     getkeywordLists(){
-      getkeywordList(this.page.currentPage, this.page.pageSize, this.formInline.searchCountry).then(res => {
+      const params = {
+        current: this.page.currentPage,
+        size: this.page.pageSize,
+        searchCountry: this.formInline.searchCountry,
+        ...this.dataValue,
+        startingTime: this.dataValue.startingTime || null,
+        endTime: this.dataValue.endTime || null,
+        minimum: this.score.min || null,
+        maximum: this.score.max || null
+      };
+
+      getkeywordList(params).then(res => {
         if (res.data.code === 200){
           //分页数据
           this.page.currentPage = res.data.data.page.current;
@@ -474,7 +671,7 @@ export default {
         //判断已分析关键词
         this.data.filter(item => {
           if (item.isRepeat) {
-            console.log(item.id);
+            // console.log(item.id);
             const inter = setInterval(() => {
               keyWordReset(item.id).then(res => {
                 if (res.status === 200) {
@@ -615,18 +812,83 @@ export default {
     },
 
     // 批量分析
-    importChange() {
-      const files = document.getElementById('file').files[0];
+    batchExport() {
+      batchExport(this.batchParams).then(res => {
+        if (res.status === 200) {
+          const content = res.data;
+          const fileName = `${this.$t(Date.now()) }.xlsx`;
+          downloadFile(content, fileName);
+        }
+      });
+    },
+
+    //下载模板
+    batchDownload () {
+      const loading = this.$loading({
+        lock: true,
+        text: '正在下载模板...',
+        spinner: 'el-icon-loading'
+      });
+      batchDownload().then(res => {
+        if (res.status === 200) {
+          const content = res.data;
+          const fileName = `${this.$t('关键词导入模板') }.xlsx`;
+          downloadFile(content, fileName);
+          setTimeout(() => {
+            loading.close();
+          }, 2000);
+        }
+      }).catch(() => {
+        loading.close();
+      });
+    },
+
+    batchImport() {
+      const files = document.getElementById('batchFile').files[0];
       if (!files) {
         return;
       }
+    
+      //正常上传
+      this.fileName = files.name;
       const formData = new FormData();
       formData.append('file', files);
-      batchAnalyze(this.formInline.searchCountry, formData).then(() => {
+      this.formData = formData;
+      this.isrefresh = this.isrefresh ? false : true;
+      this.$nextTick(() => {
+        this.isrefresh = this.isrefresh ? false : true;
+      });
+    },
+
+    submit() {
+      batchAnalyze(this.formInline.searchCountry, this.formData).then(() => {
         this.getkeywordLists();
       });
     },
+
+    valueFilter(value) {
+      if (typeof Number(value) === 'number' && !isNaN(Number(value))) {
+        return value.split('.')[0];
+      // eslint-disable-next-line no-else-return
+      } else {
+        return '';
+      }
+    },
+
+    selectionChange(val) {
+      this.batchParams = val.map(item => {
+        return {
+          searchKeyword: item.searchKeyword,
+          aggregateScore: item.aggregateScore
+        };
+      });
+    },
+
+    handleFilter() {
+      this.getkeywordLists();
+    }
   },
+
   watch: {
     'formInline.searchTopPage'(){
       if (this.formInline.searchTopPage > 2){
@@ -659,6 +921,13 @@ export default {
     'page.pageSize': {
       handler(val) {
         setPageSetup(this.$router.history.current.path, val);
+      },
+      deep: true
+    },
+    date: {
+      handler(val) {
+        this.dataValue.startingTime = dayjs(val[0]).format('YYYY-MM-DD');
+        this.dataValue.endTime = dayjs(val[1]).format('YYYY-MM-DD');
       },
       deep: true
     }
@@ -696,12 +965,12 @@ export default {
   .avue-crud__menu {
     min-height: 0px;
   }
-  .el-input__inner {
-    height: 30px;
-    line-height: 30px;
-    width: 160px;
-    font-size: 12px;
-  }
+  // .el-input__inner {
+  //   height: 30px;
+  //   line-height: 30px;
+  //   width: 160px;
+  //   font-size: 12px;
+  // }
   .el-button {
     height: 30px;
     padding: 0 20px;
@@ -715,6 +984,7 @@ export default {
   }
   .el-form-item {
     margin-bottom: 0px;
+    padding: 5px 10px 0px 0px;
   }
   .el-form-item__label {
     font-size: 12px;
@@ -802,5 +1072,53 @@ export default {
   color: #409EFF;
   font-size: 14px;
   cursor: pointer;
+}
+
+.importLy {
+  display: flex;
+  justify-self:space-between;
+  height: 70px;
+
+  span {
+    line-height: 30px;
+  }
+  .selectFile {
+    padding: 5px;
+    border-radius: 2px;
+    background: #409EFF;
+    color: #fff;
+    font-size: 12px;
+  }
+
+  div {
+    width: 200px;
+
+    a {
+      margin-left: 50px;
+      color: #409EFF;
+    }
+
+    a:hover {
+      cursor:pointer;
+    }
+
+    .el-upload__tip {
+      height: 26px;
+      line-height: 26px;
+      margin: 10px 0 0 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.submitBtn {
+  text-align: center;
+  margin: 0;
+
+  .el-button {
+    height: 30px;
+    padding: 0 20px;
+  }
 }
 </style>

@@ -1,14 +1,12 @@
 import request from '@/router/axios';
 
 //获取表格数据，修改排序，修改表格页数
-export const getkeywordList = (current, size, searchCountry) => {
+export const getkeywordList = (data) => {
   return request({
     url: '/api/seeics-analysis/keyword-analyze/page',
-    method: 'get',
-    params: {
-      current,
-      size,
-      searchCountry,
+    method: 'post',
+    data: {
+      ...data
     }
   });
 };
@@ -110,6 +108,25 @@ export const batchAnalyze = (searchCountry, data) => {
     params: {
       searchCountry
     },
+    data,
+  });
+};
+
+//批量导入下载模板
+export const batchDownload = () => {
+  return request({
+    url: '/api/seeics-analysis/keyword-analyze/download/ranking/template',
+    method: 'get',
+    responseType: 'blob'
+  });
+};
+
+// 批量导出关键词
+export const batchExport = data => {
+  return request({
+    url: '/api/seeics-analysis/keyword-analyze/download/score-batch',
+    method: 'post',
+    responseType: 'blob',
     data,
   });
 };
