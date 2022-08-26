@@ -84,6 +84,10 @@
         <el-tag>{{row.roleName}}</el-tag>
       </template>
       <template slot-scope="{row}"
+                slot="postName">
+        <el-tag>{{row.postName}}</el-tag>
+      </template>
+      <template slot-scope="{row}"
                 slot="deptName">
         <el-tag>{{row.deptName}}</el-tag>
       </template>
@@ -279,7 +283,13 @@ export default {
             display: false
           },
           {
-            label: '所属部门',
+            label: '所属岗位',
+            prop: 'postName',
+            slot: true,
+            display: false
+          },
+          {
+            label: '所属机构',
             prop: 'deptName',
             slot: true,
             display: false
@@ -870,14 +880,21 @@ export default {
       if (['edit', 'view'].includes(type)) {
         getUser(this.form.id).then(res => {
           this.form = res.data.data;
-          if (this.form.hasOwnProperty('deptId')){
+          // 需要将字符串转为数组，因为前期未做限制，字段可能为 null，需要增加判断
+          if (this.form.deptId){
             this.form.deptId = this.form.deptId.split(',');
+          } else {
+            this.form.deptId = [];
           }
-          if (this.form.hasOwnProperty('roleId')){
+          if (this.form.roleId){
             this.form.roleId = this.form.roleId.split(',');
+          } else {
+            this.form.roleId = [];
           }
-          if (this.form.hasOwnProperty('postId')){
+          if (this.form.postId){
             this.form.postId = this.form.postId.split(',');
+          } else {
+            this.form.postId = [];
           }
         });
       }
