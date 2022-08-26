@@ -25,6 +25,8 @@ export default {
     '/api/blade-user/import-dept-user',
     // 自动化模板名称校验
     '/api/seeics-analysis/automation-template/repeat-name',
+    // 关键词批量导入
+    '/api/seeics-analysis/keyword-analyze/batch-analyze'
   ],
   //配置首页不可关闭
   isFirstPage: false,
