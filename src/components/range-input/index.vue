@@ -5,7 +5,7 @@
     <div :class="contentClass">
       <span>
         <el-input
-          v-model="value.min"
+          v-model="score.min"
           placeholder="min"
           size="small"
           @input="handleInputMin"
@@ -16,7 +16,7 @@
       -
       <span>
         <el-input
-          v-model="value.max"
+          v-model="score.max"
           placeholder="max"
           size="small"
           @input="handleInputMax"
@@ -25,9 +25,9 @@
         />
       </span>
     </div>
-    <div v-if="error" class="msg">
+    <!-- <div v-if="error" class="msg">
       最大值必须大于最小值
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -44,7 +44,10 @@ export default {
     valueFilter: {
       type: Function,
     },
-    value: {
+    msg: {
+      type: Boolean,
+    },
+    score: {
       type: Object,
       default() {
         return {
@@ -64,26 +67,35 @@ export default {
 
   computed: {
     error() {
-      if (![null, undefined, ''].includes(this.value.min) && ![null, undefined, ''].includes(this.value.max)) {
-        return Number(this.value.min) > Number(this.value.max);
+      if (![null, undefined, ''].includes(this.score.min) && ![null, undefined, ''].includes(this.score.max)) {
+        return Number(this.score.min) > Number(this.score.max);
       }
     },
 
     contentClass() {
-      return this.error ? 'content error' : 'content';
+      return this.error ? 'content' : 'content';
     },
   },
 
   methods: {
     handleInputMin(value) {
       const val = this.valueFilter(value);
-      this.$emit('input', { min: val, max: this.value.max });
+      this.$emit('update:score', { min: val, max: this.score.max });
     },
     handleInputMax(value) {
       const val = this.valueFilter(value);
-      this.$emit('input', { min: this.value.min, max: val });
+      this.$emit('update:score', { min: this.score.min, max: val });
     },
   },
+
+  watch: {
+    error: {
+      handler(val) {
+        this.$emit('update:msg', val)
+      },
+      deep: true,
+    }
+  }
 };
 </script>
 

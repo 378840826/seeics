@@ -2,9 +2,13 @@
   <div>
   <third-register></third-register>
   <el-card>
-      <el-form :inline="true" size="small" :model="formInline" class="demo-form-inline">
+      <el-form 
+        :inline="true" 
+        :model="formInline"
+        :rules="rules"
+        class="demo-form-inline">
         <el-form-item>
-          <el-select v-model="formInline.searchCountry" @change="selectState">
+          <el-select v-model="formInline.searchCountry" size="small" @change="selectState">
             <el-option label="美国" value="US"></el-option>
             <el-option label="英国" value="UK"></el-option>
             <el-option label="加拿大" value="CA"></el-option>
@@ -43,7 +47,7 @@
           <el-date-picker
             v-model="date"
             size="small"
-            type="daterange"
+            type="datetimerange"
             :picker-options="pickerOptions"
             range-separator="至"
             start-placeholder="开始日期"
@@ -52,11 +56,12 @@
           </el-date-picker>
         </el-form-item>
  
-        <el-form-item>
+        <el-form-item prop="inputMsg">
           <range-input
             label="综合评分："
             :valueFilter="valueFilter"
-            v-model="score" 
+            :score.sync="score" 
+            :msg.sync="msg"
           />
         </el-form-item>
        
@@ -123,11 +128,15 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" size="small" @click="batchExport" :disabled="!batchParams.length">批量导出综合评分</el-button>
+           <el-button type="primary" size="small" @click="handleFilter" :disabled="isFiletBtn">筛选</el-button>
+        </el-form-item>
+        
+        <el-form-item>
+           <el-button type="primary" size="small" @click="handleReset">重置</el-button>
         </el-form-item>
 
         <el-form-item>
-           <el-button type="primary" size="small" @click="handleFilter">搜索</el-button>
+          <el-button type="primary" size="small" @click="batchExport" :disabled="!batchParams.length">批量导出综合评分</el-button>
         </el-form-item>
         
       </el-form>
@@ -299,11 +308,27 @@ export default {
   },
  
   data() {
+    const checkDefaultBid = (rule, value, callback) => {
+      if (this.formInline.inputMsg) {
+        this.isFiletBtn = true;
+        return callback(new Error('最大值必须大于最小值'));
+      } else if (!this.score.min && this.score.max) {
+        this.isFiletBtn = true;
+        return callback(new Error('请输入最小值'));
+      } else if (this.score.min && !this.score.max) {
+        this.isFiletBtn = true;
+        return callback(new Error('请输入最大值'));
+      // eslint-disable-next-line no-else-return
+      } else {
+        this.isFiletBtn = false;
+      }
+    };
     return {
       formInline: {
         searchCountry: 'US',
         searchKeyword: '',
         searchTopPage: '2',
+        inputMsg: false,
       },
       formData: '',
       user: {},
@@ -406,6 +431,8 @@ export default {
       },
 
       // 筛选 批量导出导入参数
+      msg: false,
+      isFiletBtn: false,
       isrefresh: true,
       reFormData: null,
       fileName: '',
@@ -512,7 +539,13 @@ export default {
           return item.getTime() > Date.now(); //当日前禁用判断语句 item.getTime() < Date.now() - 8.64e7
         }
       },
+      rules: {
+        inputMsg: [
+          { validator: checkDefaultBid },
+        ]
+      } 
     };
+    
   },
   mounted(){  
     this.getGlobalOption();
@@ -886,6 +919,13 @@ export default {
 
     handleFilter() {
       this.getkeywordLists();
+    },
+
+    handleReset() {
+      this.date = '';
+      this.score.max = '';
+      this.score.min = '';
+      this.getkeywordLists();
     }
   },
 
@@ -926,8 +966,16 @@ export default {
     },
     date: {
       handler(val) {
-        this.dataValue.startingTime = dayjs(val[0]).format('YYYY-MM-DD');
-        this.dataValue.endTime = dayjs(val[1]).format('YYYY-MM-DD');
+        if (val) {
+          this.dataValue.startingTime = dayjs(val[0]).format('YYYY-MM-DD HH:mm:ss');
+          this.dataValue.endTime = dayjs(val[1]).format('YYYY-MM-DD HH:mm:ss');
+        }
+      },
+      deep: true
+    },
+    msg: {
+      handler(val) {
+        this.formInline.inputMsg = val;
       },
       deep: true
     }
@@ -944,6 +992,9 @@ export default {
 <style lang="scss" scoped>
 
 ::v-deep {
+  .el-form-item__error {
+    left: 140px;
+  }
   .el-progress-bar__outer {
     border-radius: 1px;
     width: 100px;
@@ -965,16 +1016,10 @@ export default {
   .avue-crud__menu {
     min-height: 0px;
   }
-  // .el-input__inner {
-  //   height: 30px;
-  //   line-height: 30px;
-  //   width: 160px;
-  //   font-size: 12px;
-  // }
   .el-button {
     height: 30px;
     padding: 0 20px;
-    margin-right: 30px;
+    // margin-right: 30px;
   }
   .avue-crud__pagination {
     padding-bottom: 0px;
@@ -983,8 +1028,8 @@ export default {
     width: 100%;
   }
   .el-form-item {
-    margin-bottom: 0px;
-    padding: 5px 10px 0px 0px;
+    margin-bottom: 15px;
+    padding: 0 10px 0px 0px;
   }
   .el-form-item__label {
     font-size: 12px;
