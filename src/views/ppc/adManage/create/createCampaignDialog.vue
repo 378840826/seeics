@@ -8,7 +8,7 @@
     @close="close"
     v-loading="loading"
     top="1vh"
-    width="1140px">
+    width="80%">
     <el-form :model="form" :rules="rules" label-width="120px" class="form">
     <div class="dialogBox">
       
@@ -67,28 +67,32 @@
         <span>竞价策略：</span>
         <div style="width: 80%">
           <el-radio-group v-model="form.biddingStrategy">
-          <el-radio label="legacyForSales">动态竞价 - 仅降低
-            <p>当您的广告不太可能带来销售时，我们将实时降低您的竞价。</p>
-          </el-radio>
-          <el-radio label="autoForSales">动态竞价 - 提高和降低
-            <p>当您的广告很有可能带来销售时，我们将实时提高您的竞价（最高可达 </p>
-            <p>100%），并在您的广告不太可能带来销售时降低您的竞价。</p>
-          </el-radio>
-          <el-radio label="manual">固定竞价
-            <p>我们将使用您的确切竞价和您设置的任何手动调整，而不会根据售出可能性对</p>
-            <p>您的竞价进行更改。</p>
-            <p>除了竞价策略外，您可以将竞价最多提高 900%。</p>
-            <p>搜索结果顶部（首页）
-              <el-input v-model="form.biddingPlacementTop" style="width: 150px" size="small"/>%
-            </p>
-            <p style="marginLeft: 140px;">示例： 对于此广告位，$0.75 竞价将为 $0.90。动态竞价可以将其提高至 $1.80</p>
-            <p>商品页面
-              <el-input v-model="form.biddingPlacementProductPage" style="marginLeft: 82px;width: 150px" size="small"/>%
-            </p>
-             <p style="marginLeft: 140px;">示例： 对于此广告位，$0.75 竞价将保持 $0.75 不变。动态竞价可以将其提高至 $1.13</p>
-          </el-radio>
-        </el-radio-group>
+            <el-radio label="legacyForSales">动态竞价 - 仅降低
+              <p>当您的广告不太可能带来销售时，我们将实时降低您的竞价。</p>
+            </el-radio>
+            <el-radio label="autoForSales">动态竞价 - 提高和降低
+              <p>当您的广告很有可能带来销售时，我们将实时提高您的竞价（最高可达 </p>
+              <p>100%），并在您的广告不太可能带来销售时降低您的竞价。</p>
+            </el-radio>
+            <el-radio label="manual">固定竞价
+              <p>我们将使用您的确切竞价和您设置的任何手动调整，而不会根据售出可能性对</p>
+              <p>您的竞价进行更改。</p> 
+            </el-radio>
+          </el-radio-group>
         </div>
+      </div>
+
+      <div style="padding: 0px 0px 0px 120px;">
+        <p>除了竞价策略外，您可以将竞价最多提高 900%。</p>
+          <p>搜索结果顶部（首页）
+            <el-input v-model="form.biddingPlacementTop" style="width: 150px" size="small"/>%
+          </p>
+          <p style="marginLeft: 140px;">示例： 对于此广告位，$0.75 竞价将为 $0.90。动态竞价可以将其提高至 $1.80</p>
+          <p>商品页面
+            <el-input
+              v-model="form.biddingPlacementProductPage" style="marginLeft: 82px;width: 150px" size="small"/>%
+          </p>
+          <p style="marginLeft: 140px;">示例： 对于此广告位，$0.75 竞价将保持 $0.75 不变。动态竞价可以将其提高至 $1.13</p>
       </div>
 
       <span>
@@ -326,8 +330,8 @@ export default {
           targetingExpressionRoList: [], //targetingGroup  自动投放表达式
         }
       },
-      state: false,
-      groupState: false,
+      state: true,
+      groupState: true,
       defaultRadio: '1',
       rules: {
         name: [
@@ -379,8 +383,8 @@ export default {
       this.form.biddingStrategy = 'legacyForSales';
       this.form.biddingPlacementProductPage = '';
       this.form.biddingPlacementTop = '';
-      this.state = false;
-      this.groupState = false;
+      this.state = true;
+      this.groupState = true;
       this.defaultRadio = '1';
       this.KeywordFlag = '关键词';
     },
@@ -453,6 +457,7 @@ export default {
     span {
       width: 20%;
     }
+    
   }
 
   ::v-deep .el-radio {

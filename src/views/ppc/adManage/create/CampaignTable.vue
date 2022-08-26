@@ -21,7 +21,7 @@
       <el-table
         :data="tableData"
         border
-        height="200"
+        height="300"
         style="width: 100%"
         class="table">
         <el-table-column
@@ -81,7 +81,7 @@
       <el-table
         :data="selectData"
         border
-        height="200"
+        height="300"
         style="width: 100%"
         class="table">
         <el-table-column
