@@ -952,6 +952,8 @@ export default {
 
     handleReset() {
       this.date = '';
+      this.dataValue.startingTime = '';
+      this.dataValue.endTime = '';
       this.score.max = '';
       this.score.min = '';
       this.getkeywordLists();
