@@ -11,9 +11,10 @@ export function parseTreeKey(key) {
   }
   const paramsArr = key.split('-');
   return {
-    camState: paramsArr[0],
-    camId: paramsArr[1],
+    campaignState: paramsArr[0],
+    campaignId: paramsArr[1],
     groupId: paramsArr[2],
+    groupType: paramsArr[3],
   };
 }
 

@@ -20,6 +20,7 @@
         <el-tabs type="border-card" class="left-tabs">
           <el-tab-pane label="广告活动">
             <CampaignTree
+              :storeId="currentStore.adStoreId"
               :treeSelectedKey="treeSelectedKey"
               @treeSelect="handleTreeSelect"
               :key="currentStore.adStoreId"
@@ -63,6 +64,7 @@
             v-for="item in tabsStateDict[tabsState]"
             :name="item"
             :key="item"
+            lazy
           >
             <span slot="label">
               {{ allTabs[item].label }}
@@ -173,7 +175,7 @@ export default{
       let state = 'default';
       if (treeSelectedNodeInfo.groupId) {
         state = 'group';
-      } else if (treeSelectedNodeInfo.camId) {
+      } else if (treeSelectedNodeInfo.campaignId) {
         state = 'campaign';
       }
       return state;
@@ -198,7 +200,7 @@ export default{
         _this.pageLoading = false;
         this.getPortfolioList();
         this.getTabsCellCount();
-        log('store', this.$store.state.shop);
+        // log('store', this.$store.state.shop);
       });
     },
 
@@ -208,7 +210,7 @@ export default{
       const selectedTreeInfo = parseTreeKey(this.treeSelectedKey);
       const params = {
         adStoreId: this.currentStore.adStoreId,
-        campaignId: selectedTreeInfo.camId,
+        campaignId: selectedTreeInfo.campaignId,
         groupId: selectedTreeInfo.groupId,
       };
       queryTabsCellCount(params).then(res => {
@@ -232,6 +234,7 @@ export default{
       this.currentStore = {
         marketplace: storeInfo.marketplace,
         adStoreId: storeInfo.adStoreId,
+        mwsStoreId: storeInfo.id,
         currency: storeInfo.currency,
         time: getMarketplaceTime(storeInfo.timezone),
         storeName: storeInfo.storeName,
@@ -251,8 +254,6 @@ export default{
       this.portfolioSelectedId = val.id;
       // 取消广告树的选中
       this.treeSelectedKey = null;
-      // 请求标签页数量
-      this.getTabsCellCount();
     },
 
     // 广告组合-点击编辑名称
@@ -294,28 +295,26 @@ export default{
     },
 
     // 标签页点击
-    handleTabsClick(tabs) {
-      console.log('标签页点击', tabs, this.tabsActive);
-    },
+    // handleTabsClick(tabs) {
+    //   console.log('标签页点击', tabs, this.tabsActive);
+    // },
 
-    // 树-切换选中
-    // 切换选中的广告活动或广告组
-    changeTreeSelected(params, scrollTree = false) {
-      log('changeSelected', params, scrollTree);
-      // const { tabsState, selectedInfo } = params;
-      // 根据节点重新加载标签页
-      // 切换到第一个标签
-      // 请求各标签显示的数量（只有切换广告活动或广告组时才请求）
-      // 修改菜单树选中的 key 和广告信息
-      // 菜单树滚动到选中位置, 在下一个事件循环中执行(先切换了选中再执行滚动)
-      // scrollTree && setTimeout(scrollTreeToSelected, 0);
-    },
+    // // 树-切换选中
+    // // 切换选中的广告活动或广告组
+    // changeTreeSelected(params, scrollTree = false) {
+    //   log('changeSelected', params, scrollTree);
+    //   // const { tabsState, selectedInfo } = params;
+    //   // 根据节点重新加载标签页
+    //   // 切换到第一个标签
+    //   // 请求各标签显示的数量（只有切换广告活动或广告组时才请求）
+    //   // 修改菜单树选中的 key 和广告信息
+    //   // 菜单树滚动到选中位置, 在下一个事件循环中执行(先切换了选中再执行滚动)
+    //   // scrollTree && setTimeout(scrollTreeToSelected, 0);
+    // },
 
     // 树-树组件切换了选中
     handleTreeSelect(val) {
       this.treeSelectedKey = val.key;
-      // 请求标签页数量
-      this.getTabsCellCount();
       // 取消广告组合的选中
       this.portfolioSelectedId = '';
     },
@@ -330,6 +329,11 @@ export default{
         // 请求标签页数量
         this.getTabsCellCount();
       }
+    },
+
+    tabsState(val) {
+      // 切换到第当前状态的一个标签页
+      this.tabsActive = tabsStateDict[val][0];
     },
   },
 };

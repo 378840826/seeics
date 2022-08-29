@@ -93,19 +93,19 @@
 
     <el-table-column prop="biddingPlacementTop" label="Top of Search" width="110">
       <template slot-scope="{row}">
-        {{ row.biddingPlacementTop }}
+        {{ getValueLocaleString({ value: row.biddingPlacementTop, isFraction: true, suffix: '%' }) }}
       </template>
     </el-table-column>
 
     <el-table-column prop="biddingPlacementProductPage" label="Product page" width="110">
       <template slot-scope="{row}">
-        {{ row.biddingPlacementProductPage }}
+        {{ getValueLocaleString({ value: row.biddingPlacementProductPage, isFraction: true, suffix: '%' }) }}
       </template>
     </el-table-column>
 
     <el-table-column prop="dailyBudget" label="日预算" width="110">
       <template slot-scope="{row}">
-        {{ row.dailyBudget }}
+        {{ getValueLocaleString({ value: row.dailyBudget, isFraction: true, prefix: currency }) }}
       </template>
     </el-table-column>
 
@@ -183,6 +183,7 @@ import {
   formatTableSortParams,
   getCommonColOption,
   getFormatTotal,
+  parseTreeKey,
 } from '../../utils/fun';
 import CreateCampaignDialog from '../../create/createCampaignDialog';
 
@@ -195,6 +196,10 @@ export default {
 
   props: {
     marketplace: {
+      type: String,
+      required: true,
+    },
+    treeSelectedKey: {
       type: String,
       required: true,
     },
@@ -236,6 +241,11 @@ export default {
   },
 
   computed: {
+    // 广告树选中的节点信息
+    treeSelectedInfo() {
+      const treeSelectedInfo = parseTreeKey(this.treeSelectedKey);
+      return treeSelectedInfo;
+    },
     commonColOption() {
       return getCommonColOption(this.currency);
     },
@@ -264,10 +274,12 @@ export default {
         ...sortParams,
         ...query,
       };
+      // const treeSelectedNodeInfo = parseTreeKey(this.treeSelectedKey);
       const bodyParams = {
         storeId: this.storeId,
         marketplace: this.marketplace,
         portfolioId: this.portfolioId,
+        state: this.treeSelectedInfo.campaignState,
         ...body,
       };
       queryCampaignList(queryParams, bodyParams).then(res => {
@@ -314,9 +326,13 @@ export default {
   },
 
   watch: {
-    // portfolioId(val) {
-    //   log('广告活动 watch portfolioId', val);
-    // },
+    portfolioId(val) {
+      log('广告活动 watch portfolioId', val);
+    },
+    
+    treeSelectedKey() {
+      this.getList();
+    },
   },
 };
 </script>

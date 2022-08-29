@@ -178,10 +178,10 @@ export default {
     commonColOption() {
       return getCommonColOption(this.currency);
     },
-    // 父广告活动的ID
-    campaignId() {
+    // 广告树选中的节点信息
+    treeSelectedInfo() {
       const treeSelectedInfo = parseTreeKey(this.treeSelectedKey);
-      return treeSelectedInfo.camId;
+      return treeSelectedInfo;
     },
   },
 
@@ -212,7 +212,8 @@ export default {
         storeId: this.storeId,
         marketplace: this.marketplace,
         portfolioId: this.portfolioId,
-        campaignId: this.campaignId,
+        campaignId: this.treeSelectedInfo.campaignId,
+        groupId: this.treeSelectedInfo.groupId,
         ...body,
       };
       queryKwList(queryParams, bodyParams).then(res => {
@@ -289,6 +290,10 @@ export default {
     // portfolioId(val) {
     //   log('广告活动 watch portfolioId', val);
     // },
+
+    treeSelectedKey() {
+      this.getList();
+    },
   },
 };
 </script>
