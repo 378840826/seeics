@@ -132,7 +132,8 @@
             <el-radio v-model="defaultRadio" label="1" style="z-index: 10;">
               默认竞价：
             </el-radio>
-            <el-form-item v-if="defaultRadio === '1'"  prop="groupRo.defaultBid" style="position: absolute;top: 0;left: 0">
+            <el-form-item
+              v-if="defaultRadio === '1'"  prop="groupRo.defaultBid" style="position: absolute;top: 0;left: 0">
                 <el-input v-model="form.groupRo.defaultBid" placeholder="至少0.02" style="width: 60%" size="small">
                 <i slot="prefix">$</i>
                 </el-input>
@@ -322,7 +323,7 @@ export default {
         biddingPlacementTop: '', //搜索结果顶部 百分比
         groupRo: {
           name: '',
-          defaultBid: '',
+          defaultBid: '0.75',
           negativeKeywordItemRoList: [], //否定关键词集合
           keywordItemRoList: [], //关键词集合
           negativeTargetingAsinList: [], //否定投放商品（ASIN）集合
@@ -366,14 +367,6 @@ export default {
       },
       deep: true
     },
-    defaultRadio: {
-      handler() {
-        if (this.defaultRadio === '1') {
-          this.form.groupRo.defaultBid = '0.75';
-        } 
-      },
-      deep: true,
-    }
   },
 
   methods: {
@@ -397,10 +390,12 @@ export default {
 
     saveBtn() {
       // this.dialogVisible = false;
-      const denyPrice = this.form.targetingMode === 'auto' && this.KeywordFlag === '分类/商品' && this.$refs.denyPrice.getField() || [];
-      const priceCategory = this.form.targetingMode === 'auto' && this.KeywordFlag === '分类/商品' && this.$refs.priceCategory.getField() || [];
-      const denyKeyword = this.form.targetingMode === 'auto' && this.KeywordFlag === '关键词' && this.$refs.denyKeyword.getField() || [];
-      const keywordTable = this.form.targetingMode === 'auto' && this.form.targetingMode === 'manual' && this.KeywordFlag === '关键词' && this.$refs.keywordTable.getField() || [];
+      const denyPrice = this.form.targetingMode === 'manual' && this.KeywordFlag === '分类/商品' && this.$refs.denyPrice.getField()
+      || this.form.targetingMode === 'auto' && this.$refs.denyPrice.getField() || [];
+      const priceCategory = this.form.targetingMode === 'manual' && this.KeywordFlag === '分类/商品' && this.$refs.priceCategory.getField() || [];
+      const denyKeyword = this.form.targetingMode === 'manual' && this.KeywordFlag === '关键词' && this.$refs.denyKeyword.getField()
+      || this.form.targetingMode === 'auto' && this.$refs.denyKeyword.getField() || [];
+      const keywordTable = this.form.targetingMode === 'manual' && this.form.targetingMode === 'manual' && this.KeywordFlag === '关键词' && this.$refs.keywordTable.getField() || [];
       const tgTable = this.form.targetingMode === 'auto' && this.defaultRadio === '2' && this.$refs.tgTable.getField() || [];
       const priceTable = this.$refs.priceTable.getField();
 
@@ -429,7 +424,7 @@ export default {
           });
           this.loading = false;
           this.dialogVisible = false;
-          this.empty();
+          // this.empty();
         }
       }).catch(() => {
         this.loading = false;

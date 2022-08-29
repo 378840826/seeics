@@ -2,6 +2,7 @@
   <div style="width: 50%">
     <el-table
       :data="tableData"
+      v-loading="loading"
       stripe
       border
       height="333"
@@ -87,7 +88,8 @@ export default {
 
   data() {
     return {
-      tableData: []
+      tableData: [],
+      loading: false
     };
   },
 
@@ -147,8 +149,10 @@ export default {
         strategy: this.targetingMode,
         asinList: this.asinList,
       };
+      this.loading = true;
       queryTargeList(params).then(res => {
         if (res.data.code === 200) {
+          this.loading = false;
           const data = res.data.data;
           // this.tableData = res.data.data.map(item => {
             

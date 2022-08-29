@@ -72,9 +72,10 @@
       <el-col :span="8" v-if="category === '建议商品'">
          <el-table
             :data="data"
+            v-loading="loading"
             border
             style="width: 100%"
-            height="300"
+            height="350"
             class="table">
             <el-table-column
               prop="priceInfo"
@@ -144,7 +145,7 @@
             border
             @selection-change="handleSelectionChange"
             style="width: 100%"
-            height="300"
+            height="350"
             class="table">
             <!-- <el-table-column
               type="selection"
@@ -227,6 +228,7 @@ export default {
 
   data() {
     return {
+      loading: false,
       category: '建议商品',
       bid: '固定值',
       jia: '+',
@@ -336,7 +338,9 @@ export default {
         strategy: this.targetingMode,
         asinList: this.asinList,
       };
+      this.loading = true;
       getPriceList(params).then(res => {
+        this.loading = false;
         if (res.data.code === 200) {
           this.data = res.data.data.length && res.data.data.map(item => {
             return {
@@ -347,6 +351,8 @@ export default {
             };
           });
         }
+      }).catch( () => {
+        this.loading = false;
       });
     },
 
@@ -490,12 +496,12 @@ export default {
   }
 
   ::v-deep .el-textarea__inner {
-      min-height: 300px !important;
-      max-height: 300px;
+      min-height: 350px !important;
+      max-height: 350px;
   }
 
   .tableBox {
-    max-height: 300px;
+    max-height: 350px;
     overflow: hidden;
     overflow-y: auto;
     border: 1px solid #EBEEF5;
