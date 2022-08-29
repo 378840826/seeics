@@ -74,7 +74,7 @@
             :data="data"
             border
             style="width: 100%"
-            height="200"
+            height="300"
             class="table">
             <el-table-column
               prop="priceInfo"
@@ -144,7 +144,7 @@
             border
             @selection-change="handleSelectionChange"
             style="width: 100%"
-            height="200"
+            height="300"
             class="table">
             <!-- <el-table-column
               type="selection"
@@ -490,12 +490,12 @@ export default {
   }
 
   ::v-deep .el-textarea__inner {
-      min-height: 200px !important;
-      max-height: 200px;
+      min-height: 300px !important;
+      max-height: 300px;
   }
 
   .tableBox {
-    max-height: 200px;
+    max-height: 300px;
     overflow: hidden;
     overflow-y: auto;
     border: 1px solid #EBEEF5;

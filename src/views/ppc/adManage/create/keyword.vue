@@ -69,7 +69,7 @@
          <el-table
             :data="categoryData"
             border
-            height="200"
+            height="300"
             style="width: 100%"
             class="table">
             <el-table-column
@@ -150,7 +150,7 @@
             :data="tableData"
             border
             @selection-change="handleSelectionChange"
-            height="200"
+            height="300"
             style="width: 100%"
             class="table">
             <el-table-column
@@ -616,8 +616,8 @@ export default {
   }
  
   ::v-deep .el-textarea__inner {
-    min-height: 200px !important;
-    max-height: 200px;
+    min-height: 300px !important;
+    max-height: 300px;
   }
 
 </style>

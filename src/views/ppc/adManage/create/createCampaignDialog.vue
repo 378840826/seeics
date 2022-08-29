@@ -51,6 +51,7 @@
           range-separator="——"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          :picker-options="pickerOptions"
           size="small">
         </el-date-picker>
       </div>
@@ -131,7 +132,7 @@
             <el-radio v-model="defaultRadio" label="1" style="z-index: 10;">
               默认竞价：
             </el-radio>
-            <el-form-item  prop="groupRo.defaultBid" style="position: absolute;top: 0;left: 0">
+            <el-form-item v-if="defaultRadio === '1'"  prop="groupRo.defaultBid" style="position: absolute;top: 0;left: 0">
                 <el-input v-model="form.groupRo.defaultBid" placeholder="至少0.02" style="width: 60%" size="small">
                 <i slot="prefix">$</i>
                 </el-input>
@@ -348,6 +349,11 @@ export default {
         ['groupRo.defaultBid']: [
           { validator: checkDefaultBid, trigger: 'blur' },
         ]
+      },
+      pickerOptions: {
+        disabledDate: (date) => {
+          return date.getTime() < Date.now() - 8.64e7;
+        }
       }
     };  
   },
