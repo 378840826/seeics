@@ -41,33 +41,7 @@
         <el-form-item>
           <span>页</span>
           <el-button class="download" size="small" @click="download">下载可视化模板</el-button>
-        </el-form-item>
-        
-        <el-form-item>
-          <el-date-picker
-            v-model="date"
-            size="small"
-            type="datetimerange"
-            :picker-options="pickerOptions"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right">
-          </el-date-picker>
-        </el-form-item>
- 
-        <el-form-item prop="inputMsg">
-          <range-input
-            label="综合评分："
-            :valueFilter="valueFilter"
-            :score.sync="score" 
-            :msg.sync="msg"
-          />
-        </el-form-item>
-       
-        <el-form-item>
-
-          <el-popover
+         <el-popover
             placement="bottom"
             width="100"
             trigger="click"
@@ -91,8 +65,33 @@
             </div>
             <el-button type="text" slot="reference">词频选项</el-button>
           </el-popover>
+        </el-form-item>
 
-            <el-popover
+        <el-form-item prop="inputMsg">
+          <range-input
+            label="综合评分："
+            :valueFilter="valueFilter"
+            :score.sync="score" 
+            :msg.sync="msg"
+          />
+        </el-form-item>
+ 
+        <el-form-item>
+          <el-date-picker
+            v-model="date"
+            size="small"
+            type="datetimerange"
+            :picker-options="pickerOptions"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            align="left">
+          </el-date-picker>
+        </el-form-item>
+
+        <el-form-item>
+
+          <el-popover
             :ref="'popover'"
             placement="bottom"
             title="导入关键词"
@@ -100,7 +99,7 @@
             :visible-arrow= "false"
             @click.stop="isShowWhole = false"
             trigger="click"
-            >
+          >
             <div class="importLy">
               <span>选择文件：</span>
               <div>
