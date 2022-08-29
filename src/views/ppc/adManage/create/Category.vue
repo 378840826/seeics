@@ -57,7 +57,7 @@
          <el-table
             :data="categoryData1"
             border
-            height="200"
+            height="300"
             style="width: 100%"
             class="table">
             <el-table-column
@@ -94,7 +94,7 @@
          <el-table
             :data="tableData"
             border
-            height="200"
+            height="300"
             @selection-change="handleSelectionChange"
             style="width: 100%"
             class="table">

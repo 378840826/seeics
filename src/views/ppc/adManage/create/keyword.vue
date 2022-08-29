@@ -68,8 +68,9 @@
       <el-col :span="8" v-if="category === '建议关键词'">
          <el-table
             :data="categoryData"
+            v-loading="loading"
             border
-            height="200"
+            height="350"
             style="width: 100%"
             class="table">
             <el-table-column
@@ -150,7 +151,7 @@
             :data="tableData"
             border
             @selection-change="handleSelectionChange"
-            height="200"
+            height="350"
             style="width: 100%"
             class="table">
             <el-table-column
@@ -251,6 +252,7 @@ export default {
 
   data() {
     return {
+      loading: false,
       category: '建议关键词',
       bid: 'suggestedBid',
       modified: '+',
@@ -398,10 +400,14 @@ export default {
         suggestionKeywordMatchType: this.suggestionKeywordMatchType,
         asinList: this.asinList,
       };
+      this.loading = true;
       querySuggestKeyword(params).then(res => {
         if (res.data.code === 200) {
+          this.loading = false;
           this.categoryData = res.data.data;
         }
+      }).catch(() => {
+        this.loading = false;
       });
     },
 
@@ -616,8 +622,8 @@ export default {
   }
  
   ::v-deep .el-textarea__inner {
-    min-height: 200px !important;
-    max-height: 200px;
+    min-height: 350px !important;
+    max-height: 350px;
   }
 
 </style>
