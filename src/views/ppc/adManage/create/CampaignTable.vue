@@ -21,7 +21,7 @@
       <el-table
         :data="tableData"
         border
-        height="300"
+        height="350"
         style="width: 100%"
         class="table">
         <el-table-column
@@ -81,7 +81,7 @@
       <el-table
         :data="selectData"
         border
-        height="300"
+        height="350"
         style="width: 100%"
         class="table">
         <el-table-column
@@ -174,9 +174,9 @@ export default {
         keyword: this.search
       }).then(res => {
         if (res.data.code === 200) {
-          const arr = this.selectData.length && this.selectData.map(item => item.asin) || [];
+          const arr = this.selectData.length && this.selectData.map(item => item.sellerSku) || [];
           this.tableData = res.data.data.records.map(item => {
-            if (arr.includes(item.asin)) {
+            if (arr.includes(item.sellerSku)) {
               item.checked = true;
             }
             return item;
@@ -212,7 +212,7 @@ export default {
 
     handleSelect(row) {
       this.tableData = this.tableData.map(item => {
-        if (item.asin === row.asin) {
+        if (item.sellerSku === row.sellerSku) {
           item.checked = true;
         }
         return item;
@@ -234,7 +234,7 @@ export default {
 
     handleDelete(row) {
       this.tableData = this.tableData.map(item => {
-        if (item.asin === row.asin) {
+        if (item.sellerSku === row.sellerSku) {
           item.checked = false;
         }
         return item;
