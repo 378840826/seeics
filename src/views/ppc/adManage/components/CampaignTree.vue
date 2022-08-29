@@ -1,5 +1,5 @@
 <!-- 广告活动树 -->
-<!-- 树的 key = "广告活动开启状态-广告活动id-广告组id" -->
+<!-- 树的 key = "campaignState-campaignId-groupId-groupType" -->
 <template>
   <div>
     <el-input
@@ -45,6 +45,10 @@ export default {
     treeSelectedKey: {
       type: String,
     },
+    storeId: {
+      type: String,
+      require: true,
+    },
   },
 
   data() {
@@ -56,7 +60,7 @@ export default {
         isLeaf: 'isLeaf',
       },
       filterText: '',
-      treeSelect: '',
+      treeSelect: {},
     };
   },
 
@@ -81,12 +85,18 @@ export default {
     loadChildTreeNode(node, resolve) {
       // 父节点的详细参数
       const nodeParams = parseTreeKey(node.data.key);
+      log('广告树子节点加载', node.data);
+      const params = {
+        adStoreId: this.storeId,
+        adType: 'sp',
+        state: nodeParams.campaignState,
+      };
       // 请求广告活动
       if (node.level === 1) {
-        queryTreeCampaign().then(res => {
-          const r = res.data.data.records.map(item => {
+        queryTreeCampaign(params).then(res => {
+          const r = res.data.data.map(item => {
             // 增加 key 字段
-            const key = `${nodeParams.camState}-${item.id}`;
+            const key = `${nodeParams.campaignState}-${item.campaignId}`;
             return {
               ...item,
               key,
@@ -96,10 +106,10 @@ export default {
         });
       } else if (node.level === 2) {
         // 请求广告组
-        queryTreeGroup().then(res => {
-          const r = res.data.data.records.map(item => {
+        queryTreeGroup({ ...params, campaignId: nodeParams.campaignId }).then(res => {
+          const r = res.data.data.map(item => {
             // 增加 key 字段和 isLeaf
-            const key = `${nodeParams.camState}-${nodeParams.camId}-${item.id}`;
+            const key = `${nodeParams.campaignState}-${nodeParams.campaignId}-${item.groupId}-${item.groupType}`;
             return {
               ...item,
               key,
@@ -122,12 +132,10 @@ export default {
     // 树切换选中的广告活动/广告组
     handleTreeSelect(data, treeNode) {
       // 判断是否点击当前选中的
-      if (this.treeSelect !== null
-        && this.treeSelect.id === data.id
-        && this.treeSelect.level === treeNode.level) {
+      if (data.key === this.treeSelect.key) {
         return;
       }
-      // console.log('树切换选中,data,treeNode', data, treeNode);
+      log('树切换选中', data);
       this.treeSelect = { ...data, level: treeNode.level };
     },
   },
@@ -140,13 +148,11 @@ export default {
 
     // 树节点选中切换
     treeSelect(val) {
-      // log('watch treeSelect', val);
       this.$emit('treeSelect', val);
     },
 
     // 由于 elementUI 的 BUG，需要监听此值的变化后主动设置 current-node-key
     treeSelectedKey(val) {
-      log('watch props treeSelectedKey', val);
       this.$refs.treeRef.setCurrentKey(val);
     },
   },

@@ -13,7 +13,7 @@ export const queryTabsCellCount = params => {
 // 树-广告活动
 export const queryTreeCampaign = params => {
   return request({
-    url: '/api/seeics-ad/management/campaign/simple-list',
+    url: '/api/seeics-ad/campaign/tree_list',
     params,
   });
 };
@@ -21,7 +21,7 @@ export const queryTreeCampaign = params => {
 // 树-广告组
 export const queryTreeGroup = params => {
   return request({
-    url: '/api/seeics-ad/management/group/simple-list',
+    url: '/api/seeics-ad/group/tree_list',
     params,
   });
 };

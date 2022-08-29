@@ -25,7 +25,7 @@ export const allTabs = {
 export const tabsStateDict = {
   default: ['campaign', 'group', 'ad', 'keyword', 'targeting'],
   campaign: ['group', 'ad', 'keyword', 'targeting'],
-  group: ['ad', 'keyword'],
+  group: ['ad', 'keyword', 'targeting'],
 };
 
 // 投放方式字典
