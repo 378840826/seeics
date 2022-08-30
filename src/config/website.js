@@ -25,6 +25,8 @@ export default {
     '/api/blade-user/import-dept-user',
     // 自动化模板名称校验
     '/api/seeics-analysis/automation-template/repeat-name',
+    // 创建广告活动
+    '/api/seeics-ad/campaign/create',
   ],
   //配置首页不可关闭
   isFirstPage: false,
