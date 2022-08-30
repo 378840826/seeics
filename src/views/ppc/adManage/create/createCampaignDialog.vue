@@ -9,19 +9,39 @@
     v-loading="loading"
     top="1vh"
     width="80%">
-    <el-form :model="form" :rules="rules" label-width="120px" class="form">
+    <el-form :model="form" :rules="rules" label-width="130px" class="form">
     <div class="dialogBox">
       
       <h3>▌广告活动</h3>
-      <el-form-item label="广告活动名称：" prop="name">
-        <el-input v-model="form.name" size="small"></el-input>
+      <el-form-item  prop="name">
+        <template slot="label">
+          <div style="display: flex;">
+            <span>广告活动名称：</span>
+            <span class="msg">*</span>
+          </div>
+        </template>
+        <el-input v-model="form.name" placeholder="请输入广告活动名称" size="small"></el-input>
       </el-form-item>
       <!-- <div class="label">
         <span>广告活动名称：</span>
         <el-input v-model="form.name" style="width: 80%" size="small"/>
       </div> -->
 
-      <el-form-item label="日预算：" prop="budget">
+      <el-form-item prop="budget">
+        <template slot="label">
+          <div style="display: flex;">
+            <span>日预算：</span>
+            <el-tooltip placement="top">
+              <div slot="content" style="width: 200px">
+              您愿意每天为该广告活动花费的金额。
+              如果广告活动支出低于您的每日预算,
+              则剩余金额可用于增加该日历月的其他日期的每日预算，
+              最多可增加 25%。</div>
+              <span class="el-icon-question" style="line-height: 40px;"></span>
+            </el-tooltip>
+            <span class="msg">*</span>
+          </div>
+        </template>
         <el-input 
           v-model="form.budget"
           style="width: 30%"
@@ -44,7 +64,7 @@
 
       <div class="label">
         <span>日期范围：</span>
-        <el-date-picker
+        <!-- <el-date-picker
           style="width: 80%"
           v-model="date"
           type="daterange"
@@ -52,6 +72,23 @@
           start-placeholder="开始日期"
           end-placeholder="结束日期"
           :picker-options="pickerOptions"
+          size="small">
+        </el-date-picker> -->
+        <el-date-picker
+          v-model="form.startDate"
+          style="width: 25%"
+          type="date"
+          placeholder="选择日期"
+          :picker-options="pickerOptions"
+          size="small">
+        </el-date-picker>
+        <span style="margin: 0 6px;color: #d9d9d9;width: 12px;">—</span>
+        <el-date-picker
+          v-model="form.endDate"
+          style="width: 25%"
+          type="date"
+          placeholder="选择日期"
+          :picker-options="pickerOptions2"
           size="small">
         </el-date-picker>
       </div>
@@ -83,17 +120,31 @@
         </div>
       </div>
 
-      <div style="padding: 0px 0px 0px 120px;">
-        <p>除了竞价策略外，您可以将竞价最多提高 900%。</p>
-          <p>搜索结果顶部（首页）
-            <el-input v-model="form.biddingPlacementTop" style="width: 150px" size="small"/>%
+      <div class="bidding">
+        <p style="fontSize: 14px; marginTop: 10px">除了竞价策略外，您可以将竞价最多提高 900%。</p>
+          <p>
+            <span style="fontSize: 14px;color: #222">搜索结果顶部（首页）</span>
+            <el-input v-model="form.biddingPlacementTop" style="width: 150px" size="small">
+              <template slot="suffix">
+                <div  style="lineHeight: 32px">%</div>
+              </template>
+            </el-input>
           </p>
-          <p style="marginLeft: 140px;">示例： 对于此广告位，$0.75 竞价将为 $0.90。动态竞价可以将其提高至 $1.80</p>
-          <p>商品页面
-            <el-input
-              v-model="form.biddingPlacementProductPage" style="marginLeft: 82px;width: 150px" size="small"/>%
+          <p style="marginLeft: 140px;">示例： 对于此广告位，$0.75 竞价将为 
+            ${{algorithm(form.biddingPlacementTop)}}。
+            {{form.biddingStrategy !== 'manual' ? `动态竞价范围$0 - $${algorithm(form.biddingPlacementTop)}` : ''}}</p>
+          <p>
+            <span style="fontSize: 14px;color: #222">商品页面</span>
+            <el-input v-model="form.biddingPlacementProductPage" style="marginLeft: 82px;width: 150px" size="small">
+              <template slot="suffix">
+                <div  style="lineHeight: 32px">%</div>
+              </template>
+            </el-input>
           </p>
-          <p style="marginLeft: 140px;">示例： 对于此广告位，$0.75 竞价将保持 $0.75 不变。动态竞价可以将其提高至 $1.13</p>
+          <p style="marginLeft: 140px;">示例： 对于此广告位，$0.75 竞价将为 
+            ${{algorithm(form.biddingPlacementProductPage)}}。
+            {{form.biddingStrategy !== 'manual' ? 
+            `动态竞价范围$0 - $${algorithm(form.biddingPlacementProductPage)}` : ''}}</p>
       </div>
 
       <span>
@@ -105,8 +156,14 @@
 
       <h3>▌广告活动</h3>
 
-      <el-form-item label="广告组名称：" prop="groupRo.name">
-        <el-input v-model="form.groupRo.name" size="small"/>
+      <el-form-item prop="groupRo.name">
+        <template slot="label">
+          <div style="display: flex;">
+            <span>广告组名称：</span>
+            <span class="msg">*</span>
+          </div>
+        </template>
+        <el-input v-model="form.groupRo.name" placeholder="请输入广告组名称" size="small"/>
       </el-form-item>
       <!-- <div class="label">
         <span>广告组名称：</span>
@@ -150,6 +207,7 @@
             ref="tgTable"
             :asinList.sync="priceAsin"
             :targetingMode.sync="form.biddingStrategy"
+            :defaultBid="form.groupRo.defaultBid"
             :mwsStoreId="mwsStoreId"
             style="marginTop: 20px"
           />
@@ -167,13 +225,19 @@
 
         <div v-if="form.targetingMode === 'manual'">
 
-          <div v-if="form.targetingMode === 'manual'" class="label">
+          <div v-if="form.targetingMode === 'manual'">
             <!-- <span>默认竞价：</span>
             <el-input v-model="form.groupRo.defaultBid" placeholder="至少1" style="width: 40%" size="small">
               <i slot="prefix">$</i>
             </el-input> -->
-            <el-form-item label="默认竞价：" prop="groupRo.defaultBid">
-              <el-input v-model="form.groupRo.defaultBid" placeholder="至少0.02" style="width: 100%" size="small">
+            <el-form-item prop="groupRo.defaultBid">
+              <template slot="label">
+                <div style="display: flex;">
+                  <span>默认竞价：</span>
+                  <span class="msg">*</span>
+                </div>
+              </template>
+              <el-input v-model="form.groupRo.defaultBid" placeholder="至少0.02" style="width: 150px" size="small">
               <i slot="prefix">$</i>
               </el-input>
             </el-form-item>
@@ -194,6 +258,7 @@
             ref="keywordTable"
             :asinList.sync="priceAsin"
             :targetingMode.sync="form.biddingStrategy"
+            :defaultBid="form.groupRo.defaultBid"
             :mwsStoreId="mwsStoreId"
           />
 
@@ -210,6 +275,7 @@
             ref="priceCategory"
             :asinList.sync="priceAsin"
             :targetingMode.sync="form.biddingStrategy"
+            :defaultBid="form.groupRo.defaultBid"
             :mwsStoreId="mwsStoreId"/>
 
           <deny-keyword
@@ -275,15 +341,33 @@ export default {
       if (this.marketplace === 'JP') {
         if (value < 2) {
           return callback(new Error('广告组默认竞价必须大于等于2'));
-        } else if (value > 100000) {
-          return callback(new Error('广告组默认竞价最大值不超过100000'));
+        } else if (value > Number(this.form.budget)) {
+          return callback(new Error('广告组默认竞价不能超过广告活动日预算'));
         }
       } else {
         if (value < 0.02) {
           return callback(new Error('广告组默认竞价必须大于等于0.02'));
-        } else if (value > 1000) {
-          return callback(new Error('广告组默认竞价最大值不超过1000'));
+        } else if (value > Number(this.form.budget)) {
+          return callback(new Error('广告组默认竞价不能超过广告活动日预算'));
         }
+      }
+    };
+
+    const checkName = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('请输入广告活动名称'));
+      }
+      if (value.length > 128) {
+        return callback(new Error('最长128个字符'));
+      }
+    };
+
+    const checkGroupRoName = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('请输入广告组名称'));
+      }
+      if (value.length > 255) {
+        return callback(new Error('最长255个字符'));
       }
     };
 
@@ -311,16 +395,16 @@ export default {
       // dialogVisible: true,
       KeywordFlag: '关键词',
       priceAsin: [],
-      date: null,
+      date: [Date.now(), ''],
       form: {
         name: '',
         budget: '',
         endDate: '',
-        startDate: '',
+        startDate: Date.now(),
         targetingMode: 'auto',
         biddingStrategy: 'legacyForSales',
-        biddingPlacementProductPage: '', //商品页面 百分比
-        biddingPlacementTop: '', //搜索结果顶部 百分比
+        biddingPlacementProductPage: '0', //商品页面 百分比
+        biddingPlacementTop: '20', //搜索结果顶部 百分比
         groupRo: {
           name: '',
           defaultBid: '0.75',
@@ -337,39 +421,49 @@ export default {
       defaultRadio: '1',
       rules: {
         name: [
-          { required: true, message: '请输入广告活动名称', trigger: 'blur' },
-          { max: 128, message: '最长128个字符', trigger: 'blur' }
+          { validator: checkName, trigger: 'blur' }
         ],
         budget: [
           { validator: checkBudget, trigger: 'blur' },
         ],
         ['groupRo.name']: [
-          { required: true, message: '请输入广告组名称', trigger: 'blur' },
-          { max: 255, message: '最长255个字符', trigger: 'blur' }
+          { validator: checkGroupRoName, trigger: 'blur' }
         ],
         ['groupRo.defaultBid']: [
-          { validator: checkDefaultBid, trigger: 'blur' },
+          { validator: checkDefaultBid, trigger: 'change' },
         ]
       },
       pickerOptions: {
         disabledDate: (date) => {
           return date.getTime() < Date.now() - 8.64e7;
         }
-      }
+      },
+      pickerOptions2: {
+        disabledDate: (date) => {
+          const day = new Date();
+          return date.getTime() < day.getTime() + 24 * 60 * 60 * 1000 - 8.64e7;
+        }
+      },
     };  
   },
 
   watch: {
     date: {
       handler() {
-        this.form.startDate = dayjs(this.date[0]).format('YYYYMMDD');
-        this.form.endDate = dayjs(this.date[1]).format('YYYYMMDD');
+        // this.form.startDate = dayjs(this.date[0]).format('YYYYMMDD');
+        // this.form.endDate = dayjs(this.date[1]).format('YYYYMMDD');
       },
       deep: true
     },
   },
 
   methods: {
+
+    algorithm(value) {
+      const res = Number(value) / 100;
+      return ( 0.75 * (1 + res)).toFixed(2);
+    },
+
     cancel() {
       this.$emit('update:dialogVisible', false);
     },
@@ -415,9 +509,14 @@ export default {
         productItemRoList: priceTable,
         targetingExpressionRoList: tgTable
       };
+      const params = {
+        ...this.form,
+        startDate: dayjs(this.form.startDate).format('YYYYMMDD'),
+        endDate: dayjs(this.form.endDate).format('YYYYMMDD'),
+      };
       this.loading = true;
-      createAdManage(this.form).then(res => {
-        if (res.data.code === 200) {
+      createAdManage(params).then(res => {
+        if (res.data.success) {
           this.$message({
             type: 'success',
             message: '创建广告活动成功'
@@ -425,6 +524,12 @@ export default {
           this.loading = false;
           this.dialogVisible = false;
           // this.empty();
+        } else {
+          this.$message({
+            type: 'error',
+            message: res.data.msg.split(':').length > 1 ? res.data.msg.split(':')[1] : res.data.msg,
+          });
+          this.loading = false;
         }
       }).catch(() => {
         this.loading = false;
@@ -456,7 +561,13 @@ export default {
     margin-top: 20px;
 
     span {
-      width: 20%;
+      width: 22%;
+    }
+
+    p {
+      margin: 0 0 6px 24px;
+      font-size: 12px;
+      color: #888;
     }
     
   }
@@ -478,6 +589,27 @@ export default {
   .form {
     ::v-deep .el-form-item__label {
       text-align: start;
+    }
+    ::v-deep .el-form-item__error {
+      width: 220px;
+    }
+  }
+  .msg {
+    color: #ff4d4f;
+    font-size: 20px;
+    font-family: SimSun,sans-serif;
+    content: "*";
+    display: block;
+    widows: 10px;
+  }
+
+  .bidding {
+    padding: 0px 0px 0px 120px;
+
+    p {
+      margin: 0 0 6px 9px;
+      font-size: 12px;
+      color: #888;
     }
   }
 

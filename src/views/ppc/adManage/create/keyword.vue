@@ -29,7 +29,7 @@
         <el-button @click="batchUseBid" size="small" :disabled="!selectData.length">应用建议竞价</el-button>
         <el-button @click="ifBid = true" size="small" :disabled="!selectData.length">设置竞价</el-button>
         <span v-if="ifBid">
-          <el-select v-model="bid" size="small" style="width: 140px">
+          <el-select v-model="bid" @change="handleBid" size="small" style="width: 140px">
             <el-option
               v-for="item in bidList"
               :key="item.value"
@@ -39,7 +39,7 @@
             />
           </el-select>
 
-          <el-select v-model="modified" size="small" style="width: 50px">
+          <el-select v-if="bid !== 'bid'" v-model="modified" size="small" style="width: 50px">
             <el-option
               v-for="item in modifiedList"
               :key="item.label"
@@ -48,7 +48,7 @@
             >{{item.label}}</el-option>
           </el-select>
 
-          <el-select v-model="symbol" size="small" style="width: 50px">
+          <el-select v-if="bid !== 'bid'" v-model="symbol" size="small" style="width: 50px">
             <el-option
               v-for="item in symbolList"
               :key="item.label"
@@ -56,8 +56,9 @@
               style="textAlign: center"
             >{{item.label}}</el-option>
           </el-select>
-
-          <el-input size="small" v-model="bidval" style="width: 50px"/>
+          
+          <el-input v-if="bid !== 'bid'" size="small" v-model="bidval" style="width: 50px"/>
+          <el-input v-else size="small" v-model="bidval" style="width: 150px"/>
           <el-button @click="empty" size="small" style="marginLeft: 10px;">取消</el-button>
           <el-button @click="setBid" type="primary" size="small" :disabled="!bidval">确定</el-button>
         </span>
@@ -143,7 +144,7 @@
       </el-col>
 
       <el-col :span="1" v-if="category === '输入关键词'" style="lineHeight: 200px;">
-        <el-button @click="searchKeyword" type="text">添加</el-button>
+        <el-button @click="searchKeyword" :disabled="disabled" type="text">添加</el-button>
       </el-col>
 
       <el-col :span="15">
@@ -248,6 +249,10 @@ export default {
       type: String,
       require: true,
     },
+    defaultBid: {
+      type: String,
+      require: true,
+    }
   },
 
   data() {
@@ -299,7 +304,8 @@ export default {
       tableData: [],
       selectData: [],
       dialogVisible: false,
-      ifBid: false
+      ifBid: false,
+      disabled: false,
     };
   },
 
@@ -401,10 +407,20 @@ export default {
         asinList: this.asinList,
       };
       this.loading = true;
+      // const arr = this.tableData.length && this.tableData.map(item => item.flag) || [];
       querySuggestKeyword(params).then(res => {
         if (res.data.code === 200) {
           this.loading = false;
-          this.categoryData = res.data.data;
+          this.categoryData = res.data.data.map(item => {
+            item.matchTypeSuggestedBids.forEach(t => {
+              const arr = this.tableData.length && this.tableData.map(item => item.flag) || [];
+              if (arr.includes(`${item.suggestedKeyword}${t.matchType}`)) {
+                t.checked = true;
+              }
+            });
+            return item;
+          });
+    
         }
       }).catch(() => {
         this.loading = false;
@@ -425,7 +441,7 @@ export default {
             ...t,
             suggestedKeyword: item.suggestedKeyword,
             isInput: false,
-            keywordBid: '',
+            keywordBid: this.defaultBid,
             flag: `${item.suggestedKeyword}${t.matchType}`
           });
         });
@@ -434,7 +450,13 @@ export default {
     },
 
     handleSelect(keyword, matchType, row) {
-      
+      if (!this.defaultBid) {
+        this.$message({
+          type: 'warning',
+          message: '请先输入正确的默认竞价'
+        });
+        return;
+      }
       this.categoryData = this.categoryData.map(item => {
         if (item.suggestedKeyword === keyword) {
           item.matchTypeSuggestedBids.forEach(t => {
@@ -450,7 +472,7 @@ export default {
         ...row,
         suggestedKeyword: keyword,
         isInput: false,
-        keywordBid: '',
+        keywordBid: this.defaultBid,
         flag: `${keyword}${matchType}`
       });
     },
@@ -520,6 +542,26 @@ export default {
     },
 
     setBid() {
+      if (this.bid === 'bid') {
+        this.tableData.forEach(item => {
+          if ([...this.selectData].includes(item)) {
+            
+            item.keywordBid = this.bidval;
+          }
+          // return item;
+        });
+        return;
+      }
+      
+      const arr = this.selectData.filter(s => !s[this.bid]);
+      if (arr.length) {
+        this.$message({
+          type: 'warning',
+          message: '选中关键词无建议竞价，无法设置该选项'
+        });
+        return;
+      }
+
       this.tableData.forEach(item => {
         if ([...this.selectData].includes(item)) {
           for (const key in item) {
@@ -529,7 +571,7 @@ export default {
               const res = this.symbol === '$' ? modified : chu;
               if (res > 0.02) {
                 item[key] = res.toFixed(2);
-                this.empty();
+                // this.empty();
               } else {
                 this.$message({
                   type: 'error',
@@ -537,6 +579,7 @@ export default {
                 });
                 this.ifBid = true;
               }
+              
             }
           }
         }
@@ -551,15 +594,43 @@ export default {
     handleTextarea(value) {
       const maxLines = 1000;
       let valueArr = value.split(/\r\n|\r|\n/);
+      const arr = [];
+      valueArr.map((item, idx) => {
+        
+        if (item.length > 80) {
+          this.$message({
+            type: 'error',
+            message: `第${idx + 1}行关键词已超过80个字符`
+          });
+          arr.push(item);
+        }
+      });
+      this.disabled = arr.length;
+
       if (valueArr.length > maxLines) {
         valueArr = valueArr.slice(0, maxLines);
         value = valueArr.join('\n');
         this.textarea = value;
       }
+      
       this.keywordList = valueArr;
     },
 
     searchKeyword() {
+      if (!this.defaultBid) {
+        this.$message({
+          type: 'warning',
+          message: '请先输入正确的默认竞价'
+        });
+        return;
+      }
+      if (!this.asinList.length) {
+        this.$message({
+          type: 'warning',
+          message: '请先选择广告商品'
+        });
+        return;
+      }
       const params = {
         storeId: this.mwsStoreId,
         strategy: this.targetingMode,
@@ -567,7 +638,7 @@ export default {
         asinList: this.asinList,
         keywordList: this.keywordList.filter(Boolean)
       };
-      
+
       manualQueryKeyword(params).then(res => {
         if (res.data.code === 200) {
           this.textarea = '';
@@ -579,7 +650,7 @@ export default {
                   ...t,
                   suggestedKeyword: item.suggestedKeyword,
                   isInput: false,
-                  keywordBid: '',
+                  keywordBid: this.defaultBid,
                   flag: `${item.suggestedKeyword}${t.matchType}`
                 });
               }
@@ -588,6 +659,10 @@ export default {
         }
       });
 
+    },
+
+    handleBid() {
+      this.bidval = '';
     }
 
   }

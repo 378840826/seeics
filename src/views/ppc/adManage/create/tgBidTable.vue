@@ -84,6 +84,10 @@ export default {
       type: String,
       require: true,
     },
+    defaultBid: {
+      type: String,
+      require: true,
+    }
   },
 
   data() {
@@ -162,14 +166,14 @@ export default {
           const obj = {};
 
           for (const key in data) {
-            obj.name = 
+            // obj.name = 
             obj.bid = data[key];
             this.tableData.push({
               name: key,
               bid: data[key],
-              status: 0,
+              status: true,
               isInput: false,
-              keywordBid: '',
+              keywordBid: this.defaultBid,
             });
           }
         }
@@ -196,7 +200,23 @@ export default {
     handleLeaveKeyword(row) {
       this.tableData.forEach(item => {
         if (this.isObjectValueEqual(item, row)) {
-          item.isInput = false;
+          if (item.keywordBid < 0.02) {
+            this.$message({
+              type: 'error',
+              message: '竞价必须大于等于0.02'
+            });
+            // item.isInput = false;
+          } else if (!/(?:^[1-9]([0-9]+)?(?:\.[0-9]{1,2})?$)|(?:^(?:0)$)|(?:^[0-9]\.[0-9](?:[0-9])?$)/.test(item.keywordBid)) {
+            if (item.keywordBid.indexOf('.') > 0){
+              item.keywordBid = item.keywordBid.slice(0, item.keywordBid.indexOf('.') + 3);
+              item.isInput = false;
+            } else {
+              item.keywordBid = '';
+            }
+          } else {
+            item.isInput = false;
+          }
+          
         }
       });
     },

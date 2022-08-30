@@ -224,6 +224,10 @@ export default {
       type: String,
       require: true,
     },
+    defaultBid: {
+      type: String,
+      require: true,
+    },
   },
 
   data() {
@@ -346,7 +350,7 @@ export default {
             return {
               priceInfo: item,
               checked: false,
-              bid: '0.02',
+              bid: this.defaultBid,
               isInput: false
             };
           });
@@ -357,23 +361,43 @@ export default {
     },
 
     handleSelectAll() {
+      if (!this.defaultBid) {
+        this.$message({
+          type: 'warning',
+          message: '请先输入正确的默认竞价'
+        });
+        return;
+      }
       const arr = this.tableData.length && this.tableData.map(item => item.priceInfo) || [];
       this.data.forEach(item => {
         if (!arr.includes(item.priceInfo)) {
           item.checked = true;
-          this.tableData.push(item);
+          this.tableData.push({
+            ...item,
+            bid: this.defaultBid
+          });
         }
       });
     },
 
     handleSelect(row) {
+      if (!this.defaultBid) {
+        this.$message({
+          type: 'warning',
+          message: '请先输入正确的默认竞价'
+        });
+        return;
+      }
       this.data = this.data.map(item => {
         if (item.priceInfo === row.priceInfo) {
           item.checked = true;
         }
         return item;
       });
-      this.tableData.push(row);
+      this.tableData.push({
+        ...row,
+        bid: this.defaultBid
+      });
     },
 
     handleAllDelete() {
@@ -407,6 +431,13 @@ export default {
     },
 
     handleSearch() {
+      if (!this.defaultBid) {
+        this.$message({
+          type: 'warning',
+          message: '请先输入正确的默认竞价'
+        });
+        return;
+      }
       const params = {
         storeId: this.mwsStoreId,
         strategy: this.targetingMode,
@@ -418,7 +449,7 @@ export default {
             return {
               priceInfo: item,
               checked: false,
-              bid: '0.02',
+              bid: this.defaultBid,
               isInput: false
             };
           });
@@ -448,6 +479,13 @@ export default {
     },
 
     textareaSelect() {
+      if (!this.defaultBid) {
+        this.$message({
+          type: 'warning',
+          message: '请先输入正确的默认竞价'
+        });
+        return;
+      }
       const params = {
         storeId: this.mwsStoreId,
         strategy: this.targetingMode,
@@ -461,7 +499,7 @@ export default {
               this.tableData.push({
                 priceInfo: item,
                 checked: false,
-                bid: '0.02',
+                bid: this.defaultBid,
                 isInput: false
               });
             }
