@@ -10,10 +10,21 @@
     top="1vh"
     width="80%">
 
-    <el-form>
+    <el-form :model="form" :rules="rules" label-width="130px">
       
-      <el-form-item label="选择广告活动：">
-        <el-select size="small" style="width: 400px">
+      <el-form-item>
+        <template slot="label">
+          <div style="display: flex;">
+            <span>选择广告活动：</span>
+            <span class="msg">*</span>
+          </div>
+        </template>
+        <el-select
+          v-loadmore="loadmore"
+          v-model="form.campaignId"
+          @change="handleGroup"
+          size="small"
+          style="width: 400px">
           <el-option
             v-for="item in campaignList"
             :key="item.id"
@@ -22,13 +33,125 @@
           />
         </el-select>
       </el-form-item>
-
-      <el-form-item label="广告组名称：">
-        <el-input/>
+      
+      <el-form-item prop="name">
+        <template slot="label">
+          <div style="display: flex;">
+            <span>广告组名称：</span>
+            <span class="msg">*</span>
+          </div>
+        </template>
+        <el-input v-model="form.name" placeholder="请输入广告组名称"  style="width: 400px" size="small"/>
       </el-form-item>
 
-      <CampaignTable/>
+      <CampaignTable
+        ref="priceTable"
+        :mwsStoreId="mwsStoreId"
+        :priceAsin.sync="priceAsin"
+      />
 
+      <div>
+        <div v-if="targetingMode === 'auto'">
+          <div style="position: relative;marginTop: 20px;">
+            <el-radio v-model="defaultRadio" label="1" style="z-index: 10;">
+              默认竞价：
+              <span v-if="defaultRadio === '1'" style="color: #ff4d4f;font-size: 20px;font-family: SimSun,sans-serif;content: '*';">*</span>
+            </el-radio>
+            <el-form-item
+              v-if="defaultRadio === '1'"  prop="defaultBid" style="position: absolute;top: -10px;left: 0">
+                
+                <el-input v-model="form.defaultBid" placeholder="至少0.02" style="width: 60%" size="small">
+                <i slot="prefix">$</i>
+                </el-input>
+            </el-form-item>
+          </div>
+          <div>
+            
+          <el-radio v-model="defaultRadio" label="2" style="marginTop: 30px;">按Targeting Group设置竞价
+          </el-radio>
+          </div>
+
+          <tg-bid-talbe
+            v-if="defaultRadio === '2'"
+            ref="tgTable"
+            :asinList.sync="priceAsin"
+            :targetingMode.sync="strategy"
+            :defaultBid="form.defaultBid"
+            :mwsStoreId="mwsStoreId"
+            style="marginTop: 20px"
+          />
+
+          <deny-keyword
+            ref="denyKeyword"
+            :title="'关键词'"
+          />
+
+          <deny-keyword
+            ref="denyPrice"
+            :title="'商品'"
+          />
+        </div>
+
+        <div v-if="targetingMode === 'manual'" style="marginTop: 10px">
+
+          <div v-if="targetingMode === 'manual'">
+            <el-form-item prop="defaultBid">
+              <template slot="label">
+                <div style="display: flex;">
+                  <span>默认竞价：</span>
+                  <span class="msg">*</span>
+                </div>
+              </template>
+              <el-input v-model="form.defaultBid" placeholder="至少0.02" style="width: 150px" size="small">
+              <i slot="prefix">$</i>
+              </el-input>
+            </el-form-item>
+          </div>
+
+          <h3>
+            <span 
+              @click="KeywordFlag = '关键词'" 
+              :style="{color: KeywordFlag === '关键词' && '#409EFF' || '', cursor: 'pointer'}">关键词</span>
+            <span 
+              @click="KeywordFlag = '分类/商品'" 
+              :style="{marginLeft: '30px',
+              color: KeywordFlag === '分类/商品' && '#409EFF' || '', cursor: 'pointer'}">分类/商品</span>
+          </h3>
+
+          <keyword
+            v-if="KeywordFlag === '关键词'"
+            ref="keywordTable"
+            :asinList.sync="priceAsin"
+            :targetingMode.sync="strategy"
+            :defaultBid="form.defaultBid"
+            :mwsStoreId="mwsStoreId"
+          />
+
+          <deny-keyword
+            v-if="KeywordFlag === '关键词'"
+            ref="denyKeyword"
+            :title="'关键词'"
+          />
+
+          <!-- <manual-category v-if="KeywordFlag === '分类/商品'"/> -->
+
+          <price-category
+            v-if="KeywordFlag === '分类/商品'"
+            ref="priceCategory"
+            :asinList.sync="priceAsin"
+            :targetingMode.sync="strategy"
+            :defaultBid="form.defaultBid"
+            :mwsStoreId="mwsStoreId"/>
+
+          <deny-keyword
+            v-if="KeywordFlag === '分类/商品'"
+            ref="denyPrice"
+            :title="'商品'"
+          />
+        </div>
+
+
+      </div>
     </el-form>
 
     <span slot="footer" class="dialog-footer">
@@ -41,41 +164,196 @@
 <script>
 
 import CampaignTable from './CampaignTable.vue';
-import { queryCampaignList } from '@/api/ppc/adManage';
+import TgBidTalbe from './tgBidTable.vue';
+import DenyKeyword from './denyKeyword.vue';
+import ManualCategory from './manualCategory.vue';
+import Keyword from './keyword.vue';
+import PriceCategory from './PriceTab.vue';
+import { queryCampaignList, createAdGroup } from '@/api/ppc/adManage';
 
 export default {
 
   components: {
-    CampaignTable
+    CampaignTable,
+    TgBidTalbe,
+    DenyKeyword,
+    ManualCategory,
+    Keyword,
+    PriceCategory,
+  },
+
+  props: {
+    // dialogVisible: {
+    //   type: Boolean,
+    //   required: true,
+    // },
+    mwsStoreId: {
+      type: String,
+      // required: true,
+      default: '1525044033420210177'
+    },
+    marketplace: {
+      type: String,
+      required: true,
+    }
   },
 
   data() {
+
+    const checkDefaultBid = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error(`广告组默认竞价至少$${this.marketplace === 'JP' ? 2 : 0.02}`));
+      }
+      if (this.marketplace === 'JP') {
+        if (value < 2) {
+          return callback(new Error('广告组默认竞价必须大于等于2'));
+        } else if (value > 100000) {
+          return callback(new Error('广告组默认竞价不能超过100000'));
+        }
+      } else {
+        if (value < 0.02) {
+          return callback(new Error('广告组默认竞价必须大于等于0.02'));
+        } else if (value > 1000) {
+          return callback(new Error('广告组默认竞价不能超过1000'));
+        }
+      }
+    };
+
+    const checkName = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('请输入广告组名称'));
+      }
+      if (value.length > 255) {
+        return callback(new Error('最长255个字符'));
+      }
+    };
+
     return {
+      form: {
+        campaignId: '',
+        name: '',
+        defaultBid: '0.75',
+        negativeKeywordItemRoList: [], //否定关键词集合
+        keywordItemRoList: [], //关键词集合
+        negativeTargetingAsinList: [], //否定投放商品（ASIN）集合
+        productItemRoListL: [], //商品广告集合
+        targetingAsinList: [], //投放商品（ASIN）集合
+        targetingExpressionRoList: [], //targetingGroup  自动投放表达式
+        state: true,
+      },
+      targetingMode: 'auto',
+      strategy: '',
+      priceAsin: [],
+      targetingType: '',
+      KeywordFlag: '关键词',
+      defaultRadio: '1',
       dialogVisible: true,
-      campaignList: []
+      campaignList: [],
+      data: [],
+      page: {
+        current: 1,
+        size: 20
+      },
+      total: 0,
+      rules: {
+        name: [
+          { validator: checkName, trigger: 'blur' }
+        ],
+        defaultBid: [
+          { validator: checkDefaultBid, trigger: 'change' },
+        ]
+      },
     };
   },
 
-  mounted() {
-    queryCampaignList({
-      current: 1,
-      size: 20,
-      order: 'createdTime',
-      asc: false
-    }, {
-      marketplace: 'CA',
-      storeId: '1524676862584238082'
-    }).then(res => {
-      if (res.data.code === 200) {
-        this.campaignList = res.data.data.page.records.map(item => {
-          return {
-            value: item.id,
-            id: item.id,
-            label: item.name
-          };
-        });
+  directives: {
+    'loadmore': {
+      bind(el, binding) {
+        // 获取element-ui定义好的scroll盒子
+        const SELECTWRAP_DOM = el.querySelector('.el-select-dropdown .el-select-dropdown__wrap');
+        SELECTWRAP_DOM.addEventListener('scroll', function () {
+          const condition = this.scrollHeight - this.scrollTop <= this.clientHeight;
+          if (condition) {
+            binding.value();
+          }
+        }, true);
       }
-    });
+    }
+  },
+
+  mounted() {
+    this.queryCampaignList();
+  },
+
+  methods: {
+
+    loadmore() {
+      console.log(666)
+      const result = this.page.size * this.page.current;
+      console.log(result ,this.total)
+      if (result < this.total) { //加载全部出来 停止请求
+        this.formData.current ++;
+        this.queryCampaignList();
+      }  
+    },
+
+    queryCampaignList() {
+      queryCampaignList({
+        ...this.page,
+        order: 'createdTime',
+        asc: false
+      }, {
+        marketplace: 'CA',
+        storeId: '1524676862584238082'
+      }).then(res => {
+        if (res.data.code === 200) {
+          this.campaignList = res.data.data.page.records.map(item => {
+            return {
+              value: item.id,
+              id: item.id,
+              label: item.name
+            };
+          });
+          this.data = res.data.data.page.records;
+          this.total = res.data.data.page.total;
+          this.form.campaignId = this.campaignList.length && this.campaignList[0].id;
+          this.targetingMode = res.data.data.page.records.length && res.data.data.page.records[0].targetingType;
+          this.strategy = res.data.data.page.records.length && res.data.data.page.records[0].biddingStrategy;
+        }
+      });
+    },
+
+    handleGroup(value) {
+      this.targetingMode = this.data.filter(item => item.id === value)[0].targetingType;
+      this.strategy = this.data.filter(item => item.id === value)[0].biddingStrategy;
+    },
+
+    saveBtn() {
+       const denyPrice = this.targetingMode === 'manual' && this.KeywordFlag === '分类/商品' && this.$refs.denyPrice.getField()
+      || this.targetingMode === 'auto' && this.$refs.denyPrice.getField() || [];
+      const priceCategory = this.targetingMode === 'manual' && this.KeywordFlag === '分类/商品' && this.$refs.priceCategory.getField() || [];
+      const denyKeyword = this.targetingMode === 'manual' && this.KeywordFlag === '关键词' && this.$refs.denyKeyword.getField()
+      || this.targetingMode === 'auto' && this.$refs.denyKeyword.getField() || [];
+      const keywordTable = this.targetingMode === 'manual' && this.targetingMode === 'manual' && this.KeywordFlag === '关键词' && this.$refs.keywordTable.getField() || [];
+      const tgTable = this.targetingMode === 'auto' && this.defaultRadio === '2' && this.$refs.tgTable.getField() || [];
+      const priceTable = this.$refs.priceTable.getField();
+
+      this.form = {
+        ...this.form,
+        state: this.form.state ? 'enabled' : 'paused',
+        storeId: this.mwsStoreId,
+        keywordItemRoList: keywordTable,
+        negativeKeywordItemRoList: denyKeyword,
+        negativeTargetingAsinList: denyPrice,
+        targetingAsinList: priceCategory,
+        productItemRoList: priceTable,
+        targetingExpressionRoList: tgTable
+      };
+    
+      createAdGroup(this.form).then(res => {
+        console.log(res)
+      })
+    }
   }
 };
 </script>
@@ -91,5 +369,14 @@ export default {
       width: 20%;
     }
     
+  }
+
+  .msg {
+    color: #ff4d4f;
+    font-size: 20px;
+    font-family: SimSun,sans-serif;
+    content: "*";
+    display: block;
+    widows: 10px;
   }
 </style>

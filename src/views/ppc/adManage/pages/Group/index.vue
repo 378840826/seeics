@@ -124,7 +124,9 @@
     class="pagination"
   />
 
-  <CreateAdGroup/>
+  <CreateAdGroup
+  :mwsStoreId="mwsStoreId"
+  :marketplace="marketplace"/>
 </div>
 </template>
 
