@@ -3,7 +3,7 @@
     <div>
       <h2>我的会员</h2>
       <p>
-        当前会员等级：<span style="color: #ff0000; fontWeight: 600">{{levelName}}</span>
+        当前会员等级：<span style="color: #ff0000; fontWeight: 600">{{type === 1 && levelName || type === 2 && '企业会员' || '普通会员' }}</span>
         <span style="marginLeft: 40px">有效期剩余：<span style="color: #009900">{{levelName === '普通会员' ? '—' : effectiveDays + '天'}}</span></span>
         <el-button 
           v-if="levelName !== '普通会员'" 
@@ -25,7 +25,7 @@
     <div class="upgrade">
 
       <span v-if="levelName !== '至尊VIP'">升级：
-        <el-button type="primary" @click="handleUpgrade('upgrade')">{{nextLevelName}}</el-button>
+        <el-button v-if="type === 1 && nextLevelName" type="primary" @click="handleUpgrade('upgrade')">{{nextLevelName}}</el-button>
       </span> 
       <el-button type="primary" disabled @click="handleRefuel()" style="marginLeft: 30px">购买订单加油包</el-button>
       <el-button type="primary" @click="handleRefuel(4, '购买关键词分析加油包')" style="marginLeft: 30px">购买关键词分析加油包</el-button>
@@ -154,7 +154,8 @@ export default {
         pageSizes: [20, 50, 100],
       },
       isvibist: false,
-      isRefuel: false
+      isRefuel: false,
+      type: 1,
     };
   },
   mounted() {
@@ -177,10 +178,6 @@ export default {
       },
       immediate: true,
     }
-  },
-
-  beforeRouteUpdate() {
-    console.log(666)
   },
 
   methods: {
@@ -293,6 +290,7 @@ export default {
           this.effectiveDays = res.data.data.effectiveDays;
           this.table = res.data.data.surplusVoList;
           this.expirationTime = res.data.data.expirationTime;
+          this.type = res.data.data.type;
         }
       });
     },

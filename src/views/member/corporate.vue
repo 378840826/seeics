@@ -210,7 +210,7 @@
           >添加</el-button>
            <el-button 
             v-if="scope.row.delete" 
-            @click="handleAdd(scope.row)"
+            @click="handleAdd(scope.row, true)"
             type="text"
             size="mini">重新添加</el-button>
           <el-button 
@@ -576,7 +576,7 @@ export default {
       };
       queryEnterpriseList({ current: this.page.current, size: this.page.size }, Object.assign(param, fun)).then(res => {
         this.data = res.data.data.records.map(item => {
-          if (this.diffDate(item.createTime) > 24) {
+          if (this.diffDate(item.createTime) > 24 && !item.status) {
             item.delete = true;
           }
           return item;
@@ -638,9 +638,9 @@ export default {
     },
 
     getStatus(val) {
-      if (val === 1) {
+      if (val === 0) {
         return '失效';
-      } else if (val === 2) {
+      } else if (val === 1) {
         return '有效';
       }
     },
@@ -750,8 +750,8 @@ export default {
       });
     },
     
-    handleAdd(row) {
-      if (!row.userId) {
+    handleAdd(row, flag) {
+      if (!flag && !row.userId) {
         this.$message({
           type: 'error',
           message: '请选择企业会员'
@@ -765,7 +765,9 @@ export default {
         });
         return;
       }
-      addLeve({ ...row, price: row.levelPrice }).then(res => {
+      addLeve({ ...row, price: row.levelPrice,
+        userId: flag ? row.enterpriseUserId : row.userId,
+        userAccount: row.userAccount ? row.userAccount : row.account }).then(res => {
         if (res.data.code === 200) {
           this.dialogVisible = true;
           this.content = `${window.location.href.split('index')[0]}buy?levelPrice=${res.data.data.levelPrice}&levelPriceId=${res.data.data.levelPriceId}`;
