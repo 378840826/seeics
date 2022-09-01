@@ -252,6 +252,13 @@ export default {
     defaultBid: {
       type: String,
       require: true,
+    },
+    budget: {
+      type: String,
+      require: true,
+    },
+    marketplace: {
+      type: String,
     }
   },
 
@@ -322,6 +329,14 @@ export default {
       },
       deep: true
     },
+    selectData: {
+      handler(val) {
+        if (!val.length) {
+          this.ifBid = false;
+        }
+      },
+      deep: true,
+    }
   },
 
   mounted() {
@@ -343,11 +358,11 @@ export default {
 
     empty() {
       this.ifBid = false;
-      this.symbol = '$';
-      this.modified = '+';
-      this.bidval = '';
-      this.bid = 'suggestedBid';
-      this.tableData = this.tableData.map(item => item);
+      // this.symbol = '$';
+      // this.modified = '+';
+      // this.bidval = '';
+      // this.bid = 'suggestedBid';
+      // this.tableData = this.tableData.map(item => item);
     },
 
     handleKeyword(row) {
@@ -361,7 +376,29 @@ export default {
     handleLeaveKeyword(row) {
       this.tableData.forEach(item => {
         if (this.isObjectValueEqual(item, row)) {
-          item.isInput = false;
+          if (Number(item.keywordBid) > Number(this.budget)) {
+            this.$message({
+              type: 'error',
+              message: '竞价不能超过广告活动日预算'
+            });
+          } else if (Number(item.keywordBid) < 0.02) {
+            this.$message({
+              type: 'error',
+              message: '竞价必须大于等于0.02'
+            });
+          } else if (this.marketplace === 'JP' && Number(item.keywordBid) < 2) {
+            this.$message({
+              type: 'error',
+              message: '竞价必须大于等于2'
+            });
+          } else if (!item.keywordBid) {
+            this.$message({
+              type: 'error',
+              message: '请输入竞价'
+            });
+          } else {
+            item.isInput = false;
+          }
         }
       });
     },
@@ -543,6 +580,25 @@ export default {
 
     setBid() {
       if (this.bid === 'bid') {
+        if (Number(this.bidval) > this.budget) {
+          this.$message({
+            type: 'error',
+            message: '竞价不能超过广告活动日预算'
+          });
+          return;
+        } else if (Number(this.bidval) < 0.02) {
+          this.$message({
+            type: 'error',
+            message: '竞价必须大于等于0.02'
+          });
+          return;
+        } else if (this.marketplace === 'JP' && Number(this.bidval) < 2) {
+          this.$message({
+            type: 'error',
+            message: '竞价必须大于等于2'
+          });
+          return;
+        }
         this.tableData.forEach(item => {
           if ([...this.selectData].includes(item)) {
             

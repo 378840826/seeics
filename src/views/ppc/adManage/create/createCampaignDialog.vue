@@ -9,7 +9,7 @@
     v-loading="loading"
     top="1vh"
     width="80%">
-    <el-form :model="form" :rules="rules" label-width="130px" class="form">
+    <el-form :model="form" ref="form" :rules="rules" label-width="130px" class="form">
     <div class="dialogBox">
       
       <h3>▌广告活动</h3>
@@ -124,22 +124,26 @@
         <p style="fontSize: 14px; marginTop: 10px">除了竞价策略外，您可以将竞价最多提高 900%。</p>
           <p>
             <span style="fontSize: 14px;color: #222">搜索结果顶部（首页）</span>
-            <el-input v-model="form.biddingPlacementTop" style="width: 150px" size="small">
+            <el-input v-model="form.biddingPlacementTop" @blur="numberChange" style="width: 150px" size="small">
               <template slot="suffix">
                 <div  style="lineHeight: 32px">%</div>
               </template>
             </el-input>
+            <span v-if="form.biddingPlacementTop > 900" style="color: red; marginLeft: 10px">最大值不能超过900</span>
           </p>
           <p style="marginLeft: 140px;">示例： 对于此广告位，$0.75 竞价将为 
             ${{algorithm(form.biddingPlacementTop)}}。
             {{form.biddingStrategy !== 'manual' ? `动态竞价范围$0 - $${algorithm(form.biddingPlacementTop)}` : ''}}</p>
           <p>
             <span style="fontSize: 14px;color: #222">商品页面</span>
-            <el-input v-model="form.biddingPlacementProductPage" style="marginLeft: 82px;width: 150px" size="small">
+            <el-input
+              v-model="form.biddingPlacementProductPage"
+              @blur="numberChange" style="marginLeft: 82px;width: 150px" size="small">
               <template slot="suffix">
-                <div  style="lineHeight: 32px">%</div>
+                <div  style="lineHeight: 32px;">%</div>
               </template>
             </el-input>
+            <span v-if="form.biddingPlacementProductPage > 900" style="color: red; marginLeft: 10px">最大值不能超过900</span>
           </p>
           <p style="marginLeft: 140px;">示例： 对于此广告位，$0.75 竞价将为 
             ${{algorithm(form.biddingPlacementProductPage)}}。
@@ -191,14 +195,14 @@
             </el-radio>
             <el-form-item
               v-if="defaultRadio === '1'"  prop="groupRo.defaultBid" style="position: absolute;top: 0;left: 0">
-                <el-input v-model="form.groupRo.defaultBid" placeholder="至少0.02" style="width: 60%" size="small">
+                <el-input @blur="numberChange" v-model="form.groupRo.defaultBid" placeholder="至少0.02" style="width: 60%" size="small">
                 <i slot="prefix">$</i>
                 </el-input>
             </el-form-item>
           </div>
           <div>
             
-          <el-radio v-model="defaultRadio" label="2" style="marginTop: 30px;">按Targeting Group设置竞价
+          <el-radio v-model="defaultRadio" label="2" style="marginTop: 30px;">投放组竞价
           </el-radio>
           </div>
 
@@ -209,6 +213,8 @@
             :targetingMode.sync="form.biddingStrategy"
             :defaultBid="form.groupRo.defaultBid"
             :mwsStoreId="mwsStoreId"
+            :budget="form.budget"
+            :marketplace="marketplace"
             style="marginTop: 20px"
           />
 
@@ -237,7 +243,7 @@
                   <span class="msg">*</span>
                 </div>
               </template>
-              <el-input v-model="form.groupRo.defaultBid" placeholder="至少0.02" style="width: 150px" size="small">
+              <el-input @blur="numberChange" v-model="form.groupRo.defaultBid" placeholder="至少0.02" style="width: 150px" size="small">
               <i slot="prefix">$</i>
               </el-input>
             </el-form-item>
@@ -260,6 +266,8 @@
             :targetingMode.sync="form.biddingStrategy"
             :defaultBid="form.groupRo.defaultBid"
             :mwsStoreId="mwsStoreId"
+            :budget="form.budget"
+            :marketplace="marketplace"
           />
 
           <deny-keyword
@@ -276,7 +284,9 @@
             :asinList.sync="priceAsin"
             :targetingMode.sync="form.biddingStrategy"
             :defaultBid="form.groupRo.defaultBid"
-            :mwsStoreId="mwsStoreId"/>
+            :mwsStoreId="mwsStoreId"
+            :budget="form.budget"
+            :marketplace="marketplace"/>
 
           <deny-keyword
             v-if="KeywordFlag === '分类/商品'"
@@ -430,7 +440,7 @@ export default {
           { validator: checkGroupRoName, trigger: 'blur' }
         ],
         ['groupRo.defaultBid']: [
-          { validator: checkDefaultBid, trigger: 'change' },
+          { validator: checkDefaultBid, trigger: 'blur' },
         ]
       },
       pickerOptions: {
@@ -482,6 +492,23 @@ export default {
       this.KeywordFlag = '关键词';
     },
 
+    // 修改不合法字符以及数字
+    numberChange (val) { // name字段名，index索引
+      // 校验正数，带两位小数
+      const reg = /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/;
+      // this.$emit('change', false);
+      if (isNaN(val.target.value)) { 
+        val.target.value = parseFloat(val.target.value) ;
+      } 
+      // 修改超出两位小数值
+      if (val.target.value.indexOf('.') > 0){
+        val.target.value = val.target.value.slice(0, val.target.value.indexOf('.') + 3);
+      }
+      if (!reg.test(val.target.value)) {
+        val.target.value = '';
+      }
+    },
+
     saveBtn() {
       // this.dialogVisible = false;
       const denyPrice = this.form.targetingMode === 'manual' && this.KeywordFlag === '分类/商品' && this.$refs.denyPrice.getField()
@@ -489,9 +516,67 @@ export default {
       const priceCategory = this.form.targetingMode === 'manual' && this.KeywordFlag === '分类/商品' && this.$refs.priceCategory.getField() || [];
       const denyKeyword = this.form.targetingMode === 'manual' && this.KeywordFlag === '关键词' && this.$refs.denyKeyword.getField()
       || this.form.targetingMode === 'auto' && this.$refs.denyKeyword.getField() || [];
-      const keywordTable = this.form.targetingMode === 'manual' && this.form.targetingMode === 'manual' && this.KeywordFlag === '关键词' && this.$refs.keywordTable.getField() || [];
+      const keywordTable = this.form.targetingMode === 'manual' && this.KeywordFlag === '关键词' && this.$refs.keywordTable.getField() || [];
       const tgTable = this.form.targetingMode === 'auto' && this.defaultRadio === '2' && this.$refs.tgTable.getField() || [];
       const priceTable = this.$refs.priceTable.getField();
+      this.$refs.form.validate();
+      if (!this.form.name) {
+        return this.$message({
+          type: 'error',
+          message: '请输入广告活动名称'
+        });
+      } else if (!this.form.budget) {
+        return this.$message({
+          type: 'error',
+          message: '请输入每日预算'
+        });
+      } else if (!this.form.startDate || !this.form.endDate) {
+        return this.$message({
+          type: 'error',
+          message: '请选择日期范围开始结尾时间'
+        });
+      } else if (this.form.biddingPlacementTop > 900) {
+        return this.$message({
+          type: 'error',
+          message: '搜索结果顶部大于900%'
+        });
+      } else if (this.form.biddingPlacementProductPage > 900) {
+        return this.$message({
+          type: 'error',
+          message: '商品页面大于900%'
+        });
+      } else if (!this.form.groupRo.name) {
+        return this.$message({
+          type: 'error',
+          message: '请输入广告组名称'
+        });
+      } else if (!priceTable.length) {
+        return this.$message({
+          type: 'error',
+          message: '请输入选择商品'
+        });
+      } else if (!this.form.groupRo.defaultBid) {
+        return this.$message({
+          type: 'error',
+          message: '请输入默认竞价'
+        });
+      } else if (this.form.groupRo.defaultBid < 0.02) {
+        return this.$message({
+          type: 'error',
+          message: '广告组默认竞价必须大于等于0.02'
+        });
+      } else if (this.form.groupRo.defaultBid > this.form.budget) {
+        return this.$message({
+          type: 'error',
+          message: '广告组默认竞价不能超过广告活动日预算'
+        });
+      } else if (this.form.targetingMode === 'manual' && !keywordTable.length && !priceCategory.length) {
+        this.$message({
+          type: 'error',
+          message: '请添加关键词或分类/商品'
+        });
+        return;
+      }
 
       this.form = {
         ...this.form,
@@ -527,7 +612,7 @@ export default {
         } else {
           this.$message({
             type: 'error',
-            message: res.data.msg.split(':').length > 1 ? res.data.msg.split(':')[1] : res.data.msg,
+            message: res.data.msg.split(':').length === 2 ? res.data.msg.split(':')[1] : res.data.msg,
           });
           this.loading = false;
         }
