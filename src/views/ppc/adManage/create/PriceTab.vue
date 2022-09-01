@@ -30,41 +30,43 @@
       </el-col>
 
       <el-col :span="15">
-        <!-- <el-button size="small">批量删除</el-button>
-        <el-button size="small">应用建议竞价</el-button>
-        <el-button size="small">设置竞价</el-button>
-        <span>
-          <el-select v-model="bid" size="small" style="width: 140px">
+        <el-button @click="batchDelete" size="small" :disabled="!selectData.length">批量删除</el-button>
+        <el-button @click="batchUseBid" size="small" :disabled="!selectData.length">应用建议竞价</el-button>
+        <el-button @click="ifBid = true" size="small" :disabled="!selectData.length">设置竞价</el-button>
+        <span v-if="ifBid">
+          <el-select v-model="bid" @change="handleBid" size="small" style="width: 140px">
             <el-option
               v-for="item in bidList"
-              :key="item.label"
-              :value="item.label"
+              :key="item.value"
+              :value="item.value"
+              :label="item.label"
               style="textAlign: center"
-            >{{item.label}}</el-option>
+            />
           </el-select>
 
-          <el-select v-model="jia" size="small" style="width: 50px">
+          <el-select v-if="bid !== 'bid'" v-model="modified" size="small" style="width: 50px">
             <el-option
-              v-for="item in jiaList"
+              v-for="item in modifiedList"
               :key="item.label"
               :value="item.label"
               style="textAlign: center"
             >{{item.label}}</el-option>
           </el-select>
 
-          <el-select v-model="qian" size="small" style="width: 50px">
+          <el-select v-if="bid !== 'bid'" v-model="symbol" size="small" style="width: 50px">
             <el-option
-              v-for="item in qianList"
+              v-for="item in symbolList"
               :key="item.label"
               :value="item.label"
               style="textAlign: center"
             >{{item.label}}</el-option>
           </el-select>
-
-          <el-input size="small" value="1000" style="width: 50px"/>
-          <el-button size="small" style="marginLeft: 10px;">取消</el-button>
-          <el-button type="primary" size="small">确定</el-button>
-        </span> -->
+          
+          <el-input v-if="bid !== 'bid'" size="small" v-model="bidval" style="width: 50px"/>
+          <el-input v-else size="small" v-model="bidval" style="width: 150px"/>
+          <el-button @click="empty" size="small" style="marginLeft: 10px;">取消</el-button>
+          <el-button @click="setBid" type="primary" size="small" :disabled="!bidval">确定</el-button>
+        </span>
       </el-col>
     </el-row>
 
@@ -151,6 +153,10 @@
               type="selection"
               width="50"/> -->
             <el-table-column
+              type="selection"
+              width="50px"
+            />
+            <el-table-column
               prop="priceInfo"
               label="商品信息">
 
@@ -234,9 +240,9 @@ export default {
     return {
       loading: false,
       category: '建议商品',
-      bid: '固定值',
-      jia: '+',
-      qian: '$',
+      modified: '+',
+      symbol: '$',
+      bidval: '',
       textarea: '',
       data: [],
       tableData: [],
@@ -246,18 +252,22 @@ export default {
       bidList: [
         {
           label: '固定值',
+          value: 'bid'
         },
         {
           label: '建议竞价的基础上',
+          value: 'suggestedBid',
         },
         {
           label: '最高建议竞价',
+          value: 'maxSuggestedBid',
         },
         {
           label: '最低建议竞价',
+          value: 'minSuggestedBid',
         },
       ],
-      jiaList: [
+      modifiedList: [
         {
           label: '+',
         },
@@ -265,7 +275,7 @@ export default {
           label: '-',
         },
       ],
-      qianList: [
+      symbolList: [
         {
           label: '$',
         },
@@ -279,6 +289,8 @@ export default {
         }
       ],
       dialogVisible: false,
+      ifBid: false,
+      selectData: []
     };
   },
 
