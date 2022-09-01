@@ -280,19 +280,33 @@
     </span>
   </el-dialog>
 
-    <el-dialog
-      title="付费会员专属"
-      :visible.sync="memberVisible"
-      width="30%"
-      center=true
-      append-to-body=true
-    >
-      <span>点击【取消】返回当前页，点击【升级会员】，跳转到我的会员页面</span>
-      <span slot="footer" class="dialog-footer">
-      <el-button @click="memberVisible = false">取 消</el-button>
-      <el-button type="primary" @click="$router.push('/member/index')">升级会员</el-button>
-      </span>
-    </el-dialog>
+  <el-dialog
+    title="付费会员专属"
+    :visible.sync="memberVisible"
+    width="30%"
+    center=true
+    append-to-body=true
+  >
+    <span>点击【取消】返回当前页，点击【升级会员】，跳转到我的会员页面</span>
+    <span slot="footer" class="dialog-footer">
+    <el-button size="small" @click="memberVisible = false">取 消</el-button>
+    <el-button size="small" type="primary" @click="$router.push('/member/index')">升级会员</el-button>
+    </span>
+  </el-dialog>
+
+  <el-dialog
+    title="提示"
+    :visible.sync="marginVisible"
+    width="30%"
+    center=true
+    append-to-body=true
+  >
+    <span>超过限制数量，无法导入，请调整导入的关键词数量，或购买加油包；</span>
+    <span slot="footer" class="dialog-footer">
+    <el-button size="small" @click="marginVisible = false">返回调整数量</el-button>
+    <el-button size="small" type="primary" @click="$router.push('/member/index')">去购买</el-button>
+    </span>
+  </el-dialog>
   </div>
 </template>
 
@@ -444,6 +458,7 @@ export default {
       },
 
       // 筛选 批量导出导入参数
+      marginVisible: false,
       memberVisible: false, //跳转会员
       msg: false,
       isFiletBtn: false,
@@ -909,6 +924,8 @@ export default {
 
     submit() {
       batchAnalyze(this.formInline.searchCountry, this.formData).then(res => {
+        this.formData = null;
+        this.fileName = '';
         if (res.data.msg === '付费会员专属') {
           this.memberVisible = true;
         } else if (res.data.code === 200) {
@@ -922,6 +939,8 @@ export default {
             type: 'error',
             message: res.data.msg,
           });
+        } else if (res.data.msg === '功能余量不足') {
+          this.marginVisible = true;
         }
         this.$refs.popover.doClose();
       });
