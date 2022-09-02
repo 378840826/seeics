@@ -192,9 +192,11 @@
           <div style="position: relative;marginTop: 10px;">
             <el-radio v-model="defaultRadio" label="1" style="z-index: 10;">
               默认竞价：
+              <span v-if="defaultRadio === '1'" 
+                style="color: #ff4d4f;font-size: 20px;font-family: SimSun,sans-serif;content: '*';">*</span>
             </el-radio>
             <el-form-item
-              v-if="defaultRadio === '1'"  prop="groupRo.defaultBid" style="position: absolute;top: 0;left: 0">
+              v-if="defaultRadio === '1'"  prop="groupRo.defaultBid" style="position: absolute;top: 5px;left: 0">
                 <el-input @blur="numberChange" v-model="form.groupRo.defaultBid" placeholder="至少0.02" style="width: 60%" size="small">
                 <i slot="prefix">$</i>
                 </el-input>
@@ -231,7 +233,7 @@
 
         <div v-if="form.targetingMode === 'manual'">
 
-          <div v-if="form.targetingMode === 'manual'">
+          <div v-if="form.targetingMode === 'manual'" style="marginTop: 10px">
             <!-- <span>默认竞价：</span>
             <el-input v-model="form.groupRo.defaultBid" placeholder="至少1" style="width: 40%" size="small">
               <i slot="prefix">$</i>
