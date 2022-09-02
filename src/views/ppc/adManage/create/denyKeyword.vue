@@ -15,7 +15,7 @@
         </div>
       </el-col>
       <el-col :span="10" style="lineHeight: 32px">
-          <div class="added">已添加 3个否定{{title}} （最多可添加1000个，会过滤重复的否定{{title}}）</div>
+          <div class="added">已添加 {{data.length}}个否定{{title}} （最多可添加1000个，会过滤重复的否定{{title}}）</div>
       </el-col>
     </el-row>
 
@@ -41,7 +41,7 @@
           :data="data"
           stripe
           border
-          height="200"
+          height="300"
           style="width: 100%">
           <el-table-column
             prop="keyword"
@@ -66,12 +66,35 @@
             width="96"
             align="center">
               <template scope="row">
-                <el-button type="text" size="min" @click="handleDelete(row.$index)" style="padding: 0">删除</el-button>
+                <el-button type="text" size="min" @click="handleDelete(row.row.id)" style="padding: 0">删除</el-button>
               </template>
           </el-table-column>
         </el-table>
       </el-col>
     </el-row>
+
+    <el-dialog
+      :visible.sync="dialogVisible"
+      append-to-body
+      :show-close="false"
+      width="500px"
+      center
+      top="40vh"
+      @close="handleClose"
+      destroy-on-close>
+      <div v-if="title === '关键词'">
+        {{`关键词${msg.join('、')}`}}已存在，无需重复添加
+      </div>
+      <div v-if="title === '商品'">
+        <div v-if="msg.length">{{msg.join('、')}}添加成功；</div>
+        <div v-if="repetition.length">{{repetition.join('、')}}已存在，无需重复添加；</div>
+        <div v-if="fail.length">{{fail.join('、')}}添加失败，请检查ASIN是否有误；</div>
+      </div>
+      <span slot="footer" class="dialog-footer">
+          <el-button size="small" @click="dialogVisible = false">取 消{{max}}</el-button>
+          <el-button type="primary" size="small" @click="dialogVisible = false; textarea = ''">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -91,8 +114,21 @@ export default {
       radio: 'negativePhrase',
       data: [],
       textarea: '',
-      textareaArr: []
+      textareaArr: [],
+      dialogVisible: false,
+      msg: [],
+      fail: [],
+      repetition: [],
     };
+  },
+
+  watch: {
+    title: {
+      handler() {
+        this.data = [];
+        this.textarea = '';
+      }
+    }
   },
 
   methods: {
@@ -138,8 +174,8 @@ export default {
       this.data = [];
     },
 
-    handleDelete(idx) {
-      this.data = this.data.splice(1, idx);
+    handleDelete(id) {
+      this.data = this.data.filter(item => item.id !== id);
     },
 
     handleTextarea(value) {
@@ -154,9 +190,14 @@ export default {
     },
     
     handleAdd() {
-      const keywordArr = this.data.length && this.data.map(item => item.keyword) || [];
-      const idArr = this.data.length && this.data.map(item => item.id) || [];
+      const res = /^[A-Za-z0-9]+$/;
+      this.repetition = [];
+      this.msg = [];
+      this.fail = [];
       this.textareaArr.map(item => {
+        const keywordArr = this.data.length && this.data.map(item => item.keyword) || [];
+        const idArr = this.data.length && this.data.map(item => item.id) || [];
+        
         if (this.title === '关键词') {
           if (!idArr.includes(`${item}${this.radio}`)) {
             this.data.push({
@@ -164,14 +205,32 @@ export default {
               type: this.radio,
               id: `${item}${this.radio}`
             });
+          } else {
+            this.msg.push(item);
+            this.msg = [...new Set(this.msg)];
+            this.dialogVisible = true;
           }
         } else {
-          if (!keywordArr.includes(item)) {
+          if (!keywordArr.includes(item) && res.test(item) && item.length === 10) {
             this.data.push({
               keyword: item,
               type: this.radio,
               id: `${item}${this.radio}`
             });
+            this.msg.push(item);
+            this.msg = [...new Set(this.msg)];
+          } else {
+            if (!res.test(item)) {
+              this.fail.push(item);
+              this.fail = [...new Set(this.fail)];
+            } else if (item.length !== 10) {
+              this.fail.push(item);
+              this.fail = [...new Set(this.fail)];
+            } else if (keywordArr.includes(item)) {
+              this.repetition.push(item);
+              this.repetition = [...new Set(this.repetition)];
+            }
+            this.dialogVisible = true;
           }
         }
       });
@@ -183,7 +242,7 @@ export default {
 
 <style lang="scss" scoped>
   .denyBox {
-    height: 300px;
+    // height: 300px;
     background-color: rgba(242, 242, 242, 1);
     box-sizing: border-box;
     margin-top: 20px;
@@ -209,8 +268,12 @@ export default {
     }
 
     ::v-deep .el-textarea__inner {
-      min-height: 200px !important;
-      max-height: 200px;
+      min-height: 300px !important;
+      max-height: 300px;
+    }
+
+    ::v-deep .el-table__body-wrapper {
+      height: 250px !important;
     }
   }
 </style>

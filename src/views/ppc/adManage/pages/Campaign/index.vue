@@ -163,8 +163,10 @@
 
 <!-- 创建广告活动弹窗 -->
 <CreateCampaignDialog
+  v-if="createCampaignDialogVisible"
   :dialogVisible.sync="createCampaignDialogVisible"
   :mwsStoreId="mwsStoreId"
+  :marketplace="marketplace"
 />
 
 </div>

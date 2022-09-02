@@ -2,6 +2,7 @@
   <div style="width: 50%">
     <el-table
       :data="tableData"
+      v-loading="loading"
       stripe
       border
       height="333"
@@ -23,10 +24,12 @@
       <el-table-column
         prop="name"
         align="center"
-        label="Targeting Group"
+        label="投放组"
         >
 
-        
+        <template slot-scope="scope">
+          <div>{{format(scope.row.name)}}</div>
+        </template>
       </el-table-column>
       <el-table-column
         prop="address"
@@ -78,12 +81,28 @@ export default {
     },
     targetingMode: {
       type: String
+    },
+    mwsStoreId: {
+      type: String,
+      require: true,
+    },
+    defaultBid: {
+      type: String,
+      require: true,
+    },
+    budget: {
+      type: String,
+      require: true,
+    },
+    marketplace: {
+      type: String,
     }
   },
 
   data() {
     return {
-      tableData: []
+      tableData: [],
+      loading: false
     };
   },
 
@@ -109,6 +128,18 @@ export default {
   },
 
   methods: {
+
+    format(vlaue) {
+      if (vlaue === 'CLOSE_MATCH') {
+        return '紧密匹配';
+      } else if (vlaue === 'LOOSE_MATCH') {
+        return '宽泛匹配';
+      } else if (vlaue === 'SUBSTITUTES') {
+        return '同类商品';
+      } else if (vlaue === 'COMPLEMENTS') {
+        return '关联商品';
+      }
+    },
 
     getField() {
       const arr = this.tableData.map(item => {
@@ -139,12 +170,14 @@ export default {
 
     queryTargeList() {
       const params = {
-        storeId: '1525044033420210177',
+        storeId: this.mwsStoreId,
         strategy: this.targetingMode,
         asinList: this.asinList,
       };
+      this.loading = true;
       queryTargeList(params).then(res => {
         if (res.data.code === 200) {
+          this.loading = false;
           const data = res.data.data;
           // this.tableData = res.data.data.map(item => {
             
@@ -154,14 +187,14 @@ export default {
           const obj = {};
 
           for (const key in data) {
-            obj.name = 
+            // obj.name = 
             obj.bid = data[key];
             this.tableData.push({
               name: key,
               bid: data[key],
-              status: 0,
+              status: true,
               isInput: false,
-              keywordBid: '',
+              keywordBid: this.defaultBid,
             });
           }
         }
@@ -188,7 +221,33 @@ export default {
     handleLeaveKeyword(row) {
       this.tableData.forEach(item => {
         if (this.isObjectValueEqual(item, row)) {
-          item.isInput = false;
+          if (item.keywordBid < 0.02) {
+            this.$message({
+              type: 'error',
+              message: '竞价必须大于等于0.02'
+            });
+            // item.isInput = false;
+          } else if (this.marketplace === 'JP' && item.keywordBid < 2) {
+            this.$message({
+              type: 'error',
+              message: '竞价必须大于等于2'
+            });
+          } else if (item.keywordBid > Number(this.budget)) {
+            this.$message({
+              type: 'error',
+              message: '竞价不能超过广告活动日预算'
+            });
+          } else if (!/(?:^[1-9]([0-9]+)?(?:\.[0-9]{1,2})?$)|(?:^(?:0)$)|(?:^[0-9]\.[0-9](?:[0-9])?$)/.test(item.keywordBid)) {
+            if (item.keywordBid.indexOf('.') > 0){
+              item.keywordBid = item.keywordBid.slice(0, item.keywordBid.indexOf('.') + 3);
+              item.isInput = false;
+            } else {
+              item.keywordBid = '';
+            }
+          } else {
+            item.isInput = false;
+          }
+          
         }
       });
     },

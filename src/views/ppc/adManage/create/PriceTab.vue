@@ -30,41 +30,43 @@
       </el-col>
 
       <el-col :span="15">
-        <!-- <el-button size="small">批量删除</el-button>
-        <el-button size="small">应用建议竞价</el-button>
-        <el-button size="small">设置竞价</el-button>
-        <span>
-          <el-select v-model="bid" size="small" style="width: 140px">
+        <el-button @click="batchDelete" size="small" :disabled="!selectData.length">批量删除</el-button>
+        <el-button @click="batchUseBid" size="small" :disabled="!selectData.length">应用建议竞价</el-button>
+        <el-button @click="ifBid = true" size="small" :disabled="!selectData.length">设置竞价</el-button>
+        <span v-if="ifBid">
+          <el-select v-model="bid" @change="handleBid" size="small" style="width: 140px">
             <el-option
               v-for="item in bidList"
-              :key="item.label"
-              :value="item.label"
+              :key="item.value"
+              :value="item.value"
+              :label="item.label"
               style="textAlign: center"
-            >{{item.label}}</el-option>
+            />
           </el-select>
 
-          <el-select v-model="jia" size="small" style="width: 50px">
+          <el-select v-if="bid !== 'bid'" v-model="modified" size="small" style="width: 50px">
             <el-option
-              v-for="item in jiaList"
+              v-for="item in modifiedList"
               :key="item.label"
               :value="item.label"
               style="textAlign: center"
             >{{item.label}}</el-option>
           </el-select>
 
-          <el-select v-model="qian" size="small" style="width: 50px">
+          <el-select v-if="bid !== 'bid'" v-model="symbol" size="small" style="width: 50px">
             <el-option
-              v-for="item in qianList"
+              v-for="item in symbolList"
               :key="item.label"
               :value="item.label"
               style="textAlign: center"
             >{{item.label}}</el-option>
           </el-select>
-
-          <el-input size="small" value="1000" style="width: 50px"/>
-          <el-button size="small" style="marginLeft: 10px;">取消</el-button>
-          <el-button type="primary" size="small">确定</el-button>
-        </span> -->
+          
+          <el-input v-if="bid !== 'bid'" size="small" v-model="bidval" style="width: 50px"/>
+          <el-input v-else size="small" v-model="bidval" style="width: 150px"/>
+          <el-button @click="empty" size="small" style="marginLeft: 10px;">取消</el-button>
+          <el-button @click="setBid" type="primary" size="small" :disabled="!bidval">确定</el-button>
+        </span>
       </el-col>
     </el-row>
 
@@ -72,9 +74,10 @@
       <el-col :span="8" v-if="category === '建议商品'">
          <el-table
             :data="data"
+            v-loading="loading"
             border
             style="width: 100%"
-            height="200"
+            height="350"
             class="table">
             <el-table-column
               prop="priceInfo"
@@ -109,7 +112,7 @@
         </div> -->
         <div  class="tableBox">
           
-        <table border="1" style="width: 100%;borderColor: #ccc;">
+        <table border="1" style="width: 100%;borderColor: #EBEEF5;backgroundColor: white;">
           <tr v-for="item in searchData" :key="item.priceInfo" style="lineHeight: 32px">
             <td style="paddingLeft: 10px;">ASIN：{{item.priceInfo}}</td>
             <td style="textAlign: center">
@@ -134,6 +137,7 @@
       <el-col :span="1" v-if="category === '批量输入'">
         <el-button
           @click="textareaSelect"
+          :disabled="!textareaArr.filter(Boolean).length"
           type="text"
           style="text-align: center;line-height: 200px;">添加</el-button>
       </el-col>
@@ -144,11 +148,15 @@
             border
             @selection-change="handleSelectionChange"
             style="width: 100%"
-            height="200"
+            height="350"
             class="table">
             <!-- <el-table-column
               type="selection"
               width="50"/> -->
+            <el-table-column
+              type="selection"
+              width="50px"
+            />
             <el-table-column
               prop="priceInfo"
               label="商品信息">
@@ -202,7 +210,7 @@
 <script>
 
 import DragStrip from './DragStrip.vue';
-import { getPriceList } from '@/api/ppc/adManage';
+import { getPriceList, queryPriceList } from '@/api/ppc/adManage';
 import Table from '@/views/util/table.vue';
 
 export default {
@@ -218,16 +226,33 @@ export default {
     },
     targetingMode: {
       type: String,
+    },
+    mwsStoreId: {
+      type: String,
+      require: true,
+    },
+    defaultBid: {
+      type: String,
+      require: true,
+    },
+    budget: {
+      type: String,
+      require: true,
+    },
+    marketplace: {
+      type: String,
     }
   },
 
   data() {
     return {
+      loading: false,
       category: '建议商品',
-      bid: '固定值',
-      jia: '+',
-      qian: '$',
+      modified: '+',
+      symbol: '$',
+      bidval: '',
       textarea: '',
+      bid: 'bid',
       data: [],
       tableData: [],
       textareaArr: [],
@@ -236,18 +261,22 @@ export default {
       bidList: [
         {
           label: '固定值',
+          value: 'bid'
         },
         {
           label: '建议竞价的基础上',
+          value: 'suggestedBid',
         },
         {
           label: '最高建议竞价',
+          value: 'maxSuggestedBid',
         },
         {
           label: '最低建议竞价',
+          value: 'minSuggestedBid',
         },
       ],
-      jiaList: [
+      modifiedList: [
         {
           label: '+',
         },
@@ -255,7 +284,7 @@ export default {
           label: '-',
         },
       ],
-      qianList: [
+      symbolList: [
         {
           label: '$',
         },
@@ -269,6 +298,8 @@ export default {
         }
       ],
       dialogVisible: false,
+      ifBid: false,
+      selectData: []
     };
   },
 
@@ -315,7 +346,29 @@ export default {
     handleLeaveKeyword(row) {
       this.tableData.forEach(item => {
         if (item.priceInfo === row.priceInfo) {
-          item.isInput = false;
+          if (Number(item.bid) > Number(this.budget)) {
+            this.$message({
+              type: 'error',
+              message: '竞价不能超过广告活动日预算'
+            });
+          } else if (Number(item.bid) < 0.02) {
+            this.$message({
+              type: 'error',
+              message: '竞价必须大于等于0.02'
+            });
+          } else if (this.marketplace === 'JP' && Number(item.bid) < 2) {
+            this.$message({
+              type: 'error',
+              message: '竞价必须大于等于2'
+            });
+          } else if (!item.bid) {
+            this.$message({
+              type: 'error',
+              message: '请输入竞价'
+            });
+          } else {
+            item.isInput = false;
+          }
         }
       });
     },
@@ -328,42 +381,189 @@ export default {
 
     getPriceList() {
       const params = {
-        storeId: '1525044033420210177',
+        storeId: this.mwsStoreId,
         strategy: this.targetingMode,
         asinList: this.asinList,
       };
+      this.loading = true;
       getPriceList(params).then(res => {
+        this.loading = false;
         if (res.data.code === 200) {
-          this.data = res.data.data.map(item => {
+          this.data = res.data.data.length && res.data.data.map(item => {
             return {
               priceInfo: item,
               checked: false,
-              bid: '0.02',
+              bid: this.defaultBid,
               isInput: false
             };
+          });
+        }
+      }).catch( () => {
+        this.loading = false;
+      });
+    },
+
+    handleSelectionChange(val) {
+      this.selectData = val;
+    },
+
+    handleBid() {
+      this.bidval = '';
+    },
+
+    batchDelete() {
+      const arr = this.selectData.map(item => item.priceInfo);
+      this.tableData = this.tableData.filter(item => !arr.includes(item.priceInfo));
+      this.data.forEach(item => {
+        if (arr.includes(item.priceInfo)) {
+          item.checked = false;
+        }
+      });
+      this.searchData.forEach(item => {
+        if (arr.includes(item.priceInfo)) {
+          item.checked = false;
+        }
+      });
+    },
+
+    batchUseBid() {
+      let flag = false;
+      this.tableData.map(item => {
+        if (!item.suggestedBid) {
+          flag = true;
+        }
+      });
+
+      if (flag) {
+        this.$message({
+          type: 'warning',
+          message: '暂无建议竞价'
+        });
+        return;
+      }
+
+      this.tableData = this.tableData.map(item => {
+        if ([...this.selectData].includes(item)) {
+          item.bid = item.suggestedBid;
+        }
+        return item;
+      });
+    },
+
+    empty() {
+      this.ifBid = false;
+      // this.symbol = '$';
+      // this.modified = '+';
+      // this.bidval = '';
+      // this.bid = 'suggestedBid';
+      // this.tableData = this.tableData.map(item => item);
+    },
+
+    setBid() {
+      if (this.bid === 'bid') {
+
+        if (Number(this.bidval) > this.budget) {
+          this.$message({
+            type: 'error',
+            message: '竞价不能超过广告活动日预算'
+          });
+          return;
+        } else if (Number(this.bidval) < 0.02) {
+          this.$message({
+            type: 'error',
+            message: '竞价必须大于等于0.02'
+          });
+          return;
+        } else if (this.marketplace === 'JP' && Number(this.bidval) < 2) {
+          this.$message({
+            type: 'error',
+            message: '竞价必须大于等于2'
+          });
+          return;
+        }
+
+        this.tableData.forEach(item => {
+          if ([...this.selectData].includes(item)) {
+            
+            item.bid = this.bidval;
+          }
+          // return item;
+        });
+        return;
+      }
+      
+      const arr = this.selectData.filter(s => !s[this.bid]);
+      if (arr.length) {
+        this.$message({
+          type: 'warning',
+          message: '选中关键词无建议竞价，无法设置该选项'
+        });
+        return;
+      }
+
+      this.tableData.forEach(item => {
+        if ([...this.selectData].includes(item)) {
+          for (const key in item) {
+            if (key === this.bid) {
+              const chu = this.modified === '-' ? Number(item[key]) - Number(item[key]) * (Number(this.bidval) / 100) : Number(item[key]) + Number(item[key]) * (Number(this.bidval) / 100);
+              const modified = this.modified === '-' ? Number(item[key]) - Number(this.bidval) : Number(item[key]) + Number(this.bidval);
+              const res = this.symbol === '$' ? modified : chu;
+              if (res > 0.02) {
+                item[key] = res.toFixed(2);
+                // this.empty();
+              } else {
+                this.$message({
+                  type: 'error',
+                  message: '关键词竞价必须大于等于0.02'
+                });
+                this.ifBid = true;
+              }
+              
+            }
+          }
+        }
+        // return item;
+      });
+    },
+
+    handleSelectAll() {
+      if (!this.defaultBid) {
+        this.$message({
+          type: 'warning',
+          message: '请先输入正确的默认竞价'
+        });
+        return;
+      }
+      const arr = this.tableData.length && this.tableData.map(item => item.priceInfo) || [];
+      this.data.forEach(item => {
+        if (!arr.includes(item.priceInfo)) {
+          item.checked = true;
+          this.tableData.push({
+            ...item,
+            bid: this.defaultBid
           });
         }
       });
     },
 
-    handleSelectAll() {
-      const arr = this.tableData.length && this.tableData.map(item => item.priceInfo) || [];
-      this.data.forEach(item => {
-        if (!arr.includes(item.priceInfo)) {
-          item.checked = true;
-          this.tableData.push(item);
-        }
-      });
-    },
-
     handleSelect(row) {
+      if (!this.defaultBid) {
+        this.$message({
+          type: 'warning',
+          message: '请先输入正确的默认竞价'
+        });
+        return;
+      }
       this.data = this.data.map(item => {
         if (item.priceInfo === row.priceInfo) {
           item.checked = true;
         }
         return item;
       });
-      this.tableData.push(row);
+      this.tableData.push({
+        ...row,
+        bid: this.defaultBid
+      });
     },
 
     handleAllDelete() {
@@ -397,18 +597,30 @@ export default {
     },
 
     handleSearch() {
+      if (!this.defaultBid) {
+        this.$message({
+          type: 'warning',
+          message: '请先输入正确的默认竞价'
+        });
+        return;
+      }
       const params = {
-        storeId: '1525044033420210177',
-        strategy: 'legacyForSales',
-        asinList: [this.search],
+        storeId: this.mwsStoreId,
+        // strategy: this.targetingMode,
+        keyword: this.search
       };
-      getPriceList(params).then(res => {
+      queryPriceList(params).then(res => {
         if (res.data.code === 200) {
-          this.searchData = res.data.data.map(item => {
-            return {
-              priceInfo: item,
-              checked: false
-            };
+          res.data.data.records.map(item => {
+            const arr = this.searchData.length && this.searchData.map(item => item.priceInfo) || [];
+            if (!arr.includes(item.asin)) {
+              this.searchData.push({
+                priceInfo: item.asin,
+                checked: false,
+                bid: this.defaultBid,
+                isInput: false
+              });
+            }
           });
         }
       });
@@ -436,23 +648,40 @@ export default {
     },
 
     textareaSelect() {
-      const params = {
-        storeId: '1525044033420210177',
-        strategy: 'legacyForSales',
-        asinList: this.textareaArr,
-      };
-      const arr = this.tableData.length && this.tableData.map(item => item.priceInfo) || [];
-      getPriceList(params).then(res => {
-        if (res.data.code === 200) {
-          res.data.data.map(item => {
-            if (!arr.includes(item)) {
-              this.tableData.push({
-                priceInfo: item,
-              });
-            }
-          });
+      if (!this.defaultBid) {
+        this.$message({
+          type: 'warning',
+          message: '请先输入正确的默认竞价'
+        });
+        return;
+      }
+
+      const res = /^[A-Za-z0-9]+$/;
+      let flag = false;
+
+      this.textareaArr.map(item => {
+        const arr = this.tableData.length && this.tableData.map(item => item.priceInfo) || [];
+        if (!arr.includes(item)) {
+          if (!res.test(item) || item.length !== 10) {
+            flag = true;
+          } else {
+            this.tableData.push({
+              priceInfo: item,
+              checked: false,
+              bid: this.defaultBid,
+              isInput: false
+            });
+          }
         }
       });
+
+      if (flag) {
+        this.$message({
+          type: 'error',
+          message: '部分ASIN格式输入有误，请重新输入'
+        });
+      }
+      
     }
   }
 };
@@ -481,15 +710,15 @@ export default {
   }
 
   ::v-deep .el-textarea__inner {
-      min-height: 200px !important;
-      max-height: 200px;
+      min-height: 350px !important;
+      max-height: 350px;
   }
 
   .tableBox {
-    max-height: 200px;
+    max-height: 350px;
     overflow: hidden;
     overflow-y: auto;
-    border: 1px solid #ccc;
+    border: 1px solid #EBEEF5;
     box-sizing: border-box;
   }
 
