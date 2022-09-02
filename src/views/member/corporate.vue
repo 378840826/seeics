@@ -135,7 +135,7 @@
         min-width="120"
       >
         <template slot-scope="scope">
-          <el-button v-if="scope.row.defaultRoleId" size="mini" 
+          <el-button v-if="scope.row.defaultRoleId && scope.row.status === 1" size="mini" 
           @click="handlePrice(scope.row.defaultRoleId)">权限配置</el-button>
           <div v-else>权限配置</div>
         </template>
