@@ -242,6 +242,7 @@ export default {
       
     },
     handlePrice(id) {
+      console.log(id)
       this.menuTreeObj = [];
       this.roleId = id;
       grantTree()
