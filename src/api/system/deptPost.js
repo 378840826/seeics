@@ -109,7 +109,7 @@ export const getDeptPostStore = params => {
 // 修改岗位的店铺
 export const modifyDeptPostStore = data => {
   return request({
-    url: '/api/blade-system/blade-system/post/add_store',
+    url: '/api/seeics-mws/store/add_store',
     method: 'post',
     data,
   });

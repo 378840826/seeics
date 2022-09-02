@@ -2,7 +2,7 @@ import request from '@/router/axios';
 
 export const getList = params => {
   return request({
-    url: '/api/seeics-mws/store/list',
+    url: '/api/seeics-mws/store/user_store',
     method: 'get',
     params,
   });
