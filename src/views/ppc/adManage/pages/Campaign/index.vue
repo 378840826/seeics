@@ -109,7 +109,13 @@
       </template>
     </el-table-column>
 
-    <el-table-column prop="negativeTargetingNumber" label="否定Targeting" width="110">
+    <el-table-column prop="negativeKeywordNumber" label="否定关键词" width="110">
+      <template slot-scope="{row}">
+        {{ row.negativeKeywordNumber }}
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="negativeTargetingNumber" label="否定商品" width="110">
       <template slot-scope="{row}">
         {{ row.negativeTargetingNumber }}
       </template>
@@ -164,6 +170,7 @@
 <!-- 创建广告活动弹窗 -->
 <CreateCampaignDialog
   v-if="createCampaignDialogVisible"
+  @success="getList({ current: 1 })"
   :dialogVisible.sync="createCampaignDialogVisible"
   :mwsStoreId="mwsStoreId"
   :marketplace="marketplace"

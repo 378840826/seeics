@@ -187,15 +187,43 @@ export default{
     getShopList() {
       this.pageLoading = true;
       const _this = this;
-      // filterByUser 获取当前账号绑定的店铺
-      this.$store.dispatch('getShopList', { filterByUser: true }).finally(() => {
+      this.$store.dispatch('getShopList').finally(() => {
+        // 店铺异常时提示
+        const confirmOptions = {
+          type: 'warning',
+          showCancelButton: false,
+          showClose: false,
+          closeOnClickModal: false,
+          closeOnPressEscape: false,
+          callback: action => {
+            if (action === 'confirm') {
+              this.$router.push('/ppc/shop');
+            }
+          },
+        };
+        if (!this.$store.state.shop.list || !this.$store.state.shop.list.length) {
+          this.$confirm('没有绑定店铺，请前往"我的店铺"进行绑定', '提示', {
+            ...confirmOptions,
+            confirmButtonText: '去绑定',
+          });
+          return;
+        }
+        // 找到第一个有授权广告的店铺作为默认店铺
+        const defaultStore = this.$store.state.shop.list.find(shop => shop.adStoreId);
+        if (!defaultStore) {
+          this.$confirm('没有已授权广告的店铺，请前往"我的店铺"进行授权', '提示', {
+            ...confirmOptions,
+            confirmButtonText: '去授权',
+          });
+          return;
+        }
         this.currentStore = {
-          marketplace: this.$store.state.shop.list[0].marketplace,
-          adStoreId: this.$store.state.shop.list[0].adStoreId,
-          mwsStoreId: this.$store.state.shop.list[0].id,
-          currency: this.$store.state.shop.list[0].currency,
-          time: getMarketplaceTime(this.$store.state.shop.list[0].timezone),
-          storeName: this.$store.state.shop.list[0].storeName,
+          marketplace: defaultStore.marketplace,
+          adStoreId: defaultStore.adStoreId,
+          mwsStoreId: defaultStore.id,
+          currency: defaultStore.currency,
+          time: getMarketplaceTime(defaultStore.timezone),
+          storeName: defaultStore.storeName,
         };
         _this.pageLoading = false;
         this.getPortfolioList();
