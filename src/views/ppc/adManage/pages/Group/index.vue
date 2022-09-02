@@ -55,22 +55,28 @@
       > {{ row.productNumber }} </el-button>
     </el-table-column>
 
-    <el-table-column prop="targetingNumber" label="Targeting" width="100">
-      <el-button
-        slot-scope="{row}"
-        type="text"
-        :size="size"
-        @click="handleClickGroupCount(row)"
-      > {{ row.targetingNumber }} </el-button>
+    <el-table-column prop="KeywordNumber" label="关键词" width="110">
+      <template slot-scope="{row}">
+        {{ row.KeywordNumber }}
+      </template>
     </el-table-column>
 
-    <el-table-column prop="negativeTargetingNumber" label="否定Targeting" width="110">
-      <el-button
-        slot-scope="{row}"
-        type="text"
-        :size="size"
-        @click="handleClickGroupCount(row)"
-      > {{ row.targetingNumber }} </el-button>
+    <el-table-column prop="targetingNumber" label="商品" width="110">
+      <template slot-scope="{row}">
+        {{ row.targetingNumber }}
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="negativeKeywordNumber" label="否定关键词" width="110">
+      <template slot-scope="{row}">
+        {{ row.negativeKeywordNumber }}
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="negativeTargetingNumber" label="否定商品" width="110">
+      <template slot-scope="{row}">
+        {{ row.negativeTargetingNumber }}
+      </template>
     </el-table-column>
 
     <el-table-column prop="startDate" label="开始时间" width="110">
