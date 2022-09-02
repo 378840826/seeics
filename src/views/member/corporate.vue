@@ -132,10 +132,12 @@
       <el-table-column
         label="角色"
         align="center"
-        min-width="100"
+        min-width="120"
       >
-        <template>
-          <div>权限配置</div>
+        <template slot-scope="scope">
+          <el-button v-if="scope.row.defaultRoleId" size="mini" 
+          @click="handlePrice(scope.row.defaultRoleId)">权限配置</el-button>
+          <div v-else>权限配置</div>
         </template>
       </el-table-column>
 
@@ -208,11 +210,11 @@
             type="text"
             size="mini"
           >添加</el-button>
-           <el-button 
+           <!-- <el-button 
             v-if="scope.row.delete" 
             @click="handleAdd(scope.row, true)"
             type="text"
-            size="mini">重新添加</el-button>
+            size="mini">重新添加</el-button> -->
           <el-button 
             v-if="scope.row.delete" 
             @click="handleDelete(scope.row.id)"
@@ -247,6 +249,29 @@
         <el-button size="mini" @click="dialogVisible = false">确定</el-button>
       </span>
     </el-dialog>
+    <el-dialog title="角色权限配置"
+               append-to-body
+               :visible.sync="box"
+               width="345px">
+      <el-tabs type="border-card">
+        <el-tab-pane label="菜单权限">
+          <el-tree :data="menuGrantList"
+                   show-checkbox
+                   node-key="id"
+                   ref="treeMenu"
+                   :default-checked-keys="menuTreeObj"
+                   :props="props">
+          </el-tree>
+        </el-tab-pane>
+      </el-tabs>
+
+      <span slot="footer"
+            class="dialog-footer">
+        <el-button @click="box = false">取 消</el-button>
+        <el-button type="primary"
+                   @click="hanldeSubmit">确 定</el-button>
+      </span>
+    </el-dialog>
   </basic-container>
 </template>
 
@@ -261,6 +286,7 @@ import {
   addLeve,
   deleteLeve
 } from '@/api/member/corporate';
+import { getRole, grant, grantTree, } from '@/api/system/role';
 import { getDateRangeForKey } from '@/util/date';
 import RangeInput from '@/views/ppc/searchTerm/components/RangeInput.vue';
 import { strToMoneyStr } from '@/util/numberString';
@@ -342,6 +368,14 @@ export default {
       options: [],
       funList: [],
       accountList: [],
+      box: false,
+      menuTreeObj: [],
+      menuGrantList: [],
+      roleId: '',
+      props: {
+        label: 'title',
+        value: 'key'
+      },
       fixedMeun: fixedMeun || [
         {
           label: '购买时间',
@@ -513,6 +547,30 @@ export default {
       const diffSeconds = diff / 1000;
       const HH = Math.floor(diffSeconds / 3600);
       return HH;
+    },
+
+    handlePrice(id) {
+      this.menuTreeObj = [];
+      this.roleId = id;
+      grantTree()
+        .then(res => {
+          this.menuGrantList = res.data.data.menu;
+          getRole(id).then(res => {
+            this.menuTreeObj = res.data.data.menu;
+            this.box = true;
+          });
+        });
+    },
+
+    hanldeSubmit() {
+      const menuList = this.$refs.treeMenu.getCheckedKeys();
+      grant([this.roleId], menuList, [], []).then(() => {
+        this.box = false;
+        this.$message({
+          type: 'success',
+          message: '操作成功!'
+        });
+      });
     },
 
     // 修改不合法字符以及数字
