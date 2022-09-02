@@ -208,7 +208,15 @@ export default{
           return;
         }
         // 找到第一个有授权广告的店铺作为默认店铺
-        const defaultStore = this.$store.state.shop.list.find(shop => shop.adStoreId);
+        let defaultStore;
+        for (let index = 0; index < this.$store.state.shop.adCascader.length; index++) {
+          const cascaderItem = this.$store.state.shop.adCascader[index];
+          const firstAdStore = cascaderItem.children.find(item => item.adStoreId);
+          if (firstAdStore) {
+            defaultStore = firstAdStore;
+            break;
+          }
+        }
         if (!defaultStore) {
           this.$confirm('没有已授权广告的店铺，请前往"我的店铺"进行授权', '提示', {
             ...confirmOptions,

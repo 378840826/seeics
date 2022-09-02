@@ -27,7 +27,8 @@ const shop = {
       // 生成广告管理级联选择器对象（未过滤没有授权广告的店铺，只是把 value 设为 adStoreId）
       const storeNameList = Object.keys(storeNameObj).sort();
       const adCascader = storeNameList.map(storeName => {
-        const storeNameStoreList = storeNameObj[storeName];
+        // 按 marketplace 字母倒序
+        const storeNameStoreList = storeNameObj[storeName].sort((a, b) => b.marketplace.localeCompare(a.marketplace));
         return {
           value: storeName,
           label: storeName,
@@ -35,6 +36,7 @@ const shop = {
             return {
               value: store.adStoreId,
               label: store.marketplace,
+              ...store,
             };
           }),
         };
