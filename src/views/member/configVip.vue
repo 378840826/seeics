@@ -102,6 +102,7 @@
       <el-tabs type="border-card">
         <el-tab-pane label="菜单权限">
           <el-tree :data="menuGrantList"
+                   v-if="boxs"
                    show-checkbox
                    node-key="id"
                    ref="treeMenu"
@@ -125,6 +126,7 @@
 import { buyInfo, updateLevePrice, updateLevelNum } from '@/api/member/member';
 import { getRole, grant, grantTree, } from '@/api/system/role';
 import buyDialog from './componets/buyDialog';
+import { getParentIdList } from './util';
 export default {
   components: {
     buyDialog
@@ -135,8 +137,10 @@ export default {
       priceList: [],
       isBuyDialog: false,
       box: false,
+      boxs: false,
       menuTreeObj: [],
       menuGrantList: [],
+      menuList: [],
       roleId: '',
       props: {
         label: 'title',
@@ -242,15 +246,35 @@ export default {
       
     },
     handlePrice(id) {
-      console.log(id)
       this.menuTreeObj = [];
       this.roleId = id;
+      this.boxs = true;
       grantTree()
         .then(res => {
           this.menuGrantList = res.data.data.menu;
           getRole(id).then(res => {
             this.menuTreeObj = res.data.data.menu;
             this.box = true;
+
+            const arr = [];
+            const rest = [];
+            this.$nextTick(() => {
+              this.menuList = this.$refs.treeMenu.getCheckedKeys();
+              this.menuList.map(item => {
+                if (!this.menuTreeObj.includes(item)) {
+                  arr.push(item);
+                }
+              });
+              arr.map(item => {
+                rest.push(...getParentIdList(this.menuGrantList, item));
+              });
+              this.boxs = this.boxs ? false : true;
+              this.$nextTick(() => {
+                this.boxs = this.boxs ? false : true;
+              });
+              this.menuTreeObj = this.menuTreeObj.filter(item => ![...rest, ...arr].includes(item));
+
+            });
           });
         });
     },
