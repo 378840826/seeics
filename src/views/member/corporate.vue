@@ -256,6 +256,7 @@
       <el-tabs type="border-card">
         <el-tab-pane label="菜单权限">
           <el-tree :data="menuGrantList"
+                   v-if="boxs"
                    show-checkbox
                    node-key="id"
                    ref="treeMenu"
@@ -291,6 +292,7 @@ import { getDateRangeForKey } from '@/util/date';
 import RangeInput from '@/views/ppc/searchTerm/components/RangeInput.vue';
 import { strToMoneyStr } from '@/util/numberString';
 import { setStore, getStore } from '@/util/store';
+import { getParentIdList } from './util';
 
 const gets = getStore({ name: 'funList' });
 const fixedMeun = getStore({ name: 'fixedMeun' });
@@ -369,8 +371,10 @@ export default {
       funList: [],
       accountList: [],
       box: false,
+      boxs: false,
       menuTreeObj: [],
       menuGrantList: [],
+      menuList: [],
       roleId: '',
       props: {
         label: 'title',
@@ -552,12 +556,33 @@ export default {
     handlePrice(id) {
       this.menuTreeObj = [];
       this.roleId = id;
+      this.boxs = true;
       grantTree()
         .then(res => {
           this.menuGrantList = res.data.data.menu;
           getRole(id).then(res => {
             this.menuTreeObj = res.data.data.menu;
             this.box = true;
+
+            const arr = [];
+            const rest = [];
+            this.$nextTick(() => {
+              this.menuList = this.$refs.treeMenu.getCheckedKeys();
+              this.menuList.map(item => {
+                if (!this.menuTreeObj.includes(item)) {
+                  arr.push(item);
+                }
+              });
+              arr.map(item => {
+                rest.push(...getParentIdList(this.menuGrantList, item));
+              });
+              this.boxs = this.boxs ? false : true;
+              this.$nextTick(() => {
+                this.boxs = this.boxs ? false : true;
+              });
+              this.menuTreeObj = this.menuTreeObj.filter(item => ![...rest, ...arr].includes(item));
+
+            });
           });
         });
     },
