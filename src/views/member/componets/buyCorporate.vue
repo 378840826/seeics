@@ -78,7 +78,7 @@ export default {
       checked: false,
       qrName: '微信',
       payType: 2,
-      url: 'https://seeics.com/corporate'
+      url: 'https://seeics.com/member/index'
     };
   },
 
