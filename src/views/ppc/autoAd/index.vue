@@ -28,9 +28,9 @@
       >
         <el-option
           v-for="item in filterOptions.marketplaceList"
-          :key="item.name"
-          :label="item.name"
-          :value="item.name"
+          :key="item"
+          :label="item"
+          :value="item"
         />
       </el-select>
 
@@ -819,11 +819,11 @@ export default {
 
     // 获取站点列表并用第一个站点请求表格
     getMarketplaceListAndTableData(shopName) {
-      queryMarketplaceList({ shopName }).then(mRes => {
+      queryMarketplaceList({ info: shopName }).then(mRes => {
         // 处理排序数据
-        const mList = mRes.data.data.sort((a, b) => b.name.localeCompare(a.name));
+        const mList = mRes.data.data.sort((a, b) => b.localeCompare(a));
         this.filterOptions.marketplaceList = mList;
-        this.form.marketplace = mList[0].name;
+        this.form.marketplace = mList[0];
         // 获取列表
         this.getTableData();
       });

@@ -3,7 +3,8 @@ import request from '@/router/axios';
 // 店铺名称列表
 export const queryShopNameList = () => {
   return request({
-    url: '/api/seeics-ad/store/shopNameList',
+    // url: '/api/seeics-ad/store/shopNameList',
+    url: '/api/seeics-mws/store/storeInfoList',
     method: 'get',
   });
 };
@@ -11,7 +12,8 @@ export const queryShopNameList = () => {
 // 站点列表
 export const queryMarketplaceList = params => {
   return request({
-    url: '/api/seeics-ad/store/marketplaceList',
+    // url: '/api/seeics-ad/store/marketplaceList',
+    url: '/api/seeics-mws/store/storeInfoList',
     method: 'get',
     params,
   });
