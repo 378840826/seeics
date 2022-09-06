@@ -247,7 +247,7 @@ export default {
       targetingType: '',
       KeywordFlag: '关键词',
       defaultRadio: '1',
-      dialogVisible: true,
+      dialogVisible: false,
       campaignList: [],
       data: [],
       page: {

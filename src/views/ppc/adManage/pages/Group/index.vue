@@ -123,10 +123,6 @@
     layout="total, sizes, prev, pager, next, jumper"
     class="pagination"
   />
-
-  <CreateAdGroup
-  :mwsStoreId="mwsStoreId"
-  :marketplace="marketplace"/>
 </div>
 </template>
 
@@ -144,14 +140,8 @@ import {
   getFormatTotal,
 } from '../../utils/fun';
 
-import CreateAdGroup from '../../create/CreateAdGroup.vue';
-
 export default {
   name: 'Group',
-
-  components: {
-    CreateAdGroup
-  },
 
   props: {
     marketplace: {
