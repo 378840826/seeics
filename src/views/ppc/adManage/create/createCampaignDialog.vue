@@ -512,7 +512,7 @@ export default {
     },
 
     saveBtn() {
-      // this.dialogVisible = false;
+
       const denyPrice = this.form.targetingMode === 'manual' && this.KeywordFlag === '分类/商品' && this.$refs.denyPrice.getField()
       || this.form.targetingMode === 'auto' && this.$refs.denyPrice.getField() || [];
       const priceCategory = this.form.targetingMode === 'manual' && this.KeywordFlag === '分类/商品' && this.$refs.priceCategory.getField() || [];
@@ -610,6 +610,8 @@ export default {
           });
           this.loading = false;
           this.dialogVisible = false;
+          this.$emit('update:dialogVisible', false);
+          this.$emit('success');
           // this.empty();
         } else {
           this.$message({

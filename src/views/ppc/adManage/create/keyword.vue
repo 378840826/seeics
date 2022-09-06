@@ -626,7 +626,7 @@ export default {
               const modified = this.modified === '-' ? Number(item[key]) - Number(this.bidval) : Number(item[key]) + Number(this.bidval);
               const res = this.symbol === '$' ? modified : chu;
               if (res > 0.02) {
-                item[key] = res.toFixed(2);
+                item.keywordBid = res.toFixed(2);
                 // this.empty();
               } else {
                 this.$message({
@@ -684,6 +684,13 @@ export default {
         this.$message({
           type: 'warning',
           message: '请先选择广告商品'
+        });
+        return;
+      }
+      if (!this.keywordList.filter(Boolean).length) {
+        this.$message({
+          type: 'warning',
+          message: '请添加/输入关键词'
         });
         return;
       }
