@@ -179,7 +179,7 @@ export default {
     },
 
     handleTextarea(value) {
-      const maxLines = 20;
+      const maxLines = 1000;
       let valueArr = value.split(/\r\n|\r|\n/);
       if (valueArr.length > maxLines) {
         valueArr = valueArr.slice(0, maxLines);
@@ -194,6 +194,23 @@ export default {
       this.repetition = [];
       this.msg = [];
       this.fail = [];
+      if (this.title === '关键词') {
+        if (!this.textareaArr.filter(Boolean).length) {
+          this.$message({
+            type: 'warning',
+            message: '请添加/输入关键词'
+          });
+          return;
+        }
+      } else {
+        if (!this.textareaArr.filter(Boolean).length) {
+          this.$message({
+            type: 'warning',
+            message: '请输入否定ASIN'
+          });
+          return;
+        }
+      }
       this.textareaArr.map(item => {
         const keywordArr = this.data.length && this.data.map(item => item.keyword) || [];
         const idArr = this.data.length && this.data.map(item => item.id) || [];
@@ -211,6 +228,7 @@ export default {
             this.dialogVisible = true;
           }
         } else {
+          this.dialogVisible = true;
           if (!keywordArr.includes(item) && res.test(item) && item.length === 10) {
             this.data.push({
               keyword: item,
@@ -230,7 +248,7 @@ export default {
               this.repetition.push(item);
               this.repetition = [...new Set(this.repetition)];
             }
-            this.dialogVisible = true;
+            
           }
         }
       });

@@ -21,9 +21,11 @@
             clearable
             @clear="queryPriceList"
             placeholder="输入标题或ASIN" 
+            @focus="searchMsg = false"
             size="small">
             <el-button @click="handleSearch" slot="append" icon="el-icon-search"></el-button>
           </el-input>
+          
       </el-col>
 
       <el-col :span="8" v-if="category === '批量输入'">
@@ -110,6 +112,7 @@
           <div style="width: 80%">ASIN：{{item.priceInfo}}</div>
           <div style="width: 20%">选择</div>
         </div> -->
+        <div v-if="searchMsg" style="color: red; fontSize: 12px">搜索结果为空</div>
         <div  class="tableBox">
           
         <table border="1" style="width: 100%;borderColor: #EBEEF5;backgroundColor: white;">
@@ -127,7 +130,7 @@
         <el-input
           type="textarea"
           :rows="2"
-          placeholder="请输入多个ASIN，用英文逗号，空格或换行分隔"
+          placeholder="请输入多个ASIN，每行一个，回车换行"
           v-model="textarea"
           @input="handleTextarea"
           style="maxHeight: 200px;minHeight: 200px;">
@@ -203,6 +206,26 @@
         </el-table>
       </el-col>
     </el-row>
+
+    <el-dialog
+      :visible.sync="asinMsg"
+      append-to-body
+      :show-close="false"
+      width="500px"
+      center
+      top="40vh"
+      @close="handleClose"
+      destroy-on-close>
+      <div>
+        <div v-if="msg.length">{{msg.join('、')}}添加成功；</div>
+        <div v-if="repetition.length">{{repetition.join('、')}}已存在，无需重复添加；</div>
+        <div v-if="fail.length">{{fail.join('、')}}添加失败，请检查ASIN是否有误；</div>
+      </div>
+      <span slot="footer" class="dialog-footer">
+          <el-button size="small" @click="asinMsg = false">取 消{{max}}</el-button>
+          <el-button type="primary" size="small" @click="asinMsg = false; textarea = ''">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 
 </template>
@@ -299,7 +322,12 @@ export default {
       ],
       dialogVisible: false,
       ifBid: false,
-      selectData: []
+      searchMsg: false,
+      asinMsg: false,
+      selectData: [],
+      msg: [],
+      repetition: [],
+      fail: []
     };
   },
 
@@ -509,7 +537,7 @@ export default {
               const modified = this.modified === '-' ? Number(item[key]) - Number(this.bidval) : Number(item[key]) + Number(this.bidval);
               const res = this.symbol === '$' ? modified : chu;
               if (res > 0.02) {
-                item[key] = res.toFixed(2);
+                item.bid = res.toFixed(2);
                 // this.empty();
               } else {
                 this.$message({
@@ -604,6 +632,9 @@ export default {
         });
         return;
       }
+      if (!this.search) {
+        return;
+      }
       const params = {
         storeId: this.mwsStoreId,
         // strategy: this.targetingMode,
@@ -611,15 +642,18 @@ export default {
       };
       queryPriceList(params).then(res => {
         if (res.data.code === 200) {
-          res.data.data.records.map(item => {
+          if (!res.data.data.records.length) {
+            this.searchMsg = true;
+          }
+          this.searchData = res.data.data.records.map(item => {
             const arr = this.searchData.length && this.searchData.map(item => item.priceInfo) || [];
             if (!arr.includes(item.asin)) {
-              this.searchData.push({
+              return {
                 priceInfo: item.asin,
                 checked: false,
                 bid: this.defaultBid,
                 isInput: false
-              });
+              };
             }
           });
         }
@@ -657,13 +691,22 @@ export default {
       }
 
       const res = /^[A-Za-z0-9]+$/;
-      let flag = false;
+      this.repetition = [];
+      this.msg = [];
+      this.fail = [];
 
+      this.asinMsg = true;
       this.textareaArr.map(item => {
         const arr = this.tableData.length && this.tableData.map(item => item.priceInfo) || [];
         if (!arr.includes(item)) {
           if (!res.test(item) || item.length !== 10) {
-            flag = true;
+            if (!res.test(item)) {
+              this.fail.push(item);
+              this.fail = [...new Set(this.fail)];
+            } else if (item.length !== 10) {
+              this.fail.push(item);
+              this.fail = [...new Set(this.fail)];
+            }
           } else {
             this.tableData.push({
               priceInfo: item,
@@ -671,16 +714,15 @@ export default {
               bid: this.defaultBid,
               isInput: false
             });
+            
+            this.msg.push(item);
+            this.msg = [...new Set(this.msg)];
           }
+        } else {
+          this.repetition.push(item);
+          this.repetition = [...new Set(this.repetition)];
         }
       });
-
-      if (flag) {
-        this.$message({
-          type: 'error',
-          message: '部分ASIN格式输入有误，请重新输入'
-        });
-      }
       
     }
   }
