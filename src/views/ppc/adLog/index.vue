@@ -441,8 +441,8 @@ export default {
 
     // 获取站点列表并用第一个站点请求表格
     getMarketplaceListAndTableData(shopName) {
-      queryMarketplaceList({ shopName }).then(mRes => {
-        const mList = mRes.data.data.map(m => m.name).sort((a, b) => a.localeCompare(b));
+      queryMarketplaceList({ info: shopName }).then(mRes => {
+        const mList = mRes.data.data.sort((a, b) => b.localeCompare(a));
         this.filterOptions.marketplaceList = mList;
         this.form.marketplace = mList[0];
         // 获取列表
