@@ -189,3 +189,14 @@ export const createAdManage = params => {
   });
 };
 // --------------------创建广告活动
+
+// 创建广告组--------------------
+
+export const createAdGroup = params => {
+  return request({
+    url: '/api/seeics-ad/group/create',
+    method: 'post',
+    data: params,
+  });
+};
+// --------------------创建广告组
