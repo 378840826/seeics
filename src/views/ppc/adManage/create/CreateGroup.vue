@@ -26,7 +26,7 @@
           size="small"
           style="width: 400px">
           <el-option
-            v-for="item in campaignList"
+            v-for="item in campaignList.filter(Boolean)"
             :key="item.id"
             :value="item.id"
             :label="item.label"
@@ -304,11 +304,11 @@ export default {
       const result = this.page.size * this.page.current;
       if (result < this.total) { //加载全部出来 停止请求
         this.page.current ++;
-        this.queryCampaignList();
+        this.queryCampaignList(true);
       }  
     },
 
-    queryCampaignList() {
+    queryCampaignList(flag) {
       queryCampaignList({
         ...this.page,
         order: 'createdTime',
@@ -318,19 +318,27 @@ export default {
         storeId: this.storeId,
       }).then(res => {
         if (res.data.code === 200) {
-          this.campaignList = res.data.data.page.records.map(item => {
+          this.data = this.data.concat(res.data.data.page.records);
+          this.campaignList = this.data.map(item => {
             return {
               value: item.id,
               id: item.id,
               label: item.name
             };
           });
-          this.data = res.data.data.page.records;
+          const hasObj = {};
+          this.campaignList = this.campaignList.reduce((total, next) => {
+            const filterKey = next.id;
+            hasObj[filterKey] ? '' : hasObj[filterKey] = true && total.push(next);
+            return total;
+          }, []);
           this.total = res.data.data.page.total;
-          this.form.campaignId = this.campaignList.length && this.campaignList[0].id;
-          this.targetingMode = res.data.data.page.records.length && res.data.data.page.records[0].targetingType;
-          this.strategy = res.data.data.page.records.length && res.data.data.page.records[0].biddingStrategy;
-          this.dailyBudget = res.data.data.page.records.length && res.data.data.page.records[0].dailyBudget;
+          if (!flag) { //非预加载赋值
+            this.form.campaignId = this.campaignList.length && this.campaignList[0].id;
+            this.targetingMode = this.data.length && this.data[0].targetingType;
+            this.strategy = this.data.length && this.data[0].biddingStrategy;
+            this.dailyBudget = this.data.length && this.data[0].dailyBudget;
+          }
         }
       });
     },
