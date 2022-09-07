@@ -192,6 +192,15 @@
     class="pagination"
   />
 </div>
+
+<create-group
+  v-if="createDialogVisible"
+  :dialogVisible.sync="createDialogVisible"
+  @success="getList({ current: 1 })"
+  :mwsStoreId="mwsStoreId"
+  :marketplace="marketplace"
+  :storeId="storeId"
+/>
 </div>
 </template>
 
@@ -213,6 +222,7 @@ import {
   parseTreeKey,
   getFormatTotal,
 } from '../../utils/fun';
+import CreateGroup from '../../create/CreateGroup.vue';
 
 export default {
   name: 'Group',
@@ -222,6 +232,7 @@ export default {
     DatePicker,
     FilterMore,
     FilterCrumbs,
+    CreateGroup,
   },
 
   props: {
@@ -230,6 +241,10 @@ export default {
       required: true,
     },
     storeId: {
+      type: String,
+      required: true,
+    },
+    mwsStoreId: {
       type: String,
       required: true,
     },
