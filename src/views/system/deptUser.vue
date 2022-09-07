@@ -329,11 +329,18 @@ export default {
               {
                 label: '登录账号',
                 prop: 'account',
-                rules: [{
-                  required: true,
-                  message: '请输入登录账号',
-                  trigger: 'blur'
-                }],
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入登录账号',
+                    trigger: 'blur'
+                  },
+                  {
+                    pattern: /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((.[a-zA-Z0-9_-]{2,3}){1,2})$/,
+                    message: '格式不正确，请按邮箱格式输入',
+                    trigger: 'blur',
+                  },
+                ],
               },
               {
                 label: '用户状态',
