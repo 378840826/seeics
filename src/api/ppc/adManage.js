@@ -199,4 +199,12 @@ export const createAdGroup = params => {
     data: params,
   });
 };
+
+export const getGroupList = params => {
+  return request({
+    url: '/api/seeics-ad/group/list',
+    method: 'post',
+    data: params,
+  });
+};
 // --------------------创建广告组
