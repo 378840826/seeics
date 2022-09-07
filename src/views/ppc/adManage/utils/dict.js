@@ -49,3 +49,9 @@ export const matchTypeNameDict = {
   phrase: '词组',
   exact: '精准',
 };
+
+// Targeting 类型
+export const deliveryMethodNameDict = {
+  category: '分类',
+  product: '商品',
+};

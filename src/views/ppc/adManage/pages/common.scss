@@ -54,4 +54,24 @@
 // 工具栏
 .toolbar {
   margin: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+// 条件筛选下拉框
+.filter-select {
+  width: 120px;
+}
+
+// 高级筛选按钮
+.filter_more-btn {
+  padding: 7px 10px 7px 15px;
+}
+
+// 筛选栏
+.filter-bar {
+  &>*:not(:last-child) {
+    margin-right: 20px;
+  }
 }
