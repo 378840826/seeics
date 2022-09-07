@@ -1,6 +1,56 @@
 <!-- 广告活动 -->
 <template>
 <div>
+<!-- 筛选栏 -->
+<div class="filter-bar">
+  <Search
+    placeholder="广告活动名称/ASIN/SKU"
+    :value="filter.search"
+    @search="handleSearch"
+  />
+
+  <el-select
+    v-model="filter.targetingType"
+    clearable
+    placeholder="投放方式"
+    :size="size"
+    class="filter-select"
+    @change="handleTargetingTypeChange"
+  >
+    <el-option
+      v-for="(val,key) in targetingTypeDict"
+      :key="key"
+      :label="val"
+      :value="key"
+    />
+  </el-select>
+
+  <el-button
+    :type="filterMoreVisible ? 'primary' : ''"
+    class="filter_more-btn"
+    @click="filterMoreVisible = !filterMoreVisible"
+    :size="size"
+  >
+    高级筛选
+    <i :class="filterMoreVisible ? 'el-icon-arrow-down' : 'el-icon-arrow-right'" />
+  </el-button>
+</div>
+<!-- 高级筛选 -->
+<FilterMore
+  ref="refFilterMore"
+  :visible="filterMoreVisible"
+  :currency="currency"
+  @filter="handleFilter"
+  @cancel="handleFilterCancel"
+/>
+<!-- 面包屑 -->
+<FilterCrumbs
+  ref="refFilterCrumbs"
+  :filterConditions="filterCrumbsConditions"
+  :currency="currency"
+  @close="handleCloseCrumbs"
+  @empty="handleEmptyCrumbs"
+/>
 <!-- 工具栏 -->
 <div class="toolbar">
   <el-button
@@ -8,22 +58,24 @@
     @click="createCampaignDialogVisible = true"
     :size="size"
   >创建广告活动</el-button>
+
+  <DatePicker :defaultValue="filter.dateRange" @change="handleDateRangeChange" />
 </div>
 
 <!-- 表格 -->
 <div class="table-container">
   <el-table
-    ref="tableRef"
+    ref="refTable"
     :data="tableData"
     v-loading="tableLoading"
     tooltip-effect="dark"
-    height="calc(100vh - 296px)"
+    :height="tableHeight"
     empty-text="没有查询到数据，请修改查询条件"
     @selection-change="handleSelectionChange"
     @sort-change="handleSortChange"
     border
     show-summary
-    :summary-method="summaryMethod"
+    :summary-method="({columns}) => summaryMethod(columns, tableTotalData)"
     :size="size"
   >
     <el-table-column type="selection" width="55" />
@@ -49,7 +101,7 @@
       </template> -->
     </el-table-column>
 
-    <el-table-column prop="portfolioId" label="Portfolios" width="120" fixed>
+    <el-table-column prop="portfolioId" label="广告组合" width="120" fixed>
       <template slot-scope="{row}">
         {{ row.portfolioName }}
       </template>
@@ -91,13 +143,13 @@
       </template>
     </el-table-column>
 
-    <el-table-column prop="biddingPlacementTop" label="Top of Search" width="110">
+    <el-table-column prop="biddingPlacementTop" label="搜索结果顶部" width="100">
       <template slot-scope="{row}">
         {{ getValueLocaleString({ value: row.biddingPlacementTop, isFraction: true, suffix: '%' }) }}
       </template>
     </el-table-column>
 
-    <el-table-column prop="biddingPlacementProductPage" label="Product page" width="110">
+    <el-table-column prop="biddingPlacementProductPage" label="商品页面" width="80">
       <template slot-scope="{row}">
         {{ getValueLocaleString({ value: row.biddingPlacementProductPage, isFraction: true, suffix: '%' }) }}
       </template>
@@ -175,6 +227,7 @@ import {
   queryCampaignList,
 } from '@/api/ppc/adManage';
 import { stateNameDict, targetingTypeDict, biddingStrategyDict } from '../../utils/dict';
+import { tablePageOption, defaultDateRange, summaryMethod } from '../../utils/options';
 import { log } from '@/util/util';
 import {
   getValueLocaleString,
@@ -183,12 +236,20 @@ import {
   getFormatTotal,
   parseTreeKey,
 } from '../../utils/fun';
+import Search from '../../components/Search';
+import DatePicker from '../../components/DatePicker';
+import FilterMore from '../../components/FilterMore';
+import FilterCrumbs, { notRangeKeys } from '../../components/FilterCrumbs';
 import CreateCampaignDialog from '../../create/createCampaignDialog';
 
 export default {
   name: 'Campaign',
 
   components: {
+    Search,
+    DatePicker,
+    FilterMore,
+    FilterCrumbs,
     CreateCampaignDialog,
   },
 
@@ -224,15 +285,20 @@ export default {
       stateNameDict,
       targetingTypeDict,
       biddingStrategyDict,
+      summaryMethod,
+      filter: {
+        search: '',
+        targetingType: '',
+        dateRange: defaultDateRange,
+        more: {},
+      },
+      // 高级筛选 Visible
+      filterMoreVisible: false,
+      tableHeight: 'calc(100vh - 326px)',
       tableData: [],
       tableTotalData: {},
       tableLoading: false,
-      tablePageOption: { 
-        total: 100,
-        currentPage: 1, 
-        pageSize: 20,
-        pageSizes: [20, 50, 100],
-      },
+      tablePageOption: { ...tablePageOption },
       tableSort: { prop: 'createdTime', order: 'descending' },
       createCampaignDialogVisible: false,
     };
@@ -244,6 +310,17 @@ export default {
       const treeSelectedInfo = parseTreeKey(this.treeSelectedKey);
       return treeSelectedInfo;
     },
+
+    // 面包屑需要显示的筛选条件
+    filterCrumbsConditions() {
+      const obj = {
+        ...this.filter.more,
+      };
+      this.filter.search && (obj.search = this.filter.search);
+      this.filter.targetingType && (obj.targetingType = targetingTypeDict[this.filter.targetingType]);
+      return obj;
+    },
+
     commonColOption() {
       return getCommonColOption(this.currency);
     },
@@ -255,7 +332,7 @@ export default {
 
   updated () {
     // 解决表格合计行样式问题
-    this.$refs.tableRef.doLayout();
+    this.$refs.refTable.doLayout();
   },
 
   methods: {
@@ -278,6 +355,11 @@ export default {
         marketplace: this.marketplace,
         portfolioId: this.portfolioId,
         state: this.treeSelectedInfo.campaignState,
+        search: this.filter.search,
+        targetingType: this.filter.targetingType,
+        startTime: this.filter.dateRange[0],
+        entTime: this.filter.dateRange[1],
+        ...this.filter.more,
         ...body,
       };
       queryCampaignList(queryParams, bodyParams).then(res => {
@@ -290,6 +372,62 @@ export default {
       }).finally(() => {
         this.tableLoading = false;
       });
+    },
+
+    // 点击搜索
+    handleSearch(val) {
+      this.filter.search = val;
+      // 清空并收起高级筛选
+      this.filter.more = {};
+      this.filterMoreVisible = false;
+      this.$refs.refFilterMore.handleEmpty();
+      this.getList({ current: 1 });
+    },
+
+    // 投放方式筛选
+    handleTargetingTypeChange(val) {
+      this.filter.targetingType = val;
+      this.getList({ current: 1 });
+    },
+
+    // 高级筛选确定
+    handleFilter(val) {
+      this.filterMoreVisible = false;
+      this.filter.more = { ...val };
+      this.getList({ current: 1 });
+    },
+
+    // 高级筛选点击取消
+    handleFilterCancel() {
+      this.filterMoreVisible = false;
+    },
+
+    // 日期范围改变
+    handleDateRangeChange(val) {
+      this.filter.dateRange = val;
+      this.getList({ current: 1 });
+    },
+
+    // 面包屑关闭
+    handleCloseCrumbs(key) {
+      if (notRangeKeys.includes(key)) {
+        this.filter[key] = '';
+      } else {
+        this.filter.more[`${key}Min`] = '';
+        this.filter.more[`${key}Max`] = '';
+      }
+      this.getList({ current: 1 });
+    },
+
+    // 面包屑清空
+    handleEmptyCrumbs() {
+      this.filter = {
+        search: '',
+        targetingType: '',
+        dateRange: [...this.filter.dateRange],
+        more: {},
+      };
+      this.getList({ current: 1 });
     },
 
     // 表格排序变化
@@ -305,18 +443,6 @@ export default {
       log('点击广告组数量', row);
     },
 
-    // 合计行数据
-    summaryMethod({ columns }){
-      const keys = Object.keys(this.tableTotalData);
-      const sums = ['', '', '', '合计'];
-      columns.forEach((column, index) => {
-        if (keys.includes(column.property)) {
-          sums[index] = this.tableTotalData[column.property];
-        }
-      });
-      return sums;
-    },
-
     // 点击分析
     handleCharts(row) {
       log('分析', row);
@@ -330,6 +456,18 @@ export default {
     
     treeSelectedKey() {
       this.getList();
+    },
+
+    // 面包屑出现时，改变表格高度
+    filterCrumbsConditions() {
+      let h = 326;
+      this.$nextTick(function() {
+        if (Object.keys(this.filterCrumbsConditions).length) {
+          const margin = 10;
+          h = h + this.$refs.refFilterCrumbs.$el.offsetHeight + margin;
+        }
+        this.tableHeight = `calc(100vh - ${h}px)`;
+      });
     },
   },
 };
