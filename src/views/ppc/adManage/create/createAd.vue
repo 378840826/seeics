@@ -28,7 +28,7 @@
           :remote-method="remoteMethod"
           :loading="campaignLoading"
           v-loadmore="loadmore"
-          @blur="searchCampaign = ''; searchCampaignList = []"
+          @blur="searchCampaign = ''; searchCampaignList = []; page.current = 1"
           placeholder="请选择广告活动"
           size="small"
           class="autocomplete"
@@ -59,7 +59,7 @@
           :remote-method="remoteMethodGroup"
           :loading="groupLoading"
           v-loadmore="loadmoreGroup"
-          @blur="searchGroup = ''; searchGroupList = []"
+          @blur="searchGroup = ''; searchGroupList = []; groupPage.current = 1"
           placeholder="请选择广告组"
           size="small"
           style="width: 400px">
@@ -286,6 +286,7 @@ export default {
       this.searchCampaign = val;
       this.campaignLoading = true;
       this.searchCampaignList = [];
+      this.page.current = 1;
       this.queryCampaignList();
     },
 
@@ -293,6 +294,7 @@ export default {
       this.searchGroup = val;
       this.groupLoading = true;
       this.searchGroupList = [];
+      this.groupPage.current = 1;
       this.getGroupList();
     },
 
