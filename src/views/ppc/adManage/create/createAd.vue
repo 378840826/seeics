@@ -28,7 +28,7 @@
           :remote-method="remoteMethod"
           :loading="campaignLoading"
           v-loadmore="loadmore"
-          @blur="searchCampaign = ''; searchCampaignList = []; page.current = 1"
+          @focus="searchCampaign = ''; searchCampaignList = []; page.current = 1"
           placeholder="请选择广告活动"
           size="small"
           class="autocomplete"
@@ -59,7 +59,7 @@
           :remote-method="remoteMethodGroup"
           :loading="groupLoading"
           v-loadmore="loadmoreGroup"
-          @blur="searchGroup = ''; searchGroupList = []; groupPage.current = 1"
+          @focus="searchGroup = ''; searchGroupList = []; groupPage.current = 1"
           placeholder="请选择广告组"
           size="small"
           style="width: 400px">
