@@ -200,11 +200,24 @@ export const createAdGroup = params => {
   });
 };
 
-export const getGroupList = params => {
+export const getGroupList = (params, data) => {
   return request({
     url: '/api/seeics-ad/group/list',
+    method: 'post',
+    params,
+    data,
+  });
+};
+// --------------------创建广告组
+
+// 创建广告--------------------
+
+export const createAd = params => {
+  return request({
+    url: '/api/seeics-ad/product/create',
     method: 'post',
     data: params,
   });
 };
-// --------------------创建广告组
+
+// --------------------创建广告
