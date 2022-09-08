@@ -221,7 +221,9 @@ export default {
 
     queryCampaignList(flag) {
       queryCampaignList({
-        ...this.page,
+        // ...this.page,
+        current: !this.searchCampaign ? this.page.current : this.searchPage.current,
+        size: !this.searchCampaign ? this.page.size : this.searchPage.size,
         order: 'createdTime',
         asc: false
       }, {
@@ -269,7 +271,10 @@ export default {
     },
 
     getGroupList(flag) {
-      getGroupList(this.groupPage, { name: this.searchGroup || '' }).then(res => {
+      getGroupList({
+        current: !this.searchGroup ? this.groupPage.current : this.groupSearchPage.curren,
+        size: !this.searchGroup ? this.groupPage.size : this.groupSearchPage.size,
+      }, { name: this.searchGroup || '' }).then(res => {
         if (res.data.code === 200) {
           this.groupLoading = false;
           const data = res.data.data.records.map(item => {
