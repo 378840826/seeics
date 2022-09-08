@@ -40,7 +40,7 @@
 
         <el-form-item>
           <span>页</span>
-          <el-button class="download" size="small" @click="download">下载可视化模板</el-button>
+          <!-- <el-button class="download" size="small" @click="download">下载可视化模板</el-button> -->
          <el-popover
             placement="bottom"
             width="100"

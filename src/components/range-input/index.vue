@@ -105,7 +105,7 @@ export default {
     input {
       text-align: center;
       border: none;
-      height: 30px;
+      height: 28px;
     }
   }
 }
