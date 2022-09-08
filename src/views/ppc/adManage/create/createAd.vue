@@ -221,7 +221,6 @@ export default {
 
     queryCampaignList(flag) {
       queryCampaignList({
-        // ...this.page,
         current: !this.searchCampaign ? this.page.current : this.searchPage.current,
         size: !this.searchCampaign ? this.page.size : this.searchPage.size,
         order: 'createdTime',
