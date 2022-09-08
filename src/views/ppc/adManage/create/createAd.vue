@@ -139,6 +139,10 @@ export default {
         size: 20,
         current: 1,
       },
+      groupPage: {
+        size: 20,
+        current: 1,
+      },
       rules: {
         campaignId: [{ required: true, message: '请选择广告活动', trigger: 'blur' }],
         groupId: [{ required: true, message: '请选择广告组', trigger: 'blur' }],
@@ -185,6 +189,14 @@ export default {
       if (result < this.total) { //加载全部出来 停止请求
         this.page.current ++;
         this.queryCampaignList(true);
+      }  
+    },
+
+    loadmoreGroup() {
+      const result = this.groupPage.size * this.groupPage.current;
+      if (result < this.groupTotal) { //加载全部出来 停止请求
+        this.groupPage.current ++;
+        this.getGroupList(true);
       }  
     },
 
@@ -241,7 +253,7 @@ export default {
     },
 
     getGroupList(flag) {
-      getGroupList(this.page, { name: this.searchGroup || '' }).then(res => {
+      getGroupList(this.groupPage, { name: this.searchGroup || '' }).then(res => {
         if (res.data.code === 200) {
           this.groupLoading = false;
           const data = res.data.data.records.map(item => {
@@ -293,7 +305,7 @@ export default {
       } else if (!priceTable.length) {
         this.$message({
           type: 'error',
-          message: '请输入选择商品'
+          message: '请选择商品'
         });
         return;
       }
