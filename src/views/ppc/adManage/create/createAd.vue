@@ -28,7 +28,8 @@
           :remote-method="remoteMethod"
           :loading="campaignLoading"
           v-loadmore="loadmore"
-          @focus="searchCampaign = ''; searchCampaignList = []; page.current = 1"
+          @focus="searchCampaign = '';
+            searchCampaignList = [];"
           placeholder="请选择广告活动"
           size="small"
           class="autocomplete"
@@ -59,7 +60,9 @@
           :remote-method="remoteMethodGroup"
           :loading="groupLoading"
           v-loadmore="loadmoreGroup"
-          @focus="searchGroup = ''; searchGroupList = []; groupPage.current = 1"
+          @focus="
+            searchGroup = '';
+            searchGroupList = [];"
           placeholder="请选择广告组"
           size="small"
           style="width: 400px">
@@ -134,12 +137,22 @@ export default {
       groupList: [],
       data: [],
       total: 0,
+      searchTotal: 0,
       groupTotal: 0,
+      groupSearchTotal: 0,
       page: {
         size: 20,
         current: 1,
       },
+      searchPage: {
+        size: 20,
+        current: 1,
+      },
       groupPage: {
+        size: 20,
+        current: 1,
+      },
+      groupSearchPage: {
         size: 20,
         current: 1,
       },
@@ -185,17 +198,19 @@ export default {
     },
 
     loadmore() {
-      const result = this.page.size * this.page.current;
+      const result = !this.searchCampaign ?
+        this.page.size * this.page.current : this.searchPage.size * this.searchPage.current;
       if (result < this.total) { //加载全部出来 停止请求
-        this.page.current ++;
+        !this.searchCampaign ? this.page.current ++ : this.searchPage.current ++;
         this.queryCampaignList(true);
       }  
     },
 
     loadmoreGroup() {
-      const result = this.groupPage.size * this.groupPage.current;
+      const result = !this.searchGroup ?
+        this.groupPage.size * this.groupPage.current : this.groupSearchPage.size * this.groupSearchPage.current;
       if (result < this.groupTotal) { //加载全部出来 停止请求
-        this.groupPage.current ++;
+        !this.searchGroup ? this.groupPage.current ++ : this.groupSearchPage.current ++;
         this.getGroupList(true);
       }  
     },
@@ -223,9 +238,9 @@ export default {
               label: item.name
             };
           });
-          this.total = res.data.data.page.total;
           if (this.searchCampaign) {
-            if (this.total > this.page.current) {
+            this.searchTotal = res.data.data.page.total;
+            if (this.searchTotal > this.searchPage.current * this.searchPage.size) {
               this.searchCampaignList = this.searchCampaignList.concat(data);
               this.searchCampaignList = this.repetit(this.searchCampaignList);
             } else {
@@ -233,6 +248,7 @@ export default {
             }
             return;
           }
+          this.total = res.data.data.page.total;
           this.data = this.data.concat(res.data.data.page.records);
           this.data = this.repetit(this.data);
           this.campaignList = this.data.map(item => {
@@ -263,9 +279,10 @@ export default {
               label: item.name
             };
           });
-          this.groupTotal = res.data.data.total;
+          
           if (this.searchGroup) {
-            if (this.groupTotal > this.page.current) {
+            this.groupSearchTotal = res.data.data.total;
+            if (this.groupSearchTotal > this.groupSearchPage.current * this.groupSearchPage.size) {
               this.searchGroupList = this.searchGroupList.concat(data);
               this.searchGroupList = this.repetit(this.searchGroupList);
             } else {
@@ -273,8 +290,9 @@ export default {
             }
             return;
           }
+          this.groupTotal = res.data.data.total;
           this.groupList = this.groupList.concat(data);
-          
+          this.groupList = this.repetit(this.groupList);
           if (!flag) { //非预加载赋值
             this.form.groupId = this.groupList.length && this.groupList[0].id;
           }
@@ -286,7 +304,7 @@ export default {
       this.searchCampaign = val;
       this.campaignLoading = true;
       this.searchCampaignList = [];
-      this.page.current = 1;
+      this.searchPage.current = 1;
       this.queryCampaignList();
     },
 
@@ -294,7 +312,7 @@ export default {
       this.searchGroup = val;
       this.groupLoading = true;
       this.searchGroupList = [];
-      this.groupPage.current = 1;
+      this.groupSearchPage.current = 1;
       this.getGroupList();
     },
 
