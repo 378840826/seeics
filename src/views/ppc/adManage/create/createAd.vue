@@ -200,7 +200,8 @@ export default {
     loadmore() {
       const result = !this.searchCampaign ?
         this.page.size * this.page.current : this.searchPage.size * this.searchPage.current;
-      if (result < !this.searchCampaign ? this.total : this.searchTotal) { //加载全部出来 停止请求
+      const total = !this.searchCampaign ? this.total : this.searchTotal;
+      if (result < total) { //加载全部出来 停止请求
         !this.searchCampaign ? this.page.current ++ : this.searchPage.current ++;
         this.queryCampaignList(true);
       }  
@@ -209,7 +210,8 @@ export default {
     loadmoreGroup() {
       const result = !this.searchGroup ?
         this.groupPage.size * this.groupPage.current : this.groupSearchPage.size * this.groupSearchPage.current;
-      if (result < !this.searchGroup ? this.groupTotal : this.groupSearchTotal) { //加载全部出来 停止请求
+      const total = !this.searchGroup ? this.groupTotal : this.groupSearchTotal;
+      if (result < total) { //加载全部出来 停止请求
         !this.searchGroup ? this.groupPage.current ++ : this.groupSearchPage.current ++;
         this.getGroupList(true);
       }  
