@@ -23,13 +23,21 @@
           v-loadmore="loadmore"
           v-model="form.campaignId"
           @change="handleGroup"
+          filterable
+          reserve-keyword
+          remote
+          :remote-method="remoteMethod"
+          :loading="campaignLoading"
+          @focus="searchCampaign = '';
+            searchCampaignList = [];"
           size="small"
           style="width: 400px">
           <el-option
-            v-for="item in campaignList.filter(Boolean)"
+            v-for="item in !searchCampaign ? campaignList : searchCampaignList"
             :key="item.id"
             :value="item.id"
             :label="item.label"
+            class="box2"
           />
         </el-select>
       </el-form-item>
@@ -276,6 +284,14 @@ export default {
         ]
       },
       loading: false,
+      campaignLoading: false,
+      searchCampaign: '',
+      searchCampaignList: [],
+      searchTotal: 0,
+      searchPage: {
+        size: 20,
+        current: 1,
+      },
     };
   },
 
@@ -300,24 +316,58 @@ export default {
 
   methods: {
 
+    repetit(arr) {
+      let res = [];
+      const hasObj = {};
+      res = arr.reduce((total, next) => {
+        const filterKey = next.id;
+        hasObj[filterKey] ? '' : hasObj[filterKey] = true && total.push(next);
+        return total;
+      }, []);
+      return res;
+    },
+
     loadmore() {
-      const result = this.page.size * this.page.current;
-      if (result < this.total) { //加载全部出来 停止请求
-        this.page.current ++;
+      const result = !this.searchCampaign ?
+        this.page.size * this.page.current : this.searchPage.size * this.searchPage.current;
+      const total = !this.searchCampaign ? this.total : this.searchTotal;
+      if (result < total) { //加载全部出来 停止请求
+        !this.searchCampaign ? this.page.current ++ : this.searchPage.current ++;
         this.queryCampaignList(true);
       }  
     },
 
     queryCampaignList(flag) {
       queryCampaignList({
-        ...this.page,
+        current: !this.searchCampaign ? this.page.current : this.searchPage.current,
+        size: !this.searchCampaign ? this.page.size : this.searchPage.size,
         order: 'createdTime',
         asc: false
       }, {
         marketplace: this.marketplace,
         storeId: this.storeId,
+        search: this.searchCampaign || '',
       }).then(res => {
         if (res.data.code === 200) {
+
+          this.campaignLoading = false;
+          if (this.searchCampaign) {
+            const data = res.data.data.page.records.map(item => {
+              return {
+                value: item.id,
+                id: item.id,
+                label: item.name
+              };
+            });
+            this.searchTotal = res.data.data.page.total;
+            if (this.searchTotal > this.searchPage.current * this.searchPage.size) {
+              this.searchCampaignList = this.searchCampaignList.concat(data);
+              this.searchCampaignList = this.repetit(this.searchCampaignList);
+            } else {
+              this.searchCampaignList = data;
+            }
+            return;
+          }
           this.data = this.data.concat(res.data.data.page.records);
           this.campaignList = this.data.map(item => {
             return {
@@ -326,12 +376,7 @@ export default {
               label: item.name
             };
           });
-          const hasObj = {};
-          this.campaignList = this.campaignList.reduce((total, next) => {
-            const filterKey = next.id;
-            hasObj[filterKey] ? '' : hasObj[filterKey] = true && total.push(next);
-            return total;
-          }, []);
+          this.campaignList = this.repetit(this.campaignList);
           this.total = res.data.data.page.total;
           if (!flag) { //非预加载赋值
             this.form.campaignId = this.campaignList.length && this.campaignList[0].id;
@@ -347,6 +392,14 @@ export default {
       this.targetingMode = this.data.filter(item => item.id === value)[0].targetingType;
       this.strategy = this.data.filter(item => item.id === value)[0].biddingStrategy;
       this.dailyBudget = this.data.filter(item => item.id === value)[0].dailyBudget;
+    },
+
+    remoteMethod(val) {
+      this.searchCampaign = val;
+      this.campaignLoading = true;
+      this.searchCampaignList = [];
+      this.searchPage.current = 1;
+      this.queryCampaignList();
     },
 
     saveBtn() {
@@ -460,5 +513,17 @@ export default {
     content: "*";
     display: block;
     widows: 10px;
+  }
+
+  .box2 {
+    width: 400px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .box2:hover {
+    text-overflow:inherit;
+    overflow: visible;
+    white-space: pre-line;
   }
 </style>
