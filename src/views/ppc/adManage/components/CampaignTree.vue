@@ -19,6 +19,7 @@
         :current-node-key="treeSelectedKey"
         lazy
         accordion
+        highlight-current
       >
         <span slot-scope="{ node, data }">
         <i :class="stateIconDict[data.state]" />
@@ -36,7 +37,7 @@ import {
 } from '@/api/ppc/adManage';
 import { parseTreeKey } from '../utils/fun';
 import { stateIconDict } from '../utils/dict';
-import { log } from '@/util/util';
+// import { log } from '@/util/util';
 
 export default {
   name: 'CampaignTree',
@@ -60,7 +61,6 @@ export default {
         isLeaf: 'isLeaf',
       },
       filterText: '',
-      treeSelect: {},
     };
   },
 
@@ -85,7 +85,6 @@ export default {
     loadChildTreeNode(node, resolve) {
       // 父节点的详细参数
       const nodeParams = parseTreeKey(node.data.key);
-      log('广告树子节点加载', node.data);
       const params = {
         adStoreId: this.storeId,
         adType: 'sp',
@@ -99,6 +98,7 @@ export default {
             const key = `${nodeParams.campaignState}-${item.campaignId}`;
             return {
               ...item,
+              campaignName: item.name,
               key,
             };
           });
@@ -112,6 +112,8 @@ export default {
             const key = `${nodeParams.campaignState}-${nodeParams.campaignId}-${item.groupId}-${item.groupType}`;
             return {
               ...item,
+              campaignName: node.data.campaignName,
+              groupName: item.name,
               key,
               isLeaf: true,
             };
@@ -130,13 +132,12 @@ export default {
     },
 
     // 树切换选中的广告活动/广告组
-    handleTreeSelect(data, treeNode) {
+    handleTreeSelect(data) {
       // 判断是否点击当前选中的
-      if (data.key === this.treeSelect.key) {
+      if (data.key === this.treeSelectedKey) {
         return;
       }
-      log('树切换选中', data);
-      this.treeSelect = { ...data, level: treeNode.level };
+      this.$emit('treeSelect', { ...data });
     },
   },
 
@@ -146,14 +147,20 @@ export default {
       this.$refs.treeRef.filter(val);
     },
 
-    // 树节点选中切换
-    treeSelect(val) {
-      this.$emit('treeSelect', val);
-    },
-
     // 由于 elementUI 的 BUG，需要监听此值的变化后主动设置 current-node-key
     treeSelectedKey(val) {
       this.$refs.treeRef.setCurrentKey(val);
+      // 展开父节点，（面包屑导航或url跳转到指定广告活动广告组时需要展开对应的父节点）
+      const selectedInfo = parseTreeKey(val);
+      let parentKys = '';
+      if (selectedInfo.groupId) {
+        parentKys = `${selectedInfo.campaignState}-${selectedInfo.campaignId}`;
+      } else if (selectedInfo.campaignId) {
+        parentKys = selectedInfo.campaignState;
+      }
+      if (parentKys && this.$refs.treeRef.store.nodesMap[parentKys].expanded === false) {
+        this.$refs.treeRef.store.nodesMap[parentKys].expanded = true;
+      }
     },
   },
 };

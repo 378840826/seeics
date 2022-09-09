@@ -1,9 +1,9 @@
 <!-- 广告管理 -->
 <template>
-  <basic-container>
+  <basic-container :class="treeSelectedInfo.campaignId && 'has-path_crumbs'">
     <el-container v-loading="pageLoading">
       <!-- 左侧菜单 -->
-      <el-aside class="left-aside">
+      <el-aside class="left-aside" :class="{ 'has-path_crumbs': treeSelectedInfo.campaignId }">
         <div class="store_time-container">
           <!-- 店铺和时间 -->
           <el-cascader
@@ -13,7 +13,13 @@
             @change="handleStoreChange"
             :size="size"
             class="store-cascader"
-          />
+            popper-class="_ad_mamage-store-cascader-popper"
+          >
+           <template slot-scope="{ data }">
+            <span>{{ data.label }}</span>
+            <span v-if="data.disabled"> (<el-button type="text" @click="handleToAuthorize">去授权</el-button>)</span>
+          </template>
+          </el-cascader>
           <div class="marketplace-time">{{ currentStore.time }}</div>
         </div>
         <!-- 广告活动和 portfolio 标签页切换 -->
@@ -59,6 +65,14 @@
         </el-tabs>
       </el-aside>
       <el-main class="right-main">
+        <!-- 面包屑导航 -->
+        <PathCrumbs
+          v-if="treeSelectedInfo.campaignId"
+          :storeInfo="currentStore"
+          :treeSelectedInfo="treeSelectedInfo"
+          @jump="handleClickPathCrumbs"
+        />
+        <!-- 各列表 -->
         <el-tabs v-model="tabsActive" @tab-click="handleTabsClick">
           <el-tab-pane
             v-for="item in tabsStateDict[tabsState]"
@@ -113,6 +127,7 @@ import {
 } from '@/api/ppc/adManage';
 import { log } from '@/util/util';
 import DialogPortfoiloEdit from './components/DialogPortfoiloEdit';
+import PathCrumbs from './components/PathCrumbs';
 import CampaignTree from './components/CampaignTree';
 import { parseTreeKey, getMarketplaceTime } from './utils/fun';
 import { stateIconDict, tabsStateDict, allTabs } from './utils/dict';
@@ -127,6 +142,7 @@ export default{
 
   components: {
     DialogPortfoiloEdit,
+    PathCrumbs,
     CampaignTree,
     Campaign,
     Group,
@@ -146,11 +162,15 @@ export default{
       currentStore: {
         marketplace: '',
         adStoreId: '',
+        mwsStoreId: '',
         currency: '',
         time: '',
+        storeName: '',
       },
       // 广告树选中的节点 key
       treeSelectedKey: '',
+      // 广告树选中的全部信息
+      treeSelectedInfo: {},
       // 广告组合
       portfolioList: [],
       portfolioSelectedId: '',
@@ -236,7 +256,6 @@ export default{
         _this.pageLoading = false;
         this.getPortfolioList();
         this.getTabsCellCount();
-        // log('store', this.$store.state.shop);
       });
     },
 
@@ -250,7 +269,6 @@ export default{
         groupId: selectedTreeInfo.groupId,
       };
       queryTabsCellCount(params).then(res => {
-        // log('请求标签页数量res', res.data.data);
         this.tabsCellCount = res.data.data;
       }).finally(() => {
         this.tabsCellCountLoading = false;
@@ -266,7 +284,6 @@ export default{
       }
       // 从店铺列表中找到
       const storeInfo = this.$store.state.shop.storeNameObj[newStore[0]].find(s => s.adStoreId === newStore[1]);
-      log('切换店铺', newStore, storeInfo);
       this.currentStore = {
         marketplace: storeInfo.marketplace,
         adStoreId: storeInfo.adStoreId,
@@ -275,6 +292,11 @@ export default{
         time: getMarketplaceTime(storeInfo.timezone),
         storeName: storeInfo.storeName,
       };
+    },
+
+    // 点击去授权
+    handleToAuthorize() {
+      this.$router.push('/ppc/shop');
     },
 
     // 广告组合-获取列表
@@ -290,6 +312,7 @@ export default{
       this.portfolioSelectedId = val.id;
       // 取消广告树的选中
       this.treeSelectedKey = null;
+      this.treeSelectedInfo = {};
     },
 
     // 广告组合-点击编辑名称
@@ -330,29 +353,43 @@ export default{
       });
     },
 
-    // 标签页点击
-    // handleTabsClick(tabs) {
-    //   console.log('标签页点击', tabs, this.tabsActive);
-    // },
 
-    // // 树-切换选中
-    // // 切换选中的广告活动或广告组
-    // changeTreeSelected(params, scrollTree = false) {
-    //   log('changeSelected', params, scrollTree);
-    //   // const { tabsState, selectedInfo } = params;
-    //   // 根据节点重新加载标签页
-    //   // 切换到第一个标签
-    //   // 请求各标签显示的数量（只有切换广告活动或广告组时才请求）
-    //   // 修改菜单树选中的 key 和广告信息
-    //   // 菜单树滚动到选中位置, 在下一个事件循环中执行(先切换了选中再执行滚动)
-    //   // scrollTree && setTimeout(scrollTreeToSelected, 0);
-    // },
+    // 树-切换选中
+    // 根据节点重新加载标签页
+    // 切换到第一个标签
+    // 请求各标签显示的数量
+    // 修改菜单树选中的 key 和广告信息
+    // 展开父节点
+    // 菜单树滚动到选中位置, 在下一个事件循环中执行(先切换了选中再执行滚动)
 
     // 树-树组件切换了选中
     handleTreeSelect(val) {
+      this.treeSelectedInfo = { ...val };
       this.treeSelectedKey = val.key;
       // 取消广告组合的选中
       this.portfolioSelectedId = '';
+      // 请求标签页数量
+      this.getTabsCellCount();
+    },
+
+    // 面包屑导航点击
+    handleClickPathCrumbs(val) {
+      if (val.storeName) {
+        // 点击店铺，触发 currentStore watch
+        this.currentStore = { ...this.currentStore };
+      } else if (val.campaignName) {
+        // 点击广告活动，触发树组件选中
+        const newTreeSelectedInfo = {
+          ...this.treeSelectedInfo,
+          key: `${this.treeSelectedInfo.state}-${val.campaignId}`,
+          name: this.treeSelectedInfo.campaignName,
+        };
+        // 此时广告树是选中广告组的状态，删除广告组相关数据
+        delete newTreeSelectedInfo.groupId;
+        delete newTreeSelectedInfo.groupName;
+        delete newTreeSelectedInfo.groupType;
+        this.handleTreeSelect(newTreeSelectedInfo);
+      }
     },
   },
 
@@ -360,6 +397,9 @@ export default{
     currentStore(_, old) {
       // 非初始化时才需要
       if (old.adStoreId) {
+        // 重置广告树
+        this.treeSelectedKey = null;
+        this.treeSelectedInfo = {};
         // 请求广告组合
         this.getPortfolioList();
         // 请求标签页数量
@@ -377,4 +417,24 @@ export default{
 
 <style scoped lang="scss">
   @import "./index.scss";
+</style>
+
+<style lang="scss">
+._ad_mamage-store-cascader-popper {
+  .el-cascader-menu__wrap {
+    height: auto;
+    max-height: 400px;
+  }
+}
+</style>
+
+<style scoped lang="scss">
+// 出现面包屑导航时，去掉容器的 paddingTop，高度用来放面包屑导航
+.has-path_crumbs {
+  ::v-deep {
+    .el-card__body {
+      padding-top: 0;
+    }
+  }
+}
 </style>

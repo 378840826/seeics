@@ -39,6 +39,27 @@ export const adObjectTypeDict = {
   用户搜索词: '用户搜索词',
 };
 
+// 获取亚马逊站点基本链接
+export function getAmazonBaseUrl (state) {
+  const urlDict = {
+    US: 'https://www.amazon.com',
+    CA: 'https://www.amazon.ca',
+    UK: 'https://www.amazon.co.uk',
+    DE: 'https://www.amazon.de',
+    FR: 'https://www.amazon.fr',
+    ES: 'https://www.amazon.es',
+    IT: 'https://www.amazon.it',
+    JP: 'https://www.amazon.co.jp', // 日本站
+  };
+  return urlDict[state];
+}
+
+// 获取亚马逊 asin 链接
+export function getAmazonAsinUrl(asin, marketplace) {
+  const baseUrl = getAmazonBaseUrl(marketplace);
+  return `${baseUrl}/dp/${asin}`;
+}
+
 // 广告执行操作
 export const actionList = ['新增关键词', '新增否定关键词', '新增商品投放', '新增否定商品投放'];
 

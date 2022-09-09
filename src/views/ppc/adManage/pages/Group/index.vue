@@ -117,9 +117,9 @@
       > {{ row.productNumber }} </el-button>
     </el-table-column>
 
-    <el-table-column prop="KeywordNumber" label="关键词" width="110">
+    <el-table-column prop="keywordNumber" label="关键词" width="110">
       <template slot-scope="{row}">
-        {{ row.KeywordNumber }}
+        {{ row.keywordNumber }}
       </template>
     </el-table-column>
 
