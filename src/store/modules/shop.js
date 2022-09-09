@@ -36,6 +36,7 @@ const shop = {
             return {
               value: store.adStoreId,
               label: store.marketplace,
+              disabled: !store.adStoreId,
               ...store,
             };
           }),

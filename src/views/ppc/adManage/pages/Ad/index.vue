@@ -108,7 +108,10 @@
       </template>
     </el-table-column>
 
-    <el-table-column prop="name" label="广告" width="200" sortable="custom"  fixed>
+    <el-table-column prop="asin" label="广告" width="280" sortable="custom" fixed>
+      <template slot-scope="{row}">
+        <Goods :goods-info="{...row, marketplace}" />
+      </template>
     </el-table-column>
 
     <el-table-column prop="campaignName" label="广告活动" width="200">
@@ -177,6 +180,7 @@ import {
 import { stateNameDict } from '../../utils/dict';
 import { tablePageOption, defaultDateRange, summaryMethod } from '../../utils/options';
 import { log } from '@/util/util';
+import Goods from './Goods';
 import Search from '../../components/Search';
 import DatePicker from '../../components/DatePicker';
 import FilterMore from '../../components/FilterMore';
@@ -194,6 +198,7 @@ export default {
 
   components: {
     Search,
+    Goods,
     DatePicker,
     FilterMore,
     FilterCrumbs,
