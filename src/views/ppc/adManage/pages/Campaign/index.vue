@@ -386,6 +386,7 @@ export default {
     // 点击搜索
     handleSearch(val) {
       this.filter.search = val;
+      this.filter.targetingType = '';
       // 清空并收起高级筛选
       this.filter.more = {};
       this.filterMoreVisible = false;

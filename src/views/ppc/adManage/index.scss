@@ -19,6 +19,11 @@
 .left-aside {
   width: 300px;
   box-shadow: 1px 0px 0px 0px #ccc;
+
+  // 出现面包屑导航时，因为容器去掉了 paddingTop 所以侧边栏单独加上
+  &.has-path_crumbs {
+    padding-top: 20px;
+  }
 }
 
 .left-tabs {
