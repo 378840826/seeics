@@ -392,7 +392,11 @@
         搜索词来源：
         <div style="width: 400px">
 
-        <el-radio  v-model="radio" @change="handleRadio" :label="1">
+        <el-radio
+          v-model="radio"
+          @change="handleRadio" 
+          :label="1"
+          :disabled="isRadio">
             <el-popover
               width="200"
               trigger="click"
@@ -490,6 +494,7 @@
         :radio.sync="radio"
         :groupVisible.sync="groupVisible"
         :isGroupTabel.sync="isGroupTabel"
+        :isRadio.sync="isRadio"
       />
       <span slot="footer" class="dialog-footer">
         <el-button 
@@ -761,6 +766,7 @@ export default {
       btnDisabled: false, //弹窗按钮限制
       noShopDialog: false, // 没绑定店铺弹窗
       launchFlag: false, //投放弹窗判断
+      isRadio: false,
     };
   },
 
