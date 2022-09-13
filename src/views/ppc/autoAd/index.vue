@@ -486,6 +486,10 @@
         :echo="echoAtuomation"
         :launch="launchFlag"
         v-model="btnDisabled"
+        :adGroupOption.sync="adGroupOption"
+        :radio.sync="radio"
+        :groupVisible.sync="groupVisible"
+        :isGroupTabel.sync="isGroupTabel"
       />
       <span slot="footer" class="dialog-footer">
         <el-button 
@@ -596,7 +600,7 @@
         <el-button size="mini" type="primary" @click="hanldeAdGroup">确 定</el-button>
         <el-button size="mini" 
           @click="groupVisible = false;
-         
+          $refs.autoMation.handleAuto()
         ">取 消</el-button>
       </span>
     </el-dialog>
@@ -1045,7 +1049,7 @@ export default {
           maxCpcMost = false;
         }
       });
-      if (!this.launchFlag && !ad) {
+      if (!this.launchFlag && !ad && !params.automatedOperation === '创建广告组') {
         this.$message({
           type: 'error',
           message: '请选择广告组'
