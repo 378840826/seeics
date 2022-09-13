@@ -528,6 +528,7 @@ export default {
   watch: {
     tableData: {
       handler(val) {
+        console.log(val, this.campaign)
         const reg = /^(([1-9]{1}\d{0,4})|(0{1}))(\.\d{0,2})?$/;
         if (val.length === this.adGroupList.length) {
           // this.addDisabled = true;
@@ -818,15 +819,13 @@ export default {
         this.tableData[0].bid = '';
       } else {
         if (val === '创建广告组') {
-          if (this.radio === 1) {
-            if (!this.adGroupOption.length) {
-              this.$emit('update:groupVisible', true);
-              this.$emit('update:isGroupTabel', true);
-            }
-            this.$emit('update:radio', 2);
-            return;
+          if (!this.adGroupOption.length) {
+            this.$emit('update:groupVisible', true);
+            this.$emit('update:isGroupTabel', true);
+          } else {
+            // this.createGroup();
           }
-          this.createGroup();
+          this.$emit('update:radio', 2);
         }
       }
       if (!val) {
@@ -869,7 +868,7 @@ export default {
       }
       this.tableData.push({
         id: null,
-        campaign: this.automatedOperation === '创建广告组' ? this.campaign : '',
+        campaign: this.automatedOperation === '创建广告组' ? this.rowData.campaignId : '',
         adGroup: this.labelFilter(this.adGroupList),
         matchType: '精准匹配',
         bidType: '广告组默认竞价',

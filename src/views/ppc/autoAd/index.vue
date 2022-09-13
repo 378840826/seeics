@@ -1055,7 +1055,7 @@ export default {
           maxCpcMost = false;
         }
       });
-      if (!this.launchFlag && !ad && !params.automatedOperation === '创建广告组') {
+      if (!this.launchFlag && params.automatedOperation !== '创建广告组' && !ad) {
         this.$message({
           type: 'error',
           message: '请选择广告组'
