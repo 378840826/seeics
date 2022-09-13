@@ -327,6 +327,10 @@ export default {
     isGroupTabel: {
       type: Boolean,
       require: true
+    },
+    isRadio: {
+      type: Boolean,
+      require: true
     }
   },
   model: {
@@ -597,6 +601,16 @@ export default {
         }
       },
       deep: true
+    },
+
+    automatedOperation: {
+      handler(val) {
+        if (val === '创建广告组') {
+          this.$emit('update:isRadio', true);
+        } else {
+          this.$emit('update:isRadio', false);
+        }
+      }
     }
   },
   methods: {
@@ -805,9 +819,11 @@ export default {
       } else {
         if (val === '创建广告组') {
           if (this.radio === 1) {
+            if (!this.adGroupOption.length) {
+              this.$emit('update:groupVisible', true);
+              this.$emit('update:isGroupTabel', true);
+            }
             this.$emit('update:radio', 2);
-            this.$emit('update:groupVisible', true);
-            this.$emit('update:isGroupTabel', true);
             return;
           }
           this.createGroup();
