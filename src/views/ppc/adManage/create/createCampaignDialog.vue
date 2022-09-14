@@ -452,8 +452,8 @@ export default {
       },
       pickerOptions2: {
         disabledDate: (date) => {
-          const day = new Date();
-          return date.getTime() < day.getTime() + 24 * 60 * 60 * 1000 - 8.64e7;
+          const day = new Date(this.form.startDate);    
+          return date.getTime() <= day.getTime() + 24 * 60 * 60 * 1000 - 8.64e7;
         }
       },
     };  
@@ -467,6 +467,17 @@ export default {
       },
       deep: true
     },
+
+    'form.startDate': {
+      handler() {
+        const start = new Date(this.form.startDate).getTime();
+        const end = new Date(this.form.endDate).getTime();
+        if (start >= end) {
+          this.form.endDate = '';
+        }
+      },
+      deep: true
+    }
   },
 
   methods: {
@@ -551,6 +562,11 @@ export default {
         return this.$message({
           type: 'error',
           message: '请输入广告组名称'
+        });
+      } else if (this.form.groupRo.name.length > 255) {
+        return this.$message({
+          type: 'error',
+          message: '广告组名称不能长于255个字符'
         });
       } else if (!priceTable.length) {
         return this.$message({
