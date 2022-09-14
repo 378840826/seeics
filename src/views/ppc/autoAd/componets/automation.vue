@@ -823,7 +823,7 @@ export default {
             this.$emit('update:groupVisible', true);
             this.$emit('update:isGroupTabel', true);
           } else {
-            // this.createGroup();
+            this.createGroup();
           }
           this.$emit('update:radio', 2);
         }
