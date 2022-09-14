@@ -451,9 +451,9 @@
           <div>搜索词筛选结果处理：</div>
           <span>
              <el-radio-group v-model="searchWord" style="marginTop: 5px">
-                <el-radio :label="1">排除ASIN</el-radio>
-                <el-radio :label="2">只含ASIN</el-radio>
-                <el-radio :label="3">不限</el-radio>
+                <el-radio :label="1" :disabled="isRadio">排除ASIN</el-radio>
+                <el-radio :label="2" :disabled="isRadio">只含ASIN</el-radio>
+                <el-radio :label="3" :disabled="isRadio">不限</el-radio>
               </el-radio-group>
           </span>
         </div>
@@ -509,7 +509,8 @@
             campaignCheckedAll = false;
             templateId = '';
             autoMationTemplate = '';
-            echoAtuomation = {}"
+            echoAtuomation = {};
+            isRadio = false;"
           >取 消</el-button>
         <el-button 
           size="mini" 
@@ -1174,7 +1175,7 @@ export default {
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState,
         ruleType: this.launchFlag ? 1 : this.radio,
-        excludeTerms: this.launchFlag ? 3 : this.searchWord,
+        excludeTerms: this.launchFlag || this.isRadio ? 3 : this.searchWord,
         groupIdList: this.radio === 2 ? this.adGroupOption : []
       };
       if (this.ruleMsg()) {
@@ -1197,6 +1198,7 @@ export default {
           this.adGroupOption = [];
           this.adGroupVal = [];
           this.echoAtuomation = {};
+          this.isRadio = false;
           this.getTableData();
         }
       });
@@ -1213,7 +1215,7 @@ export default {
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState,
         ruleType: this.launchFlag ? 1 : this.radio,
-        excludeTerms: this.launchFlag ? 3 : this.searchWord,
+        excludeTerms: this.launchFlag || this.isRadio ? 3 : this.searchWord,
         groupIdList: this.radio === 2 ? this.adGroupOption : []
       };
       if (this.ruleMsg()) {
@@ -1237,6 +1239,7 @@ export default {
             this.adGroupOption = [];
             this.adGroupVal = [];
             this.echoAtuomation = {};
+            this.isRadio = false;
             this.getTableData();
           }
         });
@@ -1256,6 +1259,7 @@ export default {
           this.adGroupOption = [];
           this.adGroupVal = [];
           this.echoAtuomation = {};
+          this.isRadio = false;
           this.getTableData();
         }
       });
