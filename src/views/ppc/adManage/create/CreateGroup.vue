@@ -93,6 +93,7 @@
             :targetingMode.sync="strategy"
             :defaultBid="form.defaultBid"
             :mwsStoreId="mwsStoreId"
+            :budget="dailyBudget"
             style="marginTop: 20px"
           />
 
@@ -140,6 +141,7 @@
             :targetingMode.sync="strategy"
             :defaultBid="form.defaultBid"
             :mwsStoreId="mwsStoreId"
+            :budget="dailyBudget"
           />
 
           <deny-keyword
@@ -156,7 +158,8 @@
             :asinList.sync="priceAsin"
             :targetingMode.sync="strategy"
             :defaultBid="form.defaultBid"
-            :mwsStoreId="mwsStoreId"/>
+            :mwsStoreId="mwsStoreId"
+            :budget="dailyBudget"/>
 
           <deny-keyword
             v-if="KeywordFlag === '分类/商品'"
