@@ -53,7 +53,6 @@
         </template>
         <el-select
           v-model="form.groupId"
-          @change="handleGroup"
           filterable
           reserve-keyword
           remote
@@ -159,7 +158,7 @@ export default {
       rules: {
         campaignId: [{ required: true, message: '请选择广告活动', trigger: 'blur' }],
         groupId: [{ required: true, message: '请选择广告组', trigger: 'blur' }],
-      }
+      },
     };
   },
 
@@ -178,9 +177,16 @@ export default {
     }
   },
 
+  watch: {
+    'form.campaignId': {
+      handler() {
+        this.getGroupList();
+      }
+    }
+  },
+
   mounted() {
     this.queryCampaignList();
-    this.getGroupList();
   },
 
 
@@ -275,7 +281,7 @@ export default {
       getGroupList({
         current: !this.searchGroup ? this.groupPage.current : this.groupSearchPage.curren,
         size: !this.searchGroup ? this.groupPage.size : this.groupSearchPage.size,
-      }, { name: this.searchGroup || '' }).then(res => {
+      }, { name: this.searchGroup || '', campaignIds: [this.form.campaignId].filter(Boolean) }).then(res => {
         if (res.data.code === 200) {
           this.groupLoading = false;
           const data = res.data.data.records.map(item => {
@@ -296,11 +302,14 @@ export default {
             }
             return;
           }
+
           this.groupTotal = res.data.data.total;
-          this.groupList = this.groupList.concat(data);
-          this.groupList = this.repetit(this.groupList);
           if (!flag) { //非预加载赋值
+            this.groupList = data;
             this.form.groupId = this.groupList.length && this.groupList[0].id;
+          } else {
+            this.groupList = this.groupList.concat(data);
+            this.groupList = this.repetit(this.groupList);
           }
         }
       });
