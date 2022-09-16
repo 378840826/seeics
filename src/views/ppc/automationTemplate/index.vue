@@ -181,6 +181,11 @@
           <span class="scope">{{row.scope && strSplit(row.scope)[0] && strSplit(row.scope)[1] || ''}}</span>
         </el-tooltip>
       </template>
+
+      <template slot-scope="{row}" slot="advertisingCampaignNums">
+        <el-button type="text">{{row.advertisingCampaignNums}}</el-button>
+      </template>
+
       <template slot-scope="{row}" slot="menu">
         <!-- <el-button type="text" size="mini" @click="remove(row.id)">删除</el-button> -->
         <el-popconfirm
