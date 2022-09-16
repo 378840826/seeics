@@ -152,6 +152,7 @@
             :data="tableData"
             border
             @selection-change="handleSelectionChange"
+            v-loading="tableDataLoading"
             height="350"
             style="width: 100%"
             class="table">
@@ -313,6 +314,7 @@ export default {
       dialogVisible: false,
       ifBid: false,
       disabled: false,
+      tableDataLoading: false,
     };
   },
 
@@ -563,7 +565,9 @@ export default {
     batchUseBid() {
       this.tableData = this.tableData.map(item => {
         if ([...this.selectData].includes(item)) {
-          item.keywordBid = item.suggestedBid;
+          if (item.suggestedBid && item.suggestedBid <= this.budget) {
+            item.keywordBid = item.suggestedBid;
+          }
         }
         return item;
       });
@@ -572,7 +576,14 @@ export default {
     useBid(row) {
       this.tableData = this.tableData.map(item => {
         if (this.isObjectValueEqual(item, row)) {
-          item.keywordBid = row.suggestedBid;
+          if (item.suggestedBid && item.suggestedBid <= this.budget) {
+            item.keywordBid = row.suggestedBid;
+          } else {
+            this.$message({
+              type: 'error',
+              message: '竞价不能超过广告活动日预算'
+            });
+          }
         }
         return item;
       });
@@ -618,6 +629,9 @@ export default {
         return;
       }
 
+      let min = false;
+      let max = false;
+
       this.tableData.forEach(item => {
         if ([...this.selectData].includes(item)) {
           for (const key in item) {
@@ -625,14 +639,16 @@ export default {
               const chu = this.modified === '-' ? Number(item[key]) - Number(item[key]) * (Number(this.bidval) / 100) : Number(item[key]) + Number(item[key]) * (Number(this.bidval) / 100);
               const modified = this.modified === '-' ? Number(item[key]) - Number(this.bidval) : Number(item[key]) + Number(this.bidval);
               const res = this.symbol === '$' ? modified : chu;
-              if (res > 0.02) {
+              if (res > 0.02 && res <= this.budget) {
                 item.keywordBid = res.toFixed(2);
                 // this.empty();
-              } else {
-                this.$message({
-                  type: 'error',
-                  message: '关键词竞价必须大于等于0.02'
-                });
+              }
+
+              if (res > this.budget) {
+                max = true;
+                this.ifBid = true;
+              } else if (res < 0.02) {
+                min = true;
                 this.ifBid = true;
               }
               
@@ -641,6 +657,18 @@ export default {
         }
         // return item;
       });
+
+      if (min) {
+        this.$message({
+          type: 'error',
+          message: '关键词竞价必须大于等于0.02'
+        });
+      } else if (max) {
+        this.$message({
+          type: 'error',
+          message: '关键词竞价不能超过广告活动日预算'
+        });
+      }
     },
 
     handleTab(val) {
@@ -701,10 +729,12 @@ export default {
         asinList: this.asinList,
         keywordList: this.keywordList.filter(Boolean)
       };
-
+      this.tableDataLoading = true;
       manualQueryKeyword(params).then(res => {
         if (res.data.code === 200) {
           this.textarea = '';
+          this.keywordList = [];
+          this.tableDataLoading = false;
           res.data.data.length && res.data.data.map(item => {
             item.matchTypeSuggestedBids.forEach(t => {
               const arr = this.tableData.length && this.tableData.map(item => item.flag) || [];
@@ -720,7 +750,7 @@ export default {
             });
           });
         }
-      });
+      }).catch(() => this.tableDataLoading = false);
 
     },
 

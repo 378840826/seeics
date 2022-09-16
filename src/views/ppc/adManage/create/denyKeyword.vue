@@ -33,7 +33,7 @@
       </el-col>
 
       <el-col :span="2" style="text-align: center;line-height: 200px;">
-          <el-button type="text" size="medium" @click="handleAdd">添加</el-button>
+          <el-button type="text" size="medium" @click="handleAdd" :disabled="disabled">添加</el-button>
       </el-col>
 
       <el-col :span="10">
@@ -92,7 +92,10 @@
       </div>
       <span slot="footer" class="dialog-footer">
           <el-button size="small" @click="dialogVisible = false">取 消{{max}}</el-button>
-          <el-button type="primary" size="small" @click="dialogVisible = false; textarea = ''">确 定</el-button>
+          <el-button
+            type="primary"
+            size="small"
+            @click="dialogVisible = false; textarea = ''; textareaArr = []">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -119,6 +122,7 @@ export default {
       msg: [],
       fail: [],
       repetition: [],
+      disabled: false
     };
   },
 
@@ -181,6 +185,21 @@ export default {
     handleTextarea(value) {
       const maxLines = 1000;
       let valueArr = value.split(/\r\n|\r|\n/);
+      const arr = [];
+      if (this.title === '关键词') {
+        
+        valueArr.map((item, idx) => {
+      
+          if (item.length > 80) {
+            this.$message({
+              type: 'error',
+              message: `第${idx + 1}行关键词已超过80个字符`
+            });
+            arr.push(item);
+          }
+        });
+      }
+      this.disabled = arr.length;
       if (valueArr.length > maxLines) {
         valueArr = valueArr.slice(0, maxLines);
         value = valueArr.join('\n');
@@ -222,6 +241,8 @@ export default {
               type: this.radio,
               id: `${item}${this.radio}`
             });
+            this.textarea = '';
+            this.textareaArr = [];
           } else {
             this.msg.push(item);
             this.msg = [...new Set(this.msg)];

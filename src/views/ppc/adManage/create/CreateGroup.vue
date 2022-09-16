@@ -5,12 +5,12 @@
     :append-to-body="true"
     :close-on-press-escape="false"
     destroy-on-close
-    @close="close"
+    @close="cancel"
     v-loading="loading"
-    top="1vh"
+    top="2vh"
     width="80%">
-
-    <el-form :model="form" :rules="rules" label-width="130px">
+    <div class="dialogBox">
+    <el-form :model="form" ref="form" :rules="rules" label-width="130px">
       
       <el-form-item>
         <template slot="label">
@@ -23,13 +23,21 @@
           v-loadmore="loadmore"
           v-model="form.campaignId"
           @change="handleGroup"
+          filterable
+          reserve-keyword
+          remote
+          :remote-method="remoteMethod"
+          :loading="campaignLoading"
+          @focus="searchCampaign = '';
+            searchCampaignList = [];"
           size="small"
           style="width: 400px">
           <el-option
-            v-for="item in campaignList"
+            v-for="item in !searchCampaign ? campaignList : searchCampaignList"
             :key="item.id"
             :value="item.id"
             :label="item.label"
+            class="box2"
           />
         </el-select>
       </el-form-item>
@@ -43,6 +51,13 @@
         </template>
         <el-input v-model="form.name" placeholder="请输入广告组名称"  style="width: 400px" size="small"/>
       </el-form-item>
+
+      <div style="marginBottom: 10px;">
+        状态：
+        <el-switch
+          v-model="form.state">
+        </el-switch>
+      </div>
 
       <CampaignTable
         ref="priceTable"
@@ -67,7 +82,7 @@
           </div>
           <div>
             
-          <el-radio v-model="defaultRadio" label="2" style="marginTop: 30px;">按Targeting Group设置竞价
+          <el-radio v-model="defaultRadio" label="2" style="marginTop: 30px;">投放组竞价
           </el-radio>
           </div>
 
@@ -78,6 +93,7 @@
             :targetingMode.sync="strategy"
             :defaultBid="form.defaultBid"
             :mwsStoreId="mwsStoreId"
+            :budget="dailyBudget"
             style="marginTop: 20px"
           />
 
@@ -125,6 +141,7 @@
             :targetingMode.sync="strategy"
             :defaultBid="form.defaultBid"
             :mwsStoreId="mwsStoreId"
+            :budget="dailyBudget"
           />
 
           <deny-keyword
@@ -141,7 +158,8 @@
             :asinList.sync="priceAsin"
             :targetingMode.sync="strategy"
             :defaultBid="form.defaultBid"
-            :mwsStoreId="mwsStoreId"/>
+            :mwsStoreId="mwsStoreId"
+            :budget="dailyBudget"/>
 
           <deny-keyword
             v-if="KeywordFlag === '分类/商品'"
@@ -153,6 +171,7 @@
 
       </div>
     </el-form>
+    </div>
 
     <span slot="footer" class="dialog-footer">
         <el-button @click="cancel">取 消</el-button>
@@ -183,14 +202,17 @@ export default {
   },
 
   props: {
-    // dialogVisible: {
-    //   type: Boolean,
-    //   required: true,
-    // },
+    dialogVisible: {
+      type: Boolean,
+      required: true,
+    },
+    storeId: {
+      type: String,
+      required: true,
+    },
     mwsStoreId: {
       type: String,
-      // required: true,
-      default: '1525044033420210177'
+      required: true,
     },
     marketplace: {
       type: String,
@@ -202,19 +224,19 @@ export default {
 
     const checkDefaultBid = (rule, value, callback) => {
       if (!value) {
-        return callback(new Error(`广告组默认竞价至少$${this.marketplace === 'JP' ? 2 : 0.02}`));
+        return callback(new Error('广告组默认竞价不能为空'));
       }
       if (this.marketplace === 'JP') {
         if (value < 2) {
           return callback(new Error('广告组默认竞价必须大于等于2'));
-        } else if (value > 100000) {
-          return callback(new Error('广告组默认竞价不能超过100000'));
+        } else if (value > Number(this.dailyBudget)) {
+          return callback(new Error('广告组默认竞价不能超过广告活动日预算'));
         }
       } else {
         if (value < 0.02) {
           return callback(new Error('广告组默认竞价必须大于等于0.02'));
-        } else if (value > 1000) {
-          return callback(new Error('广告组默认竞价不能超过1000'));
+        } else if (value > Number(this.dailyBudget)) {
+          return callback(new Error('广告组默认竞价不能超过广告活动日预算'));
         }
       }
     };
@@ -241,13 +263,14 @@ export default {
         targetingExpressionRoList: [], //targetingGroup  自动投放表达式
         state: true,
       },
+      dailyBudget: '',
       targetingMode: 'auto',
       strategy: '',
       priceAsin: [],
       targetingType: '',
       KeywordFlag: '关键词',
       defaultRadio: '1',
-      dialogVisible: false,
+      // dialogVisible: false,
       campaignList: [],
       data: [],
       page: {
@@ -262,6 +285,15 @@ export default {
         defaultBid: [
           { validator: checkDefaultBid, trigger: 'change' },
         ]
+      },
+      loading: false,
+      campaignLoading: false,
+      searchCampaign: '',
+      searchCampaignList: [],
+      searchTotal: 0,
+      searchPage: {
+        size: 20,
+        current: 1,
       },
     };
   },
@@ -282,43 +314,89 @@ export default {
   },
 
   mounted() {
-    this.queryCampaignList();
+    this.queryCampaignList(false,
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData[0].campaignName,
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData[0].campaignId);
   },
 
   methods: {
 
+    repetit(arr) {
+      let res = [];
+      const hasObj = {};
+      res = arr.reduce((total, next) => {
+        const filterKey = next.id;
+        hasObj[filterKey] ? '' : hasObj[filterKey] = true && total.push(next);
+        return total;
+      }, []);
+      return res;
+    },
+
     loadmore() {
-      console.log(666)
-      const result = this.page.size * this.page.current;
-      console.log(result ,this.total)
-      if (result < this.total) { //加载全部出来 停止请求
-        this.formData.current ++;
-        this.queryCampaignList();
+      const result = !this.searchCampaign ?
+        this.page.size * this.page.current : this.searchPage.size * this.searchPage.current;
+      const total = !this.searchCampaign ? this.total : this.searchTotal;
+      if (result < total) { //加载全部出来 停止请求
+        !this.searchCampaign ? this.page.current ++ : this.searchPage.current ++;
+        this.queryCampaignList(true);
       }  
     },
 
-    queryCampaignList() {
+    queryCampaignList(flag, name, id) {
       queryCampaignList({
-        ...this.page,
+        current: !this.searchCampaign ? this.page.current : this.searchPage.current,
+        size: !this.searchCampaign ? this.page.size : this.searchPage.size,
         order: 'createdTime',
         asc: false
       }, {
-        marketplace: 'CA',
-        storeId: '1524676862584238082'
+        marketplace: this.marketplace,
+        storeId: this.storeId,
+        search: this.searchCampaign || name,
       }).then(res => {
         if (res.data.code === 200) {
-          this.campaignList = res.data.data.page.records.map(item => {
+
+          this.campaignLoading = false;
+          if (this.searchCampaign) {
+            const data = res.data.data.page.records.map(item => {
+              return {
+                value: item.id,
+                id: item.id,
+                label: item.name
+              };
+            });
+            this.searchTotal = res.data.data.page.total;
+            if (this.searchTotal > this.searchPage.current * this.searchPage.size) {
+              this.searchCampaignList = this.searchCampaignList.concat(data);
+              this.searchCampaignList = this.repetit(this.searchCampaignList);
+            } else {
+              this.searchCampaignList = data;
+            }
+            return;
+          }
+          this.data = this.data.concat(res.data.data.page.records);
+          this.campaignList = this.data.map(item => {
             return {
               value: item.id,
               id: item.id,
               label: item.name
             };
           });
-          this.data = res.data.data.page.records;
+          this.campaignList = this.repetit(this.campaignList);
           this.total = res.data.data.page.total;
-          this.form.campaignId = this.campaignList.length && this.campaignList[0].id;
-          this.targetingMode = res.data.data.page.records.length && res.data.data.page.records[0].targetingType;
-          this.strategy = res.data.data.page.records.length && res.data.data.page.records[0].biddingStrategy;
+          if (!flag) { //非预加载赋值
+            this.form.campaignId = id || this.campaignList.length && this.campaignList[0].id || '';
+            this.targetingMode = this.data.length && this.data[0].targetingType;
+            this.strategy = this.data.length && this.data[0].biddingStrategy;
+            this.dailyBudget = this.data.length && this.data[0].dailyBudget;
+          }
+
+          if (name) {
+            const arr = this.data.length && this.data.filter(item => item.id === id) || [];
+            this.targetingMode = arr.length && arr[0].targetingType;
+            this.strategy = arr.length && arr[0].biddingStrategy;
+            this.dailyBudget = arr.length && arr[0].dailyBudget;
+            this.queryCampaignList(true);
+          }
         }
       });
     },
@@ -326,22 +404,70 @@ export default {
     handleGroup(value) {
       this.targetingMode = this.data.filter(item => item.id === value)[0].targetingType;
       this.strategy = this.data.filter(item => item.id === value)[0].biddingStrategy;
+      this.dailyBudget = this.data.filter(item => item.id === value)[0].dailyBudget;
+    },
+
+    remoteMethod(val) {
+      this.searchCampaign = val;
+      this.campaignLoading = true;
+      this.searchCampaignList = [];
+      this.searchPage.current = 1;
+      this.queryCampaignList();
     },
 
     saveBtn() {
-       const denyPrice = this.targetingMode === 'manual' && this.KeywordFlag === '分类/商品' && this.$refs.denyPrice.getField()
+      const denyPrice = this.targetingMode === 'manual' && this.KeywordFlag === '分类/商品' && this.$refs.denyPrice.getField()
       || this.targetingMode === 'auto' && this.$refs.denyPrice.getField() || [];
       const priceCategory = this.targetingMode === 'manual' && this.KeywordFlag === '分类/商品' && this.$refs.priceCategory.getField() || [];
       const denyKeyword = this.targetingMode === 'manual' && this.KeywordFlag === '关键词' && this.$refs.denyKeyword.getField()
       || this.targetingMode === 'auto' && this.$refs.denyKeyword.getField() || [];
-      const keywordTable = this.targetingMode === 'manual' && this.targetingMode === 'manual' && this.KeywordFlag === '关键词' && this.$refs.keywordTable.getField() || [];
+      const keywordTable = this.targetingMode === 'manual' && this.KeywordFlag === '关键词' && this.$refs.keywordTable.getField() || [];
       const tgTable = this.targetingMode === 'auto' && this.defaultRadio === '2' && this.$refs.tgTable.getField() || [];
       const priceTable = this.$refs.priceTable.getField();
+      this.$refs.form.validate();
+      if (!this.form.campaignId) {
+        return this.$message({
+          type: 'error',
+          message: '请选择广告活动'
+        });
+      } else if (!this.form.name) {
+        return this.$message({
+          type: 'error',
+          message: '请输入广告组名称'
+        });
+      } else if (!priceTable.length) {
+        return this.$message({
+          type: 'error',
+          message: '请输入选择商品'
+        });
+      } else if (!this.form.defaultBid) {
+        return this.$message({
+          type: 'error',
+          message: '请输入默认竞价'
+        });
+      } else if (this.form.defaultBid < 0.02) {
+        return this.$message({
+          type: 'error',
+          message: '广告组默认竞价必须大于等于0.02'
+        });
+      } else if (this.form.defaultBid > this.dailyBudget) {
+        return this.$message({
+          type: 'error',
+          message: '广告组默认竞价不能超过广告活动日预算'
+        });
+      } else if (this.targetingMode === 'manual' && !keywordTable.length && !priceCategory.length) {
+        this.$message({
+          type: 'error',
+          message: '请添加关键词或分类/商品'
+        });
+        return;
+      }
+      
 
       this.form = {
         ...this.form,
         state: this.form.state ? 'enabled' : 'paused',
-        storeId: this.mwsStoreId,
+        // storeId: this.mwsStoreId,
         keywordItemRoList: keywordTable,
         negativeKeywordItemRoList: denyKeyword,
         negativeTargetingAsinList: denyPrice,
@@ -349,16 +475,38 @@ export default {
         productItemRoList: priceTable,
         targetingExpressionRoList: tgTable
       };
-    
+      this.loading = true;
       createAdGroup(this.form).then(res => {
-        console.log(res)
-      })
+        if (res.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: '创建广告组成功',
+          });
+          this.$emit('update:dialogVisible', false);
+          this.$emit('success');
+          this.loading = false;
+          // this.$parent.getList({ current: 1 });
+        }
+      }).catch(() => {
+        this.loading = false;
+      });
+    },
+
+    cancel() {
+      this.$emit('update:dialogVisible', false);
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
+  .dialogBox {
+    
+    overflow: hidden;
+    overflow-y: auto;
+    padding: 0 15px;
+    height: calc(100vh - 240px);
+  }
   .label{
     width: 600px;
     display: flex;
@@ -378,5 +526,17 @@ export default {
     content: "*";
     display: block;
     widows: 10px;
+  }
+
+  .box2 {
+    width: 400px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .box2:hover {
+    text-overflow:inherit;
+    overflow: visible;
+    white-space: pre-line;
   }
 </style>
