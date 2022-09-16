@@ -173,7 +173,6 @@
       <template slot-scope="{row}" slot="scope">
         <div>{{row.scope && strSplit(row.scope)[0] && strSplit(row.scope)[0] || row.scope}}</div>
         <el-tooltip 
-          popper-class="tooltip" 
         >
           <div slot="content" class="content">
              <div v-for="item in  strSplit(row.scope)" :key="item">{{item}}</div>
@@ -734,8 +733,5 @@ export default {
   }
   ::v-deep .el-input__icon {
     line-height: 30px;
-  }
-  .tooltip {
-    color: aqua !important;
   }
 </style>

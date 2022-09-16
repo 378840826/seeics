@@ -13,7 +13,8 @@ export const getCampaignList = (data) => {
 
 export const getShopNameList = () => {
   return request({
-    url: '/api/seeics-ad/store/shopNameList',
+    // url: '/api/seeics-ad/store/shopNameList',
+    url: '/api/seeics-mws/store/storeInfoList',
     method: 'get'
   });
 };
