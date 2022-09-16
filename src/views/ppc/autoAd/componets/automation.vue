@@ -57,7 +57,7 @@
             :loading="loading"
             v-loadmore="loadmore"
             @focus="name=''; queryCampaignList(formData)"
-            :disabled="launch && automatedOperation !== '添加到投放'"
+            :disabled="launch && automatedOperation !== '添加到投放' || automatedOperation === '创建广告组'"
           >
             <el-option
               class="option"
@@ -254,25 +254,43 @@
       </el-table-column>
     </el-table>
     <div class="explain">
-        <p>操作要点</p>
-        <p>1. 每个自动化标签最多支持一种自动化操作。</p>
-        <p>2. 您手动输入各种竞价时，请确认数值符合亚马逊规定；当调整竞价值超出亚马逊的最值限制时，我们将会按亚马逊要求的最值进行调整。</p>
-        <p>3. 同一个广告活动下，同类型的广告自动化规则不可重复应用同一个自动化模板。</p>
-        <p>规则执行</p>
-        <p>1. 广告自动化按照广告所在站点时间执行。</p>
-        <p>2. 创建或启用自动化标签后，将在站点时间第二天00:00开始执行，之后按执行频率定期执行；编辑运行中自动化标签对应的执行频率，将以上次执行时间为开始时间，按执行
-        <br/> 频率定期执行；若编辑时距离上次执行时间已超过执行频率，则在站点时间第二天00:00开始执行。</p>
-        <p>3. 自动化操作可能因为接口或网络原因有10分钟左右的延迟。</p>
-        <p>备注信息</p>
-        <p>广告自动化的数据范围排除最近3天，如最近14天，实际指第17-4天。</p>
-      </div>
+      <p>操作要点</p>
+      <p>1. 每个自动化标签最多支持一种自动化操作。</p>
+      <p>2. 您手动输入各种竞价时，请确认数值符合亚马逊规定；当调整竞价值超出亚马逊的最值限制时，我们将会按亚马逊要求的最值进行调整。</p>
+      <p>3. 同一个广告活动下，同类型的广告自动化规则不可重复应用同一个自动化模板。</p>
+      <p>规则执行</p>
+      <p>1. 广告自动化按照广告所在站点时间执行。</p>
+      <p>2. 创建或启用自动化标签后，将在站点时间第二天00:00开始执行，之后按执行频率定期执行；编辑运行中自动化标签对应的执行频率，将以上次执行时间为开始时间，按执行
+      <br/> 频率定期执行；若编辑时距离上次执行时间已超过执行频率，则在站点时间第二天00:00开始执行。</p>
+      <p>3. 自动化操作可能因为接口或网络原因有10分钟左右的延迟。</p>
+      <p>备注信息</p>
+      <p>广告自动化的数据范围排除最近3天，如最近14天，实际指第17-4天。</p>
+    </div>
+    <el-dialog
+      :visible.sync="msgVisible"
+      :append-to-body="true"
+      :show-close="false"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      center
+    >
+    <span>搜索词来源-添加广告组，只支持 一个广告组投放一个ASIN广告，若选择多个广告组，必须为同一个ASIN；</span>
+    <span slot="footer" class="dialog-footer" style="textAlign: center">
+        <el-button size="mini" type="primary" @click="hanldeAdGroup">确 定</el-button>
+        <el-button size="mini" 
+          @click="msgVisible = false;
+          automatedOperation = '添加到投放';
+        ">取 消</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import {
   queryCampaignList,
-  getGroupList
+  getGroupList,
+  createGroup,
 } from '@/api/ppc/autoAd';
 
 export default {
@@ -293,6 +311,26 @@ export default {
     launch: {
       type: Boolean,
       default: false
+    },
+    adGroupOption: {
+      type: Array,
+      require: true
+    },
+    radio: {
+      type: Number,
+      require: true
+    },
+    groupVisible: {
+      type: Boolean,
+      require: true
+    },
+    isGroupTabel: {
+      type: Boolean,
+      require: true
+    },
+    isRadio: {
+      type: Boolean,
+      require: true
     }
   },
   model: {
@@ -301,6 +339,7 @@ export default {
   },
   data() {
     return {
+      msgVisible: false,
       tableData: [
         {
           id: null,
@@ -408,6 +447,11 @@ export default {
           label: '添加到否定投放',
           value: '添加到否定投放',
           disable: true
+        },
+        {
+          label: '创建广告组',
+          value: '创建广告组',
+          // disable: true
         }
       ],
       shang: [
@@ -484,6 +528,7 @@ export default {
   watch: {
     tableData: {
       handler(val) {
+        console.log(val, this.campaign)
         const reg = /^(([1-9]{1}\d{0,4})|(0{1}))(\.\d{0,2})?$/;
         if (val.length === this.adGroupList.length) {
           // this.addDisabled = true;
@@ -545,6 +590,29 @@ export default {
       },
       deep: true
     },
+
+    adGroupOption: {
+      handler(val) {
+        if (!val.length) {
+          this.automatedOperation = '添加到投放';
+        } else {
+          if (this.automatedOperation === '创建广告组') {
+            this.createGroup();
+          }
+        }
+      },
+      deep: true
+    },
+
+    automatedOperation: {
+      handler(val) {
+        if (val === '创建广告组') {
+          this.$emit('update:isRadio', true);
+        } else {
+          this.$emit('update:isRadio', false);
+        }
+      }
+    }
   },
   methods: {
     minValue(rule) {
@@ -749,6 +817,16 @@ export default {
         this.tableData[0].bidLimitValue = '';
         this.tableData[0].adjustTheValue = '';
         this.tableData[0].bid = '';
+      } else {
+        if (val === '创建广告组') {
+          if (!this.adGroupOption.length) {
+            this.$emit('update:groupVisible', true);
+            this.$emit('update:isGroupTabel', true);
+          } else {
+            this.createGroup();
+          }
+          this.$emit('update:radio', 2);
+        }
       }
       if (!val) {
         this.isAutoShow = false;
@@ -756,13 +834,41 @@ export default {
         this.isAutoShow = true;
       }
     },
+
+    createGroup() {
+      createGroup(this.adGroupOption).then(res => {
+        if (res.data.code === 500) {
+          this.msgVisible = true;
+        }
+      });
+    },
+
+    hanldeAdGroup() {
+      this.msgVisible = false;
+      this.$emit('update:groupVisible', true);
+      this.$emit('update:isGroupTabel', true);
+    },
+
+    handleAuto() {
+      if (!this.adGroupOption.length) {
+        this.automatedOperation = '添加到投放';
+      }
+    },
+
     add() {
       if (this.adGroupList === this.tableData.length) {
         return;
       }
+      if (this.automatedOperation === '创建广告组' && this.tableData.length >= 20) {
+        this.$message({
+          type: 'warning',
+          message: '创建广告组最多可以添加20条'
+        });
+        return;
+      }
       this.tableData.push({
         id: null,
-        campaign: '',
+        campaign: this.automatedOperation === '创建广告组' ? this.rowData.campaignId : '',
         adGroup: this.labelFilter(this.adGroupList),
         matchType: '精准匹配',
         bidType: '广告组默认竞价',

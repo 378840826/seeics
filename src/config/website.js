@@ -28,7 +28,9 @@ export default {
     // 创建广告活动
     '/api/seeics-ad/campaign/create',
     // 关键词批量导入
-    '/api/seeics-analysis/keyword-analyze/batch-analyze'
+    '/api/seeics-analysis/keyword-analyze/batch-analyze',
+    // 智能广告-创建广告组校验
+    '/api/seeics-analysis/automation-template/repeat-group',
   ],
   //配置首页不可关闭
   isFirstPage: false,

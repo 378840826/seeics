@@ -151,3 +151,12 @@ export const getCampaignPage = (data) => {
     data,
   });
 };
+
+// 创建广告组校验
+export const createGroup = data => {
+  return request({
+    url: '/api/seeics-analysis/automation-template/repeat-group',
+    method: 'post',
+    data,
+  });
+};

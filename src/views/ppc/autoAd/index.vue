@@ -392,7 +392,11 @@
         搜索词来源：
         <div style="width: 400px">
 
-        <el-radio  v-model="radio" @change="handleRadio" :label="1">
+        <el-radio
+          v-model="radio"
+          @change="handleRadio" 
+          :label="1"
+          :disabled="isRadio">
             <el-popover
               width="200"
               trigger="click"
@@ -447,9 +451,9 @@
           <div>搜索词筛选结果处理：</div>
           <span>
              <el-radio-group v-model="searchWord" style="marginTop: 5px">
-                <el-radio :label="1">排除ASIN</el-radio>
-                <el-radio :label="2">只含ASIN</el-radio>
-                <el-radio :label="3">不限</el-radio>
+                <el-radio :label="1" :disabled="isRadio">排除ASIN</el-radio>
+                <el-radio :label="2" :disabled="isRadio">只含ASIN</el-radio>
+                <el-radio :label="3" :disabled="isRadio">不限</el-radio>
               </el-radio-group>
           </span>
         </div>
@@ -486,6 +490,11 @@
         :echo="echoAtuomation"
         :launch="launchFlag"
         v-model="btnDisabled"
+        :adGroupOption.sync="adGroupOption"
+        :radio.sync="radio"
+        :groupVisible.sync="groupVisible"
+        :isGroupTabel.sync="isGroupTabel"
+        :isRadio.sync="isRadio"
       />
       <span slot="footer" class="dialog-footer">
         <el-button 
@@ -500,7 +509,8 @@
             campaignCheckedAll = false;
             templateId = '';
             autoMationTemplate = '';
-            echoAtuomation = {}"
+            echoAtuomation = {};
+            isRadio = false;"
           >取 消</el-button>
         <el-button 
           size="mini" 
@@ -596,7 +606,7 @@
         <el-button size="mini" type="primary" @click="hanldeAdGroup">确 定</el-button>
         <el-button size="mini" 
           @click="groupVisible = false;
-         
+          $refs.autoMation.handleAuto()
         ">取 消</el-button>
       </span>
     </el-dialog>
@@ -757,6 +767,7 @@ export default {
       btnDisabled: false, //弹窗按钮限制
       noShopDialog: false, // 没绑定店铺弹窗
       launchFlag: false, //投放弹窗判断
+      isRadio: false,
     };
   },
 
@@ -1045,7 +1056,7 @@ export default {
           maxCpcMost = false;
         }
       });
-      if (!this.launchFlag && !ad) {
+      if (!this.launchFlag && params.automatedOperation !== '创建广告组' && !ad) {
         this.$message({
           type: 'error',
           message: '请选择广告组'
@@ -1164,7 +1175,7 @@ export default {
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState,
         ruleType: this.launchFlag ? 1 : this.radio,
-        excludeTerms: this.launchFlag ? 3 : this.searchWord,
+        excludeTerms: this.launchFlag || this.isRadio ? 3 : this.searchWord,
         groupIdList: this.radio === 2 ? this.adGroupOption : []
       };
       if (this.ruleMsg()) {
@@ -1187,6 +1198,7 @@ export default {
           this.adGroupOption = [];
           this.adGroupVal = [];
           this.echoAtuomation = {};
+          this.isRadio = false;
           this.getTableData();
         }
       });
@@ -1203,7 +1215,7 @@ export default {
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState,
         ruleType: this.launchFlag ? 1 : this.radio,
-        excludeTerms: this.launchFlag ? 3 : this.searchWord,
+        excludeTerms: this.launchFlag || this.isRadio ? 3 : this.searchWord,
         groupIdList: this.radio === 2 ? this.adGroupOption : []
       };
       if (this.ruleMsg()) {
@@ -1227,6 +1239,7 @@ export default {
             this.adGroupOption = [];
             this.adGroupVal = [];
             this.echoAtuomation = {};
+            this.isRadio = false;
             this.getTableData();
           }
         });
@@ -1246,6 +1259,7 @@ export default {
           this.adGroupOption = [];
           this.adGroupVal = [];
           this.echoAtuomation = {};
+          this.isRadio = false;
           this.getTableData();
         }
       });
