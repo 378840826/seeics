@@ -179,14 +179,20 @@ export default {
 
   watch: {
     'form.campaignId': {
-      handler() {
-        this.getGroupList();
+      handler(val) {
+        if (val === this.$parent.$data.tableData[0].campaignId) {
+          this.getGroupList(false, this.$parent.$data.tableData[0].groupName, this.$parent.$data.tableData[0].groupId);
+        } else {
+          this.getGroupList();
+        }
       }
     }
   },
 
   mounted() {
-    this.queryCampaignList();
+    this.queryCampaignList(false,
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData[0].campaignName,
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData[0].campaignId);
   },
 
 
@@ -227,7 +233,7 @@ export default {
       this.$emit('update:dialogVisible', false);
     },
 
-    queryCampaignList(flag) {
+    queryCampaignList(flag, name, id) {
       queryCampaignList({
         current: !this.searchCampaign ? this.page.current : this.searchPage.current,
         size: !this.searchCampaign ? this.page.size : this.searchPage.size,
@@ -236,7 +242,7 @@ export default {
       }, {
         marketplace: this.marketplace,
         storeId: this.storeId,
-        search: this.searchCampaign || '',
+        search: this.searchCampaign || name,
       }).then(res => {
         if (res.data.code === 200) {
           this.campaignLoading = false;
@@ -269,7 +275,11 @@ export default {
           });
           
           if (!flag) { //非预加载赋值
-            this.form.campaignId = this.campaignList.length && this.campaignList[0].id || '';
+            this.form.campaignId = id || this.campaignList.length && this.campaignList[0].id || '';
+          }
+
+          if (name) {
+            this.queryCampaignList(true);
           }
         }
       }).catch(() => {
@@ -277,11 +287,11 @@ export default {
       });
     },
 
-    getGroupList(flag) {
+    getGroupList(flag, name, id) {
       getGroupList({
         current: !this.searchGroup ? this.groupPage.current : this.groupSearchPage.curren,
         size: !this.searchGroup ? this.groupPage.size : this.groupSearchPage.size,
-      }, { name: this.searchGroup || '', campaignIds: [this.form.campaignId].filter(Boolean) }).then(res => {
+      }, { name: this.searchGroup || name, campaignIds: [this.form.campaignId].filter(Boolean) }).then(res => {
         if (res.data.code === 200) {
           this.groupLoading = false;
           const data = res.data.data.records.map(item => {
@@ -306,10 +316,14 @@ export default {
           this.groupTotal = res.data.data.total;
           if (!flag) { //非预加载赋值
             this.groupList = data;
-            this.form.groupId = this.groupList.length && this.groupList[0].id;
+            this.form.groupId = id || this.groupList.length && this.groupList[0].id;
           } else {
             this.groupList = this.groupList.concat(data);
             this.groupList = this.repetit(this.groupList);
+          }
+
+          if (name) {
+            this.getGroupList(true);
           }
         }
       });
