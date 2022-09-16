@@ -528,7 +528,6 @@ export default {
   watch: {
     tableData: {
       handler(val) {
-        console.log(val, this.campaign)
         const reg = /^(([1-9]{1}\d{0,4})|(0{1}))(\.\d{0,2})?$/;
         if (val.length === this.adGroupList.length) {
           // this.addDisabled = true;
