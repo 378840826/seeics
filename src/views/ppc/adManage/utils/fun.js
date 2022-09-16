@@ -54,7 +54,7 @@ export function getCommonColOptionAvue(currency) {
       label: '销售额',
       prop: 'sales',
       formatter: (_, value) => getValueLocaleString({ value, isFraction: true, prefix: currency }),
-      width: 110,
+      width: 120,
     }, {
       label: '订单量',
       prop: 'orderNum',

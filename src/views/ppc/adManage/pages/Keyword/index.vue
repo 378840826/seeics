@@ -493,7 +493,7 @@ export default {
     // 批量修改页面表格数据
     updateTableData(ids, newData) {
       ids.forEach(id => {
-        const index = this.tableData.findIndex(data => data.id === id);
+        const index = this.tableData.findIndex(data => data.keywordId === id);
         this.tableData.splice(index, 1, {
           ...this.tableData[index],
           ...newData,

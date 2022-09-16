@@ -50,9 +50,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 .impowerBox .qrcode {
   width: 180px;
 }
-
 </style>

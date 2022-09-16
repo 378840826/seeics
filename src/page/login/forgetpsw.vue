@@ -129,3 +129,28 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.forgetpsw-container {
+  .el-form{
+    margin-top: 90px;
+  }
+  img {
+    border: 1px solid #DCDFE5;
+    height: 38px;
+    /* margin: 0 auto; */
+    /* margin: 4px 10px; */
+    float: right;
+    //margin: 4px 0;
+    border-radius: 4px;
+  }
+  .el-button {
+    width: 100%;
+    height: 40px;
+    padding: 0;
+    font-size: 14px;
+    line-height: 40px;
+  }
+
+}
+</style>

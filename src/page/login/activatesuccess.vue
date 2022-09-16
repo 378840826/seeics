@@ -67,3 +67,65 @@ export default {
 };
 
 </script>
+
+<style lang="scss" scoped>
+.activatesuccess-container {
+  min-width: 100%;
+  min-height: 100%;
+  background-color: #fff;
+  margin:  0 auto;
+  position: relative;
+
+  .activatesuccess-main {
+    width: 1366px;
+    margin: 0 auto;
+
+    .logo {
+      width: 100%;
+      margin: 0 auto;
+      padding-top: 30px;
+      padding-bottom: 220px;
+    }
+
+    .activatesuccess-center {
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .activatesuccess-boder {
+        height: 300px;
+        width: 460px;
+      }
+      .flexcenter {
+        display: flex;
+        justify-content: center;
+      }
+
+      img{
+        width: 54px;
+        height: 54px;
+      }
+      .successtext{
+        font-size: 30px;
+        font-weight: bold;
+        color: #000000;
+        line-height: 54px;
+        margin-left: 32px;
+      }
+      .jumptext {
+        width: 100%;
+        text-align: center;
+        margin-top: 30px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #606266;
+        line-height: 24px;
+      }
+      .errortext {
+        color: #F04343; 
+      }
+    }
+  }
+}
+</style>
