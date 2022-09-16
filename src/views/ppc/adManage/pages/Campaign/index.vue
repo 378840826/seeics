@@ -1,6 +1,6 @@
 <!-- 广告活动 -->
 <template>
-<div>
+<div class="container">
 <!-- 筛选栏 -->
 <div class="filter-bar">
   <Search
@@ -53,11 +53,26 @@
 />
 <!-- 工具栏 -->
 <div class="toolbar">
-  <el-button
-    type="primary"
-    @click="createCampaignDialogVisible = true"
-    :size="size"
-  >创建广告活动</el-button>
+  <div>
+    <el-button
+      type="primary"
+      @click="createCampaignDialogVisible = true"
+      :size="size"
+    >创建广告活动</el-button>
+
+    <div class="batch_state">
+      批量操作：
+      <el-button-group>
+        <el-button
+          v-for="state in Object.keys(stateNameDict)"
+          :key="state"
+          @click="handleBatchState(state)"
+          :disabled="!tableSelected.length"
+          :size="size"
+        >{{ stateNameDict[state] }}</el-button>
+      </el-button-group>
+    </div>
+  </div>
 
   <DatePicker :defaultValue="filter.dateRange" @change="handleDateRangeChange" />
 </div>
@@ -78,16 +93,16 @@
     :summary-method="({columns}) => summaryMethod(columns, tableTotalData)"
     :size="size"
   >
-    <el-table-column type="selection" width="55" />
+    <el-table-column type="selection" width="55" :selectable="selectableInit" />
 
-    <el-table-column prop="state" label="状态" width="80" fixed>
-      <span slot-scope="{row}" :class="row.state">{{ stateNameDict[row.state]}}</span>
-      <!-- <template slot-scope="{row}">
+    <el-table-column prop="state" label="状态" width="94" fixed>
+      <template slot-scope="{row}">
         <el-select
           :value="row.state"
           :size="size"
           :disabled="row.state === 'archived'"
           :class="row.state"
+          @change="(v) => handleStateModify(v, row)"
         >
           <el-option
             v-for="(value, key) in stateNameDict"
@@ -98,7 +113,7 @@
             <span :class="key">{{ value }}</span>
           </el-option>
         </el-select>
-      </template> -->
+      </template>
     </el-table-column>
 
     <el-table-column prop="portfolioId" label="广告组合" width="120" fixed>
@@ -234,6 +249,7 @@
 <script>
 import {
   queryCampaignList,
+  modifyCampaignState,
 } from '@/api/ppc/adManage';
 import { stateNameDict, targetingTypeDict, biddingStrategyDict } from '../../utils/dict';
 import { tablePageOption, defaultDateRange, summaryMethod } from '../../utils/options';
@@ -306,6 +322,7 @@ export default {
       tableHeight: 'calc(100vh - 326px)',
       tableData: [],
       tableTotalData: {},
+      tableSelected: [],
       tableLoading: false,
       tablePageOption: { ...tablePageOption },
       tableSort: { prop: 'createdTime', order: 'descending' },
@@ -448,6 +465,117 @@ export default {
       this.getList();
     },
 
+    // 表格行是否可勾选
+    selectableInit(row) {
+      let flag = true;
+      if (row.state === 'archived') {
+        flag = false;
+      }
+      return flag;
+    },
+
+    // 表格勾选变化
+    handleSelectionChange(val) {
+      this.tableSelected = val;
+    },
+
+    // 批量修改页面表格数据
+    updateTableData(ids, newData) {
+      ids.forEach(id => {
+        const index = this.tableData.findIndex(data => data.id === id);
+        this.tableData.splice(index, 1, {
+          ...this.tableData[index],
+          ...newData,
+        });
+      });
+    },
+
+    // 修改状态(可批量)
+    updateState(state, list) {
+      const ids = list.map(item => item.id);
+      const params = {
+        adStoreId: this.storeId,
+        campaignIds: ids,
+        state,
+      };
+      modifyCampaignState(params).then(res => {
+        const { success, fail } = res.data.data;
+        // 是否需要刷新广告树
+        let isUpdateTree = true;
+        // 有失败的，或全部失败
+        if (fail.length) {
+          let msg = '';
+          if (fail.length === ids.length) {
+            // 全部失败
+            msg = '操作失败';
+            isUpdateTree = false;
+          } else {
+            // 部分失败部分成功
+            msg = '部分修改失败';
+          }
+          const createElement = this.$createElement;
+          const contentElement = fail.map(item => {
+            return createElement('div', null, [
+              `${item.name}：`,
+              createElement('span', { class: '_adManage-error-msgbox-msg' }, item.errorMsg),
+            ]);
+          });
+          this.$msgbox({
+            title: msg,
+            customClass: '_adManage-error-msgbox-container',
+            confirmButtonText: '确定',
+            showCancelButton: false,
+            showClose: false,
+            closeOnClickModal: false,
+            message: createElement('div', { class: '_adManage-error-msgbox' }, contentElement),
+          });
+        } else {
+          this.$message({
+            type: 'success',
+            message: '操作成功',
+          });
+        }
+        const successIds = success.map(item => item.id);
+        this.updateTableData(successIds, { state });
+        if (isUpdateTree) {
+          // 刷新广告树
+          this.$emit('updateStateTree', { type: 'campaign', newState: state, list });
+        }
+      });
+    },
+
+    // 单个修改状态
+    handleStateModify(state, row) {
+      if (state === 'archived') {
+        this.$confirm('归档后不可重新开启，确认归档吗？', '警告', {
+          type: 'warning',
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.updateState(state, [row]);
+            }            
+          }
+        });
+      } else {
+        this.updateState(state, [row]);
+      }
+    },
+
+    // 批量修改状态
+    handleBatchState(state) {
+      if (state === 'archived') {
+        this.$confirm('归档后不可重新开启，确定要归档吗？', '警告', {
+          type: 'warning',
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.updateState(state, this.tableSelected);
+            }            
+          }
+        });
+      } else {
+        this.updateState(state, this.tableSelected);
+      }
+    },
+
     // 点击广告组数量
     handleClickGroupCount(row) {
       log('点击广告组数量', row);
@@ -485,4 +613,8 @@ export default {
 
 <style scoped lang="scss">
   @import "../common.scss";
+</style>
+
+<style lang="scss">
+  @import "../commonGlobal.scss";
 </style>

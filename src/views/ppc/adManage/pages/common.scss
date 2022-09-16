@@ -1,5 +1,9 @@
 // 广告管理 page 公共样式
-// 
+
+.container {
+  font-size: $textSize;
+}
+
 .table-container {
   ::v-deep {
     .el-table {
@@ -22,16 +26,34 @@
 // 开启
 .enabled {
   color: $successColor;
+
+  &.el-select::v-deep {
+    .el-input__inner {
+      color: $successColor;
+    }
+  }
 }
 
 // 暂停
 .paused {
   color: $danger;
+
+  &.el-select::v-deep {
+    .el-input__inner {
+      color: $danger;
+    }
+  }
 }
 
 // 归档
 .archived {
   color: $disabledColor;
+
+  &.el-select::v-deep {
+    .el-input__inner {
+      color: $disabledColor;
+    }
+  }
 }
 
 // 表格中的日期
@@ -57,6 +79,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  & > div {
+    display: flex;
+  }
+
+  .batch_state {
+    margin-left: 20px;
+  }
 }
 
 // 条件筛选下拉框
