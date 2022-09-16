@@ -242,6 +242,7 @@ export default {
               id: `${item}${this.radio}`
             });
             this.textarea = '';
+            this.textareaArr = [];
           } else {
             this.msg.push(item);
             this.msg = [...new Set(this.msg)];
