@@ -1,5 +1,7 @@
 <template>
-  <div class="title" :style="{height: height, width: width}"><span class="span1"></span><span style="marginLeft: 11px">{{title}}</span></div>
+  <div class="title" :style="{height: height, width: width}">
+    <span class="span1"></span><span style="marginLeft: 11px">{{title}}</span>
+  </div>
 </template>
 
 <script>
@@ -19,7 +21,7 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
   .title {
     background: linear-gradient(270deg, #000110 0%, #043492 100%);
     font-size: 14px;
@@ -32,9 +34,9 @@ export default {
   }
   .span1 {
     position: absolute;
-				padding: 4px;
-				border-style: solid;
-				border-color: rgba(1, 227, 227, 1);
-				border-width: 1px 0 0 1px;
+    padding: 4px;
+    border-style: solid;
+    border-color: rgba(1, 227, 227, 1);
+    border-width: 1px 0 0 1px;
   }
 </style>

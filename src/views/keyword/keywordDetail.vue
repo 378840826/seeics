@@ -37,16 +37,16 @@
            </div>
            <div class="total">
               <!-- {{total}} -->
-              <div>
+              <div class="div">
                  <div style="textAlign: center; fontSize: 20px; color: #01E3E3">
                    {{$route.query.name.split('详情')[0]}}</div>
                  <div style="textAlign: center; fontSize: 50px; color: #01E3E3">{{$route.query.total}}</div>
                  
-                 <div style="fontSize: 30px;" >评估建议：</div>
-                 <div style="fontSize: 30px;" v-if="$route.query.total >= 120 && $route.query.total <= 150">强烈建议进入</div>
-                 <div style="fontSize: 30px" v-else-if="$route.query.total >= 90 && $route.query.total <= 120">建议进入</div>
-                 <div style="fontSize: 30px" v-else-if="$route.query.total >= 60 && $route.query.total <= 90">可以进入</div>
-                 <div style="fontSize: 30px" v-else-if="$route.query.total < 60">不建议进入</div>
+                 <div>评估建议：</div>
+                 <div v-if="$route.query.total >= 120 && $route.query.total <= 150">强烈建议进入</div>
+                 <div v-else-if="$route.query.total >= 90 && $route.query.total <= 120">建议进入</div>
+                 <div v-else-if="$route.query.total >= 60 && $route.query.total <= 90">可以进入</div>
+                 <div v-else-if="$route.query.total < 60">不建议进入</div>
               </div>
            </div>
          </div>
@@ -713,11 +713,11 @@ export default {
     width: 30%;
     font-family: MicrosoftYaHei;
     margin: auto;
-    div {
+    .div {
       font-size: 30px; 
       color: #9AA8D4;
       text-align: center; 
-      font-size: 20px; color: #01E3E3
+      color: #01E3E3
     }
   }
   .tableBox {

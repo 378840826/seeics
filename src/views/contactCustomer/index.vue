@@ -14,7 +14,7 @@
   </div>
   </el-card>
 </template>
-<style>
+<style scoped>
 .customerLayout {
   width: 100%;
   display: flex;
