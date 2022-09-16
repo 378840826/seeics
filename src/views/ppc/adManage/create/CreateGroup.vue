@@ -7,7 +7,7 @@
     destroy-on-close
     @close="cancel"
     v-loading="loading"
-    top="1vh"
+    top="2vh"
     width="80%">
     <div class="dialogBox">
     <el-form :model="form" ref="form" :rules="rules" label-width="130px">
@@ -495,7 +495,7 @@ export default {
     overflow: hidden;
     overflow-y: auto;
     padding: 0 15px;
-    height: calc(100vh - 250px);
+    height: calc(100vh - 240px);
   }
   .label{
     width: 600px;
