@@ -76,3 +76,31 @@ export default {
 };
 
 </script>
+
+<style lang="scss" scoped>
+.regsuccess-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 20px;
+  font-weight: 400;
+  img{
+    width: 30px;
+    margin-right: 16px;
+  }
+  a{
+    color: #419EFF;
+  } 
+  .bottomtext {
+    position: absolute;
+    bottom: 0px;
+    font-size: 14px;
+    font-weight: 400;
+  }
+  .sendagin{
+    color: #419EFF;
+  }
+}
+</style>

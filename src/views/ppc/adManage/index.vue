@@ -444,7 +444,7 @@ export default{
 ._ad_mamage-store-cascader-popper {
   .el-cascader-menu__wrap {
     height: auto;
-    max-height: 400px;
+    max-height: 520px;
   }
 }
 </style>
