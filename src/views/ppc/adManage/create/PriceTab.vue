@@ -223,7 +223,7 @@
       </div>
       <span slot="footer" class="dialog-footer">
           <el-button size="small" @click="asinMsg = false">取 消{{max}}</el-button>
-          <el-button type="primary" size="small" @click="asinMsg = false; textarea = ''">确 定</el-button>
+          <el-button type="primary" size="small" @click="asinMsg = false; textarea = ''; textareaArr = []">确 定</el-button>
       </span>
     </el-dialog>
   </div>
