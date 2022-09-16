@@ -571,7 +571,7 @@ export default {
       } else if (!priceTable.length) {
         return this.$message({
           type: 'error',
-          message: '请输入选择商品'
+          message: '请选择商品'
         });
       } else if (!this.form.groupRo.defaultBid) {
         return this.$message({

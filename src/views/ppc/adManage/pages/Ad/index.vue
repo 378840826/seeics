@@ -202,6 +202,16 @@
     class="pagination"
   />
 </div>
+
+<!-- 创建广告弹窗 -->
+<create-ad
+  v-if="createDialogVisible"
+  @success="getList({ current: 1 })"
+  :dialogVisible.sync="createDialogVisible"
+  :mwsStoreId="mwsStoreId"
+  :marketplace="marketplace"
+  :storeId="storeId"
+/>
 </div>
 </template>
 
@@ -225,6 +235,7 @@ import {
   parseTreeKey,
   getFormatTotal,
 } from '../../utils/fun';
+import CreateAd from '../../create/createAd.vue';
 
 export default {
   name: 'Ad',
@@ -235,6 +246,7 @@ export default {
     DatePicker,
     FilterMore,
     FilterCrumbs,
+    CreateAd,
   },
 
   props: {
@@ -243,6 +255,10 @@ export default {
       required: true,
     },
     storeId: {
+      type: String,
+      required: true,
+    },
+    mwsStoreId: {
       type: String,
       required: true,
     },
