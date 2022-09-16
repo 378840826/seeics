@@ -144,7 +144,7 @@ export default {
   },
 };
 </script>
-<style lang="scss">
-@import "./login.scss";
 
+<style lang="scss" scoped>
+@import "./login.scss";
 </style>

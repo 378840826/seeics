@@ -109,3 +109,113 @@ export default {
   },
 };
 </script>
+
+
+<style lang="scss" scoped>
+.setupnewpsw-container {
+  min-width: 100%;
+  min-height: 100%;
+  background-color: #fff;
+  margin:  0 auto;
+  position: relative;
+
+  .setupnewpsw-center {
+    width: 1366px;
+    margin: 0 auto;
+
+    .logo {
+      width: 100%;
+      margin: 0 auto;
+      padding-top: 30px;
+      padding-bottom: 220px;
+    }
+    .centerdiv{
+      width: 1366px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .setupnewpsw-form {
+      height: 300px;
+      width: 460px;
+      box-shadow: 0px 1px 10px 0px rgba(230, 230, 230, 0.75);
+      border-radius: 2px;
+      text-align: center;
+      position: relative;
+    }
+
+    .tipstext {
+      position: absolute;
+      bottom: 10px;
+      font-size: 14px;
+    }
+
+    .bluetext{
+      color: #419EFF;
+
+      &:hover{
+        cursor: pointer;
+      }
+    }
+
+    .wechatres-boder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;     
+    }
+
+    .flexdiv {
+      display: flex;
+      line-height: 30px;
+      font-size: 16px;
+
+      img{
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+      }
+
+      a {
+        color: #419EFF;
+      }
+    }
+
+    .setupnewpsw-header {
+      height: 80px;
+      text-align: center;
+      line-height: 80px;
+      border-bottom: 1px solid #DCDFE5;
+      font-size: 18px;
+      font-weight: bold;
+      color: #000000;
+    }
+    .form-main {
+      padding: 30px 80px;
+    }
+    .el-input__inner{
+      height: 35px;
+    }
+
+    .el-button{
+      height: 35px;
+      width: 100%;
+    }
+    .setupnewpsw-tips {
+      text-align: center;
+      font-size: 14px;
+      font-weight: 400;
+      color: #606266;
+      line-height: 14px;
+      margin-top: 20px;
+    }
+  }
+  .footer{
+    font-size: 14px;
+    font-weight: 400;
+    color: #606266;
+    line-height: 35px;
+  }
+}
+</style>

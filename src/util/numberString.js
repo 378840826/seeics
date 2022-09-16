@@ -1,9 +1,19 @@
 // 字符串格式化为 正整数 字符串（不包含 0）
 export const strToPositiveIntStr = function (value) {
-  console.log('value', value);
+  // console.log('value', value);
   // 删除非数字字符, 再用 Number 转为数字去掉前导的 0。如果为 NaN，返回空字符串
   const newValue = Number(value.replace(/[^0-9]/g, ''));
   return newValue ? String(newValue) : '';
+};
+
+// 字符串格式化为 自然数 字符串（包含 0）
+export const strToNaturalNumStr = function (value) {
+  // 删除非数字字符
+  let newValue = value.replace(/[^0-9]/g, '');
+  if (newValue !== '') {
+    newValue = String(Number(newValue));
+  }
+  return newValue;
 };
 
 // 字符串格式化为 两位小数 的字符串（金额）

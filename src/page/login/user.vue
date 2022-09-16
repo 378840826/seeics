@@ -307,3 +307,65 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.user-container {
+  .sendagainspan {
+    color: #419EFF;
+    display: inline-block;
+    margin-left: 10px;
+    font-size: 14px;
+    line-height: 14px;
+
+    &:hover{
+      cursor: pointer;
+    }
+  }
+  .el-input__inner {
+    padding: 0 30px;
+    height: 34px;
+  }
+
+  .el-button {
+    width: 100%;
+    height: 34px;
+    padding: 0;
+    font-size: 14px;
+    line-height: 34px;
+  }
+
+  .el-form-item {
+    height: 35px;
+  }
+  .el-col{
+    margin: 0;
+  }
+
+  .aspan{
+    float: right;
+    color: #419EFF;
+  }
+
+  .inactivespan {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 400;
+    color: #606266;
+    line-height: 14px;
+  }
+
+  a{
+    color: #419EFF;
+  }
+
+  img {
+    border: 1px solid #DCDFE5;
+    height: 33px;
+    /* margin: 0 auto; */
+    /* margin: 4px 10px; */
+    float: right;
+    margin: 2px 0;
+    border-radius: 4px;
+  }
+}
+</style>
