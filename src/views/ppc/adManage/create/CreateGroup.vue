@@ -82,7 +82,7 @@
           </div>
           <div>
             
-          <el-radio v-model="defaultRadio" label="2" style="marginTop: 30px;">按Targeting Group设置竞价
+          <el-radio v-model="defaultRadio" label="2" style="marginTop: 30px;">投放组竞价
           </el-radio>
           </div>
 
