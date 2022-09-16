@@ -64,6 +64,15 @@ export const queryCampaignList = (params, data) => {
   });
 };
 
+// 广告活动-修改状态(可批量)
+export const modifyCampaignState = (data) => {
+  return request({
+    url: '/api/seeics-ad/campaign/batchSetting',
+    method: 'post',
+    data,
+  });
+};
+
 // 广告组
 // 广告组-列表
 export const queryGroupList = (params, data) => {
@@ -75,6 +84,15 @@ export const queryGroupList = (params, data) => {
   });
 };
 
+// 广告组-修改状态(可批量)
+export const modifyGroupState = (data) => {
+  return request({
+    url: '/api/seeics-ad/group/batchSetting',
+    method: 'post',
+    data,
+  });
+};
+
 // 广告
 // 广告-列表
 export const queryAdList = (params, data) => {
@@ -82,6 +100,15 @@ export const queryAdList = (params, data) => {
     url: '/api/seeics-ad/product/page',
     method: 'post',
     params,
+    data,
+  });
+};
+
+// 广告-修改状态(可批量)
+export const modifyAdState = (data) => {
+  return request({
+    url: '/api/seeics-ad/product/batchSetting',
+    method: 'post',
     data,
   });
 };
@@ -106,6 +133,15 @@ export const queryKwSuggestedBid = (data) => {
   });
 };
 
+// 关键词-修改状态(可批量)
+export const modifyKeywordState = (data) => {
+  return request({
+    url: '/api/seeics-ad/keyword/batchSetting',
+    method: 'post',
+    data,
+  });
+};
+
 // Targeting
 // Targeting-列表
 export const queryTargetingList = (params, data) => {
@@ -121,6 +157,15 @@ export const queryTargetingList = (params, data) => {
 export const queryTargetingSuggestedBid = (data) => {
   return request({
     url: '/api/seeics-ad/targeting/bid-recommendation',
+    method: 'post',
+    data,
+  });
+};
+
+// Targeting-修改状态(可批量)
+export const modifyTargetingState = (data) => {
+  return request({
+    url: '/api/seeics-ad/targeting/batchSetting',
     method: 'post',
     data,
   });

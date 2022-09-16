@@ -154,6 +154,27 @@ export default ({ mock }) => {
     },
   });
 
+  // 广告活动-修改状态
+  Mock.mock('/api/seeics-ad/campaign/batchSetting', 'post', (req) => {
+    const body = JSON.parse(req.body);
+    const { campaignIds, groupIds, adProductIds } = body;
+    const ids = campaignIds || groupIds || adProductIds;
+    const successIds = ids.slice(0, ids.length);
+    const failIds = ids.slice(ids.length);
+    return {
+      success: successIds.map(id => {
+        return {
+          id, name: '名称',
+        };
+      }),
+      fail: failIds.map(id => {
+        return {
+          id, name: '失败的名称', errorMsg: '错误信息描述错误信息描述',
+        };
+      }),
+    };
+  });
+
   // 广告组
   // 广告组-列表
   Mock.mock(RegExp('/api/seeics-ad/group/page' + '.*?'), 'post', {

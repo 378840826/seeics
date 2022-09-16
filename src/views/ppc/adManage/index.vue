@@ -26,6 +26,7 @@
         <el-tabs type="border-card" class="left-tabs">
           <el-tab-pane label="广告活动">
             <CampaignTree
+              ref="refTree"
               :storeId="currentStore.adStoreId"
               :treeSelectedKey="treeSelectedKey"
               @treeSelect="handleTreeSelect"
@@ -101,6 +102,7 @@
               :currency="currentStore.currency"
               :storeId="currentStore.adStoreId"
               :mwsStoreId="currentStore.mwsStoreId"
+              @updateStateTree="handleUpdateStateTree"
             />
           </el-tab-pane>
         </el-tabs>
@@ -353,15 +355,6 @@ export default{
       });
     },
 
-
-    // 树-切换选中
-    // 根据节点重新加载标签页
-    // 切换到第一个标签
-    // 请求各标签显示的数量
-    // 修改菜单树选中的 key 和广告信息
-    // 展开父节点
-    // 菜单树滚动到选中位置, 在下一个事件循环中执行(先切换了选中再执行滚动)
-
     // 树-树组件切换了选中
     handleTreeSelect(val) {
       this.treeSelectedInfo = { ...val };
@@ -370,6 +363,34 @@ export default{
       this.portfolioSelectedId = '';
       // 请求标签页数量
       this.getTabsCellCount();
+    },
+
+    // 树-刷新节点（因在列表中修改了广告活动/广告组的状态，需要刷新部分树节点）
+    handleUpdateStateTree(val) {
+      const { type, newState, list } = val;
+      // 广告活动
+      if (type === 'campaign') {
+        const oldKeyList = [];
+        list.forEach(item => {
+          oldKeyList.push(`${item.state}-${item.id}`);
+        });
+        // 更新树节点
+        oldKeyList.forEach(key => {
+          const newParentKey = newState;
+          this.$refs.refTree.updateCampaignState(key, newParentKey);
+        });
+      } else if (type === 'group') {
+        // 广告组
+        const oldKeyList = [];
+        list.forEach(item => {
+          oldKeyList.push(`${item.campaignState}-${item.campaignId}-${item.id}-${item.groupType}`);
+        });
+        // 更新广告组树节点
+        oldKeyList.forEach(key => {
+          const newData = { state: newState };
+          this.$refs.refTree.updateGroupDate(key, newData);
+        });
+      }
     },
 
     // 面包屑导航点击

@@ -1,0 +1,18 @@
+// 修改状态出错时的弹窗
+._adManage-error-msgbox-container {
+  width: 500px;
+
+  ._adManage-error-msgbox {
+    max-height: 300px;
+    overflow: auto;
+    font-size: $textSize;
+
+    div {
+      margin: 6px;
+    }
+
+    ._adManage-error-msgbox-msg {
+      color: $danger;
+    }
+  }
+}

@@ -106,7 +106,12 @@ export default {
         });
       } else if (node.level === 2) {
         // 请求广告组
-        queryTreeGroup({ ...params, campaignId: nodeParams.campaignId }).then(res => {
+        const groupParams = {
+          ...params,
+          campaignId: nodeParams.campaignId,
+          state: null,
+        };
+        queryTreeGroup(groupParams).then(res => {
           const r = res.data.data.map(item => {
             // 增加 key 字段和 isLeaf
             const key = `${nodeParams.campaignState}-${nodeParams.campaignId}-${item.groupId}-${item.groupType}`;
@@ -138,6 +143,32 @@ export default {
         return;
       }
       this.$emit('treeSelect', { ...data });
+    },
+
+    // 通过 key 刷新当前节点数据
+    updateNode(key){
+      const node = this.$refs.treeRef.getNode(key);
+      // 触发loadNode函数
+      node.loaded = false;
+      node.expand();
+    },
+
+    // 更新广告活动的状态，通过 key 删除当前广告活动节点，并且刷新新的一级状态节点
+    updateCampaignState(key, newParentKey){
+      const node = this.$refs.treeRef.getNode(key);
+      // 删除旧节点
+      node && this.$refs.treeRef.remove(node);
+      // 刷新新的状态节点
+      this.updateNode(newParentKey);
+    },
+
+    // 更新广告组节点的数据
+    updateGroupDate(key, newData) {
+      const node = this.$refs.treeRef.getNode(key);
+      node.data = {
+        ...node.data,
+        ...newData,
+      };
     },
   },
 
