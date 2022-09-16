@@ -314,7 +314,9 @@ export default {
   },
 
   mounted() {
-    this.queryCampaignList();
+    this.queryCampaignList(false,
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData[0].campaignName,
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData[0].campaignId);
   },
 
   methods: {
@@ -340,7 +342,7 @@ export default {
       }  
     },
 
-    queryCampaignList(flag) {
+    queryCampaignList(flag, name, id) {
       queryCampaignList({
         current: !this.searchCampaign ? this.page.current : this.searchPage.current,
         size: !this.searchCampaign ? this.page.size : this.searchPage.size,
@@ -349,7 +351,7 @@ export default {
       }, {
         marketplace: this.marketplace,
         storeId: this.storeId,
-        search: this.searchCampaign || '',
+        search: this.searchCampaign || name,
       }).then(res => {
         if (res.data.code === 200) {
 
@@ -382,10 +384,18 @@ export default {
           this.campaignList = this.repetit(this.campaignList);
           this.total = res.data.data.page.total;
           if (!flag) { //非预加载赋值
-            this.form.campaignId = this.campaignList.length && this.campaignList[0].id;
+            this.form.campaignId = id || this.campaignList.length && this.campaignList[0].id || '';
             this.targetingMode = this.data.length && this.data[0].targetingType;
             this.strategy = this.data.length && this.data[0].biddingStrategy;
             this.dailyBudget = this.data.length && this.data[0].dailyBudget;
+          }
+
+          if (name) {
+            const arr = this.data.length && this.data.filter(item => item.id === id) || [];
+            this.targetingMode = arr.length && arr[0].targetingType;
+            this.strategy = arr.length && arr[0].biddingStrategy;
+            this.dailyBudget = arr.length && arr[0].dailyBudget;
+            this.queryCampaignList(true);
           }
         }
       });
