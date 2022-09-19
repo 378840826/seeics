@@ -17,9 +17,9 @@
               style="width: 25%">
               <el-option
                 v-for="item in marketplaceList"
-                :key="item.name"
-                :value="item.name"
-                :label="item.name"
+                :key="item"
+                :value="item"
+                :label="item"
               />
             </el-select>
             <avue-select
@@ -315,10 +315,10 @@ export default {
       return params;
     },
     getMarketplaceList(shopName) {
-      getMarketplaceList(shopName).then(res => {
+      getShopNameList(shopName).then(res => {
         if (res.data.code === 200) {
-          this.marketplaceList = res.data.data.sort((a, b) => b.name.localeCompare(a.name));
-          this.fromInline.marketplace = res.data.data.length && res.data.data[0].name || '';
+          this.marketplaceList = res.data.data.sort((a, b) => b.localeCompare(a));
+          this.fromInline.marketplace = res.data.data.length && res.data.data[0] || '';
           this.tableLoading = true;
           this.getCampaignList();
         } 
