@@ -183,7 +183,9 @@
       </template>
 
       <template slot-scope="{row}" slot="advertisingCampaignNums">
-        <el-button type="text">{{row.advertisingCampaignNums}}</el-button>
+        <el-button
+          type="text"
+          @click="campiagnDialogVisible = true; rowInfo = row">{{row.advertisingCampaignNums}}</el-button>
       </template>
 
       <template slot-scope="{row}" slot="menu">
@@ -220,6 +222,13 @@
         <el-button size="mini" @click="groupVisible = false, tableDialog = false">取 消</el-button>
       </span>
     </el-dialog>
+
+    <!-- 广告活动 -->
+    <campaign-dialog
+      v-if="campiagnDialogVisible"
+      :visible.sync="campiagnDialogVisible"
+      :rowInfo="rowInfo"
+    />
   </basic-container>
 </template>
 
@@ -236,12 +245,15 @@ import {
   removeTemplate,
   repeatName
 } from '@/api/ppc/automation';
+import campaignDialog from './components/campaign.vue';
+
 export default {
   name: 'automaticTeplate',
   components: {
     globalFilter,
     Automatic,
-    tableDialog
+    tableDialog,
+    campaignDialog
   },
   data() {
     return {
@@ -375,6 +387,8 @@ export default {
       }],
       templateNameMsg: false, //模板名称校验
       launch: false, //监听是否投放
+      campiagnDialogVisible: false,
+      rowInfo: {},
     };
   },
   methods: {
