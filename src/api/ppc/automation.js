@@ -11,11 +11,14 @@ export const getCampaignList = (data) => {
   });
 };
 
-export const getShopNameList = () => {
+export const getShopNameList = params => {
   return request({
     // url: '/api/seeics-ad/store/shopNameList',
     url: '/api/seeics-mws/store/storeInfoList',
-    method: 'get'
+    method: 'get',
+    params: {
+      info: params
+    },
   });
 };
 
