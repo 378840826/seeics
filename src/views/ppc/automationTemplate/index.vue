@@ -42,7 +42,8 @@
       center
       top="1vh"
     >
-      <h4>创建搜索词：</h4>
+      <div slot="title" style="text-align: left">创建搜索词：</div>
+      <!-- <h4>创建搜索词：</h4> -->
       <div class="tabel">
         <span>模板名称：
           <span v-if="!formInline.templateName" style="color: red">*</span>
@@ -180,6 +181,13 @@
           <span class="scope">{{row.scope && strSplit(row.scope)[0] && strSplit(row.scope)[1] || ''}}</span>
         </el-tooltip>
       </template>
+
+      <template slot-scope="{row}" slot="advertisingCampaignNums">
+        <el-button
+          type="text"
+          @click="campiagnDialogVisible = true; rowInfo = row">{{row.advertisingCampaignNums}}</el-button>
+      </template>
+
       <template slot-scope="{row}" slot="menu">
         <!-- <el-button type="text" size="mini" @click="remove(row.id)">删除</el-button> -->
         <el-popconfirm
@@ -203,7 +211,7 @@
       :close-on-press-escape="false"
       center
     >
-    <h4>添加广告活动：</h4>
+    <div slot="title" style="text-align: left">添加广告活动：</div>
     <p>请选择您要应该模板的广告活动</p>
     <table-dialog 
       :automationRow="automationRow"
@@ -214,6 +222,14 @@
         <el-button size="mini" @click="groupVisible = false, tableDialog = false">取 消</el-button>
       </span>
     </el-dialog>
+
+    <!-- 广告活动 -->
+    <campaign-dialog
+      v-if="campiagnDialogVisible"
+      :visible.sync="campiagnDialogVisible"
+      :rowInfo="rowInfo"
+      @success="getAutomationList"
+    />
   </basic-container>
 </template>
 
@@ -230,12 +246,15 @@ import {
   removeTemplate,
   repeatName
 } from '@/api/ppc/automation';
+import campaignDialog from './components/campaign.vue';
+
 export default {
   name: 'automaticTeplate',
   components: {
     globalFilter,
     Automatic,
-    tableDialog
+    tableDialog,
+    campaignDialog
   },
   data() {
     return {
@@ -369,6 +388,8 @@ export default {
       }],
       templateNameMsg: false, //模板名称校验
       launch: false, //监听是否投放
+      campiagnDialogVisible: false,
+      rowInfo: {},
     };
   },
   methods: {
@@ -711,8 +732,8 @@ export default {
       margin: 0;
     }
   }
-  ::v-deep .el-dialog__header {
-    padding: 0 0 0 0;
+  ::v-deep .el-dialog__body{
+    padding: 0px 25px 30px;
   }
   ::v-deep .dialog-footer {
     text-align: center;
