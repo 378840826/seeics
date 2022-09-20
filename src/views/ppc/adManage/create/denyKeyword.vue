@@ -163,7 +163,7 @@ export default {
 
     getField() {
       const arr = this.data.map(item => {
-        return this.title === '关键词' ? { keywordText: item.keyword, matchType: item.type } : { keywordText: item.keyword };
+        return this.title === '关键词' ? { asin: item.keyword, matchType: item.type } : { asin: item.keyword };
       });
       return arr;
     },

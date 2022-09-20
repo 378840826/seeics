@@ -48,7 +48,7 @@
             >{{item.label}}</el-option>
           </el-select>
 
-          <el-select v-if="bid !== 'bid'" v-model="symbol" size="small" style="width: 50px">
+          <el-select v-if="bid !== 'bid'" v-model="symbol" size="small" style="width: 70px">
             <el-option
               v-for="item in symbolList"
               :key="item.label"
@@ -201,12 +201,15 @@
                   @mouseenter="handleKeyword(scope.row)"
                   @mouseleave="handleLeaveKeyword(scope.row)"
                 >
-                  <div v-if="!scope.row.isInput">{{scope.row.keywordBid}}</div>
+                  <div v-if="!scope.row.isInput">{{`${currency}${scope.row.keywordBid}`}}</div>
                   <el-input
                     v-else
                     v-model="scope.row.keywordBid"
                     size="small"
-                  />
+                    style="padding: 0 0 0 0"
+                  >
+                    <span slot="prefix" style="lineHeight: 32px;">{{currency}}</span>
+                  </el-input>
                 </div>
               </template>
             </el-table-column>
@@ -260,7 +263,11 @@ export default {
     },
     marketplace: {
       type: String,
-    }
+    },
+    currency: {
+      type: String,
+      require: true,
+    },
   },
 
   data() {
@@ -269,7 +276,7 @@ export default {
       category: '建议关键词',
       bid: 'suggestedBid',
       modified: '+',
-      symbol: '$',
+      symbol: this.currency,
       bidval: '',
       textarea: '',
       suggestionKeywordMatchType: ['exact', 'phrase', 'broad'],
@@ -302,7 +309,7 @@ export default {
       ],
       symbolList: [
         {
-          label: '$',
+          label: this.currency,
         },
         {
           label: '%',
@@ -638,7 +645,7 @@ export default {
             if (key === this.bid) {
               const chu = this.modified === '-' ? Number(item[key]) - Number(item[key]) * (Number(this.bidval) / 100) : Number(item[key]) + Number(item[key]) * (Number(this.bidval) / 100);
               const modified = this.modified === '-' ? Number(item[key]) - Number(this.bidval) : Number(item[key]) + Number(this.bidval);
-              const res = this.symbol === '$' ? modified : chu;
+              const res = this.symbol === this.currency ? modified : chu;
               if (res > 0.02 && res <= this.budget) {
                 item.keywordBid = res.toFixed(2);
                 // this.empty();
@@ -763,10 +770,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
-  ::v-deep .el-input__inner {
-    padding: 0 0 0 5px;
-  }
 
   ::v-deep .el-select-dropdown__wrap .el-scrollbar__wrap {
     text-align: center;
