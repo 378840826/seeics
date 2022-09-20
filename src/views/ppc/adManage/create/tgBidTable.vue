@@ -56,12 +56,14 @@
               @mouseenter="handleKeyword(scope.row)"
               @mouseleave="handleLeaveKeyword(scope.row)"
             >
-              <div v-if="!scope.row.isInput">{{scope.row.keywordBid}}</div>
+              <div v-if="!scope.row.isInput">{{`${currency}${scope.row.keywordBid}`}}</div>
               <el-input
                 v-else
                 v-model="scope.row.keywordBid"
                 size="small"
-              />
+              >
+                <span slot="prefix" style="lineHeight: 32px;">{{currency}}</span>
+              </el-input>
             </div>
           </template>
       </el-table-column>
@@ -96,7 +98,11 @@ export default {
     },
     marketplace: {
       type: String,
-    }
+    },
+    currency: {
+      type: String,
+      require: true,
+    },
   },
 
   data() {
