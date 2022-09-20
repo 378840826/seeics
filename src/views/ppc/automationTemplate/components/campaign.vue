@@ -37,7 +37,11 @@
       </span>
 
       <span>
-        <el-select v-model="form.campaignType" @change="queryCampaignPage" style="padding: 10px 20px 0 0">
+        <el-select
+          v-model="form.campaignType"
+          @change="queryCampaignPage"
+          placeholder="广告类型"
+          style="padding: 10px 20px 0 0">
           <el-option
             v-for="item in type"
             :key="item.vlaue"
@@ -48,7 +52,11 @@
       </span>
 
       <span>
-        <el-select v-model="form.targetingType" @change="queryCampaignPage" style="padding: 10px 20px 0 0">
+        <el-select
+          v-model="form.targetingType"
+          @change="queryCampaignPage"
+          placeholder="投放类型"
+          style="padding: 10px 20px 0 0">
           <el-option
             v-for="item in launchTypeList"
             :key="item.vlaue"
@@ -59,7 +67,11 @@
       </span>
 
       <span>
-        <el-select v-model="form.campaignState" @change="queryCampaignPage" style="padding: 10px 20px 0 0">
+        <el-select
+          v-model="form.campaignState"
+          @change="queryCampaignPage"
+          placeholder="广告状态"
+          style="padding: 10px 20px 0 0">
           <el-option
             v-for="item in adStatusList"
             :key="item.vlaue"
@@ -70,7 +82,11 @@
       </span>
 
       <span>
-        <el-select v-model="form.automationlStatus" @change="queryCampaignPage" style="padding: 10px 20px 0 0">
+        <el-select
+          v-model="form.automationlStatus"
+          @change="queryCampaignPage"
+          placeholder="规则状态"
+          style="padding: 10px 20px 0 0">
           <el-option
             v-for="item in ruleStatusList"
             :key="item.vlaue"
@@ -236,7 +252,7 @@ export default {
       type: [
         {
           label: '全选',
-          value: ''
+          value: '全选'
         },
         {
           label: '商品推广（SP）',
@@ -254,7 +270,7 @@ export default {
       launchTypeList: [
         {
           label: '全选',
-          value: ''
+          value: '全选'
         },
         {
           label: 'SP-手动投放',
@@ -296,7 +312,7 @@ export default {
         },
         {
           label: '运行中和已暂停',
-          value: ''
+          value: '运行中和已暂停'
         },
         {
           label: '已暂停',
@@ -310,7 +326,7 @@ export default {
         },
         {
           label: '运行中和已暂停',
-          value: ''
+          value: '运行中和已暂停'
         },
         {
           label: '已暂停',
@@ -368,7 +384,12 @@ export default {
         id: this.rowInfo.id,
         ...this.form,
         country: this.form.country === '不限' ? '' : this.form.country,
-        storeName: this.form.storeName === '不限' ? '' : this.form.storeName })).then(res => {
+        storeName: this.form.storeName === '不限' ? '' : this.form.storeName,
+        campaignType: this.form.campaignType === '全选' ? '' : this.form.campaignType,
+        targetingType: this.form.targetingType === '全选' ? '' : this.form.targetingType,
+        campaignState: this.form.campaignState === '运行中和已暂停' ? '' : this.form.campaignStat,
+        automationlStatus: this.form.automationlStatus === '运行中和已暂停' ? '' : this.form.automationlStatus,
+      })).then(res => {
         this.dataSource = res.data.data.records;
         this.total = res.data.data.total;
         this.loading = false;
