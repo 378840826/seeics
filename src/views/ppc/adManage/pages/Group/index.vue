@@ -237,7 +237,7 @@
 <create-group
   v-if="createDialogVisible"
   :dialogVisible.sync="createDialogVisible"
-  @success="getList({ current: 1 })"
+  @success="$emit('createSuccess')"
   :mwsStoreId="mwsStoreId"
   :marketplace="marketplace"
   :storeId="storeId"
