@@ -241,6 +241,7 @@
   :mwsStoreId="mwsStoreId"
   :marketplace="marketplace"
   :storeId="storeId"
+  :currency="currency"
 />
 </div>
 </template>
