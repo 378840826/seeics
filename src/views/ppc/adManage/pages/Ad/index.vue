@@ -206,7 +206,7 @@
 <!-- 创建广告弹窗 -->
 <create-ad
   v-if="createDialogVisible"
-  @success="getList({ current: 1 })"
+  @success="$emit('createSuccess')"
   :dialogVisible.sync="createDialogVisible"
   :mwsStoreId="mwsStoreId"
   :marketplace="marketplace"
