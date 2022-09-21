@@ -357,18 +357,25 @@ export default {
     const checkDefaultBid = (rule, value, callback) => {
       if (!value) {
         return callback(new Error('广告组默认竞价不能为空'));
+      // eslint-disable-next-line no-else-return
       }
       if (this.marketplace === 'JP') {
         if (value < 2) {
           return callback(new Error(`广告组默认竞价必须大于等于${this.currency}2`));
         } else if (value > Number(this.form.budget)) {
           return callback(new Error('广告组默认竞价不能超过广告活动日预算'));
+        // eslint-disable-next-line no-else-return
+        } else {
+          callback();
         }
       } else {
         if (value < 0.02) {
           return callback(new Error(`广告组默认竞价必须大于等于${this.currency}0.02`));
         } else if (value > Number(this.form.budget)) {
           return callback(new Error('广告组默认竞价不能超过广告活动日预算'));
+        // eslint-disable-next-line no-else-return
+        } else {
+          callback();
         }
       }
     };
@@ -376,36 +383,48 @@ export default {
     const checkName = (rule, value, callback) => {
       if (!value) {
         return callback(new Error('请输入广告活动名称'));
-      }
-      if (value.length > 128) {
+      } else if (value.length > 128) {
         return callback(new Error('最长128个字符'));
+      // eslint-disable-next-line no-else-return
+      } else {
+        callback();
       }
+      
     };
 
     const checkGroupRoName = (rule, value, callback) => {
       if (!value) {
         return callback(new Error('请输入广告组名称'));
-      }
-      if (value.length > 255) {
+      } else if (value.length > 255) {
         return callback(new Error('最长255个字符'));
+      // eslint-disable-next-line no-else-return
+      } else {
+        callback();
       }
+      
     };
 
     const checkBudget = (rule, value, callback) => {
       if (!value) {
-        return callback(new Error('广告活动每日预算至少$1'));
+        return callback(new Error(`日预算不能为空`));
       }
       if (this.marketplace === 'JP') {
         if (value < 100) {
-          return callback(new Error(`广告活动每日预算至少${this.currency}1`));
+          return callback(new Error(`广告活动每日预算至少${this.currency}100`));
         } else if (value > 21000000) {
           return callback(new Error(`广告活动每日预算不能超过${this.currency}21,000,000`));
+        // eslint-disable-next-line no-else-return
+        } else {
+          callback();
         }
       } else {
         if (value < 1) {
           return callback(new Error(`广告活动每日预算至少${this.currency}1`));
         } else if (value > 1000000) {
           return callback(new Error(`广告活动每日预算不能超过${this.currency}1000000`));
+        // eslint-disable-next-line no-else-return
+        } else {
+          callback();
         }
       }
     };
@@ -532,7 +551,15 @@ export default {
       const keywordTable = this.form.targetingMode === 'manual' && this.KeywordFlag === '关键词' && this.$refs.keywordTable.getField() || [];
       const tgTable = this.form.targetingMode === 'auto' && this.defaultRadio === '2' && this.$refs.tgTable.getField() || [];
       const priceTable = this.$refs.priceTable.getField();
-      this.$refs.form.validate();
+      let flag;
+      this.$refs.form.validate(s => {
+        flag = s;
+      });
+      
+      if (!flag) {
+        return;
+      }
+
       if (!this.form.name) {
         return this.$message({
           type: 'error',
@@ -541,7 +568,7 @@ export default {
       } else if (!this.form.budget) {
         return this.$message({
           type: 'error',
-          message: '请输入每日预算'
+          message: '请输入日预算'
         });
       } else if (!this.form.startDate || !this.form.endDate) {
         return this.$message({
