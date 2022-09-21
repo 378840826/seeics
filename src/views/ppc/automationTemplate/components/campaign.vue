@@ -19,7 +19,8 @@
           v-model="form.storeName"
           @change="handelShopChange"
           placeholder="请选择店铺"
-          style="padding: 10px 20px 0 0">
+          clearable
+          style="padding: 10px 20px 0 0; minWidth: 160px">
           <el-option
             v-for="item in storeList"
             :key="item.storeName"
@@ -34,7 +35,8 @@
           v-model="form.country"
           @change="handleMarketplace" 
           placeholder="请选择站点"
-          style="padding: 10px 20px 0 0">
+          clearable
+          style="padding: 10px 20px 0 0; minWidth: 160px">
           <el-option
             v-for="item in marketplaceList"
             :key="item.name"
@@ -49,7 +51,8 @@
           v-model="form.campaignType"
           @change="queryCampaignPage"
           placeholder="广告类型"
-          style="padding: 10px 20px 0 0">
+          clearable
+          style="padding: 10px 20px 0 0; minWidth: 160px">
           <el-option
             v-for="item in type"
             :key="item.vlaue"
@@ -64,7 +67,8 @@
           v-model="form.targetingType"
           @change="queryCampaignPage"
           placeholder="投放类型"
-          style="padding: 10px 20px 0 0">
+          clearable
+          style="padding: 10px 20px 0 0; minWidth: 160px">
           <el-option
             v-for="item in launchTypeList"
             :key="item.vlaue"
@@ -79,7 +83,8 @@
           v-model="form.campaignState"
           @change="queryCampaignPage"
           placeholder="广告状态"
-          style="padding: 10px 20px 0 0">
+          clearable
+          style="padding: 10px 20px 0 0; minWidth: 160px">
           <el-option
             v-for="item in adStatusList"
             :key="item.vlaue"
@@ -94,7 +99,8 @@
           v-model="form.automationlStatus"
           @change="queryCampaignPage"
           placeholder="规则状态"
-          style="padding: 10px 20px 0 0">
+          clearable
+          style="padding: 10px 20px 0 0; minWidth: 160px">
           <el-option
             v-for="item in ruleStatusList"
             :key="item.vlaue"
@@ -136,7 +142,7 @@
       border
       height="350px"
       v-loading="loading"
-      empty-text="暂无商品"
+      empty-text="暂无广告活动"
     >
       <el-table-column
         prop="campaignName"
@@ -315,29 +321,29 @@ export default {
       ],
       adStatusList: [
         {
-          label: '运行中',
+          label: '运行中（广告）',
           value: 'enabled'
         },
         {
-          label: '运行中和已暂停',
+          label: '运行中和已暂停（广告）',
           value: '运行中和已暂停'
         },
         {
-          label: '已暂停',
+          label: '已暂停（广告）',
           value: 'paused'
         },
       ],
       ruleStatusList: [
         {
-          label: '运行中',
+          label: '运行中（规则）',
           value: 'runing'
         },
         {
-          label: '运行中和已暂停',
+          label: '运行中和已暂停（规则）',
           value: '运行中和已暂停'
         },
         {
-          label: '已暂停',
+          label: '已暂停（规则）',
           value: 'stop'
         },
       ],
@@ -446,6 +452,7 @@ export default {
 <style lang="scss" scoped>
   .filter {
     display: flex;
+    flex-flow: wrap;
   }
   
   ::v-deep .el-button {
