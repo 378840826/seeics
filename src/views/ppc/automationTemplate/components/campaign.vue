@@ -15,7 +15,11 @@
 
     <div class="filter">
       <span>
-        <el-select v-model="form.storeName" @change="handelShopChange" style="padding: 10px 20px 0 0">
+        <el-select
+          v-model="form.storeName"
+          @change="handelShopChange"
+          placeholder="请选择店铺"
+          style="padding: 10px 20px 0 0">
           <el-option
             v-for="item in storeList"
             :key="item.storeName"
@@ -26,7 +30,11 @@
       </span>
 
       <span>
-        <el-select v-model="form.country" @change="handleMarketplace" style="padding: 10px 20px 0 0">
+        <el-select
+          v-model="form.country"
+          @change="handleMarketplace" 
+          placeholder="请选择站点"
+          style="padding: 10px 20px 0 0">
           <el-option
             v-for="item in marketplaceList"
             :key="item.name"
@@ -234,8 +242,8 @@ export default {
       loading: false,
       dataSource: [],
       form: {
-        storeName: '不限',
-        country: '不限',
+        storeName: '',
+        country: '',
         campaignType: '',
         targetingType: '',
         campaignState: '',
@@ -352,8 +360,8 @@ export default {
 
     empty() {
       this.form = {
-        storeName: '不限',
-        country: '不限',
+        storeName: '',
+        country: '',
         campaignType: '',
         targetingType: '',
         campaignState: '',
@@ -387,7 +395,7 @@ export default {
         storeName: this.form.storeName === '不限' ? '' : this.form.storeName,
         campaignType: this.form.campaignType === '全选' ? '' : this.form.campaignType,
         targetingType: this.form.targetingType === '全选' ? '' : this.form.targetingType,
-        campaignState: this.form.campaignState === '运行中和已暂停' ? '' : this.form.campaignStat,
+        campaignState: this.form.campaignState === '运行中和已暂停' ? '' : this.form.campaignState,
         automationlStatus: this.form.automationlStatus === '运行中和已暂停' ? '' : this.form.automationlStatus,
       })).then(res => {
         this.dataSource = res.data.data.records;
@@ -397,7 +405,7 @@ export default {
     },
 
     handelShopChange(val) {
-      this.form.country = '不限';
+      this.form.country = '';
       this.getMarketplaceList(val);  
       this.queryCampaignPage();
     },
