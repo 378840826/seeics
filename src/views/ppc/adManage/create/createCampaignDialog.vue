@@ -158,7 +158,7 @@
         </el-switch>
       </span>
 
-      <h3>▌广告活动</h3>
+      <h3>▌广告活动 <span style="fontSize: 12px; fontWeight: 500; marginLeft: 50px">{{autoFormat(form.targetingMode)}}- > 新建广告组</span></h3>
 
       <el-form-item prop="groupRo.name">
         <template slot="label">
@@ -500,6 +500,14 @@ export default {
   },
 
   methods: {
+
+    autoFormat(val) {
+      if (val === 'manual') {
+        return 'Manual Campaign（手动广告）';
+      } else if (val === 'auto') {
+        return 'AUTO Campaign（自动广告）';
+      }
+    },
 
     algorithm(value) {
       const res = Number(value) / 100;
