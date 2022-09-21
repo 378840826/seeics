@@ -76,7 +76,7 @@
               v-if="defaultRadio === '1'"  prop="defaultBid" style="position: absolute;top: -10px;left: 0">
                 
                 <el-input v-model="form.defaultBid" placeholder="至少0.02" style="width: 60%" size="small">
-                <i slot="prefix">$</i>
+                <i slot="prefix">{{currency}}</i>
                 </el-input>
             </el-form-item>
           </div>
@@ -94,6 +94,7 @@
             :defaultBid="form.defaultBid"
             :mwsStoreId="mwsStoreId"
             :budget="dailyBudget"
+            :currency="currency"
             style="marginTop: 20px"
           />
 
@@ -119,7 +120,7 @@
                 </div>
               </template>
               <el-input v-model="form.defaultBid" placeholder="至少0.02" style="width: 150px" size="small">
-              <i slot="prefix">$</i>
+              <i slot="prefix">{{currency}}</i>
               </el-input>
             </el-form-item>
           </div>
@@ -142,6 +143,7 @@
             :defaultBid="form.defaultBid"
             :mwsStoreId="mwsStoreId"
             :budget="dailyBudget"
+            :currency="currency"
           />
 
           <deny-keyword
@@ -159,7 +161,8 @@
             :targetingMode.sync="strategy"
             :defaultBid="form.defaultBid"
             :mwsStoreId="mwsStoreId"
-            :budget="dailyBudget"/>
+            :budget="dailyBudget"
+            :currency="currency"/>
 
           <deny-keyword
             v-if="KeywordFlag === '分类/商品'"
@@ -217,6 +220,10 @@ export default {
     marketplace: {
       type: String,
       required: true,
+    },
+    currency: {
+      type: String,
+      required: true,
     }
   },
 
@@ -228,13 +235,13 @@ export default {
       }
       if (this.marketplace === 'JP') {
         if (value < 2) {
-          return callback(new Error('广告组默认竞价必须大于等于2'));
+          return callback(new Error(`广告组默认竞价必须大于等于${this.currency}2`));
         } else if (value > Number(this.dailyBudget)) {
           return callback(new Error('广告组默认竞价不能超过广告活动日预算'));
         }
       } else {
         if (value < 0.02) {
-          return callback(new Error('广告组默认竞价必须大于等于0.02'));
+          return callback(new Error(`广告组默认竞价必须大于等于${this.currency}0.02`));
         } else if (value > Number(this.dailyBudget)) {
           return callback(new Error('广告组默认竞价不能超过广告活动日预算'));
         }
@@ -254,7 +261,7 @@ export default {
       form: {
         campaignId: '',
         name: '',
-        defaultBid: '0.75',
+        defaultBid: this.marketplace === 'JP' ? '4' : '0.75',
         negativeKeywordItemRoList: [], //否定关键词集合
         keywordItemRoList: [], //关键词集合
         negativeTargetingAsinList: [], //否定投放商品（ASIN）集合
