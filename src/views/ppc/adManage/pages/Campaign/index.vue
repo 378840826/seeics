@@ -88,6 +88,7 @@
     empty-text="没有查询到数据，请修改查询条件"
     @selection-change="handleSelectionChange"
     @sort-change="handleSortChange"
+    @row-click="handleRowClick"
     border
     show-summary
     :summary-method="({columns}) => summaryMethod(columns, tableTotalData)"
@@ -123,6 +124,10 @@
     </el-table-column>
 
     <el-table-column prop="name" label="广告活动" width="120" sortable="custom"  fixed>
+      <div slot-scope="{row}">
+        {{ row.name }}
+        <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
+      </div>
     </el-table-column>
 
     <el-table-column prop="targetingType" label="投放方式" width="120" >
@@ -153,27 +158,31 @@
     </el-table-column>
 
     <el-table-column prop="biddingStrategy" label="竞价策略" width="130">
-      <template slot-scope="{row}">
+      <div slot-scope="{row}">
         {{ biddingStrategyDict[row.biddingStrategy] }}
-      </template>
+        <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
+      </div>
     </el-table-column>
 
     <el-table-column prop="biddingPlacementTop" label="搜索结果顶部" width="100">
-      <template slot-scope="{row}">
+      <div slot-scope="{row}">
         {{ getValueLocaleString({ value: row.biddingPlacementTop, isFraction: true, suffix: '%' }) }}
-      </template>
+        <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
+      </div>
     </el-table-column>
 
-    <el-table-column prop="biddingPlacementProductPage" label="商品页面" width="80">
-      <template slot-scope="{row}">
+    <el-table-column prop="biddingPlacementProductPage" label="商品页面" width="100">
+      <div slot-scope="{row}">
         {{ getValueLocaleString({ value: row.biddingPlacementProductPage, isFraction: true, suffix: '%' }) }}
-      </template>
+        <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
+      </div>
     </el-table-column>
 
     <el-table-column prop="dailyBudget" label="日预算" width="110">
-      <template slot-scope="{row}">
+      <div slot-scope="{row}">
         {{ getValueLocaleString({ value: row.dailyBudget, isFraction: true, prefix: currency }) }}
-      </template>
+        <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
+      </div>
     </el-table-column>
 
     <el-table-column prop="negativeKeywordNumber" label="否定关键词" width="110">
@@ -189,11 +198,17 @@
     </el-table-column>
 
     <el-table-column prop="startDate" label="开始时间" width="110">
-      <span slot-scope="{row}" class="td_date_time">{{ row.startDate }}</span>
+      <div slot-scope="{row}">
+        <span class="td_date_time">{{ row.startDate }}</span>
+        <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
+      </div>
     </el-table-column>
 
     <el-table-column prop="endDate" label="结束时间" width="110">
-      <span slot-scope="{row}" class="td_date_time">{{ row.endDate }}</span>
+      <div slot-scope="{row}">
+        <span class="td_date_time">{{ row.endDate }}</span>
+        <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
+      </div>
     </el-table-column>
 
     <el-table-column
@@ -234,6 +249,16 @@
   />
 </div>
 
+<!-- 编辑弹窗 -->
+<EditDialog
+  v-if="editDialogVisible"
+  :visible.sync="editDialogVisible"
+  :data="editData"
+  :editKey="editKey"
+  :currency="currency"
+  @save="handleEditSave"
+/>
+
 <!-- 创建广告活动弹窗 -->
 <CreateCampaignDialog
   v-if="createCampaignDialogVisible"
@@ -250,6 +275,7 @@
 import {
   queryCampaignList,
   modifyCampaignState,
+  modifyCampaign,
 } from '@/api/ppc/adManage';
 import { stateNameDict, targetingTypeDict, biddingStrategyDict } from '../../utils/dict';
 import { tablePageOption, defaultDateRange, summaryMethod } from '../../utils/options';
@@ -264,6 +290,7 @@ import {
 import Search from '../../components/Search';
 import DatePicker from '../../components/DatePicker';
 import FilterMore from '../../components/FilterMore';
+import EditDialog from './EditDialog';
 import FilterCrumbs, { notRangeKeys } from '../../components/FilterCrumbs';
 import CreateCampaignDialog from '../../create/createCampaignDialog';
 
@@ -275,6 +302,7 @@ export default {
     DatePicker,
     FilterMore,
     FilterCrumbs,
+    EditDialog,
     CreateCampaignDialog,
   },
 
@@ -326,6 +354,10 @@ export default {
       tableLoading: false,
       tablePageOption: { ...tablePageOption },
       tableSort: { prop: 'createdTime', order: 'descending' },
+      editDialogVisible: false,
+      editData: {},
+      // 点击哪个编辑图标激活的弹窗
+      editKey: '',
       createCampaignDialogVisible: false,
     };
   },
@@ -574,6 +606,31 @@ export default {
       } else {
         this.updateState(state, this.tableSelected);
       }
+    },
+
+    // 点击编辑图标
+    handleRowClick(row, column, event) {
+      if (event.target._prevClass === 'el-icon-edit table-edit-icon') {
+        this.editKey = column.property;
+        this.editDialogVisible = true;
+        this.editData = { ...row };
+      }
+    },
+
+    // 编辑保存
+    handleEditSave(val) {
+      log('val', val);
+      const params = {
+        ...val,
+        adStoreId: this.storeId,
+      };
+      modifyCampaign(params).then(res => {
+        // 更新页面数据
+        this.updateTableData([this.editData.id], res.data.data);
+        this.$message.success(res.data.msg || '操作成功');
+      }).finally(() => {
+        log('finally');
+      });
     },
 
     // 点击广告组数量
