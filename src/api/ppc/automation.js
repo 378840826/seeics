@@ -102,3 +102,30 @@ export const repeatName = (name) => {
     }
   });
 };
+
+// 广告活动
+export const queryCampaignList = params => {
+  return request({
+    url: '/api/seeics-analysis/automation-template/store',
+    method: 'get',
+    params
+  });
+};
+
+// 根据id获取广告活动
+export const queryCampaignPage = data => {
+  return request({
+    url: '/api/seeics-analysis/automation-template/campaign-page',
+    method: 'post',
+    data,
+  });
+};
+
+// 删除已添加广告活动
+export const deleteCampaign = params => {
+  return request({
+    url: '/api/seeics-analysis/automation-template/campaign-remove',
+    method: 'get',
+    params,
+  });
+};
