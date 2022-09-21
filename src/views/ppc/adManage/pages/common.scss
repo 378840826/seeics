@@ -105,3 +105,36 @@
     margin-right: 20px;
   }
 }
+
+// 表格行中的编辑图标
+.table-edit-icon {
+  margin-left: 4px;
+  cursor: pointer;
+  display: none;
+
+  &:hover {
+    color: $linkColor;
+  }
+}
+
+// hover tr 时才显示编辑图标
+.table-container {
+  ::v-deep {
+    tr.hover-row {
+      .table-edit-icon {
+        display: inline-block;
+      }
+    }
+  }
+}
+
+// 编辑弹窗标题
+.edit_dialog-title-name {
+  display: inline-block;
+  color: $secondaryTextColor;
+  vertical-align: sub;
+  max-width: 300px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
