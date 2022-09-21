@@ -327,6 +327,11 @@ export default {
           label: '添加到否定投放',
           value: '添加到否定投放',
           disable: true
+        },
+        {
+          label: '创建广告组',
+          value: '创建广告组',
+          // disable: true
         }
       ],
       msg: false,
@@ -417,6 +422,7 @@ export default {
         rule: this.automatedOperation ? this.tableData[0].rule : null,
         adjustTheValue: this.automatedOperation ? this.tableData[0].adjustTheValue || '' : null,
         bidLimitValue: this.automatedOperation ? this.tableData[0].bidLimitValue || '' : null,
+        groupIdList: [],
       };
     },
     bidTypeSelect(index) {
