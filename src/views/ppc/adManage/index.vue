@@ -103,6 +103,7 @@
               :storeId="currentStore.adStoreId"
               :mwsStoreId="currentStore.mwsStoreId"
               @updateStateTree="handleUpdateStateTree"
+              @createSuccess="reloadTabPan"
             />
           </el-tab-pane>
         </el-tabs>
@@ -411,6 +412,16 @@ export default{
         delete newTreeSelectedInfo.groupType;
         this.handleTreeSelect(newTreeSelectedInfo);
       }
+    },
+
+    // 刷新各 tab， 并更新标签页数量
+    reloadTabPan() {
+      const adStoreId = this.currentStore.adStoreId;
+      this.currentStore.adStoreId = null;
+      this.$nextTick(() => {
+        this.currentStore.adStoreId = adStoreId;
+        this.getTabsCellCount();
+      });
     },
   },
 

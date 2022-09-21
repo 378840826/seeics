@@ -237,7 +237,7 @@
 <!-- 创建广告活动弹窗 -->
 <CreateCampaignDialog
   v-if="createCampaignDialogVisible"
-  @success="getList({ current: 1 })"
+  @success="$emit('createSuccess')"
   :dialogVisible.sync="createCampaignDialogVisible"
   :mwsStoreId="mwsStoreId"
   :marketplace="marketplace"
