@@ -145,10 +145,10 @@ export default {
           label: '已暂停',
           value: 'paused'
         },
-        {
-          label: '已归档',
-          value: 'archived'
-        },
+        // {
+        //   label: '已归档',
+        //   value: 'archived'
+        // },
         {
           label: '全选',
           value: 'all'
