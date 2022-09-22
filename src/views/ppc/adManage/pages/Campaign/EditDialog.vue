@@ -42,7 +42,10 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="搜索结果顶部(%)" prop="biddingPlacementTop">
+      <el-form-item prop="biddingPlacementTop">
+        <span slot="label">
+          搜索结果顶部<span class="edit_dialog-label-suffix">(%)</span>
+        </span>
         <el-input
           ref="biddingPlacementTop"
           v-model="data.biddingPlacementTop"
@@ -50,7 +53,10 @@
         />
       </el-form-item>
 
-      <el-form-item label="商品页面(%)" prop="biddingPlacementProductPage">
+      <el-form-item prop="biddingPlacementProductPage">
+        <span slot="label">
+          商品页面<span class="edit_dialog-label-suffix">(%)</span>
+        </span>
         <el-input
           ref="biddingPlacementProductPage"
           v-model="data.biddingPlacementProductPage"
@@ -58,7 +64,10 @@
         />
       </el-form-item>
 
-      <el-form-item :label="`日预算(${currency})`" prop="dailyBudget">
+      <el-form-item prop="dailyBudget">
+        <span slot="label">
+          日预算<span class="edit_dialog-label-suffix">({{currency}})</span>
+        </span>
         <el-input
           ref="dailyBudget"
           v-model="data.dailyBudget"
@@ -136,6 +145,16 @@ export default {
         ],
         dailyBudget: [
           { required: true, message: '日预算不能为空', trigger: 'blur' },
+          { 
+            validator: (_, value, callback) => {
+              if (Number(value) > 1000000 || Number(value) < 1) {
+                callback(new Error('广告活动每日预算范围为 1-1000000'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'blur',
+          },
         ],
         biddingPlacementTop: [
           { 
@@ -149,7 +168,7 @@ export default {
             trigger: 'blur',
           },
         ],
-        biddingStrategy: [
+        biddingPlacementProductPage: [
           { 
             validator: (_, value, callback) => {
               if (Number(value) > 900) {
@@ -198,26 +217,6 @@ export default {
       }
     },
 
-    // // 过滤出被修改了的值
-    // getModified() {
-    //   const saveData = {};
-    //   // 需要转为数字再比较的值的key
-    //   const numberKey = ['biddingPlacementTop', 'biddingPlacementProductPage', 'dailyBudget'];
-    //   Object.keys(this.data).forEach(key => {
-    //     const newVal = this.data[key];
-    //     if (numberKey.includes(key)) {
-    //       if (Number(newVal) !== Number(this.oldData[key])) {
-    //         saveData[key] = newVal;
-    //       }
-    //     } else {
-    //       if (newVal !== this.oldData[key]) {
-    //         saveData[key] = newVal;
-    //       }
-    //     }
-    //   });
-    //   return saveData;
-    // },
-
     // 过滤出被修改了的值
     getModified() {
       const saveData = {};
@@ -241,9 +240,14 @@ export default {
         // 有修改的字段才进行请求
         if (Object.keys(saveData).length) {
           // 结束日期不能早于开始日期
-          if ((saveData.startDate && saveData.endDate) && (saveData.startDate > saveData.endDate)) {
-            this.$message.error('结束日期不能早于开始日期');
-            return;
+          if (saveData.startDate || saveData.endDate) {
+            const startDate = saveData.startDate || this.data.startDate;
+            const endDate = saveData.endDate || this.data.endDate;
+            // 有结束时间才判断
+            if (endDate && (startDate > endDate)) {
+              this.$message.error('结束日期不能早于开始日期');
+              return;
+            }
           }
           // 按接口需求格式化数据
           this.formatData(saveData);

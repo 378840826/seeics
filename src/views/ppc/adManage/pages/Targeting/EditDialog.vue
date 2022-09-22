@@ -25,7 +25,10 @@
         </el-select>
       </el-form-item>
       
-      <el-form-item :label="`竞价(${currency})`" prop="bid">
+      <el-form-item prop="bid">
+        <span slot="label">
+          竞价<span class="edit_dialog-label-suffix">({{currency}})</span>
+        </span>
         <el-input
           ref="bid"
           v-model="data.bid"

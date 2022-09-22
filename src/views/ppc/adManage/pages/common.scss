@@ -132,9 +132,13 @@
 .edit_dialog-title-name {
   display: inline-block;
   color: $secondaryTextColor;
-  vertical-align: sub;
+  vertical-align: bottom;
   max-width: 300px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.edit_dialog-label-suffix {
+  color: $secondaryTextColor;
 }

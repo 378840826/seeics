@@ -29,21 +29,16 @@
         <el-input v-model="data.name" ref="name" />
       </el-form-item>
 
-      <el-form-item :label="`默认竞价(${currency})`" prop="defaultBid">
+      <el-form-item prop="defaultBid">
+        <span slot="label">
+          默认竞价<span class="edit_dialog-label-suffix">({{currency}})</span>
+        </span>
         <el-input
           ref="defaultBid"
           v-model="data.defaultBid"
           @input="handleMoneyInput('defaultBid')"
         />
       </el-form-item>
-
-      <!-- <el-form-item label="预算控制" prop="budgetLimit">
-        <el-input
-          ref="budgetLimit"
-          v-model="data.budgetLimit"
-          @input="handleMoneyInput('budgetLimit')"
-        />
-      </el-form-item> -->
 
     </el-form>  
     <div slot="footer">
@@ -85,7 +80,7 @@ export default {
       rules: {
         name: [
           { required: true, message: '请输入广告组名称', trigger: 'blur' },
-          { min: 1, max: 128, message: '最多 128 个字符', trigger: 'blur' }
+          { min: 1, max: 255, message: '最多 255 个字符', trigger: 'blur' }
         ],
         defaultBid: [
           { required: true, message: '默认竞价不能为空', trigger: 'blur' },
