@@ -613,23 +613,29 @@ export default {
       if (event.target._prevClass === 'el-icon-edit table-edit-icon') {
         this.editKey = column.property;
         this.editDialogVisible = true;
-        this.editData = { ...row };
+        this.editData = {
+          ...row,
+          // 接口传回 4 位小数，转为两位小数
+          dailyBudget: getValueLocaleString({ value: row.dailyBudget, isFraction: true }),
+        };
       }
     },
 
     // 编辑保存
     handleEditSave(val) {
-      log('val', val);
       const params = {
         ...val,
         adStoreId: this.storeId,
       };
       modifyCampaign(params).then(res => {
         // 更新页面数据
+        const { data } = res.data;
+        // 日预算 dailyBudget 的 key 返回的是 budget
+        if (data.budget) {
+          data.dailyBudget = data.budget;
+        }
         this.updateTableData([this.editData.id], res.data.data);
         this.$message.success(res.data.msg || '操作成功');
-      }).finally(() => {
-        log('finally');
       });
     },
 

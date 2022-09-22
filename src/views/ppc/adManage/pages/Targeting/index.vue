@@ -647,7 +647,7 @@ export default {
             message: '操作成功',
           });
         }
-        this.updateTableData([row.targetId], { bid });
+        this.updateTableData([row.id], { bid });
       });
     },
 
