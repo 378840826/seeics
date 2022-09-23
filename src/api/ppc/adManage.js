@@ -73,6 +73,16 @@ export const modifyCampaignState = (data) => {
   });
 };
 
+// 广告活动-修改
+export const modifyCampaign = (data) => {
+  return request({
+    url: '/api/seeics-ad/campaign/update',
+    method: 'post',
+    data,
+  });
+};
+
+
 // 广告组
 // 广告组-列表
 export const queryGroupList = (params, data) => {
@@ -92,6 +102,16 @@ export const modifyGroupState = (data) => {
     data,
   });
 };
+
+// 广告组-修改
+export const modifyGroup = (data) => {
+  return request({
+    url: '/api/seeics-ad/group/update',
+    method: 'post',
+    data,
+  });
+};
+
 
 // 广告
 // 广告-列表
@@ -133,8 +153,8 @@ export const queryKwSuggestedBid = (data) => {
   });
 };
 
-// 关键词-修改状态(可批量)
-export const modifyKeywordState = (data) => {
+// 关键词-修改(可批量)
+export const modifyKeyword = (data) => {
   return request({
     url: '/api/seeics-ad/keyword/batchSetting',
     method: 'post',
@@ -162,8 +182,8 @@ export const queryTargetingSuggestedBid = (data) => {
   });
 };
 
-// Targeting-修改状态(可批量)
-export const modifyTargetingState = (data) => {
+// Targeting-修改(可批量)
+export const modifyTargeting = (data) => {
   return request({
     url: '/api/seeics-ad/targeting/batchSetting',
     method: 'post',

@@ -103,6 +103,7 @@
     empty-text="没有查询到数据，请修改查询条件"
     @selection-change="handleSelectionChange"
     @sort-change="handleSortChange"
+    @row-click="handleRowClick"
     border
     show-summary
     :summary-method="({columns}) => summaryMethod(columns, tableTotalData)"
@@ -152,6 +153,7 @@
           <div>
             {{ getValueLocaleString({ value: row.suggestedBid.suggested, isFraction: true, prefix: currency }) }}
             <el-button
+              v-if="row.state !== 'archived'"
               @click="handleApplySuggestedBid(row)"
               :size="size"
               class="btn-apply_suggested_bid"
@@ -167,11 +169,11 @@
       </template>
     </el-table-column>
 
-    <el-table-column prop="bid" label="竞价" width="80">
-      <span slot-scope="{row}">
+    <el-table-column prop="bid" label="竞价" width="100">
+      <div slot-scope="{row}">
         {{ getValueLocaleString({ value: row.bid, isFraction: true, prefix: currency }) }}
-      </span>
-
+        <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
+      </div>
     </el-table-column>
 
     <el-table-column prop="createdTime" label="添加时间" width="110" sortable="custom" >
@@ -223,6 +225,17 @@
     class="pagination"
   />
 </div>
+
+<!-- 编辑弹窗 -->
+<EditDialog
+  v-if="editDialogVisible"
+  :visible.sync="editDialogVisible"
+  :data="editData"
+  :editKey="editKey"
+  :currency="currency"
+  @save="handleEditSave"
+/>
+
 </div>
 </template>
 
@@ -230,7 +243,7 @@
 import {
   queryKwList,
   queryKwSuggestedBid,
-  modifyKeywordState,
+  modifyKeyword,
 } from '@/api/ppc/adManage';
 import { stateNameDict, matchTypeNameDict } from '../../utils/dict';
 import { tablePageOption, defaultDateRange, summaryMethod } from '../../utils/options';
@@ -238,6 +251,7 @@ import { log } from '@/util/util';
 import Search from '../../components/Search';
 import DatePicker from '../../components/DatePicker';
 import FilterMore from '../../components/FilterMore';
+import EditDialog from './EditDialog';
 import FilterCrumbs, { notRangeKeys } from '../../components/FilterCrumbs';
 import {
   getValueLocaleString,
@@ -255,6 +269,7 @@ export default {
     DatePicker,
     FilterMore,
     FilterCrumbs,
+    EditDialog,
   },
 
   props: {
@@ -300,6 +315,10 @@ export default {
       tableLoading: false,
       tablePageOption: { ...tablePageOption },
       tableSort: { prop: 'createdTime', order: 'descending' },
+      editDialogVisible: false,
+      editData: {},
+      // 点击哪个编辑图标激活的弹窗
+      editKey: '',
       suggestedBidLoading: false,
       createDialogVisible: false,
     };
@@ -513,7 +532,7 @@ export default {
           };
         })
       };
-      modifyKeywordState(params).then(res => {
+      modifyKeyword(params).then(res => {
         const { success, fail } = res.data.data;
         // 有失败的，或全部失败
         if (fail.length) {
@@ -584,9 +603,58 @@ export default {
       }
     },
 
+    // 点击编辑图标
+    handleRowClick(row, column, event) {
+      if (event.target._prevClass === 'el-icon-edit table-edit-icon') {
+        this.editKey = column.property;
+        this.editDialogVisible = true;
+        this.editData = { ...row };
+      }
+    },
+
+    // 编辑保存
+    handleEditSave(val) {
+      const params = {
+        adStoreId: this.storeId,
+        keywordSettings: [{ ...val }],
+      };
+      modifyKeyword(params).then(res => {
+        const { success, fail } = res.data.data;
+        if (fail.length) {
+          this.$message.error(fail[0].errorMsg);
+        } else {
+          this.$message({
+            type: 'success',
+            message: '操作成功',
+          });
+        }
+        const successIds = success.map(item => item.id);
+        this.updateTableData(successIds, val);
+      });
+    },
+
     // 点击应用建议竞价
     handleApplySuggestedBid(row) {
-      log('点击应用建议竞价', row);
+      const bid = row.suggestedBid.suggested;
+      const params = {
+        adStoreId: this.storeId,
+        keywordSettings: [{
+          keywordId: row.keywordId,
+          bid,
+        }],
+      };
+      modifyKeyword(params).then(res => {
+        const { fail } = res.data.data;
+        if (fail.length) {
+          this.$message.error(fail[0].errorMsg);
+        } else {
+          this.$message({
+            type: 'success',
+            message: '操作成功',
+          });
+        }
+        this.updateTableData([row.keywordId], { bid });
+      });
     },
 
     // 点击分析

@@ -88,6 +88,7 @@
     empty-text="没有查询到数据，请修改查询条件"
     @selection-change="handleSelectionChange"
     @sort-change="handleSortChange"
+    @row-click="handleRowClick"
     border
     show-summary
     :summary-method="({columns}) => summaryMethod(columns, tableTotalData)"
@@ -119,7 +120,11 @@
     <el-table-column prop="campaignName" label="广告活动" width="200" fixed>
     </el-table-column>
 
-    <el-table-column prop="name" label="广告组" width="200" sortable="custom"  fixed>
+    <el-table-column prop="name" label="广告组" width="200" sortable="custom" fixed>
+      <div slot-scope="{row}">
+        {{ row.name }}
+        <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
+      </div>
     </el-table-column>
 
     <el-table-column prop="createdTime" label="创建时间" width="110" sortable="custom" >
@@ -134,10 +139,11 @@
       <span slot-scope="{row}" class="td_date_time">{{ row.createdTime }}</span>
     </el-table-column>
 
-    <el-table-column prop="defaultBid" label="默认竞价" width="130">
-      <template slot-scope="{row}">
+    <el-table-column prop="defaultBid" label="默认竞价" width="100">
+      <div slot-scope="{row}">
         {{ getValueLocaleString({ value: row.defaultBid, isFraction: true, prefix: currency }) }}
-      </template>
+        <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
+      </div>
     </el-table-column>
 
     <el-table-column prop="productNumber" label="广告个数" width="100">
@@ -173,19 +179,12 @@
       </template>
     </el-table-column>
 
-    <el-table-column prop="startDate" label="开始时间" width="110">
-      <span slot-scope="{row}" class="td_date_time">{{ row.startDate }}</span>
-    </el-table-column>
-
-    <el-table-column prop="endDate" label="结束时间" width="110">
-      <span slot-scope="{row}" class="td_date_time">{{ row.endDate }}</span>
-    </el-table-column>
-
-    <el-table-column prop="budgetLimit" label="预算控制" width="100">
-      <template slot-scope="{row}">
-        {{ row.budgetLimit }}
-      </template>
-    </el-table-column>
+    <!-- <el-table-column prop="budgetLimit" label="预算控制" width="100">
+      <div slot-scope="{row}">
+        {{ getValueLocaleString({ value: row.budgetLimit, isFraction: true, prefix: currency }) }}
+        <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
+      </div>
+    </el-table-column> -->
 
     <el-table-column
       v-for="item in commonColOption"
@@ -225,6 +224,16 @@
   />
 </div>
 
+<!-- 编辑弹窗 -->
+<EditDialog
+  v-if="editDialogVisible"
+  :visible.sync="editDialogVisible"
+  :data="editData"
+  :editKey="editKey"
+  :currency="currency"
+  @save="handleEditSave"
+/>
+
 <create-group
   v-if="createDialogVisible"
   :dialogVisible.sync="createDialogVisible"
@@ -241,6 +250,7 @@
 import {
   queryGroupList,
   modifyGroupState,
+  modifyGroup,
 } from '@/api/ppc/adManage';
 import { stateNameDict } from '../../utils/dict';
 import { tablePageOption, defaultDateRange, summaryMethod } from '../../utils/options';
@@ -248,6 +258,7 @@ import { log } from '@/util/util';
 import Search from '../../components/Search';
 import DatePicker from '../../components/DatePicker';
 import FilterMore from '../../components/FilterMore';
+import EditDialog from './EditDialog';
 import FilterCrumbs, { notRangeKeys } from '../../components/FilterCrumbs';
 import {
   getValueLocaleString,
@@ -266,6 +277,7 @@ export default {
     DatePicker,
     FilterMore,
     FilterCrumbs,
+    EditDialog,
     CreateGroup,
   },
 
@@ -314,6 +326,10 @@ export default {
       tableLoading: false,
       tablePageOption: { ...tablePageOption },
       tableSort: { prop: 'createdTime', order: 'descending' },
+      editDialogVisible: false,
+      editData: {},
+      // 点击哪个编辑图标激活的弹窗
+      editKey: '',
       createDialogVisible: false,
     };
   },
@@ -563,6 +579,31 @@ export default {
       }
     },
 
+    // 点击编辑图标
+    handleRowClick(row, column, event) {
+      if (event.target._prevClass === 'el-icon-edit table-edit-icon') {
+        this.editKey = column.property;
+        this.editDialogVisible = true;
+        this.editData = { ...row };
+      }
+    },
+
+    // 编辑保存
+    handleEditSave(val) {
+      log('val', val);
+      const params = {
+        ...val,
+        adStoreId: this.storeId,
+      };
+      modifyGroup(params).then(res => {
+        // 更新页面数据
+        this.updateTableData([this.editData.id], res.data.data);
+        this.$message.success(res.data.msg || '操作成功');
+      }).finally(() => {
+        log('finally');
+      });
+    },
+  
     // 点击广告组数量
     handleClickGroupCount(row) {
       log('点击广告组数量', row);
