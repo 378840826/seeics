@@ -39,9 +39,9 @@
           style="padding: 10px 20px 0 0; minWidth: 160px">
           <el-option
             v-for="item in marketplaceList"
-            :key="item.name"
-            :value="item.name"
-            :label="item.name"
+            :key="item"
+            :value="item"
+            :label="item"
           />
         </el-select>
       </span>
@@ -222,7 +222,8 @@ import {
   queryCampaignList,
   getMarketplaceList,
   queryCampaignPage,
-  deleteCampaign } from '@/api/ppc/automation';
+  deleteCampaign,
+  getShopNameList } from '@/api/ppc/automation';
 
 import { 
   campaignTypeDict,
@@ -353,7 +354,7 @@ export default {
   mounted() {
     queryCampaignList({ templateId: this.rowInfo.id }).then(res => {
       this.storeList = [{ storeName: '不限' }, ...res.data.data.sort((a, b) => b.storeName.localeCompare(a.storeName))];
-      this.getMarketplaceList(res.data.data[0].storeName);
+      // this.getMarketplaceList();
       
     });
     this.queryCampaignPage();
@@ -374,6 +375,7 @@ export default {
         automationlStatus: '',
         campaignName: ''
       };
+      this.marketplaceList = [];
     },
 
     statusFormmat(val) {
@@ -385,8 +387,9 @@ export default {
     },
 
     getMarketplaceList(storeName) {
-      getMarketplaceList(storeName).then(res => {
-        this.marketplaceList = [{ name: '不限' }, ...res.data.data.sort((a, b) => b.name.localeCompare(a.name))];
+      getShopNameList(storeName).then(res => {
+        // this.marketplaceList = [{ name: '不限' }, ...this.marketplaceList.sort((a, b) => b.name.localeCompare(a.name))];
+        this.marketplaceList = res.data.data.length && ['不限', ...res.data.data.sort((a, b) => b.localeCompare(a))] || [];
         
       });
     },
