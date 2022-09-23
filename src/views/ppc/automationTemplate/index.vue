@@ -109,7 +109,10 @@
           trigger="click"
           v-if="!launch"
         >
-        <el-button  slot="reference" size="mini" style="marginLeft: 30px">ASIN批量查询</el-button>
+        <el-button
+          slot="reference"
+          size="mini"
+          style="marginLeft: 30px">ASIN批量查询</el-button>
           <div>
             <el-input
               class="asin-textarea"
@@ -473,7 +476,8 @@ export default {
         });
         return true;
       }
-      if (!this.formInline.asinList.filter(Boolean).length && !this.launch) {
+      const automatic = this.$refs.automatic.getFiled();
+      if (!this.formInline.asinList.filter(Boolean).length && !this.launch && automatic.automatedOperation !== '创建广告组') {
         this.$message({
           type: 'error',
           message: 'ASIN不能为空'
@@ -540,12 +544,13 @@ export default {
       const automatic = this.$refs.automatic.getFiled();
       const params = {
         ...this.formInline,
-        asinList: this.formInline.asinList.filter(Boolean),
+        asinList: automatic.automatedOperation === '创建广告组' ? [] : this.formInline.asinList.filter(Boolean),
         ...automatic,
         ruleType: 1,
         excludeTerms: 0,
         roleList: this.$refs.filters.getFiled()
       };
+
       if (!params.roleList[0].item.length) {
         this.$message({
           type: 'error',
