@@ -42,7 +42,7 @@
       center
       top="1vh"
     >
-      <div slot="title" style="text-align: left">创建模板</div>
+      <div slot="title" style="text-align: left"> {{flag === 'update' ? '编辑模板' : '创建模板'}}</div>
       <!-- <h4>创建搜索词：</h4> -->
       <div class="tabel">
         <span>模板名称：
