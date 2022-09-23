@@ -236,6 +236,16 @@
   @save="handleEditSave"
 />
 
+<!-- 添加关键词 -->
+<create-keword
+  v-if="createDialogVisible"
+  :dialogVisible.sync="createDialogVisible"
+  :mwsStoreId="mwsStoreId"
+  :marketplace="marketplace"
+  :storeId="storeId"
+  :currency="currency"
+/>
+
 </div>
 </template>
 
@@ -260,6 +270,7 @@ import {
   parseTreeKey,
   getFormatTotal,
 } from '../../utils/fun';
+import CreateKeword from '../../create/CreateKeyword.vue';
 
 export default {
   name: 'Keyword',
@@ -270,6 +281,7 @@ export default {
     FilterMore,
     FilterCrumbs,
     EditDialog,
+    CreateKeword,
   },
 
   props: {

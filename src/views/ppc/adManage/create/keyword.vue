@@ -268,6 +268,9 @@ export default {
       type: String,
       require: true,
     },
+    groupId: {
+      type: String, 
+    }
   },
 
   data() {
@@ -451,6 +454,7 @@ export default {
         strategy: this.targetingMode,
         suggestionKeywordMatchType: this.suggestionKeywordMatchType,
         asinList: this.asinList,
+        groupId: this.groupId
       };
       this.loading = true;
       // const arr = this.tableData.length && this.tableData.map(item => item.flag) || [];
