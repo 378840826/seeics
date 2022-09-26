@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="添加广告"
+    title="创建关键词"
     :visible.sync="dialogVisible"
     :append-to-body="true"
     :close-on-press-escape="false"
@@ -104,7 +104,7 @@
 <script>
 
 import keyword from './keyword.vue';
-import { queryCampaignSelectList, getGroupList, createAd } from '@/api/ppc/adManage';
+import { queryCampaignSelectList, getGroupList, createKeyword } from '@/api/ppc/adManage';
 
 export default {
 
@@ -373,7 +373,7 @@ export default {
       }
 
       this.loading = true;
-      createAd({
+      createKeyword({
         campaignId: this.form.campaignId,
         groupId: this.form.groupId,
         productItemRoList: priceTable,
@@ -382,7 +382,7 @@ export default {
         if (res.data.code === 200) {
           this.$message({
             type: 'success',
-            message: '添加广告成功'
+            message: '创建成功'
           });
           this.$emit('success');
           this.loading = false;

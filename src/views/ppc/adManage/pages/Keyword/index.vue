@@ -244,6 +244,7 @@
   :marketplace="marketplace"
   :storeId="storeId"
   :currency="currency"
+  @success="$emit('createSuccess')"
 />
 
 </div>

@@ -350,8 +350,7 @@ export default {
       deep: true,
     },
     groupId: {
-      handler(id) {
-        console.log(id)
+      handler() {
         this.querySuggestKeyword();
       },
       deep: true,
@@ -463,10 +462,9 @@ export default {
         asinList: this.asinList,
         groupId: this.groupId
       };
-      console.log(params)
       this.loading = true;
       // const arr = this.tableData.length && this.tableData.map(item => item.flag) || [];
-      getPriceList(params).then(res => {
+      querySuggestKeyword(params).then(res => {
         if (res.data.code === 200) {
           this.loading = false;
           this.categoryData = res.data.data.map(item => {

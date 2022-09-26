@@ -295,3 +295,13 @@ export const createAd = params => {
 };
 
 // --------------------创建广告
+
+// 创建关键词--------------------
+
+export const createKeyword = params => {
+  return request({
+    url: '/api/seeics-ad/keyword/create',
+    method: 'post',
+    data: params,
+  });
+};
