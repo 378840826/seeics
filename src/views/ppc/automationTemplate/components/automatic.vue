@@ -387,14 +387,21 @@ export default {
         val.target.value = val.target.value.slice(0, val.target.value.indexOf('.') + 3);
         this.tableData[0][name] = val.target.value;
       }
-      if (val.target.value > 100000) {
+      if (val.target.value > 1000) {
         val.target.style.borderColor = 'red';
         this.$message({
           type: 'error',
-          message: '值不能超过100000'
+          message: '值不能超过1000'
         });
         val.target.value = '';
         // this.$emit('change', true);
+      } else if (val.target.value < 0.02) {
+        val.target.style.borderColor = 'red';
+        this.$message({
+          type: 'error',
+          message: '值不能低于0.02'
+        });
+        val.target.value = '';
       }
       if (!reg.test(val.target.value)) {
         val.target.value = '';
