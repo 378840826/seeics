@@ -75,7 +75,7 @@
             @change="bidTypeSelect(scope.$index)"
           >
             <el-option
-              v-for="item in (automatedOperation === '自动竞价' ? [...bidSelect, ...launchBidSelect] : bidSelect)"
+              v-for="item in (automatedOperation === '自动竞价' || automatedOperation === '创建广告组' ? [...bidSelect, ...launchBidSelect] : bidSelect)"
               :key="item.value"
               :label="item.label"
               :value="item.value">
