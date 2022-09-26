@@ -210,11 +210,11 @@
             type="text"
             size="mini"
           >添加</el-button>
-           <!-- <el-button 
-            v-if="scope.row.delete" 
-            @click="handleAdd(scope.row, true)"
+           <el-button 
+            v-if="!scope.row.add && !scope.row.payTime" 
+            @click="readd(scope.row)"
             type="text"
-            size="mini">重新添加</el-button> -->
+            size="mini">重新添加</el-button>
           <el-button 
             v-if="scope.row.delete" 
             @click="handleDelete(scope.row.id)"
@@ -475,7 +475,7 @@ export default {
           if (result) {
             alert('复制成功');
           }
-          document.body.removeChild(textarea);
+          el.removeChild(textarea);
         };
         el.addEventListener('click', el.handler);
       },
@@ -858,6 +858,12 @@ export default {
           this.queryEnterpriseList();
         }
       });
+    },
+
+    readd(row) {
+      this.content = `${window.location.href.split('index')[0]}buy?
+        levelPrice=${row.levelPrice}&levelPriceId=${row.levelPriceId}`;
+      this.dialogVisible = true;
     },
 
     handleDelete(id) {
