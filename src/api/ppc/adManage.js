@@ -265,6 +265,15 @@ export const createAdGroup = params => {
   });
 };
 
+export const queryCampaignSelectList = (params, data) => {
+  return request({
+    url: '/api/seeics-ad/campaign/conciseList',
+    method: 'post',
+    params,
+    data,
+  });
+};
+
 export const getGroupList = (params, data) => {
   return request({
     url: '/api/seeics-ad/group/list',

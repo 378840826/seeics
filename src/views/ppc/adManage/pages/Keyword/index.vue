@@ -293,6 +293,10 @@ export default {
       type: String,
       required: true,
     },
+    mwsStoreId: {
+      type: String,
+      required: true,
+    },
     currency: {
       type: String,
       required: true,
