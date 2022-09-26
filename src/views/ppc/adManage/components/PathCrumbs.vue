@@ -6,7 +6,7 @@
     @click="() => handleClick('store')"
     type="text"
     size="mini"
-    class="name"
+    class="name store"
   >
     {{ storeInfo.storeName }}/{{ storeInfo.marketplace }}
   </el-button>
@@ -70,16 +70,21 @@ export default {
 .container {
   display: flex;
   align-items: center;
-  height: 22px;
-}
+  margin-top: 4px;
 
-.name {
-  display: block;
-  max-width: 300px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  font-size: $textSize;
+  .name {
+    display: block;
+    font-size: $textSize;
+    white-space: normal;
+    word-break: break-all;
+    text-align: left;
+    padding: 0;
+    line-height: 1;
+  }
+
+  .store {
+    white-space: nowrap;
+  }
 }
 
 .el-icon-d-arrow-right {
