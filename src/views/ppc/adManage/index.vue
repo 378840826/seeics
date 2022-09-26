@@ -58,7 +58,12 @@
                   <span class="portfolio" @click="() => handleClickPortfolio(item)">
                     {{ item.name }}
                   </span>
-                  <i class="el-icon-edit" title="修改" @click="handleClickEditPortfolio(item)" />
+                  <i
+                    v-if="item.id"
+                    class="el-icon-edit portfolio-edit-icon"
+                    title="修改名称"
+                    @click="handleClickEditPortfolio(item)"
+                  />
                 </li>
               </ul>
             </div>
@@ -94,10 +99,12 @@
             </span>
             <component
               v-if="currentStore.adStoreId"
+              ref="refTabPane"
               :is="allTabs[item].tabPane"
               :key="currentStore.adStoreId"
               :treeSelectedKey="treeSelectedKey"
               :portfolioId="portfolioSelectedId"
+              :portfolioList="portfolioList"
               :marketplace="currentStore.marketplace"
               :currency="currentStore.currency"
               :storeId="currentStore.adStoreId"
@@ -123,12 +130,12 @@
 
 <script>
 import {
-  // queryPortfolioList,
+  queryPortfolioList,
   addPortfolio,
   updatePortfolio,
   queryTabsCellCount,
 } from '@/api/ppc/adManage';
-import { log } from '@/util/util';
+// import { log } from '@/util/util';
 import DialogPortfoiloEdit from './components/DialogPortfoiloEdit';
 import PathCrumbs from './components/PathCrumbs';
 import CampaignTree from './components/CampaignTree';
@@ -304,18 +311,23 @@ export default{
 
     // 广告组合-获取列表
     getPortfolioList() {
-      // queryPortfolioList({ storeId: this.currentStore.adStoreId }).then(res => {
-      //   this.portfolioList = res.data.data;
-      // });
+      queryPortfolioList({ adStoreId: this.currentStore.adStoreId }).then(res => {
+        this.portfolioList = res.data.data;
+      });
     },
 
     // 广告组合-点击选中
     handleClickPortfolio(val) {
-      log('广告组合点击', val);
       this.portfolioSelectedId = val.id;
-      // 取消广告树的选中
+      // 如果广告树已经是 null 了，说明不是第一次点击广告组合，或没点击过广告树，不需要重复请求标签页数量
+      if (this.treeSelectedKey !== null) {
+        this.$nextTick(() => this.getTabsCellCount());
+      }
+      // 取消广告树的选中 
       this.treeSelectedKey = null;
       this.treeSelectedInfo = {};
+      // 跳转到广告活动标签
+      this.tabsActive = tabsStateDict.default[0];
     },
 
     // 广告组合-点击编辑名称
@@ -328,8 +340,15 @@ export default{
 
     // 广告组合-名称修改确定
     handleSavePortfolioEdit(newName) {
+      // 判断是否有相同的名称
+      const duplicateName = this.portfolioList.find(item => item.name === newName);
+      if (duplicateName) {
+        this.$message.warning('广告组合名称已存在，请重新输入');
+        return;
+      }
       const params = {
-        id: this.portfolioEdit.id,
+        adStoreId: this.currentStore.adStoreId,
+        portfolioId: this.portfolioEdit.id,
         name: newName,
       };
       updatePortfolio(params).then(() => {
@@ -340,8 +359,10 @@ export default{
             break;
           }
         }
+        this.$message.success('操作成功');
         this.portfolioEdit.visible = false;
         // 若是广告活动页，且当前显示的广告活动有属于修改的广告组合的，需要修改广告活动列表数据
+        this.$refs.refTabPane[0].updatePortfolio({ id: this.portfolioEdit.id, newName });
       });
     },
 
@@ -351,8 +372,19 @@ export default{
         this.$message.warning('请输入广告组合名称');
         return;
       }
-      addPortfolio({ name: this.portfolioAddName }).then(res => {
+      // 判断是否有相同的名称
+      const duplicateName = this.portfolioList.find(item => item.name === this.portfolioAddName);
+      if (duplicateName) {
+        this.$message.warning('广告组合名称已存在，请重新输入');
+        return;
+      }
+      const params = {
+        adStoreId: this.currentStore.adStoreId,
+        name: this.portfolioAddName,
+      };
+      addPortfolio(params).then(res => {
         this.portfolioList.unshift(res.data.data);
+        this.$message.success('操作成功');
       });
     },
 

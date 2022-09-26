@@ -118,9 +118,10 @@
     </el-table-column>
 
     <el-table-column prop="portfolioId" label="广告组合" width="120" fixed>
-      <template slot-scope="{row}">
+      <div slot-scope="{row}">
         {{ row.portfolioName }}
-      </template>
+        <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
+      </div>
     </el-table-column>
 
     <el-table-column prop="name" label="广告活动" width="120" sortable="custom"  fixed>
@@ -254,6 +255,7 @@
   v-if="editDialogVisible"
   :visible.sync="editDialogVisible"
   :data="editData"
+  :portfolioList="portfolioList"
   :editKey="editKey"
   :currency="currency"
   @save="handleEditSave"
@@ -330,6 +332,10 @@ export default {
     },
     portfolioId: {
       type: String,
+    },
+    portfolioList: {
+      type: Array,
+      required: true,
     },
   },
 
@@ -412,7 +418,8 @@ export default {
       const bodyParams = {
         storeId: this.storeId,
         marketplace: this.marketplace,
-        portfolioId: this.portfolioId,
+        // id 为 0 时接口要求传空字符串
+        portfolioId: this.portfolioId === 0 ? '' : this.portfolioId,
         state: this.treeSelectedInfo.campaignState,
         search: this.filter.search,
         targetingType: this.filter.targetingType,
@@ -520,6 +527,15 @@ export default {
           ...this.tableData[index],
           ...newData,
         });
+      });
+    },
+
+    // 更新列表中的广告组合 (修改了广告组合名称后，若当前列表有该广告组合则需要修改)
+    updatePortfolio(portfolio) {
+      this.tableData.forEach(item => {
+        if (item.portfolioId === portfolio.id) {
+          item.portfolioName = portfolio.newName;
+        }
       });
     },
 
@@ -635,7 +651,12 @@ export default {
         if (data.budget) {
           data.dailyBudget = data.budget;
         }
-        this.updateTableData([this.editData.id], res.data.data);
+        // 如果修改了广告组合，添加广告组合名称用于修改页面数据
+        if (data.portfolioId !== undefined) {
+          data.portfolioId = Number(data.portfolioId);
+          data.portfolioName = val.portfolioName;
+        }
+        this.updateTableData([this.editData.id], data);
         this.$message.success(res.data.msg || '操作成功');
       });
     },
@@ -652,12 +673,13 @@ export default {
   },
 
   watch: {
-    portfolioId(val) {
-      log('广告活动 watch portfolioId', val);
+    portfolioId() {
+      this.getList({ current: 1 });
     },
-    
-    treeSelectedKey() {
-      this.getList();
+
+    treeSelectedKey(val) {
+      // 树清空时不再请求列表，因为树清空时是选中了广告组合，已经请求了一次列表
+      val && this.getList({ current: 1 });
     },
 
     // 面包屑出现时，改变表格高度
