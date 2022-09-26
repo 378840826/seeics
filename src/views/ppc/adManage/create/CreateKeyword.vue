@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="创建关键词"
+    title="添加关键词"
     :visible.sync="dialogVisible"
     :append-to-body="true"
     :close-on-press-escape="false"
@@ -257,7 +257,10 @@ export default {
     },
 
     handleGroup(val) {
-
+      this.getGroupList();
+      this.strategy = this.campaignList.filter(item => item.campaignId === val)[0].biddingStrategy;
+      this.defaultBid = '0.75';
+      this.dailyBudget = this.campaignList.filter(item => item.campaignId === val)[0].dailyBudget;
     },
 
     queryCampaignList(flag, name, id) {
@@ -359,12 +362,12 @@ export default {
     },
 
     saveBtn() {
-      const priceTable = this.$refs.priceTable.getField();
+      const keywordItemRoList = this.$refs.keywordTable.getField();
       
       if (!this.form.campaignId || !this.form.campaignId) {
         this.$refs.form.validate();
         return;
-      } else if (!priceTable.length) {
+      } else if (!keywordItemRoList.length) {
         this.$message({
           type: 'error',
           message: '请选择商品'
@@ -376,9 +379,8 @@ export default {
       createKeyword({
         campaignId: this.form.campaignId,
         groupId: this.form.groupId,
-        productItemRoList: priceTable,
+        keywordItemRoList: keywordItemRoList,
       }).then(res => {
-
         if (res.data.code === 200) {
           this.$message({
             type: 'success',
