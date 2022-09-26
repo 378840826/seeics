@@ -111,6 +111,7 @@
               :mwsStoreId="currentStore.mwsStoreId"
               @updateStateTree="handleUpdateStateTree"
               @createSuccess="reloadTabPan"
+              @changeTreeCampaignState="changeTreeCampaignState"
             />
           </el-tab-pane>
         </el-tabs>
@@ -424,6 +425,11 @@ export default{
           this.$refs.refTree.updateGroupDate(key, newData);
         });
       }
+    },
+
+    // 树-切换选中的状态节点
+    changeTreeCampaignState(state) {
+      this.treeSelectedKey = state;
     },
 
     // 面包屑导航点击

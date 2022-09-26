@@ -25,6 +25,22 @@
     />
   </el-select>
 
+  <el-select
+    v-model="filter.state"
+    clearable
+    placeholder="状态"
+    :size="size"
+    class="filter-select"
+    @change="handleStateChange"
+  >
+    <el-option
+      v-for="(val,key) in stateNameDict"
+      :key="key"
+      :label="val"
+      :value="key"
+    />
+  </el-select>
+
   <el-button
     :type="filterMoreVisible ? 'primary' : ''"
     class="filter_more-btn"
@@ -348,6 +364,7 @@ export default {
       summaryMethod,
       filter: {
         search: '',
+        state: '',
         targetingType: '',
         dateRange: defaultDateRange,
         more: {},
@@ -383,6 +400,7 @@ export default {
       };
       this.filter.search && (obj.search = this.filter.search);
       this.filter.targetingType && (obj.targetingType = targetingTypeDict[this.filter.targetingType]);
+      this.filter.state && (obj.state = stateNameDict[this.filter.state]);
       return obj;
     },
 
@@ -396,6 +414,8 @@ export default {
   },
 
   updated () {
+    // 同步广告树的状态和列表筛选的状态
+    this.filter.state = this.treeSelectedInfo.campaignState;
     // 解决表格合计行样式问题
     this.$refs.refTable.doLayout();
   },
@@ -420,7 +440,7 @@ export default {
         marketplace: this.marketplace,
         // id 为 0 时接口要求传空字符串
         portfolioId: this.portfolioId === 0 ? '' : this.portfolioId,
-        state: this.treeSelectedInfo.campaignState,
+        state: this.filter.state,
         search: this.filter.search,
         targetingType: this.filter.targetingType,
         startTime: this.filter.dateRange[0],
@@ -448,6 +468,13 @@ export default {
       this.filter.more = {};
       this.filterMoreVisible = false;
       this.$refs.refFilterMore.handleEmpty();
+      this.getList({ current: 1 });
+    },
+
+    // 状态筛选
+    handleStateChange(val) {
+      this.$emit('changeTreeCampaignState', val);
+      this.filter.state = val;
       this.getList({ current: 1 });
     },
 
@@ -479,6 +506,9 @@ export default {
     handleCloseCrumbs(key) {
       if (notRangeKeys.includes(key)) {
         this.filter[key] = '';
+        if (key === 'state') {
+          this.$emit('changeTreeCampaignState', null);
+        }
       } else {
         this.filter.more[`${key}Min`] = '';
         this.filter.more[`${key}Max`] = '';
@@ -488,8 +518,10 @@ export default {
 
     // 面包屑清空
     handleEmptyCrumbs() {
+      this.$emit('changeTreeCampaignState', null);
       this.filter = {
         search: '',
+        state: '',
         targetingType: '',
         dateRange: [...this.filter.dateRange],
         more: {},
