@@ -45,13 +45,20 @@
       padding: 6px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+
       &.active .portfolio {
         color: $primaryColor;
       }
+      &:hover {
+        .portfolio-edit-icon {
+          display: inline;
+        }
+      }
     }
 
-    .el-icon-edit {
+    .portfolio-edit-icon {
+      display: none;
+      margin-left: 6px;
       font-size: 14px;
       color: #666;
       cursor: pointer;
