@@ -200,7 +200,7 @@ export default {
   watch: {
     'form.campaignId': {
       handler(val) {
-        if (val === this.$parent.$data.tableData[0].campaignId) {
+        if (val === this.$parent.$data.tableData.length && this.$parent.$data.tableData[0].campaignId) {
           this.getGroupList(false, this.$parent.$data.tableData[0].groupName, this.$parent.$data.tableData[0].groupId);
         } else {
           this.getGroupList();
@@ -271,7 +271,6 @@ export default {
         adStoreId: this.storeId,
         name: this.searchCampaign || name,
       }).then(res => {
-        console.log(res)
         if (res.data.code === 200) {
           this.campaignLoading = false;
           const data = res.data.data.records;
@@ -291,7 +290,7 @@ export default {
           this.campaignList = this.data;
           
           if (!flag) { //非预加载赋值
-            this.form.campaignId = id || this.campaignList.length && this.campaignList[0].id || '';
+            this.form.campaignId = id || this.campaignList.length && this.campaignList[0].campaignId || '';
           }
 
           if (name) {
