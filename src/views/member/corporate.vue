@@ -24,17 +24,30 @@
        <el-popover
             placement="bottom-start" 
             ref="filterPorover" 
-            width="800"
+            width="900"
             trigger="click">
-            <div class="filtrate-content">
-              <range-input
-                v-for="item in filterList"
-                :key="item.value"
-                :label="item.label + '：'"
-                :valueFilter="strToMoneyStr"
-                v-model="form.filter[item.value]"
-              />
-            </div>
+            <el-form label-width="130px">
+              <div class="filtrate-content">
+                <el-form-item
+                  v-for="(item, index) in filterList"
+                  :key="item.value"
+                  :prop="'form.' + index + '.filter'"
+                  :label="item.label + '：'"
+                  :rules="[
+                  {
+                    validator: checkFilter
+                  }]"
+                >
+                  <range-input
+                    :key="item.value"
+                    :valueFilter="valueFilter"
+                    :score.sync="form.filter[item.value]" 
+                    :msg.sync="msg"
+                    :grade="item.grade"
+                  />
+                </el-form-item>             
+              </div>
+            </el-form>
             <div style="float: right;">
               <el-button @click="handleFilter" size="small" :disabled="filterBtn">确定</el-button>
               <el-button @click="handleClaer" size="small">清空</el-button>
@@ -289,8 +302,7 @@ import {
 } from '@/api/member/corporate';
 import { getRole, grant, grantTree, } from '@/api/system/role';
 import { getDateRangeForKey } from '@/util/date';
-import RangeInput from '@/views/ppc/searchTerm/components/RangeInput.vue';
-import { strToMoneyStr } from '@/util/numberString';
+import RangeInput from '@/components/range-input';
 import { setStore, getStore } from '@/util/store';
 import { getParentIdList } from './util';
 
@@ -353,6 +365,18 @@ export default {
     RangeInput
   },
   data() {
+    const checkFilter = (rule, value, callback) => {
+      if (this.inputMsg) {
+        return callback(new Error('最大值必须大于最小值'));
+      } else if (!this.form.filter.min && this.form.filter.max) {
+        return callback(new Error('请输入最小值'));
+      } else if (this.form.filter.min && !this.form.filter.max) {
+        return callback(new Error('请输入最大值'));
+      // eslint-disable-next-line no-else-return
+      } else {
+        callback();
+      }
+    };
     return {
       pickerOptions,
       dialogVisible: false,
@@ -406,7 +430,8 @@ export default {
       filterList: [
         {
           label: '购买价格',
-          value: 'levelPrice'
+          value: 'levelPrice',
+          grade: true
         }
       ],
       statusList: [
@@ -444,7 +469,10 @@ export default {
         payTime: '',
         levelPrice: 0,
         cost: ''
-      }
+      },
+      msg: false,
+      inputMsg: false,
+      checkFilter,
     };
   },
 
@@ -495,7 +523,7 @@ export default {
         const arr = [];
         for (const key in val) {
           Object.keys(val[key]).map(() => {
-            if (val[key]['min'] > val[key]['max']) {
+            if (Number(val[key]['min']) > Number(val[key]['max'])) {
               arr.push(true);
             } else {
               arr.push(false);
@@ -506,6 +534,13 @@ export default {
         this.filterBtn = arr.filter(Boolean).length ? true : false;
       },
       deep: true,
+    },
+
+    msg: {
+      handler(val) {
+        this.inputMsg = val;
+      },
+      deep: true
     }
   },
 
@@ -524,7 +559,8 @@ export default {
         };
         this.filterList.push({
           value: item.functionVarName,
-          label: item.functionName
+          label: item.functionName,
+
         });
         this.funList = gets || res.data.map(item => {
           
@@ -542,7 +578,21 @@ export default {
   },
 
   methods: {
-    strToMoneyStr,
+
+    valueFilter(value, grade) {
+      if (grade) {
+        if (value.indexOf('.') > 0){
+          value = value.slice(0, value.indexOf('.') + 3);
+        }
+        return value;
+      } else if (typeof Number(value) === 'number' && !isNaN(Number(value))) {
+        return value.split('.')[0];
+      // eslint-disable-next-line no-else-return
+      } else {
+        return '';
+      }
+      
+    },
 
     diffDate(val) {
       const star = new Date(val);
@@ -729,7 +779,7 @@ export default {
     },
 
     nonPayment() {
-    //   this.queryEnterpriseList();
+      this.queryEnterpriseList();
     },
 
     handleFixed() {

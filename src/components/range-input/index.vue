@@ -1,7 +1,7 @@
 <!-- min - max 输入框 -->
 <template>
-  <div class="container">
-    <div class="label">{{label}}</div>
+  <div class="container" :style="{width: label ? '340px' : '280px'}">
+    <div class="label" :style="{display: label ? '' : 'none'}">{{label}}</div>
     <div :class="contentClass">
       <span>
         <el-input
@@ -56,6 +56,9 @@ export default {
         };
       },
     },
+    grade: { // 带小数点
+      type: Boolean,
+    },
   },
 
   // data() {
@@ -79,11 +82,11 @@ export default {
 
   methods: {
     handleInputMin(value) {
-      const val = this.valueFilter(value);
+      const val = this.valueFilter(value, this.grade);
       this.$emit('update:score', { min: val, max: this.score.max });
     },
     handleInputMax(value) {
-      const val = this.valueFilter(value);
+      const val = this.valueFilter(value, this.grade);
       this.$emit('update:score', { min: this.score.min, max: val });
     },
   },
