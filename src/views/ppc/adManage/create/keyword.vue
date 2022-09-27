@@ -235,7 +235,7 @@
 <script>
 
 import DragStrip from './DragStrip.vue';
-import { querySuggestKeyword, manualQueryKeyword } from '@/api/ppc/adManage';
+import { querySuggestKeyword, manualQueryKeyword, getPriceList } from '@/api/ppc/adManage';
 
 export default {
   components: {
@@ -268,6 +268,9 @@ export default {
       type: String,
       require: true,
     },
+    groupId: {
+      type: String, 
+    }
   },
 
   data() {
@@ -343,6 +346,12 @@ export default {
         if (!val.length) {
           this.ifBid = false;
         }
+      },
+      deep: true,
+    },
+    groupId: {
+      handler() {
+        this.querySuggestKeyword();
       },
       deep: true,
     }
@@ -448,9 +457,10 @@ export default {
     querySuggestKeyword() {
       const params = {
         storeId: this.mwsStoreId,
-        strategy: this.targetingMode,
+        strategy: 'legacyForSales',
         suggestionKeywordMatchType: this.suggestionKeywordMatchType,
         asinList: this.asinList,
+        groupId: this.groupId
       };
       this.loading = true;
       // const arr = this.tableData.length && this.tableData.map(item => item.flag) || [];
