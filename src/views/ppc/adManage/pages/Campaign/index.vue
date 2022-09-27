@@ -438,8 +438,7 @@ export default {
       const bodyParams = {
         storeId: this.storeId,
         marketplace: this.marketplace,
-        // id 为 0 时接口要求传空字符串
-        portfolioId: this.portfolioId === 0 ? '' : this.portfolioId,
+        portfolioId: this.portfolioId,
         state: this.filter.state,
         search: this.filter.search,
         targetingType: this.filter.targetingType,
