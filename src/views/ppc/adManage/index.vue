@@ -319,7 +319,12 @@ export default{
 
     // 广告组合-点击选中
     handleClickPortfolio(val) {
-      this.portfolioSelectedId = val.id;
+      // 判断取消选中
+      if (this.portfolioSelectedId === val.id) {
+        this.portfolioSelectedId = '';
+      } else {
+        this.portfolioSelectedId = val.id;
+      }
       // 如果广告树已经是 null 了，说明不是第一次点击广告组合，或没点击过广告树，不需要重复请求标签页数量
       if (this.treeSelectedKey !== null) {
         this.$nextTick(() => this.getTabsCellCount());
@@ -470,6 +475,8 @@ export default{
         // 重置广告树
         this.treeSelectedKey = null;
         this.treeSelectedInfo = {};
+        // 重置广告组合选中
+        this.portfolioSelectedId = '';
         // 请求广告组合
         this.getPortfolioList();
         // 请求标签页数量
