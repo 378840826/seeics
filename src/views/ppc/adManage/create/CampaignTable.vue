@@ -28,12 +28,28 @@
             prop="itemName"
             label="商品信息">
           <template scope="scope">
-            <el-tooltip placement="top">
-              <div style="width: 400px" slot="content">{{scope.row.itemName}}</div>
-              <div class="itemName">{{scope.row.itemName}}</div>
-            </el-tooltip>
-            <div>{{scope.row.asin}}</div>
-            <div>{{scope.row.sellerSku}} <span style="marginLeft: 30px">{{scope.row.price}}</span></div>
+            <div style="display: flex; align-items: center">
+              <img :src="scope.row.imgUrl" :style="{width: '50px', height: '50px', marginRight: '5px'}"/>
+              <ul style="width: calc(100% - 150px); fontSize: 12px;">
+                <li>
+                  <el-tooltip placement="top">
+                    <div style="width: 400px; " slot="content">{{scope.row.itemName}}</div>
+                    <div class="itemName" style="fontSize: 14px;">{{scope.row.itemName}}</div>
+                  </el-tooltip>
+                </li>
+                <li>
+                  <span style="marginRight: 15px">{{scope.row.price}}</span>
+                  <span style="marginRight: 15px">{{scope.row.asin}}</span>
+                  <span style="marginRight: 15px">{{scope.row.sellerSku}}</span>
+                </li>
+              </ul>
+              <el-tooltip placement="top">
+                <div style="width: 400px; " slot="content">{{scope.row.overallStatusMessageList[0]}}</div>
+                <div class="overallStatus">{{overallStatus(scope.row.overallStatus)}}
+                  <i v-show="overallStatus(scope.row.overallStatus)" class="el-icon-arrow-down arrow"/>
+                </div>
+              </el-tooltip>
+            </div>
           </template>
         </el-table-column>
         <!-- <el-table-column
@@ -50,10 +66,10 @@
         <el-table-column
             align="center"
             prop="address"
-            width="100"
+            width="80"
             label="操作">
             <template scope="scope">
-              <el-button type="text" @click="handleSelect(scope.row)" :disabled="scope.row.checked">
+              <el-button type="text" @click="handleSelect(scope.row)" :disabled="scope.row.checked || scope.row.ineligible">
                 {{scope.row.checked ? '已选' : '选择'}}</el-button>
               <!-- <el-button type="text">选择</el-button> -->
           </template>
@@ -74,7 +90,7 @@
     <div style="width: 45%">
 
       <div class="tableTop">
-        <span>已选商品</span>
+        <span>{{selectData.length}}个已选商品</span>
         <span style="padding-right: 30px;cursor: pointer" @click="deleteAll">全部删除</span>
       </div>
 
@@ -88,12 +104,22 @@
             prop="itemName"
             label="商品信息">
           <template scope="scope">
-            <el-tooltip placement="top">
-              <div style="width: 400px" slot="content">{{scope.row.itemName}}</div>
-              <div class="itemName">{{scope.row.itemName}}</div>
-            </el-tooltip>
-            <div>{{scope.row.asin}}</div>
-            <div>{{scope.row.sellerSku}} <span style="marginLeft: 30px">{{scope.row.price}}</span></div>
+            <div style="display: flex; align-items: center">
+              <img :src="scope.row.imgUrl" :style="{width: '50px', height: '50px', marginRight: '5px'}"/>
+              <ul style="width: calc(100% - 50px); fontSize: 12px;">
+                <li>
+                  <el-tooltip placement="top">
+                    <div style="width: 400px; " slot="content">{{scope.row.itemName}}</div>
+                    <div class="itemName" style="fontSize: 14px;">{{scope.row.itemName}}</div>
+                  </el-tooltip>
+                </li>
+                <li>
+                  <span style="marginRight: 15px">{{scope.row.price}}</span>
+                  <span style="marginRight: 15px">{{scope.row.asin}}</span>
+                  <span style="marginRight: 15px">{{scope.row.sellerSku}}</span>
+                </li>
+              </ul>
+            </div>
           </template>
         </el-table-column>
         <!-- <el-table-column
@@ -110,10 +136,10 @@
         <el-table-column
             align="center"
             prop="address"
-            width="100"
+            width="80"
             label="操作">
             <template scope="scope">
-              <el-button type="text" @click="handleDelete(scope.row)">删除</el-button>
+              <el-button type="text" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
             </template>
         </el-table-column>
       </el-table>
@@ -157,6 +183,16 @@ export default {
 
   methods: {
 
+    overallStatus(val) {
+      if (val === 'ELIGIBLE ' || !val) {
+        return '';
+      } else if (val === 'INELIGIBLE ') {
+        return '不符合条件';
+      } else if (val === 'ELIGIBLE_WITH_WARNING') {
+        return '警告';
+      }
+    },
+
     getField () {
       const arr = this.selectData.map(item => {
         return {
@@ -178,6 +214,8 @@ export default {
           this.tableData = res.data.data.records.map(item => {
             if (arr.includes(item.sellerSku)) {
               item.checked = true;
+            } else if (item.overallStatus === 'ELIGIBLE_WITH_WARNING' || item.overallStatus === 'INELIGIBLE') {
+              item.ineligible = true;
             }
             return item;
           });
@@ -202,11 +240,14 @@ export default {
 
     handleAll() {
       this.tableData = this.tableData.map(item => {
-        item.checked = true;
+        if (!item.ineligible) {
+          item.checked = true;
+          this.selectData.push(item);
+        }
         return item;
       });
       
-      this.selectData = this.tableData.filter(item => item.checked);
+      // this.selectData = this.tableData.filter(item => item.checked);
       this.$emit('update:priceAsin', this.selectData.map(item => item.asin));
     },
 
@@ -214,11 +255,12 @@ export default {
       this.tableData = this.tableData.map(item => {
         if (item.sellerSku === row.sellerSku) {
           item.checked = true;
+          this.selectData.push(item);
         }
         return item;
       });
 
-      this.selectData = this.tableData.filter(item => item.checked);
+      // this.selectData = this.tableData.filter(item => item.checked);
       this.$emit('update:priceAsin', this.selectData.map(item => item.asin));
     },
 
@@ -228,11 +270,11 @@ export default {
         return item;
       });
 
-      this.selectData = this.tableData.filter(item => item.checked);
+      this.selectData = [];
       this.$emit('update:priceAsin', this.selectData.map(item => item.asin));
     },
 
-    handleDelete(row) {
+    handleDelete(idx, row) {
       this.tableData = this.tableData.map(item => {
         if (item.sellerSku === row.sellerSku) {
           item.checked = false;
@@ -240,7 +282,7 @@ export default {
         return item;
       });
 
-      this.selectData = this.tableData.filter(item => item.checked);
+      this.selectData.splice(idx, 1);
       this.$emit('update:priceAsin', this.selectData.map(item => item.asin));
     }
   }
@@ -275,6 +317,27 @@ export default {
     display:-webkit-box; 
     -webkit-box-orient:vertical;
     -webkit-line-clamp:1; 
+    font-size: 12px;
+  }
+
+  .overallStatus {
+    width: 80px;
+    margin-left: 20px;
+    font-size: 12px;
+    color: #8b93a6;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .overallStatus:hover {
+    .arrow {
+      transform: rotate(-180deg);
+      -webkit-transform: rotate(-180deg);
+      -webkit-transition: -webkit-transform .3s;
+      transition: -webkit-transform .3s;
+      transition: transform .3s;
+      transition: transform .3s,-webkit-transform .3s;
+    }
   }
 
 </style>
