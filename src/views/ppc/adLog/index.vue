@@ -427,6 +427,11 @@ export default {
         ...sortParams,
         ...params,
       };
+      if (!queryParams.storeName || !queryParams.marketplace) {
+        this.$message.warning('缺少店铺或站点');
+        this.loading.table = false;
+        return;
+      }
       queryTable(queryParams).then(res => {
         const resData = res.data.data;
         this.tableData = resData.records;
