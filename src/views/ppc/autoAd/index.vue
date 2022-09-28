@@ -9,6 +9,7 @@
         placeholder="请选择店铺"
         :size="componentsSize"
         @change="handleChangeShopName"
+        popper-class="_auto_ad-store-select-popper"
       >
         <el-option
           v-for="item in filterOptions.shopNameList"
@@ -25,6 +26,7 @@
         :size="componentsSize"
         @change="getTableData()"
         class="select-marketplace"
+        popper-class="_auto_ad-store-select-popper"
       >
         <el-option
           v-for="item in filterOptions.marketplaceList"
@@ -137,6 +139,7 @@
         @selection-change="handleSelectionChange"
         @sort-change="handleSortChange"
         border
+        :size="componentsSize"
       >
         <el-table-column type="selection"  width="55" />
 
@@ -162,7 +165,10 @@
               style=""
             >
               <el-dropdown @command="templateStutes">
-              <span :class="item.campaignStatus !== 'stop' ? 'el-icon-video-play' : 'el-icon-video-pause'" :style="{color: item.campaignStatus !== 'stop' ? '#58bc58' : 'red'}"/>
+              <span
+                :class="item.campaignStatus !== 'stop' ? 'el-icon-video-play' : 'el-icon-video-pause'"
+                :style="{color: item.campaignStatus !== 'stop' ? '#58bc58' : 'red'}"
+              />
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item 
                     v-for="i in templateStateList" 
@@ -210,7 +216,10 @@
               style=""
             >
               <el-dropdown @command="templateStutes">
-              <span :class="item.campaignStatus !== 'stop' ? 'el-icon-video-play' : 'el-icon-video-pause'" :style="{color: item.campaignStatus !== 'stop' ? '#58bc58' : 'red'}"/>
+              <span
+                :class="item.campaignStatus !== 'stop' ? 'el-icon-video-play' : 'el-icon-video-pause'"
+                :style="{color: item.campaignStatus !== 'stop' ? '#58bc58' : 'red'}"
+              />
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item 
                     v-for="i in templateStateList" 
@@ -638,7 +647,7 @@ import globalFilter from '@/components/globalFilter/globalFilter.vue';
 import dialogStatu from './componets/dialog.vue';
 import tableDialog from './componets/tableDialog.vue';
 export default {
-  name: 'ShopList',
+  name: 'autoAd',
 
   components: {
     autoMation,
@@ -816,6 +825,11 @@ export default {
         ...sortParams,
         ...params,
       };
+      if (!queryParams.shopName || !queryParams.marketplace) {
+        this.$message.warning('缺少店铺或站点');
+        this.tableLoading = false;
+        return;
+      }
       queryCampaignList(queryParams).then(res => {
         const resData = res.data.data;
         this.tableData = resData.records;
@@ -910,7 +924,7 @@ export default {
 
     handleClickLog(row) {
       console.log('点击日志', row);
-      this.$message.info('功能即将开放');
+      this.$message.info('功能即将开放，请先前往 "广告-调整日志" 查看广告日志');
     },
 
     hanldeAdGroup() {
@@ -1340,6 +1354,15 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+._auto_ad-store-select-popper {
+  .el-select-dropdown__wrap {
+    height: auto;
+    max-height: 520px;
+  }
+}
+</style>
 
 <style lang="scss" scoped>
   @import "./index.scss";
