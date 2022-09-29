@@ -90,6 +90,7 @@
         :defaultBid="defaultBid"
         :targetingMode="strategy"
         :groupId.sync="form.groupId"
+        :flag="true"
         />
 
     </el-form>
@@ -214,8 +215,8 @@ export default {
 
   mounted() {
     this.queryCampaignList(false,
-      this.$parent.$data.tableData.length && this.$parent.$data.tableData[0].campaignName,
-      this.$parent.$data.tableData.length && this.$parent.$data.tableData[0].campaignId);
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.state !== 'archived')[0].campaignName || '',
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.state !== 'archived')[0].campaignId);
   },
 
 
@@ -270,6 +271,7 @@ export default {
       }, {
         adStoreId: this.storeId,
         name: this.searchCampaign || name,
+        states: ['enabled', 'paused'],
       }).then(res => {
         if (res.data.code === 200) {
           this.campaignLoading = false;

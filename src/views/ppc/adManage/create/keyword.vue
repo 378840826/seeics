@@ -244,7 +244,8 @@ export default {
 
   props: {
     asinList: {
-      type: Array
+      type: Array,
+      default: new Array(),
     },
     targetingMode: {
       type: String,
@@ -270,6 +271,9 @@ export default {
     },
     groupId: {
       type: String, 
+    },
+    flag: {
+      type: Boolean,
     }
   },
 
@@ -725,7 +729,7 @@ export default {
         });
         return;
       }
-      if (!this.asinList.length) {
+      if (!this.asinList.length && !this.flag) {
         this.$message({
           type: 'warning',
           message: '请先选择广告商品'
