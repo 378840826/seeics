@@ -179,7 +179,7 @@ export default {
       campaignId: '',
       dailyBudget: '',
       defaultBid: '',
-      strategy: '',
+      strategy: 'legacyForSales',
     };
   },
 

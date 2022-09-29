@@ -39,7 +39,7 @@
             />
           </el-select>
 
-          <el-select v-if="bid !== 'bid'" v-model="modified" size="small" style="width: 50px">
+          <el-select v-if="bid !== 'bid'" v-model="modified" size="small" style="width: 70px">
             <el-option
               v-for="item in modifiedList"
               :key="item.label"
@@ -57,7 +57,7 @@
             >{{item.label}}</el-option>
           </el-select>
           
-          <el-input v-if="bid !== 'bid'" size="small" v-model="bidval" style="width: 50px"/>
+          <el-input v-if="bid !== 'bid'" size="small" v-model="bidval" style="width: 70px"/>
           <el-input v-else size="small" v-model="bidval" style="width: 150px"/>
           <el-button @click="empty" size="small" style="marginLeft: 10px;">取消</el-button>
           <el-button @click="setBid" type="primary" size="small" :disabled="!bidval">确定</el-button>
@@ -461,7 +461,7 @@ export default {
     querySuggestKeyword() {
       const params = {
         storeId: this.mwsStoreId,
-        strategy: 'legacyForSales',
+        strategy: this.targetingMode,
         suggestionKeywordMatchType: this.suggestionKeywordMatchType,
         asinList: this.asinList,
         groupId: this.groupId
@@ -748,7 +748,8 @@ export default {
         strategy: this.targetingMode,
         suggestionKeywordMatchType: this.suggestionKeywordMatchType,
         asinList: this.asinList,
-        keywordList: this.keywordList.filter(Boolean)
+        keywordList: this.keywordList.filter(Boolean),
+        groupId: this.groupId
       };
       this.tableDataLoading = true;
       manualQueryKeyword(params).then(res => {
