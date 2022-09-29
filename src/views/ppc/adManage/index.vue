@@ -346,6 +346,12 @@ export default{
 
     // 广告组合-名称修改确定
     handleSavePortfolioEdit(newName) {
+      // 判断是否未修改
+      if (this.portfolioEdit.name === newName) {
+        this.$message.warning('未修改名称');
+        this.portfolioEdit.visible = false;
+        return;
+      }
       // 判断是否有相同的名称
       const duplicateName = this.portfolioList.find(item => item.name === newName);
       if (duplicateName) {
