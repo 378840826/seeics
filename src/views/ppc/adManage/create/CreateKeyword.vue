@@ -371,7 +371,7 @@ export default {
       } else if (!keywordItemRoList.length) {
         this.$message({
           type: 'error',
-          message: '请选择商品'
+          message: '请选择关键词'
         });
         return;
       }
