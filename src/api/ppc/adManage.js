@@ -273,6 +273,16 @@ export const getGroupList = (params, data) => {
     data,
   });
 };
+
+export const queryCampaignSelectList = (params, data) => {
+  return request({
+    url: '/api/seeics-ad/campaign/conciseList',
+    method: 'post',
+    params,
+    data,
+  });
+};
+
 // --------------------创建广告组
 
 // 创建广告--------------------

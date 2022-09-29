@@ -233,6 +233,17 @@
   @save="handleEditSave"
 />
 
+<!-- 添加关键词 -->
+<create-targeting
+  v-if="createDialogVisible"
+  :dialogVisible.sync="createDialogVisible"
+  :mwsStoreId="mwsStoreId"
+  :marketplace="marketplace"
+  :storeId="storeId"
+  :currency="currency"
+  @success="$emit('createSuccess')"
+/>
+
 </div>
 </template>
 
@@ -257,6 +268,7 @@ import {
   parseTreeKey,
   getFormatTotal,
 } from '../../utils/fun';
+import CreateTargeting from '../../create/CreateTargeting.vue';
 
 export default {
   name: 'Targeting',
@@ -267,6 +279,7 @@ export default {
     FilterMore,
     FilterCrumbs,
     EditDialog,
+    CreateTargeting
   },
 
   props: {
