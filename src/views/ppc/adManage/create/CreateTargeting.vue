@@ -83,11 +83,13 @@
       <price-tab
         ref="priceCategory"
         :asinList.sync="priceAsin"
-        :targetingMode.sync="strategy"
-        :defaultBid="form.defaultBid"
         :mwsStoreId="mwsStoreId"
-        :budget="dailyBudget"
+        :marketplace="marketplace"
         :currency="currency"
+        :budget="dailyBudget"
+        :defaultBid="defaultBid"
+        :targetingMode.sync="strategy"
+        :groupId.sync="form.groupId"
         />
 
     </el-form>
@@ -176,7 +178,7 @@ export default {
       campaignId: '',
       dailyBudget: '',
       defaultBid: '',
-      strategy: '',
+      strategy: 'autoForSales',
     };
   },
 
@@ -207,13 +209,14 @@ export default {
         this.defaultBid = '0.75';
         this.dailyBudget = this.campaignList.filter(item => item.campaignId === val)[0].dailyBudget;
       }
-    }
+    },
   },
 
   mounted() {
     this.queryCampaignList(false,
-      this.$parent.$data.tableData.length && this.$parent.$data.tableData[0].campaignName,
-      this.$parent.$data.tableData.length && this.$parent.$data.tableData[0].campaignId);
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.state !== 'archived')[0].campaignName || '',
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.state !== 'archived')[0].campaignId);
+      
   },
 
 
@@ -340,6 +343,7 @@ export default {
           }
         }
       });
+      
     },
 
     remoteMethod(val) {
