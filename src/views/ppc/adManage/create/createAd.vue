@@ -92,7 +92,7 @@
 <script>
 
 import CampaignTable from './CampaignTable.vue';
-import { queryCampaignList, getGroupList, createAd } from '@/api/ppc/adManage';
+import { queryCampaignList, getGroupList, createAd, queryCampaignSelectList } from '@/api/ppc/adManage';
 
 export default {
 
@@ -191,8 +191,8 @@ export default {
 
   mounted() {
     this.queryCampaignList(false,
-      this.$parent.$data.tableData.length && this.$parent.$data.tableData[0].campaignName,
-      this.$parent.$data.tableData.length && this.$parent.$data.tableData[0].campaignId);
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.state !== 'archived')[0].campaignName || '',
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.state !== 'archived')[0].campaignId);
   },
 
 
@@ -234,27 +234,26 @@ export default {
     },
 
     queryCampaignList(flag, name, id) {
-      queryCampaignList({
+      queryCampaignSelectList({
         current: !this.searchCampaign ? this.page.current : this.searchPage.current,
         size: !this.searchCampaign ? this.page.size : this.searchPage.size,
-        order: 'createdTime',
-        asc: false
       }, {
         marketplace: this.marketplace,
-        storeId: this.storeId,
-        search: this.searchCampaign || name,
+        adStoreId: this.storeId,
+        name: this.searchCampaign || name,
+        states: ['enabled', 'paused'],
       }).then(res => {
         if (res.data.code === 200) {
           this.campaignLoading = false;
-          const data = res.data.data.page.records.map(item => {
+          const data = res.data.data.records.map(item => {
             return {
-              value: item.id,
-              id: item.id,
+              value: item.campaignId,
+              id: item.campaignId,
               label: item.name
             };
           });
           if (this.searchCampaign) {
-            this.searchTotal = res.data.data.page.total;
+            this.searchTotal = res.data.data.total;
             if (this.searchTotal > this.searchPage.current * this.searchPage.size) {
               this.searchCampaignList = this.searchCampaignList.concat(data);
               this.searchCampaignList = this.repetit(this.searchCampaignList);
@@ -263,19 +262,19 @@ export default {
             }
             return;
           }
-          this.total = res.data.data.page.total;
-          this.data = this.data.concat(res.data.data.page.records);
+          this.total = res.data.data.total;
+          this.data = this.data.concat(res.data.data.records);
           this.data = this.repetit(this.data);
           this.campaignList = this.data.map(item => {
             return {
-              value: item.id,
-              id: item.id,
+              value: item.campaignId,
+              id: item.campaignId,
               label: item.name
             };
           });
           
           if (!flag) { //非预加载赋值
-            this.form.campaignId = id || this.campaignList.length && this.campaignList[0].id || '';
+            this.form.campaignId = id || this.campaignList.length && this.campaignList[0].campaignId || '';
           }
 
           if (name) {
