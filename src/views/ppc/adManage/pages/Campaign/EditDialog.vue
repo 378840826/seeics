@@ -25,6 +25,19 @@
         </el-select>
       </el-form-item>
 
+      <el-form-item label="广告组合" prop="portfolioId">
+        <el-select v-model="data.portfolioId" ref="portfolioId">
+          <el-option
+            v-for="item in portfolioList"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          >
+            <span>{{ item.name }}</span>
+          </el-option>
+        </el-select>
+      </el-form-item>
+
       <el-form-item label="广告活动名称" prop="name">
         <el-input v-model="data.name" ref="name" />
       </el-form-item>
@@ -122,6 +135,10 @@ export default {
       type: Object,
       required: true,
     },
+    portfolioList: {
+      type: Array,
+      required: true,
+    },
     // 点击哪个编辑按钮打开的弹窗，焦点就默认在哪里
     editKey: {
       type: Object,
@@ -214,6 +231,14 @@ export default {
       if (data.dailyBudget) {
         data.budget = data.dailyBudget;
         delete data.dailyBudget;
+      }
+
+      if (data.portfolioId !== undefined) {
+        data.portfolioName = this.portfolioList.find(item => item.id === data.portfolioId).name;
+        // 广告组合改为未分组时，需要传空字符串id
+        if (data.portfolioId === 0) {
+          data.portfolioId = '';
+        }
       }
     },
 

@@ -30,7 +30,7 @@ export const queryTreeGroup = params => {
 // 广告组合-列表
 export const queryPortfolioList = params => {
   return request({
-    url: '/api/seeics-ad/management/campaign/portfolio/list',
+    url: '/api/seeics-ad/campaign/portfolio/list',
     params,
   });
 };
@@ -38,7 +38,7 @@ export const queryPortfolioList = params => {
 // 广告组合-添加
 export const addPortfolio = params => {
   return request({
-    url: '/api/seeics-ad/management/campaign/portfolio/add',
+    url: '/api/seeics-ad/campaign//portfolio/add',
     method: 'post',
     data: params,
   });
@@ -47,7 +47,7 @@ export const addPortfolio = params => {
 // 广告组合-修改名称
 export const updatePortfolio = params => {
   return request({
-    url: '/api/seeics-ad/management/campaign/portfolio/update',
+    url: '/api/seeics-ad/campaign//portfolio/update',
     method: 'post',
     data: params,
   });
