@@ -206,9 +206,9 @@ export default {
         } else {
           this.getGroupList();
         }
-        this.strategy = this.campaignList.filter(item => item.campaignId === val)[0].biddingStrategy;
+        this.strategy = this.campaignList && this.campaignList.filter(item => item.campaignId === val)[0].biddingStrategy || '';
         this.defaultBid = '0.75';
-        this.dailyBudget = this.campaignList.filter(item => item.campaignId === val)[0].dailyBudget;
+        this.dailyBudget = this.campaignList && this.campaignList.filter(item => item.campaignId === val)[0].dailyBudget || '';
       }
     }
   },
@@ -259,9 +259,15 @@ export default {
 
     handleGroup(val) {
       this.getGroupList();
-      this.strategy = this.campaignList.filter(item => item.campaignId === val)[0].biddingStrategy;
+      const _this = this;
+      const searchCampaignList = JSON.parse(JSON.stringify(_this.searchCampaignList));
+      const data = this.campaignList.filter(item => item.campaignId === val).length 
+        && this.campaignList.filter(item => item.campaignId === val)
+        || searchCampaignList.filter(item => item.campaignId === val).length
+        && searchCampaignList.filter(item => item.campaignId === val);
+      this.strategy = data[0].biddingStrategy;
       this.defaultBid = '0.75';
-      this.dailyBudget = this.campaignList.filter(item => item.campaignId === val)[0].dailyBudget;
+      this.dailyBudget = data[0].dailyBudget;
     },
 
     queryCampaignList(flag, name, id) {
@@ -334,7 +340,7 @@ export default {
           this.groupTotal = res.data.data.total;
           if (!flag) { //非预加载赋值
             this.groupList = data;
-            this.form.groupId = id || this.groupList.length && this.groupList[0].id;
+            this.form.groupId = id || this.groupList.length && this.groupList[0].id || '';
           } else {
             this.groupList = this.groupList.concat(data);
             this.groupList = this.repetit(this.groupList);
