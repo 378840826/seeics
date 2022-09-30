@@ -272,6 +272,7 @@ export default {
         adStoreId: this.storeId,
         name: this.searchCampaign || name,
         states: ['enabled', 'paused'],
+        targetingType: 'manual',
       }).then(res => {
         if (res.data.code === 200) {
           this.campaignLoading = false;
@@ -308,7 +309,7 @@ export default {
       getGroupList({
         current: !this.searchGroup ? this.groupPage.current : this.groupSearchPage.curren,
         size: !this.searchGroup ? this.groupPage.size : this.groupSearchPage.size,
-      }, { name: this.searchGroup || name, campaignIds: [this.form.campaignId].filter(Boolean) }).then(res => {
+      }, { name: this.searchGroup || name, campaignIds: [this.form.campaignId].filter(Boolean), targetingMode: 'keyword' }).then(res => {
         if (res.data.code === 200) {
           this.groupLoading = false;
           const data = res.data.data.records.map(item => {
