@@ -41,10 +41,11 @@
                   <span style="marginRight: 15px">{{scope.row.price}}</span>
                   <span style="marginRight: 15px">{{scope.row.asin}}</span>
                   <span style="marginRight: 15px">{{scope.row.sellerSku}}</span>
+                  <span style="marginRight: 15px">库存：{{scope.row.quantity}}</span>
                 </li>
               </ul>
               <el-tooltip placement="top">
-                <div style="width: 400px; " slot="content">{{scope.row.overallStatusMessageList[0]}}</div>
+                <div style="maxWidth: 400px; " slot="content">{{scope.row.overallStatusMessageList[0]}}</div>
                 <div class="overallStatus">{{overallStatus(scope.row.overallStatus)}}
                   <i v-show="overallStatus(scope.row.overallStatus)" class="el-icon-arrow-down arrow"/>
                 </div>
@@ -186,7 +187,7 @@ export default {
     overallStatus(val) {
       if (val === 'ELIGIBLE ' || !val) {
         return '';
-      } else if (val === 'INELIGIBLE ') {
+      } else if (val === 'INELIGIBLE') {
         return '不符合条件';
       } else if (val === 'ELIGIBLE_WITH_WARNING') {
         return '警告';
@@ -242,12 +243,12 @@ export default {
       this.tableData = this.tableData.map(item => {
         if (!item.ineligible) {
           item.checked = true;
+          item.ineligible = true;
           this.selectData.push(item);
         }
         return item;
       });
-      
-      // this.selectData = this.tableData.filter(item => item.checked);
+
       this.$emit('update:priceAsin', this.selectData.map(item => item.asin));
     },
 
@@ -255,6 +256,7 @@ export default {
       this.tableData = this.tableData.map(item => {
         if (item.sellerSku === row.sellerSku) {
           item.checked = true;
+          item.ineligible = true;
           this.selectData.push(item);
         }
         return item;
@@ -267,6 +269,11 @@ export default {
     deleteAll() {
       this.tableData = this.tableData.map(item => {
         item.checked = false;
+        if (item.overallStatus === 'ELIGIBLE_WITH_WARNING' || item.overallStatus === 'INELIGIBLE') {
+          item.ineligible = true;
+        } else {
+          item.ineligible = false;
+        }
         return item;
       });
 
@@ -278,6 +285,7 @@ export default {
       this.tableData = this.tableData.map(item => {
         if (item.sellerSku === row.sellerSku) {
           item.checked = false;
+          item.ineligible = false;
         }
         return item;
       });
