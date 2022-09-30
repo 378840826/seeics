@@ -104,7 +104,7 @@
 <script>
 
 import PriceTab from './PriceTab.vue';
-import { queryCampaignSelectList, getGroupList, createKeyword } from '@/api/ppc/adManage';
+import { queryCampaignSelectList, getGroupList, createTargeting } from '@/api/ppc/adManage';
 
 export default {
 
@@ -363,12 +363,12 @@ export default {
     },
 
     saveBtn() {
-      const keywordItemRoList = this.$refs.keywordTable.getField();
+      const targetingAsinList = this.$refs.priceCategory.getField();
       
       if (!this.form.campaignId || !this.form.campaignId) {
         this.$refs.form.validate();
         return;
-      } else if (!keywordItemRoList.length) {
+      } else if (!targetingAsinList.length) {
         this.$message({
           type: 'error',
           message: '请选择商品'
@@ -377,10 +377,10 @@ export default {
       }
 
       this.loading = true;
-      createKeyword({
+      createTargeting({
         campaignId: this.form.campaignId,
         groupId: this.form.groupId,
-        keywordItemRoList: keywordItemRoList,
+        targetingAsinList: targetingAsinList,
       }).then(res => {
         if (res.data.code === 200) {
           this.$message({
