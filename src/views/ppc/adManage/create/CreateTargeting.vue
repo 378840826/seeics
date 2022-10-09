@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="添加关键词"
+    title="添加Targeting"
     :visible.sync="dialogVisible"
     :append-to-body="true"
     :close-on-press-escape="false"
