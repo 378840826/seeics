@@ -147,6 +147,8 @@ import Group from './pages/Group';
 import Ad from './pages/Ad';
 import Keyword from './pages/Keyword';
 import Targeting from './pages/Targeting';
+import NegativeKeyword from './pages/NegativeKeyword';
+import NegativeTargeting from './pages/NegativeTargeting';
 
 export default{
   name: 'adManage',
@@ -160,6 +162,8 @@ export default{
     Ad,
     Keyword,
     Targeting,
+    NegativeKeyword,
+    NegativeTargeting,
   },
 
   data() {

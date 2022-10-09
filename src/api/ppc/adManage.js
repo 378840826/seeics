@@ -191,6 +191,48 @@ export const modifyTargeting = (data) => {
   });
 };
 
+// 否定关键词
+// 否定关键词-列表
+export const queryNeKeywordList = (params, data) => {
+  return request({
+    url: '/api/seeics-ad/nekeyword/page',
+    method: 'post',
+    params,
+    data,
+  });
+};
+
+// 否定关键词-归档
+export const archiveNeKeyword = (data) => {
+  const campaign = '/seeics-ad/nekeyword/ne-keyword/campaign/archive';
+  const group = '/seeics-ad/nekeyword/ne-keyword/group/archive';
+  const url = data.groupId ? group : campaign;
+  return request({
+    url,
+    method: 'post',
+    data,
+  });
+};
+
+// 否定Targeting
+// 否定Targeting-列表
+export const queryNeTargetingList = (params, data) => {
+  return request({
+    url: '/api/seeics-ad/negative_targeting/page',
+    method: 'post',
+    params,
+    data,
+  });
+};
+
+// 否定Targeting-归档
+export const archiveNeTargeting = (data) => {
+  return request({
+    url: '/seeics-ad/nekeyword/negative_targeting/archive',
+    method: 'post',
+    data,
+  });
+};
 
 // 创建广告活动--------------------
 //创建广告活动商品信息列表
