@@ -271,6 +271,9 @@ export default {
       type: String,
       require: true,
     },
+    groupId: {
+      type: String,
+    },
   },
 
   data() {
@@ -350,6 +353,12 @@ export default {
       },
       deep: true
     },
+    groupId: {
+      handler() {
+        this.getPriceList();
+      },
+      deep: true,
+    }
   },
 
   mounted() {
@@ -418,6 +427,7 @@ export default {
         storeId: this.mwsStoreId,
         strategy: this.targetingMode,
         asinList: this.asinList,
+        groupId: this.groupId,
       };
       this.loading = true;
       getPriceList(params).then(res => {

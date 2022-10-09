@@ -338,6 +338,16 @@ export const createAd = params => {
 
 // --------------------创建广告
 
+// 添加商品
+
+export const createTargeting = params => {
+  return request({
+    url: '/api/seeics-ad/targeting/create',
+    method: 'post',
+    data: params,
+  });
+};
+
 // 创建关键词--------------------
 
 export const createKeyword = params => {
