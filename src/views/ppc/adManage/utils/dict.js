@@ -30,8 +30,14 @@ export const allTabs = {
 // 右侧标签页的三个状态，根据当前选中的广告树节点来区分
 export const tabsStateDict = {
   default: ['campaign', 'group', 'ad', 'keyword', 'targeting'],
-  campaign: ['group', 'ad', 'keyword', 'targeting', 'negativeKeyword'],
-  group: ['ad', 'keyword', 'targeting', 'negativeKeyword', 'negativeTargeting'],
+  campaign: ['group', 'ad', 'keyword', 'negativeKeyword', 'targeting'],
+  // 自动广告活动，不显示 关键词和分类/商品投放
+  autoCampaign: ['group', 'ad', 'negativeKeyword'],
+  keywordGroup: ['ad', 'keyword', 'negativeKeyword'],
+  targetingGroup: ['ad', 'targeting', 'negativeTargeting'],
+  // 自动广告组，不显示 关键词和分类/商品投放
+  autoKeywordGroup: ['ad', 'negativeKeyword'],
+  autoTargetingGroup: ['ad', 'negativeTargeting'],
 };
 
 // 投放方式字典
