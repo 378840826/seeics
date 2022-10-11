@@ -237,13 +237,10 @@ export default {
     batchArchived(list) {
       const ids = list.map(item => item.targetId);
       const params = {
-        adStoreId: this.storeId,
-        targetSettings: ids.map(id => {
-          return {
-            targetId: id,
-            state: 'archived',
-          };
-        })
+        storeId: this.storeId,
+        campaignId: this.treeSelectedInfo.campaignId,
+        groupId: this.treeSelectedInfo.groupId,
+        neTargetIds: ids,
       };
       archiveNeTargeting(params).then(res => {
         const { success, fail } = res.data.data;

@@ -3,6 +3,17 @@
 <div class="container">
 <!-- 筛选栏 -->
 <div class="filter-bar">
+  <!-- 广告活动 广告组 数据筛选 -->
+  <el-radio-group
+    v-if="!treeSelectedInfo.groupId"
+    v-model="filter.dataSource"
+    @change="handleDataSourceChange"
+    :size="size"
+  >
+    <el-radio-button label="campaign">广告活动</el-radio-button>
+    <el-radio-button label="group">广告组</el-radio-button>
+  </el-radio-group>
+
   <Search
     placeholder="关键词"
     :value="filter.search"
@@ -75,6 +86,9 @@
     </el-table-column>
 
     <el-table-column prop="keywordText" label="关键词" sortable="custom">
+    </el-table-column>
+
+    <el-table-column v-if="filter.dataSource === 'group'" prop="groupName" label="广告组">
     </el-table-column>
 
     <el-table-column prop="matchType" label="匹配方式" width="100">
@@ -155,6 +169,7 @@ export default {
         search: '',
         state: '',
         matchType: '',
+        dataSource: 'campaign',
       },
       tableHeight: 'calc(100vh - 326px)',
       tableData: [],
@@ -198,6 +213,7 @@ export default {
         state: this.filter.state,
         matchType: this.filter.matchType,
         search: this.filter.search,
+        dataSource: this.filter.dataSource,
         ...body,
       };
       queryNeKeywordList(queryParams, bodyParams).then(res => {
@@ -208,6 +224,12 @@ export default {
       }).finally(() => {
         this.tableLoading = false;
       });
+    },
+
+    // 数据源切换
+    handleDataSourceChange(val) {
+      this.filter.dataSource = val;
+      this.getList({ current: 1 });
     },
 
     // 点击搜索
@@ -267,13 +289,11 @@ export default {
     batchArchived(list) {
       const ids = list.map(item => item.keywordId);
       const params = {
-        adStoreId: this.storeId,
-        keywordSettings: ids.map(id => {
-          return {
-            keywordId: id,
-            state: 'archived',
-          };
-        })
+        storeId: this.storeId,
+        campaignId: this.treeSelectedInfo.campaignId,
+        groupId: this.treeSelectedInfo.groupId,
+        dataSource: this.filter.dataSource,
+        neKeywordIds: ids,
       };
       archiveNeKeyword(params).then(res => {
         const { success, fail } = res.data.data;

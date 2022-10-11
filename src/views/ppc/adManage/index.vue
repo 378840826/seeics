@@ -209,9 +209,20 @@ export default{
       const treeSelectedNodeInfo = parseTreeKey(this.treeSelectedKey);
       let state = 'default';
       if (treeSelectedNodeInfo.groupId) {
-        state = 'group';
+        // 区分关键词广告组和targeting广告组
+        state = `${treeSelectedNodeInfo.groupType}Group`;
+        // 区分自动广告组，不显示 关键词和分类/商品投放
+        if (treeSelectedNodeInfo.targetingType === 'auto') {
+          const upper = `${state[0].toUpperCase()}${state.substr(1)}`;
+          state = `auto${upper}`;
+        }
       } else if (treeSelectedNodeInfo.campaignId) {
-        state = 'campaign';
+        // 区分自动广告活动，不显示 关键词和分类/商品投放
+        if (treeSelectedNodeInfo.targetingType === 'auto') {
+          state = 'autoCampaign';
+        } else {
+          state = 'campaign';
+        }
       }
       return state;
     },
@@ -421,7 +432,7 @@ export default{
       if (type === 'campaign') {
         const oldKeyList = [];
         list.forEach(item => {
-          oldKeyList.push(`${item.state}-${item.id}`);
+          oldKeyList.push(`${item.state}-${item.id}-${item.targetingType}`);
         });
         // 更新树节点
         oldKeyList.forEach(key => {
@@ -432,7 +443,7 @@ export default{
         // 广告组
         const oldKeyList = [];
         list.forEach(item => {
-          oldKeyList.push(`${item.campaignState}-${item.campaignId}-${item.id}-${item.groupType}`);
+          oldKeyList.push(`${item.campaignState}-${item.campaignId}-${item.campaignTargetType}-${item.id}-${item.groupType}`);
         });
         // 更新广告组树节点
         oldKeyList.forEach(key => {

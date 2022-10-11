@@ -1,5 +1,6 @@
 <!-- 广告活动树 -->
-<!-- 树的 key = "campaignState-campaignId-groupId-groupType" -->
+<!-- 树的 key = "campaignState-campaignId-campaignTargetType-groupId-groupType" -->
+<!-- 树的 key 例： "enabled-11111-auto-22222-keyword" -->
 <template>
   <div>
     <el-input
@@ -95,7 +96,7 @@ export default {
         queryTreeCampaign(params).then(res => {
           const r = res.data.data.map(item => {
             // 增加 key 字段
-            const key = `${nodeParams.campaignState}-${item.campaignId}`;
+            const key = `${nodeParams.campaignState}-${item.campaignId}-${item.targetingType}`;
             return {
               ...item,
               campaignName: item.name,
@@ -114,7 +115,7 @@ export default {
         queryTreeGroup(groupParams).then(res => {
           const r = res.data.data.map(item => {
             // 增加 key 字段和 isLeaf
-            const key = `${nodeParams.campaignState}-${nodeParams.campaignId}-${item.groupId}-${item.groupType}`;
+            const key = `${nodeParams.campaignState}-${nodeParams.campaignId}-${item.targetingType}-${item.groupId}-${item.groupType}`;
             return {
               ...item,
               campaignName: node.data.campaignName,
@@ -185,7 +186,7 @@ export default {
       const selectedInfo = parseTreeKey(val);
       let parentKys = '';
       if (selectedInfo.groupId) {
-        parentKys = `${selectedInfo.campaignState}-${selectedInfo.campaignId}`;
+        parentKys = `${selectedInfo.campaignState}-${selectedInfo.campaignId}-${selectedInfo.targetingType}`;
       } else if (selectedInfo.campaignId) {
         parentKys = selectedInfo.campaignState;
       }

@@ -194,8 +194,12 @@ export const modifyTargeting = (data) => {
 // 否定关键词
 // 否定关键词-列表
 export const queryNeKeywordList = (params, data) => {
+  // 区分广告活动和广告组
+  const campaign = '/api/seeics-ad/nekeyword/page';
+  const group = '/api/seeics-ad/nekeyword/group/page';
+  const url = data.dataSource === 'group' ? group : campaign;
   return request({
-    url: '/api/seeics-ad/nekeyword/page',
+    url,
     method: 'post',
     params,
     data,
@@ -204,9 +208,10 @@ export const queryNeKeywordList = (params, data) => {
 
 // 否定关键词-归档
 export const archiveNeKeyword = (data) => {
+  // 区分广告活动和广告组
   const campaign = '/seeics-ad/nekeyword/ne-keyword/campaign/archive';
   const group = '/seeics-ad/nekeyword/ne-keyword/group/archive';
-  const url = data.groupId ? group : campaign;
+  const url = data.dataSource === 'group' ? group : campaign;
   return request({
     url,
     method: 'post',
@@ -228,7 +233,7 @@ export const queryNeTargetingList = (params, data) => {
 // 否定Targeting-归档
 export const archiveNeTargeting = (data) => {
   return request({
-    url: '/seeics-ad/nekeyword/negative_targeting/archive',
+    url: '/api/seeics-ad/negative_targeting/archived',
     method: 'post',
     data,
   });
