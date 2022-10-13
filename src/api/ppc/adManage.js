@@ -265,6 +265,15 @@ export const createAdGroup = params => {
   });
 };
 
+export const queryCampaignSelectList = (params, data) => {
+  return request({
+    url: '/api/seeics-ad/campaign/conciseList',
+    method: 'post',
+    params,
+    data,
+  });
+};
+
 export const getGroupList = (params, data) => {
   return request({
     url: '/api/seeics-ad/group/list',
@@ -286,3 +295,13 @@ export const createAd = params => {
 };
 
 // --------------------创建广告
+
+// 创建关键词--------------------
+
+export const createKeyword = params => {
+  return request({
+    url: '/api/seeics-ad/keyword/create',
+    method: 'post',
+    data: params,
+  });
+};

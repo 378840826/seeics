@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="添加广告"
+    title="添加关键词"
     :visible.sync="dialogVisible"
     :append-to-body="true"
     :close-on-press-escape="false"
@@ -36,9 +36,9 @@
           style="width: 400px">
           <el-option
             v-for="item in !searchCampaign ? campaignList : searchCampaignList"
-            :key="item.id"
-            :value="item.id"
-            :label="item.label"
+            :key="item.campaignId"
+            :value="item.campaignId"
+            :label="item.name"
             class="box2"
           />
         </el-select>
@@ -75,10 +75,23 @@
         </el-select>
       </el-form-item>
 
-      <campaign-table
+      <!-- <campaign-table
         ref="priceTable"
         :mwsStoreId="mwsStoreId"
-      />
+      /> -->
+
+      <keyword
+        ref="keywordTable"
+        :asinList.sync="priceAsin"
+        :mwsStoreId="mwsStoreId"
+        :marketplace="marketplace"
+        :currency="currency"
+        :budget="dailyBudget"
+        :defaultBid="defaultBid"
+        :targetingMode="strategy"
+        :groupId.sync="form.groupId"
+        :flag="true"
+        />
 
     </el-form>
 
@@ -91,8 +104,8 @@
 
 <script>
 
-import CampaignTable from './CampaignTable.vue';
-import { queryCampaignList, getGroupList, createAd, queryCampaignSelectList } from '@/api/ppc/adManage';
+import keyword from './keyword.vue';
+import { queryCampaignSelectList, getGroupList, createKeyword } from '@/api/ppc/adManage';
 
 export default {
 
@@ -112,11 +125,15 @@ export default {
     marketplace: {
       type: String,
       required: true, 
+    },
+    currency: {
+      type: String,
+      required: true,
     }
   },
 
   components: {
-    CampaignTable
+    keyword
   },
   
   data() {
@@ -159,6 +176,10 @@ export default {
         campaignId: [{ required: true, message: '请选择广告活动', trigger: 'blur' }],
         groupId: [{ required: true, message: '请选择广告组', trigger: 'blur' }],
       },
+      campaignId: '',
+      dailyBudget: '',
+      defaultBid: '',
+      strategy: 'legacyForSales',
     };
   },
 
@@ -180,11 +201,14 @@ export default {
   watch: {
     'form.campaignId': {
       handler(val) {
-        if (val === this.$parent.$data.tableData[0].campaignId) {
+        if (val === this.$parent.$data.tableData.length && this.$parent.$data.tableData[0].campaignId) {
           this.getGroupList(false, this.$parent.$data.tableData[0].groupName, this.$parent.$data.tableData[0].groupId);
         } else {
           this.getGroupList();
         }
+        this.strategy = this.campaignList && this.campaignList.filter(item => item.campaignId === val)[0].biddingStrategy || '';
+        this.defaultBid = '0.75';
+        this.dailyBudget = this.campaignList && this.campaignList.filter(item => item.campaignId === val)[0].dailyBudget || '';
       }
     }
   },
@@ -233,25 +257,32 @@ export default {
       this.$emit('update:dialogVisible', false);
     },
 
+    handleGroup(val) {
+      this.getGroupList();
+      const _this = this;
+      const searchCampaignList = JSON.parse(JSON.stringify(_this.searchCampaignList));
+      const data = this.campaignList.filter(item => item.campaignId === val).length 
+        && this.campaignList.filter(item => item.campaignId === val)
+        || searchCampaignList.filter(item => item.campaignId === val).length
+        && searchCampaignList.filter(item => item.campaignId === val);
+      this.strategy = data[0].biddingStrategy;
+      this.defaultBid = '0.75';
+      this.dailyBudget = data[0].dailyBudget;
+    },
+
     queryCampaignList(flag, name, id) {
       queryCampaignSelectList({
         current: !this.searchCampaign ? this.page.current : this.searchPage.current,
         size: !this.searchCampaign ? this.page.size : this.searchPage.size,
       }, {
-        marketplace: this.marketplace,
         adStoreId: this.storeId,
         name: this.searchCampaign || name,
         states: ['enabled', 'paused'],
+        targetingType: 'manual',
       }).then(res => {
         if (res.data.code === 200) {
           this.campaignLoading = false;
-          const data = res.data.data.records.map(item => {
-            return {
-              value: item.campaignId,
-              id: item.campaignId,
-              label: item.name
-            };
-          });
+          const data = res.data.data.records;
           if (this.searchCampaign) {
             this.searchTotal = res.data.data.total;
             if (this.searchTotal > this.searchPage.current * this.searchPage.size) {
@@ -265,13 +296,7 @@ export default {
           this.total = res.data.data.total;
           this.data = this.data.concat(res.data.data.records);
           this.data = this.repetit(this.data);
-          this.campaignList = this.data.map(item => {
-            return {
-              value: item.campaignId,
-              id: item.campaignId,
-              label: item.name
-            };
-          });
+          this.campaignList = this.data;
           
           if (!flag) { //非预加载赋值
             this.form.campaignId = id || this.campaignList.length && this.campaignList[0].campaignId || '';
@@ -290,7 +315,7 @@ export default {
       getGroupList({
         current: !this.searchGroup ? this.groupPage.current : this.groupSearchPage.curren,
         size: !this.searchGroup ? this.groupPage.size : this.groupSearchPage.size,
-      }, { name: this.searchGroup || name, campaignIds: [this.form.campaignId].filter(Boolean) }).then(res => {
+      }, { name: this.searchGroup || name, campaignIds: [this.form.campaignId].filter(Boolean), targetingMode: 'keyword' }).then(res => {
         if (res.data.code === 200) {
           this.groupLoading = false;
           const data = res.data.data.records.map(item => {
@@ -315,7 +340,7 @@ export default {
           this.groupTotal = res.data.data.total;
           if (!flag) { //非预加载赋值
             this.groupList = data;
-            this.form.groupId = id || this.groupList.length && this.groupList[0].id;
+            this.form.groupId = id || this.groupList.length && this.groupList[0].id || '';
           } else {
             this.groupList = this.groupList.concat(data);
             this.groupList = this.repetit(this.groupList);
@@ -345,30 +370,29 @@ export default {
     },
 
     saveBtn() {
-      const priceTable = this.$refs.priceTable.getField();
+      const keywordItemRoList = this.$refs.keywordTable.getField();
       
       if (!this.form.campaignId || !this.form.campaignId) {
         this.$refs.form.validate();
         return;
-      } else if (!priceTable.length) {
+      } else if (!keywordItemRoList.length) {
         this.$message({
           type: 'error',
-          message: '请选择商品'
+          message: '请选择关键词'
         });
         return;
       }
 
       this.loading = true;
-      createAd({
+      createKeyword({
         campaignId: this.form.campaignId,
         groupId: this.form.groupId,
-        productItemRoList: priceTable,
+        keywordItemRoList: keywordItemRoList,
       }).then(res => {
-
         if (res.data.code === 200) {
           this.$message({
             type: 'success',
-            message: '添加广告成功'
+            message: '创建成功'
           });
           this.$emit('success');
           this.loading = false;

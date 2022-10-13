@@ -39,7 +39,7 @@
             />
           </el-select>
 
-          <el-select v-if="bid !== 'bid'" v-model="modified" size="small" style="width: 50px">
+          <el-select v-if="bid !== 'bid'" v-model="modified" size="small" style="width: 70px">
             <el-option
               v-for="item in modifiedList"
               :key="item.label"
@@ -57,7 +57,7 @@
             >{{item.label}}</el-option>
           </el-select>
           
-          <el-input v-if="bid !== 'bid'" size="small" v-model="bidval" style="width: 50px"/>
+          <el-input v-if="bid !== 'bid'" size="small" v-model="bidval" style="width: 70px"/>
           <el-input v-else size="small" v-model="bidval" style="width: 150px"/>
           <el-button @click="empty" size="small" style="marginLeft: 10px;">取消</el-button>
           <el-button @click="setBid" type="primary" size="small" :disabled="!bidval">确定</el-button>
@@ -235,7 +235,7 @@
 <script>
 
 import DragStrip from './DragStrip.vue';
-import { querySuggestKeyword, manualQueryKeyword } from '@/api/ppc/adManage';
+import { querySuggestKeyword, manualQueryKeyword, getPriceList } from '@/api/ppc/adManage';
 
 export default {
   components: {
@@ -244,7 +244,8 @@ export default {
 
   props: {
     asinList: {
-      type: Array
+      type: Array,
+      default: new Array(),
     },
     targetingMode: {
       type: String,
@@ -268,6 +269,12 @@ export default {
       type: String,
       require: true,
     },
+    groupId: {
+      type: String, 
+    },
+    flag: {
+      type: Boolean,
+    }
   },
 
   data() {
@@ -343,6 +350,12 @@ export default {
         if (!val.length) {
           this.ifBid = false;
         }
+      },
+      deep: true,
+    },
+    groupId: {
+      handler() {
+        this.querySuggestKeyword();
       },
       deep: true,
     }
@@ -451,6 +464,7 @@ export default {
         strategy: this.targetingMode,
         suggestionKeywordMatchType: this.suggestionKeywordMatchType,
         asinList: this.asinList,
+        groupId: this.groupId
       };
       this.loading = true;
       // const arr = this.tableData.length && this.tableData.map(item => item.flag) || [];
@@ -715,7 +729,7 @@ export default {
         });
         return;
       }
-      if (!this.asinList.length) {
+      if (!this.asinList.length && !this.flag) {
         this.$message({
           type: 'warning',
           message: '请先选择广告商品'
@@ -734,7 +748,8 @@ export default {
         strategy: this.targetingMode,
         suggestionKeywordMatchType: this.suggestionKeywordMatchType,
         asinList: this.asinList,
-        keywordList: this.keywordList.filter(Boolean)
+        keywordList: this.keywordList.filter(Boolean),
+        groupId: this.groupId
       };
       this.tableDataLoading = true;
       manualQueryKeyword(params).then(res => {
