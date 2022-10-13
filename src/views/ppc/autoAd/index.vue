@@ -1200,8 +1200,8 @@ export default {
       if (this.deliveryMsg()) {
         return;
       }
-      console.log(this.$refs.autoMation.getFiled())
-      return
+      // console.log(this.$refs.autoMation.getFiled())
+      // return
       createAndSave({ ...params, ...this.$refs.autoMation.getFiled() }).then(res => {
         if (res.data.code === 200) {
           this.$message({

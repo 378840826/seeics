@@ -33,115 +33,7 @@
     </div>
 
     <div v-show="automatedOperation === '创建广告活动'" style="marginTop: 10px">
-      <div style="display: flex;">
-        <span style="width: 130px">广告活动名称：</span>
-        <span>{{form.campaignName}}</span>
-      </div>
-      <el-form label-width="130px">
-        <el-form-item prop="budget">
-        <template slot="label">
-          <div style="display: flex;">
-            <span>日预算：</span>
-            <el-tooltip placement="top">
-              <div slot="content" style="width: 200px">
-              您愿意每天为该广告活动花费的金额。
-              如果广告活动支出低于您的每日预算,
-              则剩余金额可用于增加该日历月的其他日期的每日预算，
-              最多可增加 25%。</div>
-              <span class="el-icon-question" style="line-height: 40px;"></span>
-            </el-tooltip>
-            <span class="budget">*</span>
-          </div>
-        </template>
-        <el-input 
-          v-model="form.dailyBudget"
-          style="width: 30%"
-          placeholder="至少1"
-          size="small">
-           <template slot="prefix">{{rowData.currency}}</template>
-        </el-input>
-      </el-form-item>
-
-      <div class="label">
-        <span>日期范围：</span>
-        <el-date-picker
-          v-model="form.startDate"
-          style="width: 25%"
-          type="date"
-          placeholder="选择日期"
-          :picker-options="pickerOptions"
-          size="small">
-        </el-date-picker>
-        <span style="margin: 0 6px;color: #d9d9d9;width: 12px;">—</span>
-        <el-date-picker
-          v-model="form.endDate"
-          style="width: 25%"
-          type="date"
-          placeholder="选择日期"
-          :picker-options="pickerOptions2"
-          size="small">
-        </el-date-picker>
-      </div>
-
-      <div class="label">
-        <span>投放类型：</span>
-        <el-radio-group v-model="form.deliveryType" @change="form.groupRo.defaultBid = ''">
-          <el-radio label="auto">自动</el-radio>
-          <el-radio label="manual">手动</el-radio>
-        </el-radio-group>
-      </div>
-
-      <div class="label">
-        <span>竞价策略：</span>
-        <div style="width: 80%">
-          <el-radio-group v-model="form.biddingStrategy">
-            <el-radio label="legacyForSales">动态竞价 - 仅降低
-              <p>当您的广告不太可能带来销售时，我们将实时降低您的竞价。</p>
-            </el-radio>
-            <el-radio label="autoForSales">动态竞价 - 提高和降低
-              <p>当您的广告很有可能带来销售时，我们将实时提高您的竞价（最高可达 </p>
-              <p>100%），并在您的广告不太可能带来销售时降低您的竞价。</p>
-            </el-radio>
-            <el-radio label="manual">固定竞价
-              <p>我们将使用您的确切竞价和您设置的任何手动调整，而不会根据售出可能性对</p>
-              <p>您的竞价进行更改。</p> 
-            </el-radio>
-          </el-radio-group>
-        </div>
-      </div>
-
-      <div class="bidding">
-        <p style="fontSize: 14px; marginTop: 10px">除了竞价策略外，您可以将竞价最多提高 900%。</p>
-          <p>
-            <span style="fontSize: 14px;color: #222">搜索结果顶部（首页）</span>
-            <el-input v-model="form.frontPage" @blur="numberChange" style="width: 150px" size="small">
-              <template slot="suffix">
-                <div  style="lineHeight: 32px">%</div>
-              </template>
-            </el-input>
-            <span v-if="form.frontPage > 900" style="color: red; marginLeft: 10px">最大值不能超过900</span>
-          </p>
-          <p style="marginLeft: 140px;">示例： 对于此广告位，$0.75 竞价将为 
-            ${{algorithm(form.frontPage)}}。
-            {{form.biddingStrategy !== 'manual' ? `动态竞价范围$0 - $${algorithm(form.frontPage)}` : ''}}</p>
-          <p>
-            <span style="fontSize: 14px;color: #222">商品页面</span>
-            <el-input
-              v-model="form.productPage"
-              @blur="numberChange" style="marginLeft: 82px;width: 150px" size="small">
-              <template slot="suffix">
-                <div  style="lineHeight: 32px;">%</div>
-              </template>
-            </el-input>
-            <span v-if="form.productPage > 900" style="color: red; marginLeft: 10px">最大值不能超过900</span>
-          </p>
-          <p style="marginLeft: 140px;">示例： 对于此广告位，$0.75 竞价将为 
-            ${{algorithm(form.productPage)}}。
-            {{form.biddingStrategy !== 'manual' ? 
-            `动态竞价范围$0 - $${algorithm(form.productPage)}` : ''}}</p>
-      </div>
-      </el-form>
-
+      <adCampaign :form.sync="form" :currency="rowData.currency"/>
     </div>
 
     <el-table
@@ -413,9 +305,12 @@ import {
   getGroupList,
   createGroup,
 } from '@/api/ppc/autoAd';
+import dayjs from 'dayjs';
+import adCampaign from './adCampaign.vue';
 
 export default {
   name: 'automation',
+  components: { adCampaign },
   props: {
     echo: {
       type: Object,
@@ -625,27 +520,17 @@ export default {
 
       // 创建广告活动
       form: {
+        id: '',
         campaignName: this.rowData.name,
         dailyBudget: '',
         campaignId: this.rowData.campaignId,
         templateId: this.templateId,
-        endDate: '',
-        startDate: Date.now(),
+        endTime: '',
+        startTime: Date.now(),
         deliveryType: 'auto',
         biddingStrategy: 'legacyForSales',
         frontPage: '0', //商品页面 百分比
         productPage: '20', //搜索结果顶部 百分比
-      },
-      pickerOptions: {
-        disabledDate: (date) => {
-          return date.getTime() < Date.now() - 8.64e7;
-        }
-      },
-      pickerOptions2: {
-        disabledDate: (date) => {
-          const day = new Date(this.form.startDate);    
-          return date.getTime() <= day.getTime() + 24 * 60 * 60 * 1000 - 8.64e7;
-        }
       },
     };
   },
@@ -751,7 +636,7 @@ export default {
         if (!val.length) {
           this.automatedOperation = '添加到投放';
         } else {
-          if (this.automatedOperation === '创建广告组') {
+          if (this.automatedOperation === '创建广告组' || this.automatedOperation === '创建广告活动') {
             this.createGroup();
           }
         }
@@ -831,16 +716,20 @@ export default {
       }
       this.tableData = this.echo.adCampaignInfos.map((item, index) => {
         this.getGroupList(item.campaignId, index);
+
         return {
           ...item,
           campaign: item.campaignId,
           adGroup: item.adGroupId,
           adGroupList: [],
+          matchType: this.echo.automatedOperation === '创建广告活动' ? item.matchType.split(',') : item.matchType
         };
       });
-      // if (this.tableData.length && this.tableData[0].campaign) {
-      //   this.getGroupList(this.tableData[0].campaign);
-      // }
+
+      if (this.echo.automatedOperation === '创建广告活动') {
+        this.addDisabled = true;
+      }
+      this.form = this.echo.createAdvertisingCampaignDTO;
       this.automatedOperation = this.echo.automatedOperation;
       this.tableData[this.tableData.length - 1].add = true;
     },
@@ -852,6 +741,7 @@ export default {
           campaignId: item.campaign,
           adGroupId: this.automatedOperation === '添加到投放' || this.automatedOperation === '创建广告活动' ? item.adGroup : null,
           currency: this.rowData.currency,
+          matchType: this.automatedOperation === '创建广告活动' ? item.matchType.join(',') : item.matchType
         };
       });
       obj = {
@@ -864,7 +754,11 @@ export default {
         id: this.echo.id || null,
         campaignId: this.rowData.campaignId
       };
-      obj = this.automatedOperation === '创建广告活动' ? Object.assign(obj, { createAdvertisingCampaignDTO: this.form }) : obj;
+      obj = this.automatedOperation === '创建广告活动' ? Object.assign(obj, { createAdvertisingCampaignDTO: {
+        ...this.form,
+        endTime: dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss'),
+        startTime: dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss')
+      } }) : obj;
       return obj;
     },
     // 获取广告组
@@ -1022,6 +916,23 @@ export default {
       }
 
       if (val === '创建广告活动') {
+        this.tableData = [
+          {
+            id: null,
+            campaign: this.rowData.campaignId,
+            adGroup: '',
+            matchType: '精准匹配',
+            bidType: '广告组默认竞价',
+            bid: '',
+            rule: '',
+            adjustTheValue: '', //调整数值
+            bidLimitValue: '', //竞价限值
+            msg: false,
+            add: true,
+            adGroupList: [],
+          },
+        ];
+        this.getGroupList(this.tableData[0].campaign, 0, 'flag');
         this.tableData[0].matchType = ['精准匹配'];
         this.addDisabled = true;
       } else {
@@ -1180,43 +1091,6 @@ export default {
         font-size: 12px;
         margin: 0;
     }
-  }
-
-  .label{
-    width: 600px;
-    display: flex;
-    line-height: 32px;
-    margin-top: 20px;
-
-    span {
-      width: 22%;
-    }
-
-    p {
-      margin: 0 0 6px 24px;
-      font-size: 12px;
-      color: #888;
-    }
-    
-  }
-
-  .bidding {
-    padding: 0px 0px 0px 120px;
-
-    p {
-      margin: 0 0 6px 9px;
-      font-size: 12px;
-      color: #888;
-    }
-  }
-
-  .budget {
-    color: #ff4d4f;
-    font-size: 20px;
-    font-family: SimSun,sans-serif;
-    content: "*";
-    display: block;
-    widows: 10px;
   }
 
 </style>

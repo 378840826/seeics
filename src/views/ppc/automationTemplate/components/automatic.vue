@@ -15,6 +15,11 @@
         />
       </el-select>
     </div>
+
+    <div v-show="automatedOperation === '创建广告活动'" style="marginTop: 10px">
+      <adCampaign :form="form" :currency="'站点货币'"/>
+    </div>
+
     <el-table
       v-if="isAutoShow"
       :data="tableData"
@@ -51,6 +56,8 @@
             v-model="scope.row.matchType" 
             placeholder="请选择"
             @change="matchTypeSelect"
+            :multiple="automatedOperation === '创建广告活动' ? true : false"
+            collapse-tag
           >
             <el-option
               v-for="item in matchType"
@@ -75,7 +82,10 @@
             @change="bidTypeSelect(scope.$index)"
           >
             <el-option
-              v-for="item in (automatedOperation === '自动竞价' || automatedOperation === '创建广告组' ? [...bidSelect, ...launchBidSelect] : bidSelect)"
+              v-for="item in (automatedOperation === '自动竞价'
+                || automatedOperation === '创建广告组'
+                || automatedOperation === '创建广告活动'
+                ? [...bidSelect, ...launchBidSelect] : bidSelect)"
               :key="item.value"
               :label="item.label"
               :value="item.value">
@@ -189,8 +199,12 @@
 </template>
 
 <script>
+import adCampaign from '../../autoAd/componets/adCampaign.vue';
+import dayjs from 'dayjs';
+
 export default {
   name: 'automatic',
+  components: { adCampaign },
   props: {
     echo: {
       type: Object,
@@ -332,11 +346,29 @@ export default {
           label: '创建广告组',
           value: '创建广告组',
           // disable: true
+        },
+        {
+          label: '创建广告活动',
+          value: '创建广告活动',
         }
       ],
       msg: false,
       isAutoShow: true,
-      launch: false
+      launch: false,
+
+      form: {
+        id: '',
+        campaignName: '',
+        dailyBudget: '',
+        campaignId: '',
+        templateId: '',
+        endTime: '',
+        startTime: Date.now(),
+        deliveryType: 'auto',
+        biddingStrategy: 'legacyForSales',
+        frontPage: '0', //商品页面 百分比
+        productPage: '20', //搜索结果顶部 百分比
+      },
     };
   },
   mounted() {
@@ -409,20 +441,27 @@ export default {
       }
     },
     echoFiled() {
-      this.tableData[0].matchType = this.echo.matchType || '精准匹配';
+      this.tableData[0].matchType = this.echo.automatedOperation === '创建广告活动'
+        ? this.echo.matchType && this.echo.matchType.split(',') || ['精准匹配']
+        : this.echo.matchType || '精准匹配';
       this.tableData[0].bid = this.echo.bid;
       this.tableData[0].bidType = this.echo.bidType || '广告组默认竞价';
       this.tableData[0].rule = this.echo.rule;
       this.tableData[0].adjustTheValue = this.echo.adjustTheValue;
       this.tableData[0].bidLimitValue = this.echo.bidLimitValue;
       this.automatedOperation = this.echo.automatedOperation;
+      
+      if (this.echo.automatedOperation === '创建广告活动') {
+        this.form = Object.assign(this.form, this.echo.createAdvertisingCampaignDTO);
+      }
+
       if (!this.echo.automatedOperation) {
         this.isAutoShow = false;
       }
     },
     getFiled() {
-      return {
-        matchType: this.automatedOperation ? this.tableData[0].matchType : null,
+      let obj = {
+        matchType: this.automatedOperation ? this.automatedOperation === '创建广告活动' && this.tableData[0].matchType.join(',') || this.tableData[0].matchType : null,
         bidType: this.automatedOperation ? this.tableData[0].bidType : null,
         bid: this.automatedOperation ? this.tableData[0].bid : null,
         automatedOperation: this.automatedOperation,
@@ -431,6 +470,14 @@ export default {
         bidLimitValue: this.automatedOperation ? this.tableData[0].bidLimitValue || '' : null,
         groupIdList: [],
       };
+
+      obj = this.automatedOperation === '创建广告活动' ? Object.assign(obj, { createAdvertisingCampaignDTO: {
+        ...this.form,
+        endTime: dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss'),
+        startTime: dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss')
+      } }) : obj;
+
+      return obj;
     },
     bidTypeSelect(index) {
       this.tableData[index].bid = '';
@@ -472,6 +519,12 @@ export default {
         this.isAutoShow = false;
       } else {
         this.isAutoShow = true;
+      }
+      
+      if (val === '创建广告活动') {
+        this.tableData[0].matchType = ['精准匹配'];
+      } else {
+        this.tableData[0].matchType = '精准匹配';
       }
     },
   }
