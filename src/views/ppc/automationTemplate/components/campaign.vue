@@ -415,7 +415,11 @@ export default {
 
     handelShopChange(val) {
       this.form.country = '';
-      this.getMarketplaceList(val);  
+      if (!val) {
+        this.marketplaceList = [];
+      } else {
+        this.getMarketplaceList(val);  
+      }
       this.queryCampaignPage();
     },
 
