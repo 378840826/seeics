@@ -267,7 +267,7 @@
       </el-table-column>
     </el-table>
 
-    <div class="explain">
+    <div v-show="automatedOperation === '创建广告活动'" class="explain">
       <span style="fontWeight: 900">匹配方式去重： </span> <el-switch v-model="form.deduplication">
       </el-switch>
       <p>匹配方式去重规则：</p>
@@ -927,11 +927,6 @@ export default {
           this.$emit('update:radio', 2);
         }
       }
-      if (!val) {
-        this.isAutoShow = false;
-      } else {
-        this.isAutoShow = true;
-      }
 
       if (val === '创建广告活动') {
         this.tableData = [
@@ -956,6 +951,16 @@ export default {
       } else {
         this.tableData[0].matchType = '精准匹配';
         this.addDisabled = false;
+      }
+
+      if (!val) {
+        this.isAutoShow = false;
+      } else {
+        this.isAutoShow = true;
+        this.isAutoShow = this.isAutoShow ? false : true;
+        this.$nextTick(() => {
+          this.isAutoShow = this.isAutoShow ? false : true;
+        });
       }
     },
 
