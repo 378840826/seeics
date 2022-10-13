@@ -205,17 +205,19 @@ export default {
         } else {
           this.getGroupList();
         }
-        this.strategy = this.campaignList.filter(item => item.campaignId === val)[0].biddingStrategy;
+        this.strategy = this.campaignList.length &&
+         this.campaignList.filter(item => item.campaignId === val)[0].biddingStrategy;
         this.defaultBid = '0.75';
-        this.dailyBudget = this.campaignList.filter(item => item.campaignId === val)[0].dailyBudget;
+        this.dailyBudget = this.campaignList.length &&
+         this.campaignList.filter(item => item.campaignId === val)[0].dailyBudget;
       }
     },
   },
 
   mounted() {
     this.queryCampaignList(false,
-      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.state !== 'archived').length && this.$parent.$data.tableData.filter(item => item.state !== 'archived')[0].campaignName || '',
-      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.state !== 'archived').length && this.$parent.$data.tableData.filter(item => item.state !== 'archived')[0].campaignId) || '';
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived').length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived')[0].campaignName || '',
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived').length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived')[0].campaignId) || '';
       
   },
 
