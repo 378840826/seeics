@@ -4,8 +4,8 @@
         <span style="width: 130px">广告活动名称：</span>
         <span>ASIN+MSKU+关键词+匹配方式+日期时间</span>
       </div>
-      <el-form label-width="130px">
-        <el-form-item prop="budget">
+      <el-form :model="form" ref="form" :rules="rule" label-width="130px">
+        <el-form-item prop="dailyBudget">
         <template slot="label">
           <div style="display: flex;">
             <span>日预算：</span>
@@ -126,7 +126,38 @@ export default {
   },
 
   data() {
+
+    const checkBudget = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error(`日预算不能为空`));
+      }
+      if (this.marketplace === 'JP') {
+        if (value < 100) {
+          return callback(new Error(`广告活动每日预算至少${this.currency}100`));
+        } else if (value > 21000000) {
+          return callback(new Error(`广告活动每日预算不能超过${this.currency}21,000,000`));
+        // eslint-disable-next-line no-else-return
+        } else {
+          callback();
+        }
+      } else {
+        if (value < 1) {
+          return callback(new Error(`广告活动每日预算至少${this.currency}1`));
+        } else if (value > 1000000) {
+          return callback(new Error(`广告活动每日预算不能超过${this.currency}1000000`));
+        // eslint-disable-next-line no-else-return
+        } else {
+          callback();
+        }
+      }
+    };
+
     return {
+      rule: {
+        dailyBudget: [
+          { validator: checkBudget, trigger: 'blur' },
+        ]
+      },
       pickerOptions: {
         disabledDate: (date) => {
           return date.getTime() < Date.now() - 8.64e7;
@@ -159,6 +190,20 @@ export default {
       const res = Number(value) / 100;
       return ( 0.75 * (1 + res)).toFixed(2);
     },
+
+    msg() {
+      let flag;
+      this.$refs.form.validate(s => {
+        flag = s;
+      });
+      
+      if (!flag) {
+        return true;
+      // eslint-disable-next-line no-else-return
+      } else {
+        return false;
+      }
+    }
   }
 };
 </script>
@@ -200,4 +245,5 @@ export default {
     display: block;
     widows: 10px;
   }
+
 </style>
