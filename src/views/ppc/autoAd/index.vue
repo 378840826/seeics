@@ -1043,11 +1043,36 @@ export default {
       let cpcValue = true;
       let minCpcMost = true;
       let maxCpcMost = true;
+
+      console.log(params)
+      if (params.automatedOperation === '创建广告活动') {
+        if (this.$refs.autoMation.budgetMsg()) {
+          return true;
+        } else if (!params.createAdvertisingCampaignDTO.startTime || !params.createAdvertisingCampaignDTO.endTime) {
+          this.$message({
+            type: 'error',
+            message: '请选择日期范围开始结尾时间'
+          });
+          return true;
+        } else if (params.createAdvertisingCampaignDTO.frontPage > 900) {
+          this.$message({
+            type: 'error',
+            message: '搜索结果顶部大于900%'
+          });
+          return true;
+        } else if (params.createAdvertisingCampaignDTO.productPage > 900) {
+          this.$message({
+            type: 'error',
+            message: '商品页面大于900%'
+          });
+          return true;
+        }
+      }
+
       params.adCampaignInfos && params.adCampaignInfos.map(item => {
         if (!item.adGroupId) {
           ad = false;
         }
-        console.log(item)
         if (item.bid && !reg.test(item.bid)) {
           flag = false;
         }
@@ -1200,8 +1225,7 @@ export default {
       if (this.deliveryMsg()) {
         return;
       }
-      // console.log(this.$refs.autoMation.getFiled())
-      // return
+
       createAndSave({ ...params, ...this.$refs.autoMation.getFiled() }).then(res => {
         if (res.data.code === 200) {
           this.$message({
@@ -1242,6 +1266,7 @@ export default {
       if (this.deliveryMsg()) {
         return;
       }
+
       if (this.updateBtn) {
         templateUpdate({ ...params, ...this.$refs.autoMation.getFiled() }).then(res => {
           if (res.data.code === 200) {
