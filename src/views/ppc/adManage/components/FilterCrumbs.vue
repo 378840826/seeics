@@ -9,11 +9,12 @@
     type="info"
     effect="plain"
     :disable-transitions="true"
+    class="tag"
     size="mini"
   >
     <span class="title">{{ value.title.title }}</span>
     <span v-if="value.title.suffix" class="suffix">({{ value.title.suffix }})</span>
-    : 
+    ：
     <span class="value">{{ value.value }}</span>
   </el-tag>
 
@@ -135,6 +136,10 @@ export default {
     margin: 0 10px 6px 0;
   }
 
+  .tag {
+    display: inline-flex;
+  }
+
   .btn-empty {
     font-weight: 400;
   }
@@ -149,11 +154,16 @@ export default {
 
   .value {
     color: $successColor;
+    max-width: 600px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   ::v-deep {
     .el-tag__close.el-icon-close {
       color: $danger;
+      top: 1px;
 
       &:hover {
         color: #fff;
