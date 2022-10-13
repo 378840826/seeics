@@ -504,6 +504,7 @@
         :groupVisible.sync="groupVisible"
         :isGroupTabel.sync="isGroupTabel"
         :isRadio.sync="isRadio"
+        :templateId.sync="templateId"
       />
       <span slot="footer" class="dialog-footer">
         <el-button 
@@ -1046,6 +1047,7 @@ export default {
         if (!item.adGroupId) {
           ad = false;
         }
+        console.log(item)
         if (item.bid && !reg.test(item.bid)) {
           flag = false;
         }
@@ -1198,6 +1200,8 @@ export default {
       if (this.deliveryMsg()) {
         return;
       }
+      // console.log(this.$refs.autoMation.getFiled())
+      // return
       createAndSave({ ...params, ...this.$refs.autoMation.getFiled() }).then(res => {
         if (res.data.code === 200) {
           this.$message({
