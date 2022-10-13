@@ -61,6 +61,10 @@
     <el-table-column prop="targeting" label="商品" sortable="custom">
     </el-table-column>
 
+    <!-- 树选中广告活动时，显示广告组列 -->
+    <el-table-column v-if="!treeSelectedInfo.groupId" prop="groupName" label="广告组">
+    </el-table-column>
+
     <el-table-column prop="addTime" label="添加时间" width="120" sortable="custom">
       <template slot="header">
         <span>
@@ -308,10 +312,4 @@ export default {
 
 <style lang="scss">
   @import "../commonGlobal.scss";
-</style>
-
-<style lang="scss" scoped>
-.table-container {
-  width: 700px;
-}
 </style>
