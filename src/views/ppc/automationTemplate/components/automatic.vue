@@ -16,9 +16,9 @@
       </el-select>
     </div>
 
-    <div v-show="automatedOperation === '创建广告活动'" style="marginTop: 10px">
+    <!-- <div v-show="automatedOperation === '创建广告活动'" style="marginTop: 10px">
       <adCampaign :form="form" :currency="'站点货币'"/>
-    </div>
+    </div> -->
 
     <el-table
       v-if="isAutoShow"
@@ -347,10 +347,10 @@ export default {
           value: '创建广告组',
           // disable: true
         },
-        {
-          label: '创建广告活动',
-          value: '创建广告活动',
-        }
+        // {
+        //   label: '创建广告活动',
+        //   value: '创建广告活动',
+        // }
       ],
       msg: false,
       isAutoShow: true,
