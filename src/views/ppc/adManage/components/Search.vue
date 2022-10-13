@@ -3,7 +3,7 @@
   <el-input
     :placeholder="placeholder"
     v-model="value"
-    maxlength="20"
+    :maxlength="maxlength"
     class="input"
     size="mini"
     clearable
@@ -28,6 +28,9 @@ export default {
     value: {
       type: String,
       required: true,
+    },
+    maxlength: {
+      type: Number,
     },
   },
 
