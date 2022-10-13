@@ -214,8 +214,8 @@ export default {
 
   mounted() {
     this.queryCampaignList(false,
-      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.state !== 'archived')[0].campaignName || '',
-      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.state !== 'archived')[0].campaignId);
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.state !== 'archived').length && this.$parent.$data.tableData.filter(item => item.state !== 'archived')[0].campaignName || '',
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.state !== 'archived').length && this.$parent.$data.tableData.filter(item => item.state !== 'archived')[0].campaignId) || '';
       
   },
 
