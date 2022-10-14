@@ -374,7 +374,7 @@ export default {
         templateId: '',
         endTime: '',
         startTime: Date.now(),
-        deliveryType: 'auto',
+        deliveryType: 'manual',
         biddingStrategy: 'legacyForSales',
         frontPage: '0', //商品页面 百分比
         productPage: '20', //搜索结果顶部 百分比
