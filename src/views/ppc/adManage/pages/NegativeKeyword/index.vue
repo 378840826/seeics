@@ -277,7 +277,7 @@ export default {
     // 批量修改页面表格数据
     updateTableData(ids, newData) {
       ids.forEach(id => {
-        const index = this.tableData.findIndex(data => data.keywordId === id);
+        const index = this.tableData.findIndex(data => data.neKeywordId === id);
         this.tableData.splice(index, 1, {
           ...this.tableData[index],
           ...newData,
@@ -287,14 +287,40 @@ export default {
 
     // 批量归档
     batchArchived(list) {
-      const ids = list.map(item => item.keywordId);
-      const params = {
-        storeId: this.storeId,
-        campaignId: this.treeSelectedInfo.campaignId,
-        groupId: this.treeSelectedInfo.groupId,
-        dataSource: this.filter.dataSource,
-        neKeywordIds: ids,
-      };
+      // 区分广告活动下的和广告组下的，接口不同，参数不同，共3个接口+两种参数格式
+      let params = {};
+      const ids = list.map(item => item.neKeywordId);
+      if (this.treeSelectedInfo.groupId) {
+        // 树选中广告组时，广告组下的
+        params = {
+          storeId: this.storeId,
+          campaignId: this.treeSelectedInfo.campaignId,
+          groupId: this.treeSelectedInfo.groupId,
+          neKeywordIds: ids,
+        };
+      } else {
+        // 树选中广告活动时
+        if (this.filter.dataSource === 'campaign') {
+          // 广告活动下的
+          params = {
+            storeId: this.storeId,
+            campaignId: this.treeSelectedInfo.campaignId,
+            neKeywordIds: ids,
+            dataSource: this.filter.dataSource,
+          };
+        } else {
+          // 广告组下的
+          params = {
+            storeId: this.storeId,
+            campaignId: this.treeSelectedInfo.campaignId,
+            archiveIds: list.map(item => (
+              { groupId: item.groupId, neKeywordId: item.neKeywordId, }
+            )),
+            dataSource: this.filter.dataSource,
+          };
+        }
+
+      }
       archiveNeKeyword(params).then(res => {
         const { success, fail } = res.data.data;
         // 有失败的，或全部失败

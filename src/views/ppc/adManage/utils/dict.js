@@ -32,7 +32,7 @@ export const tabsStateDict = {
   default: ['campaign', 'group', 'ad', 'keyword', 'targeting'],
   campaign: ['group', 'ad', 'keyword', 'negativeKeyword', 'targeting', 'negativeTargeting'],
   // 自动广告活动，不显示 关键词和分类/商品投放
-  autoCampaign: ['group', 'ad', 'negativeKeyword'],
+  autoCampaign: ['group', 'ad', 'negativeKeyword', 'negativeTargeting'],
   keywordGroup: ['ad', 'keyword', 'negativeKeyword'],
   targetingGroup: ['ad', 'targeting', 'negativeTargeting'],
   // 自动广告组，不显示 关键词和分类/商品投放

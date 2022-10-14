@@ -208,10 +208,23 @@ export const queryNeKeywordList = (params, data) => {
 
 // 否定关键词-归档
 export const archiveNeKeyword = (data) => {
-  // 区分广告活动和广告组
-  const campaign = '/seeics-ad/nekeyword/ne-keyword/campaign/archive';
-  const group = '/seeics-ad/nekeyword/ne-keyword/group/archive';
-  const url = data.dataSource === 'group' ? group : campaign;
+  /**
+   * 归档否定关键词，后端一共给了3个接口，都需要区分
+   * 1 广告活动下的否定关键词 (树选中广告活动时，广告活动下的否定关键词)
+   * 2 广告活动下广告组的否定关键词 (树选中广告活动时，当前广告活动下的广告组下的否定关键词)
+   * 3 广告组下的否定关键词 （树选中广告组时广告组的否定关键词）
+   */
+  const campaign = '/api/seeics-ad/nekeyword/ne-keyword/campaign/archive';
+  const campaignGroup = '/api/seeics-ad/nekeyword/campaign/group/archive';
+  const group = '/api/seeics-ad/nekeyword/ne-keyword/group/archive';
+  let url = '';
+  // 树选中广告组时，使用广告组下的归档
+  if (data.groupId) {
+    url = group;
+  } else {
+    // 树选中广告活动时， 区分当前显示的数据源是广告活动的还是广告组的
+    url = data.dataSource === 'group' ? campaignGroup : campaign;
+  }
   return request({
     url,
     method: 'post',
@@ -232,8 +245,12 @@ export const queryNeTargetingList = (params, data) => {
 
 // 否定Targeting-归档
 export const archiveNeTargeting = (data) => {
+  // 区分广告活动和广告组
+  const campaign = '/api/seeics-ad/negative_targeting/archived/campaign';
+  const group = '/api/seeics-ad/negative_targeting/archived';
+  const url = data.archiveIds ? campaign : group;
   return request({
-    url: '/api/seeics-ad/negative_targeting/archived',
+    url,
     method: 'post',
     data,
   });
