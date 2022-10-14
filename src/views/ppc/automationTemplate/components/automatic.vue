@@ -196,6 +196,15 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <div v-show="automatedOperation === '创建广告活动'" class="explain">
+      <span style="fontWeight: 900">匹配方式去重： </span> <el-switch v-model="form.deduplication">
+      </el-switch>
+      <p>匹配方式去重规则：</p>
+      <p>若该店铺的广告组下已有相同的asin，相同的关键词和相同的匹配方式且广告活动状态、广告组状态，ASIN广告状态，关键词状态，均为开启，则跳过该</p>
+      <p>匹配方式继续为其他匹配方式创建广告活动；</p>
+      <p>默认开启，规则生效，用户可以关闭，规则失效，不校验关键词匹配方式，直接跟进用户选择的匹配方式创建广告活动；</p>
+    </div>
   </div>
 </template>
 
@@ -369,6 +378,7 @@ export default {
         biddingStrategy: 'legacyForSales',
         frontPage: '0', //商品页面 百分比
         productPage: '20', //搜索结果顶部 百分比
+        deduplication: true,
       },
     };
   },
@@ -459,6 +469,7 @@ export default {
       
       if (this.echo.automatedOperation === '创建广告活动') {
         this.form = Object.assign(this.form, this.echo.createAdvertisingCampaignDTO);
+        this.form.deduplication = this.echo.createAdvertisingCampaignDTO.deduplication ? true : false;
       }
 
       if (!this.echo.automatedOperation) {
@@ -480,7 +491,9 @@ export default {
       obj = this.automatedOperation === '创建广告活动' ? Object.assign(obj, { createAdvertisingCampaignDTO: {
         ...this.form,
         endTime: this.form.endTime && dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || '',
-        startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || ''
+        startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || '',
+        deduplication: this.form.deduplication ? 1 : 0,
+        campaignName: 'ASIN+MSKU+关键词+匹配方式+日期时间',
       } }) : obj;
 
       return obj;
@@ -587,5 +600,13 @@ export default {
     .msg {
       color: red;
     }
+  }
+
+  .explain {
+    margin-top: 20px;
+      p {
+          font-size: 12px;
+          margin: 0;
+      }
   }
 </style>
