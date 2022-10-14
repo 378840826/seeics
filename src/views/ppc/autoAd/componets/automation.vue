@@ -742,7 +742,7 @@ export default {
           campaign: item.campaignId,
           adGroup: item.adGroupId,
           adGroupList: [],
-          matchType: this.echo.automatedOperation === '创建广告活动' ? item.matchType.split(',') : item.matchType
+          matchType: this.echo.automatedOperation === '创建广告活动' ? item.matchType && item.matchType.split(',') || ['精准匹配'] : item.matchType && item.matchType || '精准匹配'
         };
       });
 
@@ -752,6 +752,7 @@ export default {
       this.form = this.echo.createAdvertisingCampaignDTO;
       this.form.deduplication = this.echo.createAdvertisingCampaignDTO.deduplication ? true : false;
       this.automatedOperation = this.echo.automatedOperation;
+      console.log(this.echo.automatedOperation)
       this.tableData[this.tableData.length - 1].add = true;
     },
     getFiled() {
