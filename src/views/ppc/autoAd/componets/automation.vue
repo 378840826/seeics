@@ -43,6 +43,7 @@
       max-height="300"
       style="width: 100%; margin: 10px 0 0 0">
       <el-table-column
+        v-if="automatedOperation !== '创建广告活动'"
         label="广告活动"
         prop="campaign"
         align="center"
@@ -87,7 +88,11 @@
         align="center"
       >
         <template slot-scope="scope">
+
+          <div v-if="automatedOperation === '创建广告活动'">ASIN+MSKU+关键词+匹配方式+日期时间</div>
+
           <el-select 
+            v-else
             v-model="scope.row.adGroup" 
             placeholder="请选择广告组"
             @change="adGroupSelect(scope.$index)"
