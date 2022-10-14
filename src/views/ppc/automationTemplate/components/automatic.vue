@@ -16,9 +16,9 @@
       </el-select>
     </div>
 
-    <!-- <div v-show="automatedOperation === '创建广告活动'" style="marginTop: 10px">
-      <adCampaign :form="form" :currency="'站点货币'"/>
-    </div> -->
+    <div v-show="automatedOperation === '创建广告活动'" style="marginTop: 10px">
+      <adCampaign ref="adCampaign" :form="form" :currency="'站点货币'"/>
+    </div>
 
     <el-table
       v-if="isAutoShow"
@@ -347,10 +347,10 @@ export default {
           value: '创建广告组',
           // disable: true
         },
-        // {
-        //   label: '创建广告活动',
-        //   value: '创建广告活动',
-        // }
+        {
+          label: '创建广告活动',
+          value: '创建广告活动',
+        }
       ],
       msg: false,
       isAutoShow: true,
@@ -389,6 +389,11 @@ export default {
     },
   },
   methods: {
+
+    budgetMsg() {
+      return this.$refs.adCampaign.msg();
+    },
+
     minValue(rule) {
       if (rule === '下调(绝对值)' || rule === '下调(%)') {
         return '竞价最小值';
@@ -473,8 +478,8 @@ export default {
 
       obj = this.automatedOperation === '创建广告活动' ? Object.assign(obj, { createAdvertisingCampaignDTO: {
         ...this.form,
-        endTime: dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss'),
-        startTime: dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss')
+        endTime: this.form.endTime && dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || '',
+        startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || ''
       } }) : obj;
 
       return obj;
@@ -519,6 +524,10 @@ export default {
         this.isAutoShow = false;
       } else {
         this.isAutoShow = true;
+        this.isAutoShow = this.isAutoShow ? false : true;
+        this.$nextTick(() => {
+          this.isAutoShow = this.isAutoShow ? false : true;
+        });
       }
       
       if (val === '创建广告活动') {
