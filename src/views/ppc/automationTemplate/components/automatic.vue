@@ -15,6 +15,11 @@
         />
       </el-select>
     </div>
+
+    <div v-show="automatedOperation === '创建广告活动'" style="marginTop: 10px">
+      <adCampaign ref="adCampaign" :form="form" :currency="'站点货币'"/>
+    </div>
+
     <el-table
       v-if="isAutoShow"
       :data="tableData"
@@ -22,6 +27,7 @@
       max-height="300"
       style="width: 100%; margin: 10px 0 0 0">
       <el-table-column
+        v-if="automatedOperation !== '创建广告活动'"
         label="广告活动"
         prop="campaign"
         align="center"
@@ -31,13 +37,13 @@
         </template>
       </el-table-column>
       <el-table-column
-        v-if="automatedOperation === '添加到投放'"
+        v-if="automatedOperation === '添加到投放' || automatedOperation === '创建广告活动'"
         label="广告组"
         prop="adGroup"
         align="center"
       >
         <template slot-scope="scope">
-          <div>{{scope.row.adGroup}}</div>
+          <div>{{automatedOperation === '创建广告活动' ? 'ASIN+MSKU+关键词+匹配方式+日期时间' : scope.row.adGroup}}</div>
         </template>
       </el-table-column>
       <el-table-column
@@ -51,6 +57,8 @@
             v-model="scope.row.matchType" 
             placeholder="请选择"
             @change="matchTypeSelect"
+            :multiple="automatedOperation === '创建广告活动' ? true : false"
+            collapse-tag
           >
             <el-option
               v-for="item in matchType"
@@ -75,7 +83,10 @@
             @change="bidTypeSelect(scope.$index)"
           >
             <el-option
-              v-for="item in (automatedOperation === '自动竞价' || automatedOperation === '创建广告组' ? [...bidSelect, ...launchBidSelect] : bidSelect)"
+              v-for="item in (automatedOperation === '自动竞价'
+                || automatedOperation === '创建广告组'
+                || automatedOperation === '创建广告活动'
+                ? [...bidSelect, ...launchBidSelect] : bidSelect)"
               :key="item.value"
               :label="item.label"
               :value="item.value">
@@ -185,12 +196,25 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <div v-show="automatedOperation === '创建广告活动'" class="explain">
+      <span style="fontWeight: 900">匹配方式去重： </span> <el-switch v-model="form.deduplication">
+      </el-switch>
+      <p>匹配方式去重规则：</p>
+      <p>若该店铺的广告组下已有相同的asin，相同的关键词和相同的匹配方式且广告活动状态、广告组状态，ASIN广告状态，关键词状态，均为开启，则跳过该</p>
+      <p>匹配方式继续为其他匹配方式创建广告活动；</p>
+      <p>默认开启，规则生效，用户可以关闭，规则失效，不校验关键词匹配方式，直接跟进用户选择的匹配方式创建广告活动；</p>
+    </div>
   </div>
 </template>
 
 <script>
+import adCampaign from '../../autoAd/componets/adCampaign.vue';
+import dayjs from 'dayjs';
+
 export default {
   name: 'automatic',
+  components: { adCampaign },
   props: {
     echo: {
       type: Object,
@@ -332,11 +356,30 @@ export default {
           label: '创建广告组',
           value: '创建广告组',
           // disable: true
+        },
+        {
+          label: '创建广告活动',
+          value: '创建广告活动',
         }
       ],
       msg: false,
       isAutoShow: true,
-      launch: false
+      launch: false,
+
+      form: {
+        id: '',
+        campaignName: '',
+        dailyBudget: '',
+        campaignId: '',
+        templateId: '',
+        endTime: '',
+        startTime: Date.now(),
+        deliveryType: 'manual',
+        biddingStrategy: 'legacyForSales',
+        frontPage: '20', //商品页面 百分比
+        productPage: '0', //搜索结果顶部 百分比
+        deduplication: true,
+      },
     };
   },
   mounted() {
@@ -357,6 +400,11 @@ export default {
     },
   },
   methods: {
+
+    budgetMsg() {
+      return this.$refs.adCampaign.msg();
+    },
+
     minValue(rule) {
       if (rule === '下调(绝对值)' || rule === '下调(%)') {
         return '竞价最小值';
@@ -409,20 +457,28 @@ export default {
       }
     },
     echoFiled() {
-      this.tableData[0].matchType = this.echo.matchType || '精准匹配';
+      this.tableData[0].matchType = this.echo.automatedOperation === '创建广告活动'
+        ? this.echo.matchType && this.echo.matchType.split(',') || ['精准匹配']
+        : this.echo.matchType || '精准匹配';
       this.tableData[0].bid = this.echo.bid;
       this.tableData[0].bidType = this.echo.bidType || '广告组默认竞价';
       this.tableData[0].rule = this.echo.rule;
       this.tableData[0].adjustTheValue = this.echo.adjustTheValue;
       this.tableData[0].bidLimitValue = this.echo.bidLimitValue;
       this.automatedOperation = this.echo.automatedOperation;
+      
+      if (this.echo.automatedOperation === '创建广告活动') {
+        this.form = Object.assign(this.form, this.echo.createAdvertisingCampaignDTO);
+        this.form.deduplication = this.echo.createAdvertisingCampaignDTO.deduplication ? true : false;
+      }
+
       if (!this.echo.automatedOperation) {
         this.isAutoShow = false;
       }
     },
     getFiled() {
-      return {
-        matchType: this.automatedOperation ? this.tableData[0].matchType : null,
+      let obj = {
+        matchType: this.automatedOperation ? this.automatedOperation === '创建广告活动' && this.tableData[0].matchType.join(',') || this.tableData[0].matchType : null,
         bidType: this.automatedOperation ? this.tableData[0].bidType : null,
         bid: this.automatedOperation ? this.tableData[0].bid : null,
         automatedOperation: this.automatedOperation,
@@ -431,6 +487,16 @@ export default {
         bidLimitValue: this.automatedOperation ? this.tableData[0].bidLimitValue || '' : null,
         groupIdList: [],
       };
+
+      obj = this.automatedOperation === '创建广告活动' ? Object.assign(obj, { createAdvertisingCampaignDTO: {
+        ...this.form,
+        endTime: this.form.endTime && dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || '',
+        startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || '',
+        deduplication: this.form.deduplication ? 1 : 0,
+        campaignName: 'ASIN+MSKU+关键词+匹配方式+日期时间',
+      } }) : obj;
+
+      return obj;
     },
     bidTypeSelect(index) {
       this.tableData[index].bid = '';
@@ -472,6 +538,16 @@ export default {
         this.isAutoShow = false;
       } else {
         this.isAutoShow = true;
+        this.isAutoShow = this.isAutoShow ? false : true;
+        this.$nextTick(() => {
+          this.isAutoShow = this.isAutoShow ? false : true;
+        });
+      }
+      
+      if (val === '创建广告活动') {
+        this.tableData[0].matchType = ['精准匹配'];
+      } else {
+        this.tableData[0].matchType = '精准匹配';
       }
     },
   }
@@ -524,5 +600,13 @@ export default {
     .msg {
       color: red;
     }
+  }
+
+  .explain {
+    margin-top: 20px;
+      p {
+          font-size: 12px;
+          margin: 0;
+      }
   }
 </style>

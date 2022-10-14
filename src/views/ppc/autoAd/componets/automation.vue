@@ -31,6 +31,11 @@
           </div>
         </el-popover>
     </div>
+
+    <div v-show="automatedOperation === '创建广告活动'" style="marginTop: 10px">
+      <adCampaign ref="adCampaign" :form.sync="form" :currency="rowData.currency"/>
+    </div>
+
     <el-table
       v-if="isAutoShow"
       :data="tableData"
@@ -38,6 +43,7 @@
       max-height="300"
       style="width: 100%; margin: 10px 0 0 0">
       <el-table-column
+        v-if="automatedOperation !== '创建广告活动'"
         label="广告活动"
         prop="campaign"
         align="center"
@@ -57,7 +63,10 @@
             :loading="loading"
             v-loadmore="loadmore"
             @focus="name=''; queryCampaignList(formData)"
-            :disabled="launch && automatedOperation !== '添加到投放' || automatedOperation === '创建广告组'"
+            :disabled="launch
+            && automatedOperation !== '添加到投放'
+            || automatedOperation === '创建广告组'
+            || automatedOperation === '创建广告活动'"
           >
             <el-option
               class="option"
@@ -73,13 +82,17 @@
         </template>
       </el-table-column>
       <el-table-column
-        v-if="automatedOperation === '添加到投放'"
+        v-if="automatedOperation === '添加到投放' || automatedOperation === '创建广告活动'"
         label="广告组"
         prop="adGroup"
         align="center"
       >
         <template slot-scope="scope">
+
+          <div v-if="automatedOperation === '创建广告活动'">ASIN+MSKU+关键词+匹配方式+日期时间</div>
+
           <el-select 
+            v-else
             v-model="scope.row.adGroup" 
             placeholder="请选择广告组"
             @change="adGroupSelect(scope.$index)"
@@ -107,6 +120,8 @@
           <el-select 
             v-model="scope.row.matchType" 
             placeholder="请选择"
+            :multiple="automatedOperation === '创建广告活动' ? true : false"
+            collapse-tag
           >
             <el-option
               v-for="item in matchType"
@@ -131,7 +146,10 @@
             @change="bidTypeSelect(scope.$index)"
           >
             <el-option
-              v-for="item in (automatedOperation === '自动竞价' || automatedOperation === '创建广告组' ? [...bidSelect, ...launchBidSelect] : bidSelect)"
+              v-for="item in (automatedOperation === '自动竞价'
+                || automatedOperation === '创建广告组'
+                || automatedOperation === '创建广告活动'
+                ? [...bidSelect, ...launchBidSelect] : bidSelect)"
               :key="item.value"
               :label="item.label"
               :value="item.value">
@@ -253,6 +271,16 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <div v-show="automatedOperation === '创建广告活动'" class="explain">
+      <span style="fontWeight: 900">匹配方式去重： </span> <el-switch v-model="form.deduplication">
+      </el-switch>
+      <p>匹配方式去重规则：</p>
+      <p>若该店铺的广告组下已有相同的asin，相同的关键词和相同的匹配方式且广告活动状态、广告组状态，ASIN广告状态，关键词状态，均为开启，则跳过该</p>
+      <p>匹配方式继续为其他匹配方式创建广告活动；</p>
+      <p>默认开启，规则生效，用户可以关闭，规则失效，不校验关键词匹配方式，直接跟进用户选择的匹配方式创建广告活动；</p>
+    </div>
+
     <div class="explain">
       <p>操作要点</p>
       <p>1. 每个自动化标签最多支持一种自动化操作。</p>
@@ -292,9 +320,12 @@ import {
   getGroupList,
   createGroup,
 } from '@/api/ppc/autoAd';
+import dayjs from 'dayjs';
+import adCampaign from './adCampaign.vue';
 
 export default {
   name: 'automation',
+  components: { adCampaign },
   props: {
     echo: {
       type: Object,
@@ -331,7 +362,11 @@ export default {
     isRadio: {
       type: Boolean,
       require: true
-    }
+    },
+    templateId: {
+      type: String,
+      require: true
+    },
   },
   model: {
     prop: 'value',
@@ -340,6 +375,7 @@ export default {
   data() {
     return {
       msgVisible: false,
+      automatedOperation: '添加到投放',
       tableData: [
         {
           id: null,
@@ -406,7 +442,7 @@ export default {
           label: '建议竞价'
         }
       ],
-      automatedOperation: '添加到投放',
+      
       launchOption: [
         {
           label: '无',
@@ -452,7 +488,12 @@ export default {
           label: '创建广告组',
           value: '创建广告组',
           // disable: true
-        }
+        },
+        {
+          label: '创建广告活动',
+          value: '创建广告活动',
+          // disable: true
+        },
       ],
       shang: [
         // {
@@ -490,7 +531,23 @@ export default {
       addDisabled: false,
       deleteDisabled: false,
       isAutoShow: true,
-      loading: false
+      loading: false,
+
+      // 创建广告活动
+      form: {
+        id: '',
+        campaignName: this.rowData.name,
+        dailyBudget: '',
+        campaignId: this.rowData.campaignId,
+        templateId: this.templateId,
+        endTime: '',
+        startTime: Date.now(),
+        deliveryType: 'manual',
+        biddingStrategy: 'legacyForSales',
+        frontPage: '20', //商品页面 百分比
+        productPage: '0', //搜索结果顶部 百分比
+        deduplication: true, //去重
+      },
     };
   },
   mounted() {
@@ -595,7 +652,7 @@ export default {
         if (!val.length) {
           this.automatedOperation = '添加到投放';
         } else {
-          if (this.automatedOperation === '创建广告组') {
+          if (this.automatedOperation === '创建广告组' || this.automatedOperation === '创建广告活动') {
             this.createGroup();
           }
         }
@@ -614,6 +671,15 @@ export default {
     }
   },
   methods: {
+    algorithm(value) {
+      const res = Number(value) / 100;
+      return ( 0.75 * (1 + res)).toFixed(2);
+    },
+
+    budgetMsg() {
+      return this.$refs.adCampaign.msg();
+    },
+
     minValue(rule) {
       if (rule === '下调(绝对值)' || rule === '下调(%)') {
         return '竞价最小值';
@@ -670,17 +736,23 @@ export default {
       }
       this.tableData = this.echo.adCampaignInfos.map((item, index) => {
         this.getGroupList(item.campaignId, index);
+
         return {
           ...item,
           campaign: item.campaignId,
           adGroup: item.adGroupId,
           adGroupList: [],
+          matchType: this.echo.automatedOperation === '创建广告活动' ? item.matchType && item.matchType.split(',') || ['精准匹配'] : item.matchType && item.matchType || '精准匹配'
         };
       });
-      // if (this.tableData.length && this.tableData[0].campaign) {
-      //   this.getGroupList(this.tableData[0].campaign);
-      // }
+
+      if (this.echo.automatedOperation === '创建广告活动') {
+        this.addDisabled = true;
+      }
+      this.form = this.echo.createAdvertisingCampaignDTO;
+      this.form.deduplication = this.echo.createAdvertisingCampaignDTO.deduplication ? true : false;
       this.automatedOperation = this.echo.automatedOperation;
+      console.log(this.echo.automatedOperation)
       this.tableData[this.tableData.length - 1].add = true;
     },
     getFiled() {
@@ -689,8 +761,9 @@ export default {
         return {
           ...item,
           campaignId: item.campaign,
-          adGroupId: this.automatedOperation === '添加到投放' ? item.adGroup : null,
+          adGroupId: this.automatedOperation === '添加到投放' || this.automatedOperation === '创建广告活动' ? item.adGroup : null,
           currency: this.rowData.currency,
+          matchType: this.automatedOperation === '创建广告活动' ? item.matchType.join(',') : item.matchType
         };
       });
       obj = {
@@ -703,6 +776,13 @@ export default {
         id: this.echo.id || null,
         campaignId: this.rowData.campaignId
       };
+      obj = this.automatedOperation === '创建广告活动' ? Object.assign(obj, { createAdvertisingCampaignDTO: {
+        ...this.form,
+        endTime: this.form.endTime && dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || '',
+        startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || '',
+        deduplication: this.form.deduplication ? 1 : 0,
+        campaignName: 'ASIN+MSKU+关键词+匹配方式+日期时间',
+      } }) : obj;
       return obj;
     },
     // 获取广告组
@@ -843,7 +923,7 @@ export default {
         this.tableData[0].adjustTheValue = '';
         this.tableData[0].bid = '';
       } else {
-        if (val === '创建广告组') {
+        if (val === '创建广告组' || val === '创建广告活动') {
           if (!this.adGroupOption.length) {
             this.$emit('update:groupVisible', true);
             this.$emit('update:isGroupTabel', true);
@@ -853,10 +933,40 @@ export default {
           this.$emit('update:radio', 2);
         }
       }
+
+      if (val === '创建广告活动') {
+        this.tableData = [
+          {
+            id: null,
+            campaign: this.rowData.campaignId,
+            adGroup: '',
+            matchType: '精准匹配',
+            bidType: '广告组默认竞价',
+            bid: '',
+            rule: '',
+            adjustTheValue: '', //调整数值
+            bidLimitValue: '', //竞价限值
+            msg: false,
+            add: true,
+            adGroupList: [],
+          },
+        ];
+        this.getGroupList(this.tableData[0].campaign, 0, 'flag');
+        this.tableData[0].matchType = ['精准匹配'];
+        this.addDisabled = true;
+      } else {
+        this.tableData[0].matchType = '精准匹配';
+        this.addDisabled = false;
+      }
+
       if (!val) {
         this.isAutoShow = false;
       } else {
         this.isAutoShow = true;
+        this.isAutoShow = this.isAutoShow ? false : true;
+        this.$nextTick(() => {
+          this.isAutoShow = this.isAutoShow ? false : true;
+        });
       }
     },
 
@@ -895,7 +1005,7 @@ export default {
         id: null,
         campaign: this.automatedOperation === '创建广告组' ? this.rowData.campaignId : '',
         adGroup: this.labelFilter(this.adGroupList),
-        matchType: '精准匹配',
+        matchType: this.automatedOperation === '创建广告活动' ? ['精准匹配'] : '精准匹配',
         bidType: '广告组默认竞价',
         bid: '',
         rule: '',
@@ -974,9 +1084,9 @@ export default {
   ::v-deep .el-input__icon {
     line-height: 30px;
   }
-  ::v-deep .el-input--prefix .el-input__inner {
-    padding-left: 20px;
-  }
+  // ::v-deep .el-input--prefix .el-input__inner {
+  //   padding-left: 20px;
+  // }
   .currency {
     color: #409EFF;
   }
@@ -1011,4 +1121,5 @@ export default {
         margin: 0;
     }
   }
+
 </style>
