@@ -13,8 +13,9 @@ export function parseTreeKey(key) {
   return {
     campaignState: paramsArr[0],
     campaignId: paramsArr[1],
-    groupId: paramsArr[2],
-    groupType: paramsArr[3],
+    targetingType: paramsArr[2],
+    groupId: paramsArr[3],
+    groupType: paramsArr[4],
   };
 }
 
