@@ -27,6 +27,7 @@
       max-height="300"
       style="width: 100%; margin: 10px 0 0 0">
       <el-table-column
+        v-if="automatedOperation !== '创建广告活动'"
         label="广告活动"
         prop="campaign"
         align="center"
@@ -36,13 +37,13 @@
         </template>
       </el-table-column>
       <el-table-column
-        v-if="automatedOperation === '添加到投放'"
+        v-if="automatedOperation === '添加到投放' || automatedOperation === '创建广告活动'"
         label="广告组"
         prop="adGroup"
         align="center"
       >
         <template slot-scope="scope">
-          <div>{{scope.row.adGroup}}</div>
+          <div>{{automatedOperation === '创建广告活动' ? 'ASIN+MSKU+关键词+匹配方式+日期时间' : scope.row.adGroup}}</div>
         </template>
       </el-table-column>
       <el-table-column
