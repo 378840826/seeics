@@ -52,8 +52,8 @@
 
       <div class="label">
         <span>投放类型：</span>
-        <el-radio-group v-model="form.deliveryType">
-          <el-radio label="auto">自动</el-radio>
+        <el-radio-group v-model="form.deliveryType" style="marginTop: 10px">
+          <!-- <el-radio label="auto">自动</el-radio> -->
           <el-radio label="manual">手动</el-radio>
         </el-radio-group>
       </div>
