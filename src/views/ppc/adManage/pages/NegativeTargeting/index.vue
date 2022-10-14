@@ -239,13 +239,27 @@ export default {
 
     // 批量归档
     batchArchived(list) {
+      // 区分广告活动下的和广告组下的，接口不同，参数不同
+      let params = {};
       const ids = list.map(item => item.targetId);
-      const params = {
-        storeId: this.storeId,
-        campaignId: this.treeSelectedInfo.campaignId,
-        groupId: this.treeSelectedInfo.groupId,
-        neTargetIds: ids,
-      };
+      if (this.treeSelectedInfo.groupId) {
+        // 广告组下
+        params = {
+          storeId: this.storeId,
+          campaignId: this.treeSelectedInfo.campaignId,
+          groupId: this.treeSelectedInfo.groupId,
+          neTargetIds: ids,
+        };
+      } else {
+        // 广告活动下
+        params = {
+          storeId: this.storeId,
+          campaignId: this.treeSelectedInfo.campaignId,
+          archiveIds: list.map(item => (
+            { groupId: item.groupId, neTargetId: item.targetId, }
+          )),
+        };
+      }
       archiveNeTargeting(params).then(res => {
         const { success, fail } = res.data.data;
         // 有失败的，或全部失败
