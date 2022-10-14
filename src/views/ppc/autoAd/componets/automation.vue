@@ -544,8 +544,8 @@ export default {
         startTime: Date.now(),
         deliveryType: 'manual',
         biddingStrategy: 'legacyForSales',
-        frontPage: '0', //商品页面 百分比
-        productPage: '20', //搜索结果顶部 百分比
+        frontPage: '20', //商品页面 百分比
+        productPage: '0', //搜索结果顶部 百分比
         deduplication: true, //去重
       },
     };
