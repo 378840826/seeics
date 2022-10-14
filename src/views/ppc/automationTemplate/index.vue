@@ -489,6 +489,31 @@ export default {
     deliveryMsg() {
       const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
       const automatic = this.$refs.automatic.getFiled();
+
+      if (automatic.automatedOperation === '创建广告活动') {
+        if (this.$refs.automatic.budgetMsg()) {
+          return true;
+        } else if (!automatic.createAdvertisingCampaignDTO.startTime || !automatic.createAdvertisingCampaignDTO.endTime) {
+          this.$message({
+            type: 'error',
+            message: '请选择日期范围开始结尾时间'
+          });
+          return true;
+        } else if (automatic.createAdvertisingCampaignDTO.frontPage > 900) {
+          this.$message({
+            type: 'error',
+            message: '搜索结果顶部大于900%'
+          });
+          return true;
+        } else if (automatic.createAdvertisingCampaignDTO.productPage > 900) {
+          this.$message({
+            type: 'error',
+            message: '商品页面大于900%'
+          });
+          return true;
+        }
+      }
+
       if (!reg.test(Number(automatic.bid))) {
         this.$message({
           type: 'error',
@@ -541,6 +566,7 @@ export default {
       if (this.deliveryMsg()) {
         return;
       }
+
       const automatic = this.$refs.automatic.getFiled();
       const params = {
         ...this.formInline,
