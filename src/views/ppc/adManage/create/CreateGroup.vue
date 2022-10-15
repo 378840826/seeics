@@ -322,8 +322,8 @@ export default {
 
   mounted() {
     this.queryCampaignList(false,
-      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.state !== 'archived')[0].campaignName || '',
-      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.state !== 'archived')[0].campaignId);
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived').length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived')[0].campaignName || '',
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived').length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived')[0].campaignId) || '';
   },
 
   methods: {
@@ -391,7 +391,7 @@ export default {
           this.campaignList = this.repetit(this.campaignList);
           this.total = res.data.data.total;
           if (!flag) { //非预加载赋值
-            this.form.campaignId = id || this.campaignList.length && this.campaignList[0].campaignId || '';
+            this.form.campaignId = id || this.campaignList.length && this.campaignList[0].id || '';
             this.targetingMode = this.data.length && this.data[0].targetingType;
             this.strategy = this.data.length && this.data[0].biddingStrategy;
             this.dailyBudget = this.data.length && this.data[0].dailyBudget;
@@ -409,9 +409,9 @@ export default {
     },
 
     handleGroup(value) {
-      this.targetingMode = this.data.filter(item => item.id === value)[0].targetingType;
-      this.strategy = this.data.filter(item => item.id === value)[0].biddingStrategy;
-      this.dailyBudget = this.data.filter(item => item.id === value)[0].dailyBudget;
+      this.targetingMode = this.data.filter(item => item.campaignId === value)[0].targetingType;
+      this.strategy = this.data.filter(item => item.campaignId === value)[0].biddingStrategy;
+      this.dailyBudget = this.data.filter(item => item.campaignId === value)[0].dailyBudget;
     },
 
     remoteMethod(val) {

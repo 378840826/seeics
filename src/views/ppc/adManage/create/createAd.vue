@@ -180,7 +180,7 @@ export default {
   watch: {
     'form.campaignId': {
       handler(val) {
-        if (val === this.$parent.$data.tableData[0].campaignId) {
+        if (val === this.$parent.$data.tableData.length && this.$parent.$data.tableData[0].campaignId) {
           this.getGroupList(false, this.$parent.$data.tableData[0].groupName, this.$parent.$data.tableData[0].groupId);
         } else {
           this.getGroupList();
@@ -191,8 +191,8 @@ export default {
 
   mounted() {
     this.queryCampaignList(false,
-      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.state !== 'archived')[0].campaignName || '',
-      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.state !== 'archived')[0].campaignId);
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived').length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived')[0].campaignName || '',
+      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived').length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived')[0].campaignId) || '';
   },
 
 
@@ -274,7 +274,7 @@ export default {
           });
           
           if (!flag) { //非预加载赋值
-            this.form.campaignId = id || this.campaignList.length && this.campaignList[0].campaignId || '';
+            this.form.campaignId = id || this.campaignList.length && this.campaignList[0].id || '';
           }
 
           if (name) {
@@ -315,7 +315,7 @@ export default {
           this.groupTotal = res.data.data.total;
           if (!flag) { //非预加载赋值
             this.groupList = data;
-            this.form.groupId = id || this.groupList.length && this.groupList[0].id;
+            this.form.groupId = id || this.groupList.length && this.groupList[0].id || '';
           } else {
             this.groupList = this.groupList.concat(data);
             this.groupList = this.repetit(this.groupList);
