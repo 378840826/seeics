@@ -93,7 +93,16 @@
       </div>
     </el-card>
     <div  v-for="item in data" :key="item.id">
-      <div class="Or">或</div>
+
+      <div v-if="dateSelect" class="ruleOr">
+        <el-select v-model="item.relation">
+          <el-option value="且" style="padding: 0 20px">且</el-option>
+          <el-option value="或" style="padding: 0 20px">或</el-option>
+        </el-select>
+      </div>
+
+      <div v-else class="Or">或</div>
+
       <el-card class="box-card" shadow="never">
         <div slot="header" class="clearfix">
             <span style="fontSize: 14px; fontWeight: 600; marginRight: 30px">子规则{{item.key + 1}}</span>
@@ -357,6 +366,7 @@ export default {
             days: this.dateSelect && item.days,
             calculation: this.dateSelect && item.calculation,
             ruleLen: 0,
+            relation: item.relation,
             formInline: item.item.map(s => {
               let obj = {};
               obj = {
@@ -388,7 +398,7 @@ export default {
         res.push(obj);
       }
       this.data.map(item => {
-        const arr = filterField(item.formInline, this.dateSelect ? { days: item.days, calculation: item.calculation } : null);
+        const arr = filterField(item.formInline, this.dateSelect ? { days: item.days, calculation: item.calculation, relation: item.relation } : null);
         if (Object.keys(arr).length !== 0) {
           res.push(arr);
         }
@@ -463,7 +473,8 @@ export default {
           formInline: arr,
           fieldsPage: JSON.parse(JSON.stringify(fields[this.fields])),
           days: '7',
-          calculation: '总计'
+          calculation: '总计',
+          relation: '且'
         });
       } else {
         this.$message({
@@ -730,6 +741,18 @@ export default {
         position: absolute;
         left: -8px;
         top: 4px;
+      }
+    }
+
+    .ruleOr {
+      margin: 5px 0;
+      ::v-deep .el-input__inner  {
+        position: relative;
+        font-size: 14px;
+        display: inline-block;
+        width: 70px;
+        padding: 0 15px;
+        height: 30px;  
       }
     }
   }
