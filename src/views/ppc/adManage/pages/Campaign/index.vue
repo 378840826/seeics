@@ -346,9 +346,6 @@ export default {
       type: String,
       required: true,
     },
-    portfolioId: {
-      type: String,
-    },
     portfolioList: {
       type: Array,
       required: true,
@@ -438,7 +435,7 @@ export default {
       const bodyParams = {
         storeId: this.storeId,
         marketplace: this.marketplace,
-        portfolioId: this.portfolioId,
+        portfolioId: this.treeSelectedInfo.portfolioId,
         state: this.filter.state,
         search: this.filter.search,
         targetingType: this.filter.targetingType,
@@ -704,10 +701,6 @@ export default {
   },
 
   watch: {
-    portfolioId() {
-      this.getList({ current: 1 });
-    },
-
     treeSelectedKey(val) {
       // 树清空时不再请求列表，因为树清空时是选中了广告组合，已经请求了一次列表
       val && this.getList({ current: 1 });

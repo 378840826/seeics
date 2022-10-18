@@ -39,51 +39,6 @@
     height: calc(100vh - 300px);
   }
 
-  // 广告组合 portfolio 列表
-  .ul-portfolio {
-    li {
-      padding: 6px;
-      display: flex;
-      align-items: center;
-
-      &.active .portfolio {
-        color: $primaryColor;
-      }
-      &:hover {
-        .portfolio-edit-icon {
-          display: inline;
-        }
-      }
-    }
-
-    .portfolio-edit-icon {
-      display: none;
-      margin-left: 6px;
-      font-size: 14px;
-      color: #666;
-      cursor: pointer;
-      &:hover {
-        color: $primaryColor;
-      }
-    }
-
-    .portfolio {
-      cursor: pointer;
-      &:hover {
-        color: $primaryColor;
-      }
-    }
-
-    // 广告组合选中时
-    .selected {
-      background: #F5F7FA;
-
-      .portfolio {
-        color: $primaryColor;
-      }
-    }
-  }
-
   .input-with-select {
     margin-bottom: 10px;
 

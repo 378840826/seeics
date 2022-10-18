@@ -1,3 +1,4 @@
+<!-- 弃用，功能用 PortfolioCampaignTree 代替了 -->
 <!-- 广告组合 portfoilo 编辑名称弹窗 -->
 <template>
   <el-dialog :visible="visible" @close="handleCancel" :append-to-body="true">
