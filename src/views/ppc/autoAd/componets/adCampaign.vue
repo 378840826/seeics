@@ -30,7 +30,14 @@
       </el-form-item>
 
       <div class="label">
-        <span>日期范围：</span>
+        <span>日期范围：
+          <el-tooltip placement="top">
+            <div slot="content" style="width: 200px">
+              广告活动开始时间小于当前日期自动调整为当前日期；若结束时间小于当前日期，模板不执行；
+            </div>
+            <span class="el-icon-question" style="line-height: 40px;"></span>
+          </el-tooltip>
+        </span>
         <el-date-picker
           v-model="form.startTime"
           style="width: 25%"
