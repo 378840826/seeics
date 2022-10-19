@@ -3,7 +3,6 @@
   <el-tree
     :props="elTreeProps"
     :load="loadTreeNode"
-    :expand-on-click-node="false"
     @current-change="handleTreeSelect"
     ref="treeRef"
     node-key="key"
@@ -33,7 +32,7 @@
         <i
           v-if="data.id"
           class="el-icon-edit portfolio-edit-icon"
-          @click="handleClickEdit(node, data)"
+          @click.stop="handleClickEdit(node, data)"
           title="修改名称"
         />
       </template>
@@ -108,14 +107,18 @@ export default {
       // 请求广告活动
       if (node.level === 1) {
         queryTreeCampaign(params).then(res => {
-          const r = res.data.data.map(item => {
-            // 增加 key 字段
-            const key = `${nodeParams.portfolioId}-${item.campaignId}-${item.targetingType}`;
-            return {
-              ...item,
-              campaignName: item.name,
-              key,
-            };
+          const r = [];
+          res.data.data.forEach(item => {
+            // 过滤掉已归档的广告活动
+            if (item.state !== 'archived') {
+              // 增加 key 字段
+              const key = `${nodeParams.portfolioId}-${item.campaignId}-${item.targetingType}`;
+              r.push({
+                ...item,
+                campaignName: item.name,
+                key,
+              });
+            }
           });
           resolve(r);
         });
@@ -145,6 +148,7 @@ export default {
 
     // 点击编辑图标
     handleClickEdit(node, data) {
+      console.log('点击编辑图标');
       if (!node.isEdit) {
         this.$set(node, 'isEdit', true);
         this.editNameOld = data.name;
