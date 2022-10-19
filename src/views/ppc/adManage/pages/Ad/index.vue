@@ -86,7 +86,14 @@
     </div>
   </div>
 
-  <DatePicker :defaultValue="filter.dateRange" @change="handleDateRangeChange" />
+  <div>
+    <DatePicker :defaultValue="filter.dateRange" @change="handleDateRangeChange" />
+    <CustomCols
+      localStorageKey="app-adMamage-ad-customCol"
+      :colOptions=customColsOptions
+      @change="val => customCols = val"
+    />
+  </div>
 </div>
 
 <!-- 表格 -->
@@ -128,7 +135,18 @@
       </template>
     </el-table-column>
 
-    <el-table-column prop="qualification" label="投放资格" width="130" fixed>
+    <el-table-column prop="asin" label="广告" width="280" sortable="custom" fixed>
+      <template slot-scope="{row}">
+        <Goods :goods-info="{...row, marketplace}" />
+      </template>
+    </el-table-column>
+
+     <el-table-column 
+      v-if="customCols.includes('投放资格')" 
+      prop="qualification" 
+      label="投放资格" 
+      width="94" 
+    >
       <template slot-scope="{row}">
         <div :class="row.qualification">{{ row.qualification }}</div>
         <el-tooltip v-if="row.qualificationMessage" effect="dark" placement="top">
@@ -140,20 +158,32 @@
       </template>
     </el-table-column>
 
-    <el-table-column prop="asin" label="广告" width="280" sortable="custom" fixed>
-      <template slot-scope="{row}">
-        <Goods :goods-info="{...row, marketplace}" />
-      </template>
+     <el-table-column
+      v-if="customCols.includes('广告活动')" 
+      prop="campaignName" 
+      label="广告活动" 
+      width="200" 
+    >
+      <div slot-scope="{row}">
+        <i :class="`${stateIconDict[row.campaignState]} ${row.campaignState}`" />
+        {{ row.campaignName }}
+      </div>
     </el-table-column>
 
-    <el-table-column prop="campaignName" label="广告活动" width="200">
-      <span slot-scope="{row}" class="campaignName">{{ row.campaignName }}</span>
-    </el-table-column>
+    <el-table-column
+      v-if="customCols.includes('广告组')" 
+      prop="groupName" 
+      label="广告组" 
+      width="200" 
+    />
 
-    <el-table-column prop="groupName" label="广告组" width="200">
-    </el-table-column>
-
-    <el-table-column prop="addTime" label="添加时间" width="110" sortable="custom" >
+    <el-table-column 
+      v-if="customCols.includes('添加时间')" 
+      prop="addTime" 
+      label="添加时间" 
+      width="110" 
+      sortable="custom" 
+    >
       <template slot="header">
         <span>
           添加时间
@@ -165,15 +195,17 @@
       <span slot-scope="{row}" class="td_date_time">{{ row.addTime }}</span>
     </el-table-column>
 
-    <el-table-column
-      v-for="item in commonColOption"
-      :key="item.prop"
-      :prop="item.prop"
-      :label="item.label"
-      :width="item.width"
-    >
-      <span slot-scope="{row}">{{ item.formatter(row[item.prop]) }}</span>
-    </el-table-column>
+    <template v-for="item in commonColOption">
+      <el-table-column
+        v-if="customCols.includes(item.label)"
+        :key="item.prop"
+        :prop="item.prop"
+        :label="item.label"
+        :width="item.width"
+      >
+        <span slot-scope="{row}">{{ item.formatter(row[item.prop]) }}</span>
+      </el-table-column>
+    </template>
 
     <!-- 操作 -->
     <el-table-column label="操作" fixed="right" width="60">
@@ -220,12 +252,18 @@ import {
   queryAdList,
   modifyAdState,
 } from '@/api/ppc/adManage';
-import { stateNameDict } from '../../utils/dict';
-import { tablePageOption, defaultDateRange, summaryMethod } from '../../utils/options';
+import { stateNameDict, stateIconDict } from '../../utils/dict';
+import {
+  tablePageOption, 
+  defaultDateRange, 
+  summaryMethod, 
+  adCustomColsOptions as customColsOptions,
+} from '../../utils/options';
 import { log } from '@/util/util';
 import Goods from './Goods';
 import Search from '../../components/Search';
 import DatePicker from '../../components/DatePicker';
+import CustomCols from '../../components/CustomCols';
 import FilterMore from '../../components/FilterMore';
 import FilterCrumbs, { notRangeKeys } from '../../components/FilterCrumbs';
 import {
@@ -244,6 +282,7 @@ export default {
     Search,
     Goods,
     DatePicker,
+    CustomCols,
     FilterMore,
     FilterCrumbs,
     CreateAd,
@@ -277,6 +316,8 @@ export default {
   data: function() {
     return {
       size: 'mini',
+      customColsOptions,
+      stateIconDict,
       stateNameDict,
       summaryMethod,
       filter: {
@@ -288,6 +329,8 @@ export default {
       },
       // 高级筛选 Visible
       filterMoreVisible: false,
+      // 自定义列显示
+      customCols: [],
       tableHeight: 'calc(100vh - 326px)',
       tableData: [],
       tableTotalData: {},
@@ -585,7 +628,7 @@ export default {
 <style scoped lang="scss">
 .qualification_message {
   color: $danger;
-  width: 100px;
+  width: 80px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
