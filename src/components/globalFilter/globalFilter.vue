@@ -94,14 +94,14 @@
     </el-card>
     <div  v-for="item in data" :key="item.id">
 
-      <div v-if="dateSelect" class="ruleOr">
+      <div class="ruleOr">
         <el-select v-model="item.relation">
           <el-option value="且" style="padding: 0 20px">且</el-option>
           <el-option value="或" style="padding: 0 20px">或</el-option>
         </el-select>
       </div>
 
-      <div v-else class="Or">或</div>
+      <!-- <div v-else class="Or">或</div> -->
 
       <el-card class="box-card" shadow="never">
         <div slot="header" class="clearfix">
@@ -339,7 +339,6 @@ export default {
         this.screenWidth = document.body.clientWidth;
       })();
     };
-    
   },
   methods: {
     echoFileld(echo) {
@@ -398,7 +397,7 @@ export default {
         res.push(obj);
       }
       this.data.map(item => {
-        const arr = filterField(item.formInline, this.dateSelect ? { days: item.days, calculation: item.calculation, relation: item.relation } : null);
+        const arr = filterField(item.formInline, this.dateSelect && { days: item.days, calculation: item.calculation, relation: item.relation } || { relation: item.relation });
         if (Object.keys(arr).length !== 0) {
           res.push(arr);
         }
