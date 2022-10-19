@@ -1054,10 +1054,22 @@ export default {
             message: '请选择日期范围开始结尾时间'
           });
           return true;
+        } else if (!params.createAdvertisingCampaignDTO.frontPage) {
+          this.$message({
+            type: 'error',
+            message: '搜索结果顶部不能为空'
+          });
+          return true;
         } else if (params.createAdvertisingCampaignDTO.frontPage > 900) {
           this.$message({
             type: 'error',
             message: '搜索结果顶部大于900%'
+          });
+          return true;
+        } else if (!params.createAdvertisingCampaignDTO.productPage) {
+          this.$message({
+            type: 'error',
+            message: '商品页面不能为空'
           });
           return true;
         } else if (params.createAdvertisingCampaignDTO.productPage > 900) {
@@ -1362,7 +1374,7 @@ export default {
           data.groupIdList && data.groupIdList.map(item => {
             this.adGroupVal.push(item.groupId);
           });
-          this.searchWord = data.excludeTerms;
+          this.searchWord = this.isRadio ? 3 : data.excludeTerms;
           this.radio = data.ruleType;
           this.isGroupTabel = this.isGroupTabel ? false : true;
           this.$nextTick(() => {

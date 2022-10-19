@@ -662,7 +662,7 @@ export default {
 
     automatedOperation: {
       handler(val) {
-        if (val === '创建广告组') {
+        if (val === '创建广告活动') {
           this.$emit('update:isRadio', true);
         } else {
           this.$emit('update:isRadio', false);
