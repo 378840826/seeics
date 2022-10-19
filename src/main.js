@@ -54,6 +54,17 @@ iconfontVersion.forEach(ele => {
 
 Vue.config.productionTip = false;
 
+// console.log (待优化：添加调用者信息)
+Vue.prototype.$log = function () {
+  try {
+    JSON.stringify([...arguments]);
+  } catch (error) {
+    console.log.apply(console, [...arguments]);
+    return;
+  }
+  console.log.apply(console, JSON.parse(JSON.stringify([...arguments])));
+};
+
 new Vue({
   router,
   store,
