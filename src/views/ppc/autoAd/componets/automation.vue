@@ -662,7 +662,7 @@ export default {
 
     automatedOperation: {
       handler(val) {
-        if (val === '创建广告组') {
+        if (val === '创建广告活动') {
           this.$emit('update:isRadio', true);
         } else {
           this.$emit('update:isRadio', false);
@@ -752,7 +752,7 @@ export default {
       this.form = this.echo.createAdvertisingCampaignDTO;
       this.form.deduplication = this.echo.createAdvertisingCampaignDTO.deduplication ? true : false;
       this.automatedOperation = this.echo.automatedOperation;
-      console.log(this.echo.automatedOperation)
+      // console.log(this.echo.automatedOperation)
       this.tableData[this.tableData.length - 1].add = true;
     },
     getFiled() {
