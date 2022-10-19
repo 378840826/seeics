@@ -122,6 +122,16 @@
     class="pagination"
   />
 </div>
+
+<!-- 添加否定关键词 -->
+<create-deny-keyword
+  v-if="createDialogVisible"
+  @success="$emit('createSuccess')"
+  :dialogVisible.sync="createDialogVisible"
+  :mwsStoreId="mwsStoreId"
+  :marketplace="marketplace"
+  :storeId="storeId"
+/>
 </div>
 </template>
 
@@ -138,12 +148,14 @@ import {
   formatTableSortParams,
   parseTreeKey,
 } from '../../utils/fun';
+import CreateDenyKeyword from '../../create/CreateDenyKeyword/index.vue';
 
 export default {
   name: 'NegativeKeyword',
 
   components: {
     Search,
+    CreateDenyKeyword,
   },
 
   props: {
@@ -152,6 +164,10 @@ export default {
       required: true,
     },
     storeId: {
+      type: String,
+      required: true,
+    },
+    mwsStoreId: {
       type: String,
       required: true,
     },

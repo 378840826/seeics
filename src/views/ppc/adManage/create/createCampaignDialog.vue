@@ -324,12 +324,12 @@
 <script>
 
 import dayjs from 'dayjs';
-import Table from './CampaignTable.vue';
-import TgBidTalbe from './tgBidTable.vue';
-import DenyKeyword from './denyKeyword.vue';
-import ManualCategory from './manualCategory.vue';
-import Keyword from './keyword.vue';
-import PriceCategory from './PriceTab.vue';
+import Table from './components/CampaignTable.vue';
+import TgBidTalbe from './components/tgBidTable.vue';
+import DenyKeyword from './components/denyKeyword.vue';
+import ManualCategory from './components/manualCategory.vue';
+import Keyword from './components/keyword.vue';
+import PriceCategory from './components/PriceTab.vue';
 import { createAdManage } from '@/api/ppc/adManage';
 
 export default {

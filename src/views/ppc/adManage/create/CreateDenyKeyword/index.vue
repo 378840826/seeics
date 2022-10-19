@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="添加Targeting"
+    title="添加广告"
     :visible.sync="dialogVisible"
     :append-to-body="true"
     :close-on-press-escape="false"
@@ -36,9 +36,9 @@
           style="width: 400px">
           <el-option
             v-for="item in !searchCampaign ? campaignList : searchCampaignList"
-            :key="item.campaignId"
-            :value="item.campaignId"
-            :label="item.name"
+            :key="item.id"
+            :value="item.id"
+            :label="item.label"
             class="box2"
           />
         </el-select>
@@ -75,22 +75,10 @@
         </el-select>
       </el-form-item>
 
-      <!-- <campaign-table
+      <campaign-table
         ref="priceTable"
         :mwsStoreId="mwsStoreId"
-      /> -->
-
-      <price-tab
-        ref="priceCategory"
-        :asinList.sync="priceAsin"
-        :mwsStoreId="mwsStoreId"
-        :marketplace="marketplace"
-        :currency="currency"
-        :budget="dailyBudget"
-        :defaultBid="defaultBid"
-        :targetingMode.sync="strategy"
-        :groupId.sync="form.groupId"
-        />
+      />
 
     </el-form>
 
@@ -103,8 +91,8 @@
 
 <script>
 
-import PriceTab from './components/PriceTab.vue';
-import { queryCampaignSelectList, getGroupList, createTargeting } from '@/api/ppc/adManage';
+import CampaignTable from './conponent/table.vue';
+import { queryCampaignList, getGroupList, createAd, queryCampaignSelectList } from '@/api/ppc/adManage';
 
 export default {
 
@@ -124,15 +112,11 @@ export default {
     marketplace: {
       type: String,
       required: true, 
-    },
-    currency: {
-      type: String,
-      required: true,
     }
   },
 
   components: {
-    PriceTab
+    CampaignTable
   },
   
   data() {
@@ -175,10 +159,6 @@ export default {
         campaignId: [{ required: true, message: '请选择广告活动', trigger: 'blur' }],
         groupId: [{ required: true, message: '请选择广告组', trigger: 'blur' }],
       },
-      campaignId: '',
-      dailyBudget: '',
-      defaultBid: '',
-      strategy: 'autoForSales',
     };
   },
 
@@ -205,20 +185,14 @@ export default {
         } else {
           this.getGroupList();
         }
-        this.strategy = this.campaignList.length &&
-         this.campaignList.filter(item => item.campaignId === val)[0].biddingStrategy;
-        this.defaultBid = '0.75';
-        this.dailyBudget = this.campaignList.length &&
-         this.campaignList.filter(item => item.campaignId === val)[0].dailyBudget;
       }
-    },
+    }
   },
 
   mounted() {
     this.queryCampaignList(false,
       this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived').length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived')[0].campaignName || '',
       this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived').length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived')[0].campaignId) || '';
-      
   },
 
 
@@ -259,26 +233,25 @@ export default {
       this.$emit('update:dialogVisible', false);
     },
 
-    handleGroup(val) {
-      this.getGroupList();
-      this.strategy = this.campaignList.filter(item => item.campaignId === val)[0].biddingStrategy;
-      this.defaultBid = '0.75';
-      this.dailyBudget = this.campaignList.filter(item => item.campaignId === val)[0].dailyBudget;
-    },
-
     queryCampaignList(flag, name, id) {
       queryCampaignSelectList({
         current: !this.searchCampaign ? this.page.current : this.searchPage.current,
         size: !this.searchCampaign ? this.page.size : this.searchPage.size,
       }, {
+        marketplace: this.marketplace,
         adStoreId: this.storeId,
         name: this.searchCampaign || name,
         states: ['enabled', 'paused'],
-        targetingType: 'manual',
       }).then(res => {
         if (res.data.code === 200) {
           this.campaignLoading = false;
-          const data = res.data.data.records;
+          const data = res.data.data.records.map(item => {
+            return {
+              value: item.campaignId,
+              id: item.campaignId,
+              label: item.name
+            };
+          });
           if (this.searchCampaign) {
             this.searchTotal = res.data.data.total;
             if (this.searchTotal > this.searchPage.current * this.searchPage.size) {
@@ -292,10 +265,16 @@ export default {
           this.total = res.data.data.total;
           this.data = this.data.concat(res.data.data.records);
           this.data = this.repetit(this.data);
-          this.campaignList = this.data;
+          this.campaignList = this.data.map(item => {
+            return {
+              value: item.campaignId,
+              id: item.campaignId,
+              label: item.name
+            };
+          });
           
           if (!flag) { //非预加载赋值
-            this.form.campaignId = id || this.campaignList.length && this.campaignList[0].campaignId || '';
+            this.form.campaignId = id || this.campaignList.length && this.campaignList[0].id || '';
           }
 
           if (name) {
@@ -311,7 +290,7 @@ export default {
       getGroupList({
         current: !this.searchGroup ? this.groupPage.current : this.groupSearchPage.curren,
         size: !this.searchGroup ? this.groupPage.size : this.groupSearchPage.size,
-      }, { name: this.searchGroup || name, campaignIds: [this.form.campaignId].filter(Boolean), targetingMode: 'targeting' }).then(res => {
+      }, { name: this.searchGroup || name, campaignIds: [this.form.campaignId].filter(Boolean) }).then(res => {
         if (res.data.code === 200) {
           this.groupLoading = false;
           const data = res.data.data.records.map(item => {
@@ -347,7 +326,6 @@ export default {
           }
         }
       });
-      
     },
 
     remoteMethod(val) {
@@ -367,12 +345,12 @@ export default {
     },
 
     saveBtn() {
-      const targetingAsinList = this.$refs.priceCategory.getField();
+      const priceTable = this.$refs.priceTable.getField();
       
       if (!this.form.campaignId || !this.form.campaignId) {
         this.$refs.form.validate();
         return;
-      } else if (!targetingAsinList.length) {
+      } else if (!priceTable.length) {
         this.$message({
           type: 'error',
           message: '请选择商品'
@@ -381,15 +359,16 @@ export default {
       }
 
       this.loading = true;
-      createTargeting({
+      createAd({
         campaignId: this.form.campaignId,
         groupId: this.form.groupId,
-        targetingAsinList: targetingAsinList,
+        productItemRoList: priceTable,
       }).then(res => {
+
         if (res.data.code === 200) {
           this.$message({
             type: 'success',
-            message: '创建成功'
+            message: '添加广告成功'
           });
           this.$emit('success');
           this.loading = false;
