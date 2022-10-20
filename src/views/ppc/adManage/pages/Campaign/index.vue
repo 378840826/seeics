@@ -497,7 +497,7 @@ export default {
   },
 
   updated () {
-    // 同步广告树的状态和列表筛选的状态
+    // 同步广告树的状态和列表筛选的状态，（用于显示面包屑，请求参数 state 需要从 treeSelectedInfo 拿）
     this.filter.state = this.treeSelectedInfo.campaignState;
     // 解决表格合计行样式问题
     this.$refs.refTable.doLayout();
@@ -522,7 +522,8 @@ export default {
         storeId: this.storeId,
         marketplace: this.marketplace,
         portfolioId: this.treeSelectedInfo.portfolioId,
-        state: this.filter.state,
+        // 使用广告状态树的状态，（广告状态树选中时会更新到 this.filter.state 用于显示面包屑）
+        state: this.treeSelectedInfo.campaignState,
         search: this.filter.search,
         targetingType: this.filter.targetingType,
         startTime: this.filter.dateRange[0],
