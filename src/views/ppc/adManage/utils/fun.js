@@ -131,7 +131,7 @@ export function getCommonColOption(currency) {
       label: '订单量',
       prop: 'orderNum',
       formatter: (value) => getValueLocaleString({ value }),
-      width: 80,
+      width: 100,
     }, {
       label: 'CPC',
       prop: 'cpc',
@@ -161,12 +161,12 @@ export function getCommonColOption(currency) {
       label: 'Impressions',
       prop: 'impressions',
       formatter: (value) => getValueLocaleString({ value }),
-      width: 100,
+      width: 124,
     }, {
       label: 'Clicks',
       prop: 'clicks',
       formatter: (value) => getValueLocaleString({ value }),
-      width: 80,
+      width: 100,
     }, {
       label: 'CTR',
       prop: 'ctr',
@@ -176,7 +176,7 @@ export function getCommonColOption(currency) {
       label: '转化率',
       prop: 'conversionsRate',
       formatter: (value) => getValueLocaleString({ value, isFraction: true, suffix: '%' }),
-      width: 80,
+      width: 90,
     },
   ];
 }

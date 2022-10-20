@@ -90,7 +90,14 @@
     </div>
   </div>
 
-  <DatePicker :defaultValue="filter.dateRange" @change="handleDateRangeChange" />
+  <div>
+    <DatePicker :defaultValue="filter.dateRange" @change="handleDateRangeChange" />
+    <CustomCols
+      localStorageKey="app-adMamage-campaign-customCol"
+      :colOptions=customColsOptions
+      @change="val => customCols = val"
+    />
+  </div>
 </div>
 
 <!-- 表格 -->
@@ -133,27 +140,43 @@
       </template>
     </el-table-column>
 
-    <el-table-column prop="portfolioId" label="广告组合" width="120" fixed>
-      <div slot-scope="{row}">
-        {{ row.portfolioName }}
-        <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
-      </div>
-    </el-table-column>
-
-    <el-table-column prop="name" label="广告活动" width="120" sortable="custom"  fixed>
+    <el-table-column prop="name" label="广告活动" width="200" sortable="custom"  fixed>
       <div slot-scope="{row}">
         {{ row.name }}
         <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
       </div>
     </el-table-column>
 
-    <el-table-column prop="targetingType" label="投放方式" width="120" >
+    <el-table-column
+      v-if="customCols.includes('广告组合')"
+      prop="portfolioId"
+      label="广告组合"
+      width="100"
+    >
+      <div slot-scope="{row}">
+        {{ row.portfolioName }}
+        <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
+      </div>
+    </el-table-column>
+
+    <el-table-column
+      v-if="customCols.includes('投放方式')" 
+      prop="targetingType" 
+      label="投放方式" 
+      width="80"
+    >
       <template slot-scope="{row}">
         {{ targetingTypeDict[row.targetingType] }}
       </template>
     </el-table-column>
 
-    <el-table-column prop="createdTime" label="创建时间" width="120" sortable="custom" >
+    <el-table-column
+      v-if="customCols.includes('创建时间')"
+      prop="createdTime" 
+      label="创建时间" 
+      width="112" 
+      sortable="custom" 
+    >
       <template slot="header">
         <span>
           创建时间
@@ -165,7 +188,12 @@
       <span slot-scope="{row}" class="td_date_time">{{ row.createdTime }}</span>
     </el-table-column>
 
-    <el-table-column prop="groupNumber" label="广告组数量" width="100">
+    <el-table-column
+      v-if="customCols.includes('广告组数量')" 
+      prop="groupNumber" 
+      label="广告组数量" 
+      width="90"
+    >
       <el-button
         slot-scope="{row}"
         type="text"
@@ -174,69 +202,117 @@
       > {{ row.groupNumber }} </el-button>
     </el-table-column>
 
-    <el-table-column prop="biddingStrategy" label="竞价策略" width="130">
+    <el-table-column
+      v-if="customCols.includes('竞价策略')" 
+      prop="biddingStrategy" 
+      label="竞价策略" 
+      width="122"
+    >
       <div slot-scope="{row}">
         {{ biddingStrategyDict[row.biddingStrategy] }}
         <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
       </div>
     </el-table-column>
 
-    <el-table-column prop="biddingPlacementTop" label="搜索结果顶部" width="100">
+    <el-table-column 
+      v-if="customCols.includes('搜索结果顶部')" 
+      prop="biddingPlacementTop" 
+      label="搜索结果顶部" 
+      width="120"
+      sortable="custom"
+    >
       <div slot-scope="{row}">
         {{ getValueLocaleString({ value: row.biddingPlacementTop, isFraction: true, suffix: '%' }) }}
         <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
       </div>
     </el-table-column>
 
-    <el-table-column prop="biddingPlacementProductPage" label="商品页面" width="100">
+    <el-table-column 
+      v-if="customCols.includes('商品页面')" 
+      prop="biddingPlacementProductPage" 
+      label="商品页面" 
+      width="100"
+      sortable="custom"
+    >
       <div slot-scope="{row}">
         {{ getValueLocaleString({ value: row.biddingPlacementProductPage, isFraction: true, suffix: '%' }) }}
         <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
       </div>
     </el-table-column>
 
-    <el-table-column prop="dailyBudget" label="日预算" width="110">
+    <el-table-column
+      v-if="customCols.includes('日预算')"
+      prop="dailyBudget"
+      label="日预算" 
+      width="100"
+      sortable="custom"
+    >
       <div slot-scope="{row}">
         {{ getValueLocaleString({ value: row.dailyBudget, isFraction: true, prefix: currency }) }}
         <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
       </div>
     </el-table-column>
 
-    <el-table-column prop="negativeKeywordNumber" label="否定关键词" width="110">
+    <el-table-column 
+      v-if="customCols.includes('否定关键词')" 
+      prop="negativeKeywordNumber" 
+      label="否定关键词" 
+      width="100"
+    >
       <template slot-scope="{row}">
         {{ row.negativeKeywordNumber }}
       </template>
     </el-table-column>
 
-    <el-table-column prop="negativeTargetingNumber" label="否定商品" width="110">
+    <el-table-column 
+      v-if="customCols.includes('否定商品')"  
+      prop="negativeTargetingNumber" 
+      label="否定商品" 
+      width="100"
+    >
       <template slot-scope="{row}">
         {{ row.negativeTargetingNumber }}
       </template>
     </el-table-column>
 
-    <el-table-column prop="startDate" label="开始时间" width="110">
+    <el-table-column
+      v-if="customCols.includes('开始时间')"
+      prop="startDate" 
+      label="开始时间" 
+      width="110"
+      sortable="custom"
+    >
       <div slot-scope="{row}">
         <span class="td_date_time">{{ row.startDate }}</span>
         <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
       </div>
     </el-table-column>
 
-    <el-table-column prop="endDate" label="结束时间" width="110">
+    <el-table-column 
+      v-if="customCols.includes('结束时间')" 
+      prop="endDate" 
+      label="结束时间" 
+      width="110"
+      sortable="custom"
+    >
       <div slot-scope="{row}">
         <span class="td_date_time">{{ row.endDate }}</span>
         <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
       </div>
     </el-table-column>
 
-    <el-table-column
-      v-for="item in commonColOption"
-      :key="item.prop"
-      :prop="item.prop"
-      :label="item.label"
-      :width="item.width"
-    >
-      <span slot-scope="{row}">{{ item.formatter(row[item.prop]) }}</span>
-    </el-table-column>
+    <template v-for="item in commonColOption">
+      <el-table-column
+        v-if="customCols.includes(item.label)"
+        :key="item.prop"
+        :prop="item.prop"
+        :label="item.label"
+        :width="item.width"
+        sortable="custom"
+      >
+        <span slot-scope="{row}">{{ item.formatter(row[item.prop]) }}</span>
+      </el-table-column>
+    </template>
 
     <!-- 操作 -->
     <el-table-column label="操作" fixed="right" width="60">
@@ -297,7 +373,12 @@ import {
   modifyCampaign,
 } from '@/api/ppc/adManage';
 import { stateNameDict, targetingTypeDict, biddingStrategyDict } from '../../utils/dict';
-import { tablePageOption, defaultDateRange, summaryMethod } from '../../utils/options';
+import {
+  tablePageOption, 
+  defaultDateRange, 
+  summaryMethod, 
+  campaignCustomColsOptions as customColsOptions,
+} from '../../utils/options';
 import { log } from '@/util/util';
 import {
   getValueLocaleString,
@@ -308,6 +389,7 @@ import {
 } from '../../utils/fun';
 import Search from '../../components/Search';
 import DatePicker from '../../components/DatePicker';
+import CustomCols from '../../components/CustomCols';
 import FilterMore from '../../components/FilterMore';
 import EditDialog from './EditDialog';
 import FilterCrumbs, { notRangeKeys } from '../../components/FilterCrumbs';
@@ -319,6 +401,7 @@ export default {
   components: {
     Search,
     DatePicker,
+    CustomCols,
     FilterMore,
     FilterCrumbs,
     EditDialog,
@@ -355,6 +438,7 @@ export default {
   data: function() {
     return {
       size: 'mini',
+      customColsOptions,
       stateNameDict,
       targetingTypeDict,
       biddingStrategyDict,
@@ -368,6 +452,8 @@ export default {
       },
       // 高级筛选 Visible
       filterMoreVisible: false,
+      // 自定义列显示
+      customCols: [],
       tableHeight: 'calc(100vh - 326px)',
       tableData: [],
       tableTotalData: {},
