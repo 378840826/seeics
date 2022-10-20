@@ -136,6 +136,7 @@
       prop="campaignName" 
       label="广告活动" 
       width="200" 
+      sortable="custom"
     >
       <div slot-scope="{row}">
         <i :class="`${stateIconDict[row.campaignState]} ${row.campaignState}`" />
@@ -245,6 +246,7 @@
         :prop="item.prop"
         :label="item.label"
         :width="item.width"
+        sortable="custom"
       >
         <span slot-scope="{row}">{{ item.formatter(row[item.prop]) }}</span>
       </el-table-column>

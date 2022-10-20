@@ -218,7 +218,8 @@
       v-if="customCols.includes('搜索结果顶部')" 
       prop="biddingPlacementTop" 
       label="搜索结果顶部" 
-      width="100"
+      width="120"
+      sortable="custom"
     >
       <div slot-scope="{row}">
         {{ getValueLocaleString({ value: row.biddingPlacementTop, isFraction: true, suffix: '%' }) }}
@@ -230,7 +231,8 @@
       v-if="customCols.includes('商品页面')" 
       prop="biddingPlacementProductPage" 
       label="商品页面" 
-      width="90"
+      width="100"
+      sortable="custom"
     >
       <div slot-scope="{row}">
         {{ getValueLocaleString({ value: row.biddingPlacementProductPage, isFraction: true, suffix: '%' }) }}
@@ -238,7 +240,13 @@
       </div>
     </el-table-column>
 
-    <el-table-column v-if="customCols.includes('日预算')"  prop="dailyBudget" label="日预算" width="100">
+    <el-table-column
+      v-if="customCols.includes('日预算')"
+      prop="dailyBudget"
+      label="日预算" 
+      width="100"
+      sortable="custom"
+    >
       <div slot-scope="{row}">
         {{ getValueLocaleString({ value: row.dailyBudget, isFraction: true, prefix: currency }) }}
         <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
@@ -267,14 +275,26 @@
       </template>
     </el-table-column>
 
-    <el-table-column v-if="customCols.includes('开始时间')" prop="startDate" label="开始时间" width="110">
+    <el-table-column
+      v-if="customCols.includes('开始时间')"
+      prop="startDate" 
+      label="开始时间" 
+      width="110"
+      sortable="custom"
+    >
       <div slot-scope="{row}">
         <span class="td_date_time">{{ row.startDate }}</span>
         <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
       </div>
     </el-table-column>
 
-    <el-table-column v-if="customCols.includes('结束时间')" prop="endDate" label="结束时间" width="110">
+    <el-table-column 
+      v-if="customCols.includes('结束时间')" 
+      prop="endDate" 
+      label="结束时间" 
+      width="110"
+      sortable="custom"
+    >
       <div slot-scope="{row}">
         <span class="td_date_time">{{ row.endDate }}</span>
         <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
@@ -288,6 +308,7 @@
         :prop="item.prop"
         :label="item.label"
         :width="item.width"
+        sortable="custom"
       >
         <span slot-scope="{row}">{{ item.formatter(row[item.prop]) }}</span>
       </el-table-column>
