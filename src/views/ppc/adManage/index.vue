@@ -271,6 +271,7 @@ export default{
       const selectedTreeInfo = parseTreeKey(this.treeSelectedKey);
       const params = {
         adStoreId: this.currentStore.adStoreId,
+        portfolioId: selectedTreeInfo.portfolioId,
         campaignId: selectedTreeInfo.campaignId,
         groupId: selectedTreeInfo.groupId,
       };
