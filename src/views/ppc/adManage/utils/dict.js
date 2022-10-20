@@ -12,6 +12,8 @@ export const stateNameDict = {
   archived: '归档',
 };
 
+export const stateNameList = Object.keys(stateNameDict);
+
 // 右侧全部的标签页信息
 export const allTabs = {
   campaign: { label: '广告活动', name: 'campaign', countKey: 'campaignCount', tabPane: 'Campaign' },

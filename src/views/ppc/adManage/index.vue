@@ -49,23 +49,15 @@
               >添加</el-button>
             </el-input>
             <div class="tab-pane-roll">
-              <ul class="ul-portfolio">
-                <li
-                  v-for="item in portfolioList"
-                  :key="item.id"
-                  :class="{ 'selected': item.id === portfolioSelectedId }"
-                >
-                  <span class="portfolio" @click="() => handleClickPortfolio(item)">
-                    {{ item.name }}
-                  </span>
-                  <i
-                    v-if="item.id"
-                    class="el-icon-edit portfolio-edit-icon"
-                    title="修改名称"
-                    @click="handleClickEditPortfolio(item)"
-                  />
-                </li>
-              </ul>
+              <PortfolioCampaignTree
+                v-if="portfolioList.length"
+                :key="portfolioList"
+                :storeId="currentStore.adStoreId"
+                :portfolioList="portfolioList"
+                :treeSelectedKey="treeSelectedKey"
+                @treeSelect="handleTreeSelect"
+                @saveEditName="handleSavePortfolioEdit"
+              />
             </div>
           </el-tab-pane>
         </el-tabs>
@@ -103,7 +95,6 @@
               :is="allTabs[item].tabPane"
               :key="currentStore.adStoreId"
               :treeSelectedKey="treeSelectedKey"
-              :portfolioId="portfolioSelectedId"
               :portfolioList="portfolioList"
               :marketplace="currentStore.marketplace"
               :currency="currentStore.currency"
@@ -118,14 +109,6 @@
       </el-main>
     </el-container>
     
-    <!-- 编辑 portfolio 名称弹窗 -->
-    <DialogPortfoiloEdit
-      :visible="portfolioEdit.visible"
-      :portfolioName="portfolioEdit.name"
-      @cancel="portfolioEdit.visible = false"
-      @save="handleSavePortfolioEdit"
-    />
-
   </basic-container>
 </template>
 
@@ -137,9 +120,9 @@ import {
   queryTabsCellCount,
 } from '@/api/ppc/adManage';
 // import { log } from '@/util/util';
-import DialogPortfoiloEdit from './components/DialogPortfoiloEdit';
 import PathCrumbs from './components/PathCrumbs';
 import CampaignTree from './components/CampaignTree';
+import PortfolioCampaignTree from './components/PortfolioCampaignTree';
 import { parseTreeKey, getMarketplaceTime } from './utils/fun';
 import { stateIconDict, tabsStateDict, allTabs } from './utils/dict';
 import Campaign from './pages/Campaign';
@@ -154,9 +137,9 @@ export default{
   name: 'adManage',
 
   components: {
-    DialogPortfoiloEdit,
     PathCrumbs,
     CampaignTree,
+    PortfolioCampaignTree,
     Campaign,
     Group,
     Ad,
@@ -188,14 +171,11 @@ export default{
       treeSelectedInfo: {},
       // 广告组合
       portfolioList: [],
-      portfolioSelectedId: '',
-      portfolioEdit: { visible: false, id: '', name: '', },
       portfolioAddName: '',
       // 右侧标签页
       tabsActive: 'campaign',
       tabsCellCount: {},
       tabsCellCountLoading: false,
-      mainPage: '',
     };
   },
 
@@ -291,6 +271,7 @@ export default{
       const selectedTreeInfo = parseTreeKey(this.treeSelectedKey);
       const params = {
         adStoreId: this.currentStore.adStoreId,
+        portfolioId: selectedTreeInfo.portfolioId,
         campaignId: selectedTreeInfo.campaignId,
         groupId: selectedTreeInfo.groupId,
       };
@@ -332,64 +313,27 @@ export default{
       });
     },
 
-    // 广告组合-点击选中
-    handleClickPortfolio(val) {
-      // 判断取消选中
-      if (this.portfolioSelectedId === val.id) {
-        this.portfolioSelectedId = '';
-      } else {
-        this.portfolioSelectedId = val.id;
-      }
-      // 如果广告树已经是 null 了，说明不是第一次点击广告组合，或没点击过广告树，不需要重复请求标签页数量
-      if (this.treeSelectedKey !== null) {
-        this.$nextTick(() => this.getTabsCellCount());
-      }
-      // 取消广告树的选中 
-      this.treeSelectedKey = null;
-      this.treeSelectedInfo = {};
-      // 跳转到广告活动标签
-      this.tabsActive = tabsStateDict.default[0];
-    },
-
-    // 广告组合-点击编辑名称
-    handleClickEditPortfolio(portfolio) {
-      this.portfolioEdit = {
-        visible: true,
-        ...portfolio,
-      };
-    },
-
     // 广告组合-名称修改确定
-    handleSavePortfolioEdit(newName) {
-      // 判断是否未修改
-      if (this.portfolioEdit.name === newName) {
-        this.$message.warning('未修改名称');
-        this.portfolioEdit.visible = false;
-        return;
-      }
-      // 判断是否有相同的名称
-      const duplicateName = this.portfolioList.find(item => item.name === newName);
-      if (duplicateName) {
-        this.$message.warning('广告组合名称已存在，请重新输入');
-        return;
-      }
+    handleSavePortfolioEdit(data, callback) {
+      const { id, name: newName } = data;
       const params = {
         adStoreId: this.currentStore.adStoreId,
-        portfolioId: this.portfolioEdit.id,
+        portfolioId: id,
         name: newName,
       };
       updatePortfolio(params).then(() => {
         // 修改页面数据
         for (let i = 0; i < this.portfolioList.length; i++) {
-          if (this.portfolioList[i].id === this.portfolioEdit.id) {
+          if (this.portfolioList[i].id === id) {
             this.portfolioList[i].name = newName;
             break;
           }
         }
         this.$message.success('操作成功');
-        this.portfolioEdit.visible = false;
         // 若是广告活动页，且当前显示的广告活动有属于修改的广告组合的，需要修改广告活动列表数据
-        this.$refs.refTabPane[0].updatePortfolio({ id: this.portfolioEdit.id, newName });
+        this.$refs.refTabPane[0].updatePortfolio({ id, newName });
+      }).catch(() => {
+        callback(false);
       });
     },
 
@@ -410,7 +354,9 @@ export default{
         name: this.portfolioAddName,
       };
       addPortfolio(params).then(res => {
-        this.portfolioList.unshift(res.data.data);
+        const newList = [...this.portfolioList];
+        newList.unshift(res.data.data);
+        this.portfolioList = newList;
         this.$message.success('操作成功');
       });
     },
@@ -419,8 +365,6 @@ export default{
     handleTreeSelect(val) {
       this.treeSelectedInfo = { ...val };
       this.treeSelectedKey = val.key;
-      // 取消广告组合的选中
-      this.portfolioSelectedId = '';
       // 请求标签页数量
       this.getTabsCellCount();
     },
@@ -464,12 +408,25 @@ export default{
         // 点击店铺，触发 currentStore watch
         this.currentStore = { ...this.currentStore };
       } else if (val.campaignName) {
-        // 点击广告活动，触发树组件选中
-        const newTreeSelectedInfo = {
-          ...this.treeSelectedInfo,
-          key: `${this.treeSelectedInfo.state}-${val.campaignId}`,
-          name: this.treeSelectedInfo.campaignName,
-        };
+        // 点击广告活动，触发树组件选中，区分状态树和组合树
+        let newTreeSelectedInfo = {};
+        if (this.treeSelectedInfo.portfolioId) {
+          // 选中组合树时生成的面包屑
+          newTreeSelectedInfo = {
+            ...this.treeSelectedInfo,
+            key: `${this.treeSelectedInfo.portfolioId}-${val.campaignId}-${val.targetingType}`,
+            name: this.treeSelectedInfo.campaignName,
+            isLeaf: false,
+          };
+        } else {
+          // 选中状态树时生成的面包屑
+          newTreeSelectedInfo = {
+            ...this.treeSelectedInfo,
+            key: `${this.treeSelectedInfo.campaignState}-${val.campaignId}-${val.targetingType}`,
+            name: this.treeSelectedInfo.campaignName,
+            isLeaf: false,
+          };
+        }
         // 此时广告树是选中广告组的状态，删除广告组相关数据
         delete newTreeSelectedInfo.groupId;
         delete newTreeSelectedInfo.groupName;
@@ -496,8 +453,6 @@ export default{
         // 重置广告树
         this.treeSelectedKey = null;
         this.treeSelectedInfo = {};
-        // 重置广告组合选中
-        this.portfolioSelectedId = '';
         // 请求广告组合
         this.getPortfolioList();
         // 请求标签页数量

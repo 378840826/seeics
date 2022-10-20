@@ -429,9 +429,6 @@ export default {
       type: String,
       required: true,
     },
-    portfolioId: {
-      type: String,
-    },
     portfolioList: {
       type: Array,
       required: true,
@@ -500,7 +497,7 @@ export default {
   },
 
   updated () {
-    // 同步广告树的状态和列表筛选的状态
+    // 同步广告树的状态和列表筛选的状态，（用于显示面包屑，请求参数 state 需要从 treeSelectedInfo 拿）
     this.filter.state = this.treeSelectedInfo.campaignState;
     // 解决表格合计行样式问题
     this.$refs.refTable.doLayout();
@@ -524,8 +521,9 @@ export default {
       const bodyParams = {
         storeId: this.storeId,
         marketplace: this.marketplace,
-        portfolioId: this.portfolioId,
-        state: this.filter.state,
+        portfolioId: this.treeSelectedInfo.portfolioId,
+        // 使用广告状态树的状态，（广告状态树选中时会更新到 this.filter.state 用于显示面包屑）
+        state: this.treeSelectedInfo.campaignState,
         search: this.filter.search,
         targetingType: this.filter.targetingType,
         startTime: this.filter.dateRange[0],
@@ -790,10 +788,6 @@ export default {
   },
 
   watch: {
-    portfolioId() {
-      this.getList({ current: 1 });
-    },
-
     treeSelectedKey(val) {
       // 树清空时不再请求列表，因为树清空时是选中了广告组合，已经请求了一次列表
       val && this.getList({ current: 1 });

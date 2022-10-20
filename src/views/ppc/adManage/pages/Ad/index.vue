@@ -308,9 +308,6 @@ export default {
       type: String,
       required: true,
     },
-    portfolioId: {
-      type: String,
-    },
     treeSelectedKey: {
       type: String,
     },
@@ -394,7 +391,7 @@ export default {
       const bodyParams = {
         storeId: this.storeId,
         marketplace: this.marketplace,
-        portfolioId: this.portfolioId,
+        portfolioId: this.treeSelectedInfo.portfolioId,
         campaignId: this.treeSelectedInfo.campaignId,
         groupId: this.treeSelectedInfo.groupId,
         state: this.filter.state,
@@ -601,10 +598,6 @@ export default {
   },
 
   watch: {
-    // portfolioId(val) {
-    //   log('广告活动 watch portfolioId', val);
-    // },
-
     treeSelectedKey() {
       this.getList();
     },

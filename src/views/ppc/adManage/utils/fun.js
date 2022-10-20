@@ -1,22 +1,31 @@
 import dayjs from 'dayjs';
+import { stateNameList } from './dict';
 const utc = require('dayjs/plugin/utc');
 const timezone = require('dayjs/plugin/timezone');
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 // 解析左侧广告树的 key
+// 新增区分状态广告树和广告组合广告树
 export function parseTreeKey(key) {
   if ([null, undefined].includes(key)) {
     return {};
   }
   const paramsArr = key.split('-');
-  return {
-    campaignState: paramsArr[0],
+  const result = {
+    // campaignState: paramsArr[0],
     campaignId: paramsArr[1],
     targetingType: paramsArr[2],
     groupId: paramsArr[3],
     groupType: paramsArr[4],
   };
+  // 如果第一个参数为状态，则是状态树的key，否则为广告组合下树的key
+  if (stateNameList.includes(paramsArr[0])) {
+    result.campaignState = paramsArr[0];
+  } else {
+    result.portfolioId = paramsArr[0];
+  }
+  return result;
 }
 
 /**
