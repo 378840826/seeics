@@ -37,9 +37,9 @@ export const tabsStateDict = {
   autoCampaign: ['group', 'ad', 'negativeKeyword', 'negativeTargeting'],
   keywordGroup: ['ad', 'keyword', 'negativeKeyword'],
   targetingGroup: ['ad', 'targeting', 'negativeTargeting'],
-  // 自动广告组，不显示 关键词和分类/商品投放
-  autoKeywordGroup: ['ad', 'negativeKeyword'],
-  autoTargetingGroup: ['ad', 'negativeTargeting'],
+  // 自动广告组，不显示 关键词和分类/商品投放，但显示否定关键词和否定targeting
+  autoKeywordGroup: ['ad', 'negativeKeyword', 'negativeTargeting'],
+  autoTargetingGroup: ['ad', 'negativeKeyword', 'negativeTargeting'],
 };
 
 // 投放方式字典
