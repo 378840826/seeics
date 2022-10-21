@@ -131,6 +131,8 @@
   :mwsStoreId="mwsStoreId"
   :marketplace="marketplace"
   :storeId="storeId"
+  :dialogType="filter.dataSource"
+  :treeSelectedKey="treeSelectedInfo"
 />
 </div>
 </template>
