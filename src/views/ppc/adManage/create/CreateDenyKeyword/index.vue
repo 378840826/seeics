@@ -438,7 +438,7 @@ export default {
       } else if (this.activeName === 'suggest' && !this.$refs.denyKeyword.getField().length) {
         this.$message({
           type: 'error',
-          message: '请选择建议否定关键词'
+          message: '请选择关键词'
         });
         return true;
       } else if (this.activeName === 'input' && !this.textareaArr.filter(Boolean).length) {
@@ -508,17 +508,40 @@ export default {
     handleTextareaBlur() {
       this.repetition = [];
       let arr = new Map();
-      
+      const kong = [];
+      let flag = false;
+      const index = [];
+
       for (let i = 0; i < this.textareaArr.length; i ++) {
-        if (this.textareaArr[i].length) {
-          if (arr.has(this.textareaArr[i])) {     
+        if (this.textareaArr[i].trim() !== '') {
+          if (this.textareaArr[i].length > 80) {
+            index.push(i + 1);
+            flag = true;
+          }
+
+          if (arr.has(this.textareaArr[i])) {
             arr.set(this.textareaArr[i], arr.get(this.textareaArr[i]) + 1);
           } else {
             arr.set(this.textareaArr[i], 0);
           }
+        } else {
+          kong.push(i)
         }
       }
 
+      if (flag) {
+        this.$message({
+          type: 'error',
+          message: `第${index.join('、')}行关键词已超过80个字符`
+        });
+        return true;
+      }
+
+      kong.length && kong.sort((a, b) => b -a).forEach(item => {
+        this.textareaArr.splice(item, 1)
+        this.textarea = this.textareaArr.join('\n')
+      })
+      console.log(arr)
       for (const [key, value] of arr) {
         if (value > 0) {
           this.repetition.push(key);
