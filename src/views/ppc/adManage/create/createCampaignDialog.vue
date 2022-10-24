@@ -586,10 +586,10 @@ export default {
           type: 'error',
           message: '请输入日预算'
         });
-      } else if (!this.form.startDate || !this.form.endDate) {
+      } else if (!this.form.startDate) {
         return this.$message({
           type: 'error',
-          message: '请选择日期范围开始结尾时间'
+          message: '请选择日期范围开始时间'
         });
       } else if (this.form.biddingPlacementTop > 900) {
         return this.$message({
@@ -657,8 +657,8 @@ export default {
       };
       const params = {
         ...this.form,
-        startDate: dayjs(this.form.startDate).format('YYYYMMDD'),
-        endDate: dayjs(this.form.endDate).format('YYYYMMDD'),
+        startDate: this.form.startDate ? dayjs(this.form.startDate).format('YYYYMMDD') : null,
+        endDate: this.form.endDate ? dayjs(this.form.endDate).format('YYYYMMDD') : null,
       };
       this.loading = true;
       createAdManage(params).then(res => {
