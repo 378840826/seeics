@@ -507,9 +507,10 @@ export default {
 
     handleTextareaBlur() {
       this.repetition = [];
-      const arr = new Map();
+      let arr = new Map();
+      
       for (let i = 0; i < this.textareaArr.length; i ++) {
-        if (this.textareaArr.length[i]) {
+        if (this.textareaArr[i].length) {
           if (arr.has(this.textareaArr[i])) {     
             arr.set(this.textareaArr[i], arr.get(this.textareaArr[i]) + 1);
           } else {

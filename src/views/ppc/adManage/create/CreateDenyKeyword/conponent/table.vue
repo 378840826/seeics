@@ -117,6 +117,7 @@
           
           <el-table-column
             type="selection"
+            fixed="left"
             width="50px"/>
 
           <el-table-column
@@ -152,6 +153,7 @@
           <el-table-column
             label="操作"
             align="center"
+            fixed="right"
           >
             <template slot-scope="scope">
               <el-button
@@ -261,8 +263,19 @@ export default {
         ...this.forms,
         matchType: this.typem,
       }).then(res => {
-        console.log(res);
-        this.dataSource = res.data.data.records;
+
+        //已选关键词默认禁选
+        const arr = this.selectData.length && this.selectData.map(item => item.keywordText) || [];
+
+        this.dataSource = res.data.data.records.map(item => {
+          if (arr.includes(item.keywordText)) {
+            item.checked = true;
+          } else {
+            item.checked = false;
+          }
+          return item;
+        });
+        this.total = res.data.data.total;
       });
     },
 
