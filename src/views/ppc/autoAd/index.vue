@@ -1048,10 +1048,10 @@ export default {
       if (params.automatedOperation === '创建广告活动') {
         if (this.$refs.autoMation.budgetMsg()) {
           return true;
-        } else if (!params.createAdvertisingCampaignDTO.startTime || !params.createAdvertisingCampaignDTO.endTime) {
+        } else if (!params.createAdvertisingCampaignDTO.startTime) {
           this.$message({
             type: 'error',
-            message: '请选择日期范围开始结尾时间'
+            message: '请选择日期范围开始时间'
           });
           return true;
         } else if (!params.createAdvertisingCampaignDTO.frontPage) {

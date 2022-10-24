@@ -778,8 +778,8 @@ export default {
       };
       obj = this.automatedOperation === '创建广告活动' ? Object.assign(obj, { createAdvertisingCampaignDTO: {
         ...this.form,
-        endTime: this.form.endTime && dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || '',
-        startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || '',
+        endTime: this.form.endTime && dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || null,
+        startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || null,
         deduplication: this.form.deduplication ? 1 : 0,
         campaignName: 'ASIN+MSKU+关键词+匹配方式+日期时间',
       } }) : obj;
