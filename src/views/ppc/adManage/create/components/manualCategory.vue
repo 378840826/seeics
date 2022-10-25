@@ -14,7 +14,7 @@
 
 <script>
 
-import Category from './Category.vue';
+import Category from '../Category.vue';
 // import PriceTab from './PriceTab.vue';
 
 export default {

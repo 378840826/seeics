@@ -91,7 +91,7 @@
 
 <script>
 
-import CampaignTable from './CampaignTable.vue';
+import CampaignTable from './components/CampaignTable.vue';
 import { queryCampaignList, getGroupList, createAd, queryCampaignSelectList } from '@/api/ppc/adManage';
 
 export default {

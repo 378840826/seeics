@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="添加Targeting"
+    title="添加否定关键词"
     :visible.sync="dialogVisible"
     :append-to-body="true"
     :close-on-press-escape="false"
@@ -31,20 +31,21 @@
           @focus="searchCampaign = '';
             searchCampaignList = [];"
           placeholder="请选择广告活动"
+          disabled
           size="small"
           class="autocomplete"
           style="width: 400px">
           <el-option
             v-for="item in !searchCampaign ? campaignList : searchCampaignList"
-            :key="item.campaignId"
-            :value="item.campaignId"
-            :label="item.name"
+            :key="item.id"
+            :value="item.id"
+            :label="item.label"
             class="box2"
           />
         </el-select>
       </el-form-item>
 
-      <el-form-item prop="groupId">
+      <el-form-item v-if="dialogType === 'group'" prop="groupId">
         <template slot="label">
           <div style="display: flex;">
             <span>选择广告组：</span>
@@ -75,24 +76,67 @@
         </el-select>
       </el-form-item>
 
-      <!-- <campaign-table
-        ref="priceTable"
-        :mwsStoreId="mwsStoreId"
-      /> -->
+      <div class="content">
+        <el-tabs v-model="activeName" @tab-click="handleClick">
+          <el-tab-pane label="建议否定" name="suggest">
+            <deny-keyword-table
+              ref="denyKeyword"
+              :marketplace="marketplace"
+              :forms.sync="form"
+              :dialogType="dialogType"
+            />
+          </el-tab-pane>
 
-      <price-tab
-        ref="priceCategory"
-        :asinList.sync="priceAsin"
-        :mwsStoreId="mwsStoreId"
-        :marketplace="marketplace"
-        :currency="currency"
-        :budget="dailyBudget"
-        :defaultBid="defaultBid"
-        :targetingMode.sync="strategy"
-        :groupId.sync="form.groupId"
-        />
+          <el-tab-pane label="输入关键词" name="input">
+            <div style="textAlign: center">
+              <el-input
+                type="textarea"
+                :rows="2"
+                :placeholder="'请输入否定关键词，每行一个，回车换行；'"
+                v-model="textarea"
+                @header-click="handleAllDelete"
+                @input="handleTextarea"
+                @blur="handleTextareaBlur"
+                class="textarea">
+              </el-input>
+
+              <div style="marginTop: 6px">
+                <el-radio
+                  v-model="ntMatchType"
+                  v-for="(value, key) in NegativeKeywordMatchTypeNameDict"
+                  :key="key"
+                  :label="key"
+                >{{value}}</el-radio>
+              </div>
+            </div>
+          </el-tab-pane>
+        </el-tabs>
+
+      </div>
 
     </el-form>
+
+    <el-dialog
+      :visible.sync="textareaDialogVisible"
+      append-to-body
+      :show-close="false"
+      width="500px"
+      center
+      top="40vh"
+      @close="handleClose"
+      destroy-on-close>
+      <div>
+        {{`关键词${repetition.join('、')}`}}已存在，无需重复添加
+      </div>
+      
+      <span slot="footer" class="dialog-footer">
+          <el-button size="small" @click="textareaDialogVisible = false">取 消{{max}}</el-button>
+          <el-button
+            type="primary"
+            size="small"
+            @click="textareaDialogVisible = false; textarea = ''; textareaArr = []; repetition = []">确 定</el-button>
+      </span>
+    </el-dialog>
 
     <span slot="footer" class="dialog-footer">
         <el-button @click="cancel">取 消</el-button>
@@ -103,10 +147,22 @@
 
 <script>
 
-import PriceTab from './components/PriceTab.vue';
-import { queryCampaignSelectList, getGroupList, createTargeting } from '@/api/ppc/adManage';
+import denyKeywordTable from './conponent/table.vue';
+import {
+  queryGroupList,
+  getGroupList,
+  queryCampaignSelectList,
+  createNegativeKeyword,
+} from '@/api/ppc/adManage';
+import { NegativeKeywordMatchTypeNameDict } from '../../utils/dict';
 
 export default {
+
+  name: 'createDenyKeyword',
+
+  components: {
+    denyKeywordTable,
+  },
 
   props: {
     dialogVisible: {
@@ -125,21 +181,22 @@ export default {
       type: String,
       required: true, 
     },
-    currency: {
+    dialogType: {
       type: String,
-      required: true,
+      require: true,
+    },
+    treeSelectedKey: {
+      type: Object
     }
-  },
-
-  components: {
-    PriceTab
   },
   
   data() {
     return {
+      NegativeKeywordMatchTypeNameDict,
       form: {
         campaignId: '',
-        groupId: ''
+        groupId: '',
+        storeId: this.storeId,
       },
       campaignLoading: false,
       groupLoading: false,
@@ -175,10 +232,12 @@ export default {
         campaignId: [{ required: true, message: '请选择广告活动', trigger: 'blur' }],
         groupId: [{ required: true, message: '请选择广告组', trigger: 'blur' }],
       },
-      campaignId: '',
-      dailyBudget: '',
-      defaultBid: '',
-      strategy: 'autoForSales',
+      activeName: 'suggest',
+      textarea: '',
+      textareaArr: [],
+      repetition: [],
+      ntMatchType: 'negativePhrase',
+      textareaDialogVisible: false
     };
   },
 
@@ -199,26 +258,25 @@ export default {
 
   watch: {
     'form.campaignId': {
-      handler(val) {
-        if (val === this.$parent.$data.tableData.length && this.$parent.$data.tableData[0].campaignId) {
-          this.getGroupList(false, this.$parent.$data.tableData[0].groupName, this.$parent.$data.tableData[0].groupId);
-        } else {
-          this.getGroupList();
-        }
-        this.strategy = this.campaignList.length &&
-         this.campaignList.filter(item => item.campaignId === val)[0].biddingStrategy;
-        this.defaultBid = '0.75';
-        this.dailyBudget = this.campaignList.length &&
-         this.campaignList.filter(item => item.campaignId === val)[0].dailyBudget;
+      handler() {
+        this.dialogType === 'group' && this.getGroupList();
       }
-    },
+    }
   },
 
   mounted() {
-    this.queryCampaignList(false,
-      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived').length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived')[0].campaignName || '',
-      this.$parent.$data.tableData.length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived').length && this.$parent.$data.tableData.filter(item => item.campaignState !== 'archived')[0].campaignId) || '';
-      
+    queryGroupList({
+      size: 20,
+      current: 1
+    }, {
+      campaignId: this.treeSelectedKey.campaignId,
+      storeId: this.storeId,
+      marketplace: this.marketplace
+    }).then(res => {
+      const data = res.data.data.page.records;
+      this.queryCampaignList(false, data.filter(item => item.campaignState !== 'archived').length && data.filter(item => item.campaignState !== 'archived')[0].campaignName || '',
+        data.filter(item => item.campaignState !== 'archived').length && data.filter(item => item.campaignState !== 'archived')[0].campaignId || '');
+    });
   },
 
 
@@ -259,26 +317,25 @@ export default {
       this.$emit('update:dialogVisible', false);
     },
 
-    handleGroup(val) {
-      this.getGroupList();
-      this.strategy = this.campaignList.filter(item => item.campaignId === val)[0].biddingStrategy;
-      this.defaultBid = '0.75';
-      this.dailyBudget = this.campaignList.filter(item => item.campaignId === val)[0].dailyBudget;
-    },
-
     queryCampaignList(flag, name, id) {
       queryCampaignSelectList({
         current: !this.searchCampaign ? this.page.current : this.searchPage.current,
         size: !this.searchCampaign ? this.page.size : this.searchPage.size,
       }, {
+        marketplace: this.marketplace,
         adStoreId: this.storeId,
         name: this.searchCampaign || name,
         states: ['enabled', 'paused'],
-        targetingType: 'manual',
       }).then(res => {
         if (res.data.code === 200) {
           this.campaignLoading = false;
-          const data = res.data.data.records;
+          const data = res.data.data.records.map(item => {
+            return {
+              value: item.campaignId,
+              id: item.campaignId,
+              label: item.name
+            };
+          });
           if (this.searchCampaign) {
             this.searchTotal = res.data.data.total;
             if (this.searchTotal > this.searchPage.current * this.searchPage.size) {
@@ -292,10 +349,16 @@ export default {
           this.total = res.data.data.total;
           this.data = this.data.concat(res.data.data.records);
           this.data = this.repetit(this.data);
-          this.campaignList = this.data;
+          this.campaignList = this.data.map(item => {
+            return {
+              value: item.campaignId,
+              id: item.campaignId,
+              label: item.name
+            };
+          });
           
           if (!flag) { //非预加载赋值
-            this.form.campaignId = id || this.campaignList.length && this.campaignList[0].campaignId || '';
+            this.form.campaignId = id || this.campaignList.length && this.campaignList[0].id || '';
           }
 
           if (name) {
@@ -311,7 +374,7 @@ export default {
       getGroupList({
         current: !this.searchGroup ? this.groupPage.current : this.groupSearchPage.curren,
         size: !this.searchGroup ? this.groupPage.size : this.groupSearchPage.size,
-      }, { name: this.searchGroup || name, campaignIds: [this.form.campaignId].filter(Boolean), targetingMode: 'targeting' }).then(res => {
+      }, { name: this.searchGroup || name, campaignIds: [this.form.campaignId].filter(Boolean), targetingMode: 'keyword' }).then(res => {
         if (res.data.code === 200) {
           this.groupLoading = false;
           const data = res.data.data.records.map(item => {
@@ -347,7 +410,6 @@ export default {
           }
         }
       });
-      
     },
 
     remoteMethod(val) {
@@ -366,39 +428,131 @@ export default {
       this.getGroupList();
     },
 
-    saveBtn() {
-      const targetingAsinList = this.$refs.priceCategory.getField();
-      
-      if (!this.form.campaignId || !this.form.campaignId) {
-        this.$refs.form.validate();
-        return;
-      } else if (!targetingAsinList.length) {
+    msg() {
+      if (this.dialogType === 'group' && !this.form.groupId) {
         this.$message({
           type: 'error',
-          message: '请选择商品'
+          message: '请选择广告组'
         });
+        return true;
+      } else if (this.activeName === 'suggest' && !this.$refs.denyKeyword.getField().length) {
+        this.$message({
+          type: 'error',
+          message: '请选择关键词'
+        });
+        return true;
+      } else if (this.activeName === 'input' && !this.textareaArr.filter(Boolean).length) {
+        this.$message({
+          type: 'error',
+          message: '请输入否定关键词'
+        });
+        return true;
+      }
+      
+    },
+
+    saveBtn() {
+      if (this.msg()) {
+        return;
+      } else if (this.handleTextareaBlur()) {
         return;
       }
 
-      this.loading = true;
-      createTargeting({
-        campaignId: this.form.campaignId,
-        groupId: this.form.groupId,
-        targetingAsinList: targetingAsinList,
-      }).then(res => {
+      const textareaArr = this.textareaArr.map(item => {
+        return {
+          keywordText: item,
+          matchType: this.ntMatchType
+        };
+      });
+
+      createNegativeKeyword({
+        ...this.form,
+        negativeKeywordItemRoList: this.activeName === 'suggest' ? this.$refs.denyKeyword.getField() : textareaArr.filter(item => item.keywordText)
+      }, this.dialogType).then(res => {
+        console.log(res);
         if (res.data.code === 200) {
           this.$message({
             type: 'success',
-            message: '创建成功'
+            message: '添加否定关键词成功'
           });
           this.$emit('success');
-          this.loading = false;
-          this.$emit('update:dialogVisible', false);
+          this.dialogVisible = false;
         }
-      }).catch(() => {
-        this.loading = false;
       });
     },
+
+    handleTextarea(value) {
+      const maxLines = 1000;
+      let valueArr = value.split(/\r\n|\r|\n/);
+      const arr = [];
+      valueArr.map((item, idx) => {
+    
+        if (item.length > 80) {
+          this.$message({
+            type: 'error',
+            message: `第${idx + 1}行关键词已超过80个字符`
+          });
+          arr.push(item);
+        }
+      });
+
+      this.disabled = arr.length;
+      if (valueArr.length > maxLines) {
+        valueArr = valueArr.slice(0, maxLines);
+        value = valueArr.join('\n');
+        this.textarea = value;
+      }
+      this.textareaArr = valueArr;
+    },
+
+    handleTextareaBlur() {
+      this.repetition = [];
+      const arr = new Map();
+      const kong = [];
+      let flag = false;
+      const index = [];
+
+      for (let i = 0; i < this.textareaArr.length; i ++) {
+        if (this.textareaArr[i].trim() !== '') {
+          if (this.textareaArr[i].length > 80) {
+            index.push(i + 1);
+            flag = true;
+          }
+
+          if (arr.has(this.textareaArr[i])) {
+            arr.set(this.textareaArr[i], arr.get(this.textareaArr[i]) + 1);
+          } else {
+            arr.set(this.textareaArr[i], 0);
+          }
+        } else {
+          kong.push(i);
+        }
+      }
+
+      if (flag) {
+        this.$message({
+          type: 'error',
+          message: `第${index.join('、')}行关键词已超过80个字符`
+        });
+        return true;
+      }
+
+      kong.length && kong.sort((a, b) => b - a).forEach(item => {
+        this.textareaArr.splice(item, 1);
+        this.textarea = this.textareaArr.join('\n');
+      });
+
+      for (const [key, value] of arr) {
+        if (value > 0) {
+          this.repetition.push(key);
+        }
+      }
+
+      if (this.repetition.length) {
+        this.textareaDialogVisible = true;
+        return true;
+      }
+    }
   }
 };
 </script>
@@ -423,6 +577,21 @@ export default {
     text-overflow:inherit;
     overflow: visible;
     white-space: pre-line;
+  }
+  
+  .content {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 6px
+  }
+
+  .textarea {
+    width: 400px;
+  }
+
+  ::v-deep .el-textarea__inner {
+    min-height: 350px !important;
+    max-height: 350px;
   }
 </style>
 

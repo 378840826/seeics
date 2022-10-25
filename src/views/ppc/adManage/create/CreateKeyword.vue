@@ -104,7 +104,7 @@
 
 <script>
 
-import keyword from './keyword.vue';
+import keyword from './components/keyword.vue';
 import { queryCampaignSelectList, getGroupList, createKeyword } from '@/api/ppc/adManage';
 
 export default {
