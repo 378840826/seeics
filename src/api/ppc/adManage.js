@@ -256,6 +256,27 @@ export const archiveNeTargeting = (data) => {
   });
 };
 
+// 投放组
+// 投放组-列表
+export const queryTargetingGroupsList = (params, data) => {
+  return request({
+    url: '/api/seeics-ad/targeting/auto/page',
+    method: 'post',
+    params,
+    data,
+  });
+};
+
+// 投放组-批量调整竞价
+export const modifyTargetingGroupsBitchBid = (data) => {
+  return request({
+    url: '/api/seeics-ad/targeting/update/bid',
+    method: 'post',
+    data,
+  });
+};
+
+
 // 创建广告活动--------------------
 //创建广告活动商品信息列表
 export const queryPriceList = params => {
