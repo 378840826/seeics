@@ -507,7 +507,7 @@ export default {
 
     handleTextareaBlur() {
       this.repetition = [];
-      let arr = new Map();
+      const arr = new Map();
       const kong = [];
       let flag = false;
       const index = [];
@@ -525,7 +525,7 @@ export default {
             arr.set(this.textareaArr[i], 0);
           }
         } else {
-          kong.push(i)
+          kong.push(i);
         }
       }
 
@@ -537,11 +537,11 @@ export default {
         return true;
       }
 
-      kong.length && kong.sort((a, b) => b -a).forEach(item => {
-        this.textareaArr.splice(item, 1)
-        this.textarea = this.textareaArr.join('\n')
-      })
-      console.log(arr)
+      kong.length && kong.sort((a, b) => b - a).forEach(item => {
+        this.textareaArr.splice(item, 1);
+        this.textarea = this.textareaArr.join('\n');
+      });
+
       for (const [key, value] of arr) {
         if (value > 0) {
           this.repetition.push(key);

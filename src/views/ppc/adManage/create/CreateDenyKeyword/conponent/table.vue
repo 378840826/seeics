@@ -10,8 +10,10 @@
               v-model="typem"
               @change="getSuggestKeyword()"
               style="width: 150px">
-                <el-checkbox label="exact">精准</el-checkbox>
-                <el-checkbox label="phrase">词组</el-checkbox>
+                <el-checkbox label="exact"
+                  :disabled="typem.length === 1 && typem[0] === 'exact' ? true : false">精准</el-checkbox>
+                <el-checkbox label="phrase"
+                :disabled="typem.length === 1 && typem[0] === 'phrase' ? true : false">词组</el-checkbox>
             </el-checkbox-group>
           </div>
         
