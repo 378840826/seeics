@@ -120,7 +120,6 @@
       </div>
       <div class="avuecrudclass">
       <el-table
-        ref="multipleTable"
         :data="data"
         tooltip-effect="black"
         style="width: 100%"
@@ -154,8 +153,7 @@
         <el-table-column
           label="操作"
           width="230"
-          align="center"
-          fixed="right">
+          align="center">
            <template slot-scope="scope">
            <div
             v-if="scope.row.status === 'COMPLETED' && scope.row.crawlingProgress === '1.00'" class="derivedresultbtn"
@@ -682,6 +680,7 @@ export default {
           this.restnum = res.data.data.todayFeeSearchCount;
           //添加成功，清空关键词
           // this.formInline.asin = ''; 
+
         }
         //判断已分析关键词
         //有定时器先关掉定时器

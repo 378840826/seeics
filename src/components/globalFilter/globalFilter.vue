@@ -391,7 +391,7 @@ export default {
     },
     //获取字段结构函数
     getFiled() {
-      const obj = filterField(this.formInline, this.dateSelect ? { days: this.dayVal, calculation: this.dailyVal, relation: '' } : null);
+      const obj = filterField(this.formInline, this.dateSelect ? { days: this.dayVal, calculation: this.dailyVal, relation: '' } : { relation: '' });
       const res = [];
       if (Object.keys(obj).length !== 0) {
         res.push(obj);
