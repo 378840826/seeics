@@ -45,7 +45,7 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item v-if="dialogType === 'group'" prop="groupId">
+      <el-form-item v-if="dialogType === 'group' || treeSelectedKey.groupId" prop="groupId">
         <template slot="label">
           <div style="display: flex;">
             <span>选择广告组：</span>
@@ -259,7 +259,7 @@ export default {
   watch: {
     'form.campaignId': {
       handler() {
-        this.dialogType === 'group' && this.getGroupList();
+        (this.dialogType === 'group' || this.treeSelectedKey.groupId) && this.getGroupList(false, '', this.treeSelectedKey.groupId ? this.treeSelectedKey.groupId : null);
       }
     }
   },
@@ -374,7 +374,7 @@ export default {
       getGroupList({
         current: !this.searchGroup ? this.groupPage.current : this.groupSearchPage.curren,
         size: !this.searchGroup ? this.groupPage.size : this.groupSearchPage.size,
-      }, { name: this.searchGroup || name, campaignIds: [this.form.campaignId].filter(Boolean), targetingMode: 'keyword' }).then(res => {
+      }, { name: this.searchGroup || name, campaignIds: [this.form.campaignId].filter(Boolean), groupIds: id && [Number(id)] || [], targetingMode: 'keyword' }).then(res => {
         if (res.data.code === 200) {
           this.groupLoading = false;
           const data = res.data.data.records.map(item => {
@@ -399,13 +399,13 @@ export default {
           this.groupTotal = res.data.data.total;
           if (!flag) { //非预加载赋值
             this.groupList = data;
-            this.form.groupId = id || this.groupList.length && this.groupList[0].id || '';
+            this.form.groupId = this.groupList.length && Number(id) || this.groupList.length && this.groupList[0].id || '';
           } else {
             this.groupList = this.groupList.concat(data);
             this.groupList = this.repetit(this.groupList);
           }
 
-          if (name) {
+          if (name || id) {
             this.getGroupList(true);
           }
         }
@@ -469,7 +469,6 @@ export default {
         ...this.form,
         negativeKeywordItemRoList: this.activeName === 'suggest' ? this.$refs.denyKeyword.getField() : textareaArr.filter(item => item.keywordText)
       }, this.dialogType).then(res => {
-        console.log(res);
         if (res.data.code === 200) {
           this.$message({
             type: 'success',
