@@ -27,19 +27,22 @@ export const allTabs = {
   negativeTargeting: {
     label: '否定商品', name: 'negativeTargeting', countKey: 'neTargetingCount', tabPane: 'NegativeTargeting',
   },
+  targetingGroups: { 
+    label: '投放组', name: 'targetingGroups', countKey: 'autoTargetGroupCount', tabPane: 'TargetingGroups',
+  },
 };
 
 // 右侧标签页的三个状态，根据当前选中的广告树节点来区分
 export const tabsStateDict = {
   default: ['campaign', 'group', 'ad', 'keyword', 'targeting'],
   campaign: ['group', 'ad', 'keyword', 'negativeKeyword', 'targeting', 'negativeTargeting'],
-  // 自动广告活动，不显示 关键词和分类/商品投放
-  autoCampaign: ['group', 'ad', 'negativeKeyword', 'negativeTargeting'],
+  // 自动广告活动，不显示 关键词和分类/商品投放， 显示投放组
+  autoCampaign: ['group', 'ad', 'targetingGroups', 'negativeKeyword', 'negativeTargeting'],
   keywordGroup: ['ad', 'keyword', 'negativeKeyword'],
   targetingGroup: ['ad', 'targeting', 'negativeTargeting'],
-  // 自动广告组，不显示 关键词和分类/商品投放，但显示否定关键词和否定targeting
-  autoKeywordGroup: ['ad', 'negativeKeyword', 'negativeTargeting'],
-  autoTargetingGroup: ['ad', 'negativeKeyword', 'negativeTargeting'],
+  // 自动广告组，不显示 关键词和分类/商品投放，但显示否定关键词和否定targeting，显示投放组
+  autoKeywordGroup: ['ad', 'targetingGroups', 'negativeKeyword', 'negativeTargeting'],
+  autoTargetingGroup: ['ad', 'targetingGroups', 'negativeKeyword', 'negativeTargeting'],
 };
 
 // 投放方式字典

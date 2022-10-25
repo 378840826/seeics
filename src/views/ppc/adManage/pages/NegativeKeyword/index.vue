@@ -91,7 +91,7 @@
     <el-table-column v-if="filter.dataSource === 'group'" prop="groupName" label="广告组">
     </el-table-column>
 
-    <el-table-column prop="matchType" label="匹配方式" width="100">
+    <el-table-column prop="matchType" label="匹配方式">
       <span slot-scope="{row}">{{ NegativeKeywordMatchTypeNameDict[row.matchType]}}</span>
     </el-table-column>
 
@@ -208,9 +208,10 @@ export default {
       };
       const bodyParams = {
         adStoreId: this.storeId,
+        adType: 'sp',
         campaignId: this.treeSelectedInfo.campaignId,
         groupId: this.treeSelectedInfo.groupId,
-        state: this.filter.state,
+        state: this.filter.state ? [this.filter.state] : [],
         matchType: this.filter.matchType,
         search: this.filter.search,
         dataSource: this.filter.dataSource,
@@ -390,7 +391,7 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-.table-container {
-  width: 800px;
-}
+// .table-container {
+//   width: 800px;
+// }
 </style>

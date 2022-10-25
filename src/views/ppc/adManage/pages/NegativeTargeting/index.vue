@@ -4,7 +4,7 @@
 <!-- 筛选栏 -->
 <div class="filter-bar">
   <Search
-    placeholder="Targeting"
+    placeholder="ASIN"
     :value="filter.search"
     @search="handleSearch"
   />
@@ -175,9 +175,10 @@ export default {
       };
       const bodyParams = {
         adStoreId: this.storeId,
+        adType: 'sp',
         campaignId: this.treeSelectedInfo.campaignId,
         groupId: this.treeSelectedInfo.groupId,
-        state: this.filter.state,
+        state: this.filter.state ? [this.filter.state] : [],
         search: this.filter.search,
         ...body,
       };

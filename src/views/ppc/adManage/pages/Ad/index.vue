@@ -12,9 +12,11 @@
   <el-select
     v-model="filter.state"
     clearable
+    multiple
+    collapse-tags
     placeholder="状态"
     :size="size"
-    class="filter-select"
+    class="filter-select filter-state-select"
     @change="handleStateChange"
   >
     <el-option
@@ -322,7 +324,7 @@ export default {
       summaryMethod,
       filter: {
         search: '',
-        state: '',
+        state: [],
         qualification: '',
         dateRange: defaultDateRange,
         more: {},
@@ -360,7 +362,7 @@ export default {
       };
       this.filter.search && (obj.search = this.filter.search);
       this.filter.state && (obj.state = stateNameDict[this.filter.state]);
-      this.filter.qualification && (obj.qualification = this.filter.qualification);
+      this.filter.state.length && (obj.state = this.filter.state.map(s => stateNameDict[s]).toString());
       return obj;
     },
   },
@@ -391,6 +393,7 @@ export default {
       const bodyParams = {
         storeId: this.storeId,
         marketplace: this.marketplace,
+        adType: 'sp',
         portfolioId: this.treeSelectedInfo.portfolioId,
         campaignId: this.treeSelectedInfo.campaignId,
         groupId: this.treeSelectedInfo.groupId,
@@ -417,7 +420,7 @@ export default {
     // 点击搜索
     handleSearch(val) {
       this.filter.search = val;
-      this.filter.state = '';
+      this.filter.state = [];
       this.filter.qualification = '';
       // 清空并收起高级筛选
       this.filter.more = {};
@@ -460,6 +463,7 @@ export default {
     handleCloseCrumbs(key) {
       if (notRangeKeys.includes(key)) {
         this.filter[key] = '';
+        key === 'state' && (this.filter.state = []);
       } else {
         this.filter.more[`${key}Min`] = '';
         this.filter.more[`${key}Max`] = '';
@@ -471,7 +475,7 @@ export default {
     handleEmptyCrumbs() {
       this.filter = {
         search: '',
-        state: '',
+        state: [],
         qualification: '',
         dateRange: [...this.filter.dateRange],
         more: {},
