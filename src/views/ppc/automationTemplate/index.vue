@@ -140,6 +140,7 @@
         ref="automatic"
         :echo="tableFiled"
         :templateType="formInline.templateType"
+        :deduplication="deduplication"
       />
       <div class="explain">
         <p>操作要点</p>
@@ -393,6 +394,7 @@ export default {
       launch: false, //监听是否投放
       campiagnDialogVisible: false,
       rowInfo: {},
+      deduplication: true,
     };
   },
   methods: {
@@ -574,7 +576,8 @@ export default {
         ...automatic,
         ruleType: 1,
         excludeTerms: 0,
-        roleList: this.$refs.filters.getFiled()
+        roleList: this.$refs.filters.getFiled(),
+        deduplication: (this.$refs.automatic.automatedOperation === '创建广告活动' || this.$refs.automatic.automatedOperation === '创建广告组') && this.$refs.automatic.form.deduplication ? 1 : 0 || 0
       };
 
       if (!params.roleList[0].item.length) {
@@ -655,6 +658,7 @@ export default {
             templateType: result.templateType,
             asinList: result.asinList
           };
+          this.deduplication = result.deduplication ? true : false;
           this.asinMskuKeyword = result.asinList.join('\n');
           this.isLaunch(this.formInline.templateType);
         }
