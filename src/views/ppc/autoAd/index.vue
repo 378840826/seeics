@@ -24,7 +24,7 @@
         v-model="form.marketplace"
         placeholder="请选择站点"
         :size="componentsSize"
-        @change="getTableData()"
+        @change="v => handleChangeMarketplace(v)"
         class="select-marketplace"
         popper-class="_auto_ad-store-select-popper"
       >
@@ -643,10 +643,16 @@ import {
   targetingTypeDict,
   formatTableSortParams,
 } from '../util';
+import { setStore, getStore } from '@/util/store';
 import autoMation from './componets/automation.vue';
 import globalFilter from '@/components/globalFilter/globalFilter.vue';
 import dialogStatu from './componets/dialog.vue';
 import tableDialog from './componets/tableDialog.vue';
+
+// 用于 localStorage 中保存选中店铺的 key
+const currentShopNameKey = 'app-autoAd-currentShopName';
+const currentShopMarketplaceKey = 'app-autoAd-currentShopMarketplace';
+
 export default {
   name: 'autoAd',
 
@@ -801,10 +807,18 @@ export default {
       }
       const list = res.data.data.sort((a, b) => a.localeCompare(b));
       this.filterOptions.shopNameList = list;
-      this.form.shopName = list[0];
-      // 用第一个店铺名称来请求站点列表和表格数据
+      // 查询 localStorage 中的店铺选中数据
+      const localStorageCurrentShopName = getStore({ name: currentShopNameKey });
+      if (localStorageCurrentShopName) {
+        this.form.shopName = localStorageCurrentShopName;
+      } else {
+        this.form.shopName = list[0];
+        // 保存在 localStorage
+        setStore({ name: currentShopNameKey, content: list[0] });
+      }
+      // 用第一个店铺名称（或localStorage存储的店铺名称）来请求站点列表和表格数据
       if (Array.isArray(list) && list.length) {
-        this.getMarketplaceListAndTableData(list[0]);
+        this.getMarketplaceListAndTableData(this.form.shopName);
       }
     });
   },
@@ -849,7 +863,15 @@ export default {
         // 处理排序数据
         const mList = mRes.data.data.sort((a, b) => b.localeCompare(a));
         this.filterOptions.marketplaceList = mList;
-        this.form.marketplace = mList[0];
+        // 查询 localStorage 中的店铺选中数据
+        const localStorageCurrentShopMarketplace = getStore({ name: currentShopMarketplaceKey });
+        if (localStorageCurrentShopMarketplace) {
+          this.form.marketplace = localStorageCurrentShopMarketplace;
+        } else {
+          this.form.marketplace = mList[0];
+          // 保存在 localStorage
+          setStore({ name: currentShopMarketplaceKey, content: mList[0] });
+        }
         // 获取列表
         this.getTableData();
       });
@@ -859,6 +881,15 @@ export default {
     handleChangeShopName(shopName) {
       // 用新的 shopName 请求站点列表和表格数据
       this.getMarketplaceListAndTableData(shopName);
+      // 保存在 localStorage
+      setStore({ name: currentShopNameKey, content: shopName });
+    },
+
+    // 切换站点
+    handleChangeMarketplace(val) {
+      this.getTableData();
+      // 保存在 localStorage
+      setStore({ name: currentShopMarketplaceKey, content: val });
     },
 
     // 点击重置
