@@ -160,12 +160,17 @@ export default {
         if (!valid) {
           return false;
         }
+        // 接口要求增加 type 参数， 调整到指定金额时为 2， 其余为 1
+        const type = this.options.base === 'inputNum' ? '2' : '1';
+        let changeValue = Number(this.options.changeValue);
+        // changeValue 应后端要求，在非调整到指定金额，并且 unit 为  % 时 changeValue 改为小数
+        if (type !== '2' && this.options.unit === 'percent') {
+          changeValue = changeValue / 100;
+        }
         this.$emit('save', {
           ...this.options,
-          // 根绝接口要求传 type 参数
-          type: this.options.base === 'inputNum' ? '2' : '1',
-          // 在 % 时 changeValue 改为小数
-          changeValue: this.options.unit === 'percent' ? this.options.changeValue / 100 : this.options.changeValue,
+          type,
+          changeValue,
         });
         this.$emit('update:visible', false);
       });
