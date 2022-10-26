@@ -155,6 +155,7 @@ export default {
           type: item.name
         };
       });
+      
       return arr;
     },
 
