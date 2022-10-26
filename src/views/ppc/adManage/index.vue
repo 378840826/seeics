@@ -120,11 +120,13 @@ import {
   queryTabsCellCount,
 } from '@/api/ppc/adManage';
 // import { log } from '@/util/util';
+import { setStore, getStore } from '@/util/store';
 import PathCrumbs from './components/PathCrumbs';
 import CampaignTree from './components/CampaignTree';
 import PortfolioCampaignTree from './components/PortfolioCampaignTree';
 import { parseTreeKey, getMarketplaceTime } from './utils/fun';
 import { stateIconDict, tabsStateDict, allTabs } from './utils/dict';
+import { currentShopKey } from './utils/options';
 import Campaign from './pages/Campaign';
 import Group from './pages/Group';
 import Ad from './pages/Ad';
@@ -234,31 +236,40 @@ export default{
           });
           return;
         }
-        // 找到第一个有授权广告的店铺作为默认店铺
-        let defaultStore;
-        for (let index = 0; index < this.$store.state.shop.adCascader.length; index++) {
-          const cascaderItem = this.$store.state.shop.adCascader[index];
-          const firstAdStore = cascaderItem.children.find(item => item.adStoreId);
-          if (firstAdStore) {
-            defaultStore = firstAdStore;
-            break;
+        // 查询 localStorage 中的店铺选中数据
+        const localStorageCurrentShop = getStore({ name: currentShopKey });
+        if (localStorageCurrentShop) {
+          this.currentStore = { ...localStorageCurrentShop };
+        } else {
+          // 如果 localStorage 没有数据，找到第一个有授权广告的店铺作为默认店铺
+          let defaultStore;
+          for (let index = 0; index < this.$store.state.shop.adCascader.length; index++) {
+            const cascaderItem = this.$store.state.shop.adCascader[index];
+            const firstAdStore = cascaderItem.children.find(item => item.adStoreId);
+            if (firstAdStore) {
+              defaultStore = firstAdStore;
+              break;
+            }
           }
+          if (!defaultStore) {
+            this.$confirm('没有已授权广告的店铺，请前往"我的店铺"进行授权', '提示', {
+              ...confirmOptions,
+              confirmButtonText: '去授权',
+            });
+            return;
+          }
+          const currentStore = {
+            marketplace: defaultStore.marketplace,
+            adStoreId: defaultStore.adStoreId,
+            mwsStoreId: defaultStore.id,
+            currency: defaultStore.currency,
+            time: getMarketplaceTime(defaultStore.timezone),
+            storeName: defaultStore.storeName,
+          };
+          this.currentStore = { ...currentStore };
+          // 保存在 localStorage
+          setStore({ name: currentShopKey, content: currentStore });
         }
-        if (!defaultStore) {
-          this.$confirm('没有已授权广告的店铺，请前往"我的店铺"进行授权', '提示', {
-            ...confirmOptions,
-            confirmButtonText: '去授权',
-          });
-          return;
-        }
-        this.currentStore = {
-          marketplace: defaultStore.marketplace,
-          adStoreId: defaultStore.adStoreId,
-          mwsStoreId: defaultStore.id,
-          currency: defaultStore.currency,
-          time: getMarketplaceTime(defaultStore.timezone),
-          storeName: defaultStore.storeName,
-        };
         _this.pageLoading = false;
         this.getPortfolioList();
         this.getTabsCellCount();
@@ -291,7 +302,7 @@ export default{
       }
       // 从店铺列表中找到
       const storeInfo = this.$store.state.shop.storeNameObj[newStore[0]].find(s => s.adStoreId === newStore[1]);
-      this.currentStore = {
+      const currentStore = {
         marketplace: storeInfo.marketplace,
         adStoreId: storeInfo.adStoreId,
         mwsStoreId: storeInfo.id,
@@ -299,6 +310,9 @@ export default{
         time: getMarketplaceTime(storeInfo.timezone),
         storeName: storeInfo.storeName,
       };
+      this.currentStore = { ...currentStore };
+      // 存储 localStorage
+      setStore({ name: currentShopKey, content: currentStore });
     },
 
     // 点击去授权
