@@ -151,7 +151,7 @@ export default {
       const arr = this.tableData.map(item => {
         return {
           bid: item.keywordBid,
-          state: item.state ? 'enabled' : 'paused',
+          state: item.status ? 'enabled' : 'paused',
           type: item.name
         };
       });
