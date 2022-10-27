@@ -104,7 +104,7 @@
               :label="item.label"
             />
           </el-select>
-        <el-popover
+        <!-- <el-popover
           width="200"
           trigger="click"
           v-if="!launch"
@@ -123,7 +123,7 @@
               @input="handleTextAreaInput"
             />
           </div>
-        </el-popover>
+        </el-popover> -->
       </div>
       <global-filter 
         v-if="ruleIs"
@@ -478,14 +478,14 @@ export default {
         });
         return true;
       }
-      const automatic = this.$refs.automatic.getFiled();
-      if (!this.formInline.asinList.filter(Boolean).length && !this.launch && automatic.automatedOperation !== '创建广告组') {
-        this.$message({
-          type: 'error',
-          message: 'ASIN不能为空'
-        });
-        return true;
-      }
+      // const automatic = this.$refs.automatic.getFiled();
+      // if (!this.formInline.asinList.filter(Boolean).length && !this.launch && automatic.automatedOperation !== '创建广告组') {
+      //   this.$message({
+      //     type: 'error',
+      //     message: 'ASIN不能为空'
+      //   });
+      //   return true;
+      // }
     },
     // 
     deliveryMsg() {
