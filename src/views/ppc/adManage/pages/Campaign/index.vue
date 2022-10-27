@@ -18,10 +18,14 @@
     @change="handleTargetingTypeChange"
   >
     <el-option
-      v-for="(val,key) in targetingTypeDict"
-      :key="key"
-      :label="val"
-      :value="key"
+      key="manual"
+      label="手动"
+      value="manual"
+    />
+    <el-option
+      key="auto"
+      label="自动"
+      value="auto"
     />
   </el-select>
 
@@ -521,9 +525,10 @@ export default {
       const bodyParams = {
         storeId: this.storeId,
         marketplace: this.marketplace,
+        adType: 'sp',
         portfolioId: this.treeSelectedInfo.portfolioId,
         // 使用广告状态树的状态，（广告状态树选中时会更新到 this.filter.state 用于显示面包屑）
-        state: this.treeSelectedInfo.campaignState,
+        state: this.treeSelectedInfo.campaignState && [this.treeSelectedInfo.campaignState],
         search: this.filter.search,
         targetingType: this.filter.targetingType,
         startTime: this.filter.dateRange[0],

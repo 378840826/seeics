@@ -132,6 +132,7 @@ import Group from './pages/Group';
 import Ad from './pages/Ad';
 import Keyword from './pages/Keyword';
 import Targeting from './pages/Targeting';
+import TargetingGroups from './pages/TargetingGroups';
 import NegativeKeyword from './pages/NegativeKeyword';
 import NegativeTargeting from './pages/NegativeTargeting';
 
@@ -147,6 +148,7 @@ export default{
     Ad,
     Keyword,
     Targeting,
+    TargetingGroups,
     NegativeKeyword,
     NegativeTargeting,
   },
