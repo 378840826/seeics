@@ -91,6 +91,18 @@
     layout="total, sizes, prev, pager, next, jumper"
     class="pagination"
   />
+
+  <!-- 添加否定投放商品弹窗 -->
+  <create-deny-targeting
+    v-if="createDialogVisible"
+    :dialogVisible.sync="createDialogVisible"
+    @success="$emit('createSuccess')"
+    :mwsStoreId="mwsStoreId"
+    :marketplace="marketplace"
+    :storeId="storeId"
+    :currency="currency"
+    :treeSelectedInfo="treeSelectedInfo"
+  />
 </div>
 </div>
 </template>
@@ -108,12 +120,14 @@ import {
   formatTableSortParams,
   parseTreeKey,
 } from '../../utils/fun';
+import CreateDenyTargeting from '../../create/CreateDenyTargeting.vue';
 
 export default {
   name: 'NegativeTargeting',
 
   components: {
     Search,
+    CreateDenyTargeting,
   },
 
   props: {
