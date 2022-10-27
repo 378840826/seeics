@@ -104,7 +104,7 @@
               :label="item.label"
             />
           </el-select>
-        <el-popover
+        <!-- <el-popover
           width="200"
           trigger="click"
           v-if="!launch"
@@ -123,7 +123,7 @@
               @input="handleTextAreaInput"
             />
           </div>
-        </el-popover>
+        </el-popover> -->
       </div>
       <global-filter 
         v-if="ruleIs"
@@ -140,6 +140,7 @@
         ref="automatic"
         :echo="tableFiled"
         :templateType="formInline.templateType"
+        :deduplication="deduplication"
       />
       <div class="explain">
         <p>操作要点</p>
@@ -393,6 +394,7 @@ export default {
       launch: false, //监听是否投放
       campiagnDialogVisible: false,
       rowInfo: {},
+      deduplication: true,
     };
   },
   methods: {
@@ -476,14 +478,14 @@ export default {
         });
         return true;
       }
-      const automatic = this.$refs.automatic.getFiled();
-      if (!this.formInline.asinList.filter(Boolean).length && !this.launch && automatic.automatedOperation !== '创建广告组') {
-        this.$message({
-          type: 'error',
-          message: 'ASIN不能为空'
-        });
-        return true;
-      }
+      // const automatic = this.$refs.automatic.getFiled();
+      // if (!this.formInline.asinList.filter(Boolean).length && !this.launch && automatic.automatedOperation !== '创建广告组') {
+      //   this.$message({
+      //     type: 'error',
+      //     message: 'ASIN不能为空'
+      //   });
+      //   return true;
+      // }
     },
     // 
     deliveryMsg() {
@@ -574,7 +576,8 @@ export default {
         ...automatic,
         ruleType: 1,
         excludeTerms: 0,
-        roleList: this.$refs.filters.getFiled()
+        roleList: this.$refs.filters.getFiled(),
+        deduplication: (this.$refs.automatic.automatedOperation === '创建广告活动' || this.$refs.automatic.automatedOperation === '创建广告组') && this.$refs.automatic.form.deduplication ? 1 : 0 || 0
       };
 
       if (!params.roleList[0].item.length) {
@@ -655,6 +658,7 @@ export default {
             templateType: result.templateType,
             asinList: result.asinList
           };
+          this.deduplication = result.deduplication ? true : false;
           this.asinMskuKeyword = result.asinList.join('\n');
           this.isLaunch(this.formInline.templateType);
         }

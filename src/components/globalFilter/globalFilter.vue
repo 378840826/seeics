@@ -241,7 +241,7 @@ export default {
       formInline: [
         {
           id: new Date().getTime(),
-          label: 'search_result_page_no',
+          label: this.dateSelect ? 'ad_sales' : 'search_result_page_no',
           condition: '&gt;',
           chain: '上升',
           vlaueType: '值',
@@ -328,10 +328,10 @@ export default {
     }).filter(Boolean);
   },
   mounted() {
-    this.formInline[0].label = this.fields === 'launchFileds' ? 'ad_sales' : 'search_result_page_no';
+    // this.formInline[0].label = this.fields === 'launchFileds' ? 'ad_sales' : 'search_result_page_no';
     //回显
-    this.filterecho.length && this.filterecho[0].item.length < 1 && this.$emit('change', true);
-    this.filterecho.length && this.filterecho[0].item.length 
+    Array.isArray(this.filterecho) && this.filterecho.length && this.filterecho[0].item.length < 1 && this.$emit('change', true);
+    Array.isArray(this.filterecho) && this.filterecho.length && this.filterecho[0].item.length  
       ? this.echoFileld(this.filterecho) 
       : this.addDisabled = true;
     window.onresize = () => {

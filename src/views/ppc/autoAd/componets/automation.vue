@@ -272,7 +272,9 @@
       </el-table-column>
     </el-table>
 
-    <div v-show="automatedOperation === '创建广告活动'" class="explain">
+    <div
+      v-show="automatedOperation === '创建广告活动'
+      || automatedOperation === '创建广告组' && searchWord !== 2" class="explain">
       <span style="fontWeight: 900">匹配方式去重： </span> <el-switch v-model="form.deduplication">
       </el-switch>
       <p>匹配方式去重规则：</p>
@@ -367,6 +369,13 @@ export default {
       type: String,
       require: true
     },
+    deduplication: {
+      type: Boolean,
+      require: true,
+    },
+    searchWord: {
+      type: Number,
+    }
   },
   model: {
     prop: 'value',
@@ -551,6 +560,7 @@ export default {
     };
   },
   mounted() {
+    console.log(this.searchWord)
     Object.keys(this.echo).length && this.echoFiled();
     this.name = this.rowData.name;
     this.tableData[0].campaign = this.rowData.campaignId || '';
@@ -750,7 +760,7 @@ export default {
         this.addDisabled = true;
       }
       this.form = this.echo.createAdvertisingCampaignDTO;
-      this.form.deduplication = this.echo.createAdvertisingCampaignDTO.deduplication ? true : false;
+      this.form.deduplication = this.deduplication;
       this.automatedOperation = this.echo.automatedOperation;
       // console.log(this.echo.automatedOperation)
       this.tableData[this.tableData.length - 1].add = true;
@@ -778,6 +788,8 @@ export default {
       };
       obj = this.automatedOperation === '创建广告活动' ? Object.assign(obj, { createAdvertisingCampaignDTO: {
         ...this.form,
+        campaignId: this.rowData.campaignId,
+        templateId: this.templateId,
         endTime: this.form.endTime && dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || null,
         startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || null,
         deduplication: this.form.deduplication ? 1 : 0,

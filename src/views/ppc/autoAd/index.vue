@@ -401,7 +401,7 @@
         搜索词来源：
         <div style="width: 400px">
 
-        <el-radio
+        <!-- <el-radio
           v-model="radio"
           @change="handleRadio" 
           :label="1"
@@ -426,14 +426,15 @@
                 />
               </div>
             </el-popover>
-          </el-radio>
+          </el-radio> -->
           
-          <el-radio 
+          <!-- <el-radio 
             v-model="radio"
             @change="handleRadio"
             :label="2"
             style="marginTop: 5px"
-          >广告组：
+          > -->
+          广告组：
             <el-select
               v-model="adGroupVal"
               ref="selectIt"
@@ -441,10 +442,12 @@
               allow-create
               default-first-option
               collapse-tags
+              closable
               class="select"
               popper-class="seeics-st-select"
               placeholder="请选择广告组"
               @focus="groupVisible = true; $refs.selectIt.blur()"
+              @change="handleChangeGroup"
               :disabled="radio === 1 ? true : false"
             >
               <el-option
@@ -454,7 +457,7 @@
                 :value="item.groupId">
               </el-option>
             </el-select>
-          </el-radio>
+          <!-- </el-radio> -->
         </div>
         <div style="marginLeft: 30px">
           <div>搜索词筛选结果处理：</div>
@@ -505,6 +508,8 @@
         :isGroupTabel.sync="isGroupTabel"
         :isRadio.sync="isRadio"
         :templateId.sync="templateId"
+        :deduplication.sync="deduplication"
+        :searchWord.sync="searchWord"
       />
       <span slot="footer" class="dialog-footer">
         <el-button 
@@ -610,13 +615,14 @@
       ref="adGroup"
       :adStoreId="adGroupPage.storeId"
       :templateId="templateId"
-      :echoGroupList="adGroupOption"
+      :echoGroupList.sync="adGroupOption"
     />
     <span slot="footer" class="dialog-footer" style="textAlign: center">
         <el-button size="mini" type="primary" @click="hanldeAdGroup">确 定</el-button>
         <el-button size="mini" 
           @click="groupVisible = false;
-          $refs.autoMation.handleAuto()
+          $refs.autoMation.handleAuto();
+          $refs.adGroup.close();
         ">取 消</el-button>
       </span>
     </el-dialog>
@@ -734,7 +740,7 @@ export default {
       groupVisible: false,
       isGroupTabel: true,
       templateId: '',
-      radio: 1,
+      radio: 2,
       searchWord: 1,
       echoAdgroupList: [],
       adGroupPage: {
@@ -784,6 +790,8 @@ export default {
       noShopDialog: false, // 没绑定店铺弹窗
       launchFlag: false, //投放弹窗判断
       isRadio: false,
+      // 模板去重
+      deduplication: true,
     };
   },
 
@@ -963,11 +971,12 @@ export default {
       this.adGroupOption = this.$refs.adGroup.getList();
       this.adGroupVal = this.$refs.adGroup.getFiled();
       this.groupVisible = false;
-      // this.isGroupTabel = this.isGroupTabel ? false : true;
-      // this.$nextTick(() => {
-      //   this.isGroupTabel = this.isGroupTabel ? false : true;
-      // });
     },
+
+    handleChangeGroup(value) {
+      this.adGroupOption = this.adGroupOption.filter(item => value.includes(item.groupId)) || [];
+    },
+
     handleRadio(val) {
       if (val === 2) {
         this.groupVisible = true; this.$refs.selectIt.blur();
@@ -1206,13 +1215,13 @@ export default {
         });
         return true;
       }
-      if (this.radio === 1 && !this.formInline.asinList.filter(Boolean).length && !this.launchFlag) {
-        this.$message({
-          type: 'error',
-          message: 'ASIN不能为空'
-        });
-        return true;
-      }
+      // if (this.radio === 1 && !this.formInline.asinList.filter(Boolean).length && !this.launchFlag) {
+      //   this.$message({
+      //     type: 'error',
+      //     message: 'ASIN不能为空'
+      //   });
+      //   return true;
+      // }
       if (this.radio === 2 && !this.adGroupOption.length) {
         this.$message({
           type: 'error',
@@ -1258,10 +1267,12 @@ export default {
         asinList: this.radio === 1 ? this.formInline.asinList.filter(Boolean) : [],
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState,
-        ruleType: this.launchFlag ? 1 : this.radio,
+        ruleType: this.radio,
         excludeTerms: this.launchFlag || this.isRadio ? 3 : this.searchWord,
-        groupIdList: this.radio === 2 ? this.adGroupOption : []
+        groupIdList: this.radio === 2 ? this.adGroupOption : [],
+        deduplication: (this.$refs.autoMation.automatedOperation === '创建广告活动' || this.$refs.autoMation.automatedOperation === '创建广告组') && this.searchWord !== 2 && this.$refs.autoMation.form.deduplication ? 1 : 0 || 0
       };
+
       if (this.ruleMsg()) {
         return;
       }
@@ -1299,10 +1310,12 @@ export default {
         asinList: this.radio === 1 ? this.formInline.asinList.filter(Boolean) : [],
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState,
-        ruleType: this.launchFlag ? 1 : this.radio,
+        ruleType: this.radio,
         excludeTerms: this.launchFlag || this.isRadio ? 3 : this.searchWord,
-        groupIdList: this.radio === 2 ? this.adGroupOption : []
+        groupIdList: this.radio === 2 ? this.adGroupOption : [],
+        deduplication: (this.$refs.autoMation.automatedOperation === '创建广告活动' || this.$refs.autoMation.automatedOperation === '创建广告组') && this.searchWord !== 2 && this.$refs.autoMation.form.deduplication ? 1 : 0 || 0
       };
+
       if (this.ruleMsg()) {
         return;
       }
@@ -1401,12 +1414,13 @@ export default {
           this.echoAtuomation = data;
           this.adGroupOption = data.groupIdList;
           this.formInline.templateType = data.templateType;
+          this.deduplication = data.deduplication ? true : false;
           this.getAutomationList(this.formInline.templateType);
           data.groupIdList && data.groupIdList.map(item => {
             this.adGroupVal.push(item.groupId);
           });
           this.searchWord = this.isRadio ? 3 : data.excludeTerms;
-          this.radio = data.ruleType;
+          this.radio = 2;
           this.isGroupTabel = this.isGroupTabel ? false : true;
           this.$nextTick(() => {
             this.isGroupTabel = this.isGroupTabel ? false : true;

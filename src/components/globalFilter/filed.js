@@ -22,31 +22,31 @@ export const fields = {
     },
   ],
   tatolFileds: [
-    {
-      label: 'ABA排名',
-      value: 'aba_rank',
-      integer: true
-    },
-    {
-      label: '自然排名',
-      value: 'search_result_page_no',
-      integer: true
-    },
-    {
-      label: '自然排名页码',
-      value: 'search_result_page',
-      integer: true
-    },
-    {
-      label: '广告排名',
-      value: 'advertise_result_page_no',
-      integer: true
-    },
-    {
-      label: '广告排名页码',
-      value: 'advertise_result_page',
-      integer: true
-    },
+    // {
+    //   label: 'ABA排名',
+    //   value: 'aba_rank',
+    //   integer: true
+    // },
+    // {
+    //   label: '自然排名',
+    //   value: 'search_result_page_no',
+    //   integer: true
+    // },
+    // {
+    //   label: '自然排名页码',
+    //   value: 'search_result_page',
+    //   integer: true
+    // },
+    // {
+    //   label: '广告排名',
+    //   value: 'advertise_result_page_no',
+    //   integer: true
+    // },
+    // {
+    //   label: '广告排名页码',
+    //   value: 'advertise_result_page',
+    //   integer: true
+    // },
     {
       label: '销售额',
       value: 'ad_sales',

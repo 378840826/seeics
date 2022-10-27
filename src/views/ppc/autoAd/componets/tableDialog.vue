@@ -225,7 +225,12 @@ export default {
     }
   },
   watch: {
-    
+    echoGroupList: {
+      handler() {
+        this.close();
+      },
+      deep: true,
+    }
   },
   methods: {
     bas(row) {
@@ -252,6 +257,32 @@ export default {
       });
       return groupList;
     },
+
+    close() {
+      const arr = this.echoGroupList.map(item => item.groupId);
+      const arr2 = [];
+      this.datas.map(item => {
+        if (!arr.includes(item.adGroupId)) {
+          arr2.push(item.adGroupId);
+        }
+      });
+      
+      this.data.forEach(item => {
+        if (arr2.includes(item.adGroupId)) {
+          item.selected = false;
+          this.$refs.table1.toggleRowSelection(item, false);
+        }
+      });
+      
+      this.datas = this.echoGroupList.length && this.echoGroupList.map(item => {
+        return {
+          ...item,
+          adGroupId: item.groupId,
+          name: item.groupName
+        };
+      }) || [];
+    },
+
     // getMarketplaceList(shopName) {
     //   getMarketplaceList(shopName).then(res => {
     //     if (res.data.code === 200) {
