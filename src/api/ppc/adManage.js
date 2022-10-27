@@ -379,3 +379,12 @@ export const createKeyword = params => {
     data: params,
   });
 };
+
+// 添加否定商品
+export const createDenyTargeting = data => {
+  return request({
+    url: '/api/seeics-ad/negative_targeting/create',
+    method: 'post',
+    data,
+  });
+};
