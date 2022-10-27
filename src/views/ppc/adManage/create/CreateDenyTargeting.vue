@@ -46,7 +46,7 @@
         <el-input
           type="textarea"
           :rows="2"
-          :placeholder="'请输入多个ASIN，每行一个，回车换行'"
+          :placeholder="'请输入ASIN，每行一个，回车换行'"
           v-model="textarea"
           @header-click="handleAllDelete"
           @input="handleTextarea"
