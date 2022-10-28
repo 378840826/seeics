@@ -91,7 +91,7 @@
 
 <script>
 
-import CampaignTable from './CampaignTable.vue';
+import CampaignTable from './components/CampaignTable.vue';
 import { queryCampaignList, getGroupList, createAd, queryCampaignSelectList } from '@/api/ppc/adManage';
 
 export default {
@@ -290,7 +290,7 @@ export default {
       getGroupList({
         current: !this.searchGroup ? this.groupPage.current : this.groupSearchPage.curren,
         size: !this.searchGroup ? this.groupPage.size : this.groupSearchPage.size,
-      }, { name: this.searchGroup || name, campaignIds: [this.form.campaignId].filter(Boolean) }).then(res => {
+      }, { name: this.searchGroup || name, campaignIds: [this.form.campaignId].filter(Boolean), states: ['enabled', 'paused'], }).then(res => {
         if (res.data.code === 200) {
           this.groupLoading = false;
           const data = res.data.data.records.map(item => {

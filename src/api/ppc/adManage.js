@@ -400,3 +400,27 @@ export const createKeyword = params => {
     data: params,
   });
 };
+
+//获取建议否定关键词
+
+export const getSuggestKeyword = (params, data) => {
+  return request({
+    url: '/api/seeics-ad/nekeyword/suggested-negativeKeyword/list',
+    method: 'post',
+    params,
+    data,
+  });
+};
+
+//创建否定关键词
+
+export const createNegativeKeyword = (data, type) => {
+  const campaign = '/api/seeics-ad/nekeyword/campaign/create';
+  const group = '/api/seeics-ad/nekeyword/group/create';
+  const url = type === 'campaign' ? campaign : group;
+  return request({
+    url: url,
+    method: 'post',
+    data,
+  });
+};

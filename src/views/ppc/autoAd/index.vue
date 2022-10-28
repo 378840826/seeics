@@ -1084,7 +1084,7 @@ export default {
       let minCpcMost = true;
       let maxCpcMost = true;
 
-      // console.log(params)
+      console.log(params)
       if (params.automatedOperation === '创建广告活动') {
         if (this.$refs.autoMation.budgetMsg()) {
           return true;

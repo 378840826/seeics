@@ -181,7 +181,7 @@
 
 <script>
 
-import DragStrip from './DragStrip.vue';
+import DragStrip from './components/DragStrip.vue';
 
 export default {
   components: {
