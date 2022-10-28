@@ -71,15 +71,17 @@
     :summary-method="({columns}) => summaryMethod(columns, tableTotalData)"
     :size="size"
   >
-    <el-table-column type="selection" width="55" />
+    <el-table-column type="selection" width="55" :selectable="selectableInit" />
 
     <el-table-column prop="state" label="状态" width="94" fixed>
       <template slot-scope="{row}">
-       <el-switch
-        :value="row.state === 'enabled'"
-        @change="v => handleSwitchState(v, row)"
-        active-color="#13ce66"
-      />
+        <el-switch
+          v-if="row.state !== 'archived'"
+          :value="row.state === 'enabled'"
+          @change="v => handleSwitchState(v, row)"
+          active-color="#13ce66"
+        />
+        <span v-else class="archived">已归档</span>
       </template>
     </el-table-column>
 
@@ -100,7 +102,7 @@
       width="150"
     >
       <template slot-scope="{row}">
-        <div class="suggested_bid">
+        <div v-if="row.recommendBid" class="suggested_bid">
           <div>
             {{ row.recommendBid }}
             <el-button
@@ -116,6 +118,7 @@
             {{ getValueLocaleString({ value: row.recommendBidEnd, isFraction: true, prefix: currency }) }})
           </div>
         </div>
+        <div v-else>—</div>
       </template>
     </el-table-column>
 
@@ -309,6 +312,15 @@ export default {
       this.tableSort = { prop: val.prop, order: val.order };
       // 排序后回到第一页
       this.getList();
+    },
+
+    // 表格行是否可勾选
+    selectableInit(row) {
+      let flag = true;
+      if (row.state === 'archived') {
+        flag = false;
+      }
+      return flag;
     },
 
     // 表格勾选变化
