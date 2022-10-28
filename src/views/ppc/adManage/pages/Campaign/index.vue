@@ -32,9 +32,11 @@
   <el-select
     v-model="filter.state"
     clearable
+    multiple
+    collapse-tags
     placeholder="状态"
     :size="size"
-    class="filter-select"
+    class="filter-select filter-state-select"
     @change="handleStateChange"
   >
     <el-option
@@ -449,7 +451,7 @@ export default {
       summaryMethod,
       filter: {
         search: '',
-        state: '',
+        state: [],
         targetingType: '',
         dateRange: defaultDateRange,
         more: {},
@@ -487,7 +489,7 @@ export default {
       };
       this.filter.search && (obj.search = this.filter.search);
       this.filter.targetingType && (obj.targetingType = targetingTypeDict[this.filter.targetingType]);
-      this.filter.state && (obj.state = stateNameDict[this.filter.state]);
+      this.filter.state.length && (obj.state = this.filter.state.map(s => stateNameDict[s]).toString());
       return obj;
     },
 
@@ -501,8 +503,6 @@ export default {
   },
 
   updated () {
-    // 同步广告树的状态和列表筛选的状态，（用于显示面包屑，请求参数 state 需要从 treeSelectedInfo 拿）
-    this.filter.state = this.treeSelectedInfo.campaignState;
     // 解决表格合计行样式问题
     this.$refs.refTable.doLayout();
   },
@@ -521,14 +521,12 @@ export default {
         ...sortParams,
         ...query,
       };
-      // const treeSelectedNodeInfo = parseTreeKey(this.treeSelectedKey);
       const bodyParams = {
         storeId: this.storeId,
         marketplace: this.marketplace,
         adType: 'sp',
         portfolioId: this.treeSelectedInfo.portfolioId,
-        // 使用广告状态树的状态，（广告状态树选中时会更新到 this.filter.state 用于显示面包屑）
-        state: this.treeSelectedInfo.campaignState && [this.treeSelectedInfo.campaignState],
+        state: this.filter.state,
         search: this.filter.search,
         targetingType: this.filter.targetingType,
         startTime: this.filter.dateRange[0],
@@ -596,6 +594,7 @@ export default {
         this.filter[key] = '';
         if (key === 'state') {
           this.$emit('changeTreeCampaignState', null);
+          this.filter.state = [];
         }
       } else {
         this.filter.more[`${key}Min`] = '';
@@ -609,7 +608,7 @@ export default {
       this.$emit('changeTreeCampaignState', null);
       this.filter = {
         search: '',
-        state: '',
+        state: [],
         targetingType: '',
         dateRange: [...this.filter.dateRange],
         more: {},
@@ -793,9 +792,14 @@ export default {
   },
 
   watch: {
+    // 此处只会监听到 状态树的状态改变 + 广告组合树的组合改变， 因为只有点击状态或组合时才会加载此模块
     treeSelectedKey(val) {
       // 树清空时不再请求列表，因为树清空时是选中了广告组合，已经请求了一次列表
-      val && this.getList({ current: 1 });
+      if (val) {
+        // 更新 filter.state
+        this.filter.state = this.treeSelectedInfo.campaignState ? [this.treeSelectedInfo.campaignState] : [];
+        this.getList({ current: 1 });
+      }
     },
 
     // 面包屑出现时，改变表格高度
