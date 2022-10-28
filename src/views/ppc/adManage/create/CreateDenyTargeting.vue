@@ -185,6 +185,7 @@ export default {
       },
       { name: this.searchGroup || name,
         campaignIds: [this.treeSelectedInfo.campaignId].filter(Boolean),
+        targetingMode: this.treeSelectedInfo.targetingType === 'auto' ? '' : 'targeting',
         states: ['enabled', 'paused'] }).then(res => {
         if (res.data.code === 200) {
           this.groupLoading = false;
