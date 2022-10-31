@@ -54,9 +54,9 @@
         </template>
         <el-select
           v-model="form.groupId"
-          filterable
+          :filterable="groupList.length"
           reserve-keyword
-          remote
+          :remote="groupList.length"
           :remote-method="remoteMethodGroup"
           :loading="groupLoading"
           v-loadmore="loadmoreGroup"
@@ -383,6 +383,14 @@ export default {
         states: ['enabled', 'paused'] }).then(res => {
         if (res.data.code === 200) {
           this.groupLoading = false;
+
+          if (!res.data.data.records.length) {
+            this.$message({
+              type: 'error',
+              message: '无数据'
+            });
+          }
+
           const data = res.data.data.records.map(item => {
             return {
               value: item.groupId,
