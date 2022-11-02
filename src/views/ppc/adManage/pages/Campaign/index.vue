@@ -148,8 +148,13 @@
 
     <el-table-column prop="name" label="广告活动" width="200" sortable="custom"  fixed>
       <div slot-scope="{row}">
-        {{ row.name }}
-        <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
+        <template v-if="row.state !== 'archived'">
+          <span class="link_name" @click="handleClickName(row)">{{ row.name }}</span>
+          <i class="el-icon-edit table-edit-icon"></i>
+        </template>
+        <template v-else>
+          {{ row.name }}
+        </template>
       </div>
     </el-table-column>
 
@@ -200,12 +205,18 @@
       label="广告组数量" 
       width="90"
     >
-      <el-button
-        slot-scope="{row}"
-        type="text"
-        :size="size"
-        @click="handleClickGroupCount(row)"
-      > {{ row.groupNumber }} </el-button>
+      <div slot-scope="{row}">
+        <template v-if="row.state !== 'archived'">
+          <el-button
+            type="text"
+            :size="size"
+            @click="handleClickName(row)"
+          >{{ row.groupNumber }}</el-button>
+        </template>
+        <template v-else>
+          {{ row.groupNumber }}
+        </template>
+      </div>
     </el-table-column>
 
     <el-table-column
@@ -777,6 +788,19 @@ export default {
         }
         this.updateTableData([this.editData.id], data);
         this.$message.success(res.data.msg || '操作成功');
+      });
+    },
+
+    // 点击广告活动名称
+    handleClickName(row) {
+      const { state, id, name, targetingType } = row;
+      this.$emit('changeTreeSelected', {
+        key: `${state}-${id}-${targetingType}`,
+        campaignId: 165279365602,
+        campaignName: name,
+        targetingType,
+        campaignState: state,
+        isLeaf: false,
       });
     },
 

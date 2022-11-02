@@ -23,8 +23,8 @@
           <div class="marketplace-time">{{ currentStore.time }}</div>
         </div>
         <!-- 广告活动和 portfolio 标签页切换 -->
-        <el-tabs type="border-card" class="left-tabs">
-          <el-tab-pane label="广告活动">
+        <el-tabs type="border-card" class="left-tabs" v-model="activeTreeTabsName">
+          <el-tab-pane label="广告活动" name="stateTree">
             <CampaignTree
               ref="refTree"
               :storeId="currentStore.adStoreId"
@@ -33,7 +33,7 @@
               :key="currentStore.adStoreId"
             />
           </el-tab-pane>
-          <el-tab-pane label="广告组合">
+          <el-tab-pane label="广告组合" name="portfolioTree">
             <el-input
               placeholder="输入广告组合名称，1-20字符"
               v-model="portfolioAddName"
@@ -61,6 +61,10 @@
             </div>
           </el-tab-pane>
         </el-tabs>
+        <!-- 主页按钮 -->
+        <div class="btn-home" @click="handleClickHome">
+          <i class="el-icon-s-home"></i>
+        </div>
       </el-aside>
       <el-main class="right-main">
         <!-- 面包屑导航 -->
@@ -103,6 +107,7 @@
               @updateStateTree="handleUpdateStateTree"
               @createSuccess="reloadTabPan"
               @changeTreeCampaignState="changeTreeCampaignState"
+              @changeTreeSelected="changeTreeSelected"
             />
           </el-tab-pane>
         </el-tabs>
@@ -169,6 +174,7 @@ export default{
         time: '',
         storeName: '',
       },
+      activeTreeTabsName: 'stateTree',
       // 广告树选中的节点 key
       treeSelectedKey: '',
       // 广告树选中的全部信息
@@ -421,6 +427,36 @@ export default{
       } else {
         this.treeSelectedKey = state[0];
       }
+    },
+
+    // 树切换选中的节点(用于广告活动、广告组名称点击)
+    changeTreeSelected(val) {
+      // 区分要同步到状态树还是组合树
+      // 如果当前选中了其中一棵树的节点，那就同步到这棵树，如果没有选中的树，就看哪一棵树 active
+      const selectedTreeInfo = parseTreeKey(this.treeSelectedKey);
+      let key = val.key;
+      if (selectedTreeInfo.portfolioId) {
+        // 同步到组合树
+        const arr = key.split('-');
+        key = `${selectedTreeInfo.portfolioId}-${arr.slice(1).join('-')}`;
+      }
+      val.key = key;
+      this.treeSelectedKey = key;
+      this.treeSelectedInfo = { ...val };
+      // 请求标签页数量
+      this.getTabsCellCount();
+    },
+
+    // 点击主页按钮
+    handleClickHome() {
+      // 重置广告树
+      this.treeSelectedKey = null;
+      this.treeSelectedInfo = {};
+      this.activeTreeTabsName = 'stateTree';
+      // 请求广告组合
+      this.getPortfolioList();
+      // 请求标签页数量
+      this.getTabsCellCount();
     },
 
     // 面包屑导航点击

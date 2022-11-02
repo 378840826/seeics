@@ -1,6 +1,7 @@
 <!-- 广告活动树 -->
 <!-- 树的 key = "campaignState-campaignId-campaignTargetType-groupId-groupType" -->
 <!-- 树的 key 例： "enabled-11111-auto-22222-keyword" -->
+<!-- 其中广告活动节点的 key 为： "campaignState-campaignId-campaignTargetType" -->
 <template>
   <div>
     <el-input
@@ -18,6 +19,7 @@
         ref="treeRef"
         node-key="key"
         :current-node-key="treeSelectedKey"
+        :default-expanded-keys=[expandedKey]
         lazy
         accordion
         highlight-current
@@ -38,7 +40,6 @@ import {
 } from '@/api/ppc/adManage';
 import { parseTreeKey } from '../utils/fun';
 import { stateIconDict } from '../utils/dict';
-// import { log } from '@/util/util';
 
 export default {
   name: 'CampaignTree',
@@ -62,6 +63,7 @@ export default {
         isLeaf: 'isLeaf',
       },
       filterText: '',
+      expandedKey: '',
     };
   },
 
@@ -106,6 +108,10 @@ export default {
             };
           });
           resolve(r);
+          // 此处是为了处理点击列表中广告活动名称跳转的情况
+          this.$refs.treeRef.setCurrentKey(this.treeSelectedKey);
+          const expandedCampaignKey = this.treeSelectedKey.split('-').slice(0, 3).join('-');
+          this.expandedKey = expandedCampaignKey;
         });
       } else if (node.level === 2) {
         // 请求广告组
@@ -129,6 +135,8 @@ export default {
             };
           });
           resolve(r);
+          // 此处是为了处理点击列表中广告活动名称跳转的情况
+          this.$refs.treeRef.setCurrentKey(this.treeSelectedKey);
         });
       }
     },
@@ -175,6 +183,21 @@ export default {
         ...newData,
       };
     },
+
+    // 树滚动到选中的广告活动/广告组位置
+    scrollTreeToSelected() {
+      setTimeout(() => {
+        const selectrd = window.document.querySelector('.el-tree-node.is-current');
+        const offsetTop = selectrd && selectrd.offsetTop;
+        if (offsetTop) {
+          const sider = window.document.querySelector('.tab-pane-roll');
+          sider.scrollTo({
+            top: offsetTop,
+            behavior: 'smooth',
+          });
+        }
+      }, 0);
+    },
   },
 
   watch: {
@@ -199,9 +222,21 @@ export default {
       } else if (selectedInfo.campaignId) {
         parentKys = selectedInfo.campaignState;
       }
-      if (parentKys && this.$refs.treeRef.store.nodesMap[parentKys].expanded === false) {
+      if (parentKys 
+        && this.$refs.treeRef.store.nodesMap[parentKys] 
+        && this.$refs.treeRef.store.nodesMap[parentKys].expanded === false) {
         this.$refs.treeRef.store.nodesMap[parentKys].expanded = true;
       }
+      // 此处是为了处理点击列表中广告活动名称跳转的情况 先展开状态节点加载广告活动, 请求广告活动成功后再展开广告活动节点
+      if (this.$refs.treeRef.store.nodesMap[val] && !selectedInfo.groupId) {
+        // this.expandedKey = val 用于替补 loadChildTreeNode 中的展开(因为如果当前父节点已经展开过，也就是已经请求了子节点，则不会走 loadChildTreeNode 代码了)
+        // 如果是广告组，则不展开了，展开父节点就行
+        this.expandedKey = val;
+      } else {
+        this.expandedKey = selectedInfo.campaignState;
+      }
+      // 树滚动到选中的位置
+      this.scrollTreeToSelected();
     },
   },
 };
