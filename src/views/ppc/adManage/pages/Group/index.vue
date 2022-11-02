@@ -128,8 +128,13 @@
 
     <el-table-column prop="name" label="广告组" width="200" sortable="custom" fixed>
       <div slot-scope="{row}">
-        {{ row.name }}
-        <i v-if="row.state !== 'archived'" class="el-icon-edit table-edit-icon"></i>
+        <template v-if="row.campaignState !== 'archived' && row.state !== 'archived'">
+          <span class="link_name" @click="handleClickName(row, 'group')">{{ row.name }}</span>
+          <i class="el-icon-edit table-edit-icon"></i>
+        </template>
+        <template v-else>
+          {{ row.name }}
+        </template>
       </div>
     </el-table-column>
 
@@ -141,8 +146,13 @@
       sortable="custom"
     >
       <div slot-scope="{row}">
-        <i :class="`${stateIconDict[row.campaignState]} ${row.campaignState}`" />
-        {{ row.campaignName }}
+        <template v-if="row.campaignState !== 'archived'">
+          <span class="link_name" @click="handleClickName(row, 'campaign')">{{ row.campaignName }}</span>
+          <i class="el-icon-edit table-edit-icon"></i>
+        </template>
+        <template v-else>
+          {{ row.campaignName }}
+        </template>
       </div>
     </el-table-column>
 
@@ -670,6 +680,30 @@ export default {
       }).finally(() => {
         log('finally');
       });
+    },
+
+    // 点击广告活动/广告组名称
+    handleClickName(row, type) {
+      const { campaignId, campaignName, campaignState, id, name, campaignTargetType, groupType } = row;
+      let data = {
+        key: `${campaignState}-${campaignId}-${campaignTargetType}`,
+        campaignId,
+        campaignName,
+        targetingType: campaignTargetType,
+        campaignState,
+        isLeaf: false,
+      };
+      if (type === 'group') {
+        data.key = `${campaignState}-${campaignId}-${campaignTargetType}-${id}-${groupType}`;
+        data = {
+          ...data,
+          groupId: id,
+          groupName: name,
+          groupType,
+          isLeaf: true,
+        };
+      }
+      this.$emit('changeTreeSelected', data);
     },
   
     // 点击广告组数量

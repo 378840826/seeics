@@ -123,6 +123,12 @@
   }
 }
 
+// 可点击的 广告活动、广告组 名称
+.link_name {
+  color: $linkColor;
+  cursor: pointer;
+}
+
 // hover tr 时才显示编辑图标
 .table-container {
   ::v-deep {
