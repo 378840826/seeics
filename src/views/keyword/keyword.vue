@@ -1029,11 +1029,14 @@ export default {
     'formInline.searchTopPage'(val){
       if (val > 2) {
         if (!this.levelFormat(this.levelName)){
-          this.$alert('付费用户专享，暂未开放', '提示', {
-            confirmButtonText: '取消',
-            callback: () => {
-              this.formInline.searchTopPage = 2;           
-            }
+          this.$confirm('开通会员弹窗，付费用户专享，去开通？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+          }).then(() => {
+            this.formInline.searchTopPage = 2; 
+            this.$router.push('/member/index');
+          }).catch(() => {
+            this.formInline.searchTopPage = 2;       
           });
         }
       }
