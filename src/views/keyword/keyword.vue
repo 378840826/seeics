@@ -1029,7 +1029,7 @@ export default {
     'formInline.searchTopPage'(val){
       if (val > 2) {
         if (!this.levelFormat(this.levelName)){
-          this.$confirm('开通会员弹窗，付费用户专享，去开通？', '提示', {
+          this.$confirm('付费用户专享，去开通？', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
           }).then(() => {
