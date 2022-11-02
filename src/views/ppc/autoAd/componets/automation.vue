@@ -89,7 +89,9 @@
       >
         <template slot-scope="scope">
 
-          <div v-if="automatedOperation === '创建广告活动'">ASIN+MSKU+关键词+匹配方式+日期时间</div>
+          <div v-if="automatedOperation === '创建广告活动'">ASIN+MSKU+关键词+匹配方式+日期时间
+            <el-input v-model="scope.row.customText" placeholder="请输入自定义文本；"/>
+          </div>
 
           <el-select 
             v-else
@@ -277,10 +279,11 @@
         <adGroup
           ref="adGroup1"
           :automatedOperation.sync="automatedOperation"
-          :echo="{}"
+          :echo="echoAdGroup1"
           :campaign="campaign"
           :rowData="rowData"
           :type="1"
+          :deduplication="echoDeduplication"
         />
       </div>
 
@@ -288,7 +291,7 @@
         v-if="searchWord !== 1"
         ref="adGroup2"
         :automatedOperation.sync="automatedOperation"
-        :echo="{}"
+        :echo="echoAdGroup2"
         :campaign="campaign"
         :rowData="rowData"
         :type="2"
@@ -422,6 +425,7 @@ export default {
           msg: false,
           add: true,
           adGroupList: [],
+          customText: ''
         },
       ],
       matchType: [{
@@ -766,20 +770,29 @@ export default {
       if (!this.echo.adCampaignInfos.length) {
         return;
       }
-      this.tableData = this.echo.adCampaignInfos.map((item, index) => {
-        this.getGroupList(item.campaignId, index);
+      if (this.echo.automatedOperation === '创建广告组') {
 
-        return {
-          ...item,
-          campaign: item.campaignId,
-          adGroup: item.adGroupId,
-          adGroupList: [],
-          matchType: this.echo.automatedOperation === '创建广告活动' ? item.matchType && item.matchType.split(',') || ['精准匹配'] : item.matchType && item.matchType || '精准匹配'
-        };
-      });
+        this.echoAdGroup1 = this.echo.adCampaignInfos.filter(item => item.type === 1);
+        this.echoDeduplication = this.deduplication;
+        this.echoAdGroup2 = this.echo.adCampaignInfos.filter(item => item.type === 2);
 
-      if (this.echo.automatedOperation === '创建广告活动') {
-        this.addDisabled = true;
+      } else {
+
+        this.tableData = this.echo.adCampaignInfos.map((item, index) => {
+          this.getGroupList(item.campaignId, index);
+  
+          return {
+            ...item,
+            campaign: item.campaignId,
+            adGroup: item.adGroupId,
+            adGroupList: [],
+            matchType: this.echo.automatedOperation === '创建广告活动' ? item.matchType && item.matchType.split(',') || ['精准匹配'] : item.matchType && item.matchType || '精准匹配'
+          };
+        });
+  
+        if (this.echo.automatedOperation === '创建广告活动') {
+          this.addDisabled = true;
+        }
       }
       this.form = this.echo.createAdvertisingCampaignDTO;
       this.form.deduplication = this.deduplication;
@@ -789,36 +802,55 @@ export default {
     },
     getFiled() {
       let obj = {};
-      const data = this.tableData.map(item => {
-        return {
-          ...item,
-          campaignId: item.campaign,
-          adGroupId: this.automatedOperation === '添加到投放' || this.automatedOperation === '创建广告活动' ? item.adGroup : null,
+
+      if (this.automatedOperation === '创建广告组') {
+        const adGroup1 = this.searchWord === 1 && this.$refs.adGroup1.getFiled() || [];
+        const adGroup2 = this.searchWord === 2 && this.$refs.adGroup2.getFiled() || [];
+        obj = {
+          adCampaignInfos: this.searchWord !== 3 
+            ? [...adGroup1, ...adGroup2]
+            : [...this.$refs.adGroup1.getFiled(), ...this.$refs.adGroup2.getFiled()],
+          automatedOperation: this.automatedOperation,
+          adStoreId: this.rowData.adStoreId,
           currency: this.rowData.currency,
-          matchType: this.automatedOperation === '创建广告活动' ? item.matchType.join(',') : item.matchType
+          marketplace: this.rowData.marketplace,
+          id: this.echo.id || null,
+          campaignId: this.rowData.campaignId,
+          deduplication: (this.searchWord === 1 || this.searchWord === 3) && this.$refs.adGroup1.form.deduplication ? 1 : 0 || 0,
         };
-      });
-      obj = {
-        adCampaignInfos: this.automatedOperation ? data : null,
-        automatedOperation: this.automatedOperation,
-        // keywordTexts: this.asinList,
-        adStoreId: this.rowData.adStoreId,
-        currency: this.rowData.currency,
-        marketplace: this.rowData.marketplace,
-        id: this.echo.id || null,
-        campaignId: this.rowData.campaignId
-      };
-      obj = this.automatedOperation === '创建广告活动' ? Object.assign(obj, { createAdvertisingCampaignDTO: {
-        ...this.form,
-        campaignId: this.rowData.campaignId,
-        templateId: this.templateId,
-        endTime: this.form.endTime && dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || null,
-        startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || null,
-        deduplication: this.form.deduplication ? 1 : 0,
-        campaignName: 'ASIN+MSKU+关键词+匹配方式+日期时间',
-      } }) : obj;
+      } else {
+        const data = this.tableData.map(item => {
+          return {
+            ...item,
+            campaignId: item.campaign,
+            adGroupId: this.automatedOperation === '添加到投放' || this.automatedOperation === '创建广告活动' ? item.adGroup : null,
+            currency: this.rowData.currency,
+            matchType: this.automatedOperation === '创建广告活动' ? item.matchType.join(',') : item.matchType,
+            customText: this.automatedOperation === '创建广告活动' ? item.customText : '',
+          };
+        });
+        obj = {
+          adCampaignInfos: this.automatedOperation ? data : null,
+          automatedOperation: this.automatedOperation,
+          // keywordTexts: this.asinList,
+          adStoreId: this.rowData.adStoreId,
+          currency: this.rowData.currency,
+          marketplace: this.rowData.marketplace,
+          id: this.echo.id || null,
+          campaignId: this.rowData.campaignId
+        };
+        obj = this.automatedOperation === '创建广告活动' ? Object.assign(obj, { createAdvertisingCampaignDTO: {
+          ...this.form,
+          campaignId: this.rowData.campaignId,
+          templateId: this.templateId,
+          endTime: this.form.endTime && dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || null,
+          startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || null,
+          deduplication: this.form.deduplication ? 1 : 0,
+          campaignName: 'ASIN+MSKU+关键词+匹配方式+日期时间',
+        } }) : obj;
+      }
       return obj;
-      console.log(this.$refs.adGroup1.getFiled(), this.$refs.adGroup2.getFiled())
+      // console.log(this.$refs.adGroup1.getFiled(), this.$refs.adGroup2.getFiled())
     },
     // 获取广告组
     getGroupList(value, index, flag) {
@@ -1048,7 +1080,8 @@ export default {
         bidLimitValue: '',
         msg: false,
         add: true,
-        adGroupList: []
+        adGroupList: [],
+        customText: ''
       });
       delete this.tableData[this.tableData.length - 2].add;
     },

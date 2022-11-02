@@ -1222,7 +1222,7 @@ export default {
       //   });
       //   return true;
       // }
-      if (this.radio === 2 && !this.adGroupOption.length) {
+      if ((this.$refs.autoMation.getFiled().automatedOperation === '创建广告组' || this.$refs.autoMation.getFiled().automatedOperation === '创建广告活动') && this.radio === 2 && !this.adGroupOption.length) {
         this.$message({
           type: 'error',
           message: '请选择广告组'
@@ -1322,7 +1322,7 @@ export default {
       if (this.deliveryMsg()) {
         return;
       }
-return
+
       if (this.updateBtn) {
         templateUpdate({ ...params, ...this.$refs.autoMation.getFiled() }).then(res => {
           if (res.data.code === 200) {

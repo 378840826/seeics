@@ -233,7 +233,7 @@ export default {
     type: {
       type: Number,
       require: true
-    }
+    },
   },
   data() {
     const format = (val) => {
@@ -249,7 +249,7 @@ export default {
         {
           campaign: this.campaign,
           adGroup: `ASIN+MSKU+${format(this.type)}+匹配方式+日期时间`,
-          matchType: [],
+          matchType: ['精准匹配'],
           bidType: '广告组默认竞价',
           bid: '',
           rule: '',
@@ -406,6 +406,7 @@ export default {
   },
 
   mounted() {
+    console.log(this.echo)
     Object.keys(this.echo).length && this.echoFiled();
     this.templateType === '投放' ? this.launch = true : this.launch = false;
   },
@@ -522,23 +523,16 @@ export default {
     },
     
     echoFiled() {
-      this.tableData[0].matchType = this.echo.automatedOperation === '创建广告活动'
-        ? this.echo.matchType && this.echo.matchType.split(',') || ['精准匹配']
-        : this.echo.matchType || '精准匹配';
-      this.tableData[0].bid = this.echo.bid;
-      this.tableData[0].bidType = this.echo.bidType || '广告组默认竞价';
-      this.tableData[0].rule = this.echo.rule;
-      this.tableData[0].adjustTheValue = this.echo.adjustTheValue;
-      this.tableData[0].bidLimitValue = this.echo.bidLimitValue;
-      this.automatedOperation = this.echo.automatedOperation;
-      
-      if (this.echo.automatedOperation === '创建广告活动') {
-        this.form = Object.assign(this.form, this.echo.createAdvertisingCampaignDTO);
-      }
-      this.form.deduplication = this.deduplication ? true : false;
-      if (!this.echo.automatedOperation) {
-        this.isAutoShow = false;
-      }
+      this.tableData = this.echo.map(item => {
+        return {
+          ...item,
+          campaign: this.campaign,
+          adGroup: `ASIN+MSKU+${this.type === 1 ? '关键词' : '搜索词'}+匹配方式+日期时间`,
+          matchType: item.matchType && item.matchType.split(',') || ['精准匹配']
+        };
+      });
+      this.tableData[this.tableData.length - 1].add = true;
+      this.form.deduplication = this.deduplication;
     },
     getFiled() {
       const obj = this.tableData.map(item => {
@@ -590,7 +584,7 @@ export default {
       this.tableData.push({
         campaign: this.campaign,
         adGroup: `ASIN+MSKU+${this.type === 1 ? '关键词' : '搜索词'}+匹配方式+日期时间`,
-        matchType: [],
+        matchType: ['精准匹配'],
         bidType: '广告组默认竞价',
         bid: '',
         rule: '',
