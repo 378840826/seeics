@@ -27,15 +27,24 @@
         <el-form-item>
           <el-button type="primary" size="small" @click="analysiskeywords()">分析</el-button>
         </el-form-item>
-        <el-form-item label="亚马逊搜索结果前: ">
-          <el-select v-model="formInline.searchTopPage" size="small" class="pageselectclass">
-            <el-option label="2" value="2"></el-option>
-            <el-option label="4" value=4 ></el-option>
-            <el-option label="6" value=6 ></el-option>
-            <el-option label="8" value=8 ></el-option>
-            <el-option label="10" value=10 ></el-option>
-          </el-select>
-          
+        <el-form-item label="亚马逊搜索结果前: " >
+            <el-select
+              v-model="formInline.searchTopPage"
+              size="small"
+              popper-class="pageselectclass"
+              :popper-append-to-bod="false"
+              style="width: 100px">
+              <el-option label="1" :value="1"></el-option>
+              <el-option label="2" :value="2" ></el-option>
+              <el-option label="3" :value="3" ></el-option>
+              <el-option label="4" :value="4" ></el-option>
+              <el-option label="5" :value="5" ></el-option>
+              <el-option label="6" :value="6"></el-option>
+              <el-option label="7" :value="7" ></el-option>
+              <el-option label="8" :value="8" ></el-option>
+              <el-option label="9" :value="9" ></el-option>
+              <el-option label="10" :value="10" ></el-option>
+            </el-select>
         </el-form-item>
 
         <el-form-item>
@@ -324,6 +333,9 @@ import {
   batchAnalyze,
   batchDownload,
   batchExport } from '@/api/keyword/keyword';
+
+import { queryInfo } from '@/api/member/member';
+import { queryMemberUserList } from '@/api/member/corporate';
 import { downloadFile, setPageSetup, getPageSetup } from '@/util/util';
 import RangeInput from '@/components/range-input';
 import dayjs from 'dayjs';
@@ -572,13 +584,31 @@ export default {
         inputMsg: [
           { validator: checkDefaultBid },
         ]
-      } 
+      },
+      //会员
+      levelName: '',
+      accountList: [],
     };
     
   },
   mounted(){  
     this.getGlobalOption();
     this.getkeywordLists();
+    queryInfo().then(res => {
+      if (res.data.code === 200) {
+        this.levelName = res.data.data.levelName;
+      }
+    });
+
+    queryMemberUserList({ isEnterprise: true }).then(res => {
+      this.accountList = res.data.data.map(item => {
+        return {
+          label: item.account,
+          value: item.id
+        };
+      });
+    });
+    
   },
   methods: {
     //获取全局选项
@@ -975,18 +1005,37 @@ export default {
       this.score.max = '';
       this.score.min = '';
       this.getkeywordLists();
+    },
+
+    levelFormat(val) {
+      if (val === 'VIP') {
+        return true;
+      } else if (val === '高级VIP') {
+        return true;
+      } else if (val === '至尊VIP') {
+        return true;
+      } else if (val === '普通会员') {
+        return false;
+      } else if (this.accountList.find(item => item.label === val)) {
+        return true;
+      // eslint-disable-next-line no-else-return
+      } else {
+        return false;
+      }
     }
   },
 
   watch: {
-    'formInline.searchTopPage'(){
-      if (this.formInline.searchTopPage > 2){
-        this.$alert('付费用户专享，暂未开放', '提示', {
-          confirmButtonText: '取消',
-          callback: () => {
-            this.formInline.searchTopPage = 2;           
-          }
-        });
+    'formInline.searchTopPage'(val){
+      if (val > 2) {
+        if (!this.levelFormat(this.levelName)){
+          this.$alert('付费用户专享，暂未开放', '提示', {
+            confirmButtonText: '取消',
+            callback: () => {
+              this.formInline.searchTopPage = 2;           
+            }
+          });
+        }
       }
     },
     results: {
@@ -1104,12 +1153,7 @@ export default {
     padding: 0px;
   }
 }
-.pageselectclass {
-  ::v-deep .el-input__inner {
-    width: 100px;
-    //margin-left: 30px;
-  }
-}
+
 .inputclass {
   margin-left: 0;
   ::v-deep .el-input__inner {
@@ -1215,4 +1259,17 @@ export default {
     padding: 0 20px;
   }
 }
+</style>
+
+<style lang="scss">
+  .pageselectclass  {
+
+    ::v-deep .el-scrollbar__wrap {
+        // overflow: none;
+        height: 100%;
+    }
+    .el-select-dropdown__wrap {
+      max-height: 400px;
+    }
+  }
 </style>
