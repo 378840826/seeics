@@ -1322,7 +1322,7 @@ export default {
       if (this.deliveryMsg()) {
         return;
       }
-
+return
       if (this.updateBtn) {
         templateUpdate({ ...params, ...this.$refs.autoMation.getFiled() }).then(res => {
           if (res.data.code === 200) {

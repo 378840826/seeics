@@ -37,7 +37,7 @@
     </div>
 
     <el-table
-      v-if="isAutoShow"
+      v-if="automatedOperation !== '创建广告组'"
       :data="tableData"
       :header-cell-style="{'text-align':'center'}"
       max-height="300"
@@ -272,9 +272,31 @@
       </el-table-column>
     </el-table>
 
+    <div v-else-if="automatedOperation === '创建广告组'">
+      <div v-if="searchWord !== 2">
+        <adGroup
+          ref="adGroup1"
+          :automatedOperation.sync="automatedOperation"
+          :echo="{}"
+          :campaign="campaign"
+          :rowData="rowData"
+          :type="1"
+        />
+      </div>
+
+      <adGroup
+        v-if="searchWord !== 1"
+        ref="adGroup2"
+        :automatedOperation.sync="automatedOperation"
+        :echo="{}"
+        :campaign="campaign"
+        :rowData="rowData"
+        :type="2"
+      />
+    </div>
+
     <div
-      v-show="automatedOperation === '创建广告活动'
-      || automatedOperation === '创建广告组' && searchWord !== 2" class="explain">
+      v-show="automatedOperation === '创建广告活动'" class="explain">
       <span style="fontWeight: 900">匹配方式去重： </span> <el-switch v-model="form.deduplication">
       </el-switch>
       <p>匹配方式去重规则：</p>
@@ -324,10 +346,11 @@ import {
 } from '@/api/ppc/autoAd';
 import dayjs from 'dayjs';
 import adCampaign from './adCampaign.vue';
+import adGroup from './adGroup.vue';
 
 export default {
   name: 'automation',
-  components: { adCampaign },
+  components: { adCampaign, adGroup },
   props: {
     echo: {
       type: Object,
@@ -560,7 +583,6 @@ export default {
     };
   },
   mounted() {
-    console.log(this.searchWord)
     Object.keys(this.echo).length && this.echoFiled();
     this.name = this.rowData.name;
     this.tableData[0].campaign = this.rowData.campaignId || '';
@@ -796,6 +818,7 @@ export default {
         campaignName: 'ASIN+MSKU+关键词+匹配方式+日期时间',
       } }) : obj;
       return obj;
+      console.log(this.$refs.adGroup1.getFiled(), this.$refs.adGroup2.getFiled())
     },
     // 获取广告组
     getGroupList(value, index, flag) {
