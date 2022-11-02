@@ -112,6 +112,7 @@ export default {
           this.$refs.treeRef.setCurrentKey(this.treeSelectedKey);
           const expandedCampaignKey = this.treeSelectedKey.split('-').slice(0, 3).join('-');
           this.expandedKey = expandedCampaignKey;
+          this.scrollTreeToSelected();
         });
       } else if (node.level === 2) {
         // 请求广告组
@@ -137,6 +138,7 @@ export default {
           resolve(r);
           // 此处是为了处理点击列表中广告活动名称跳转的情况
           this.$refs.treeRef.setCurrentKey(this.treeSelectedKey);
+          this.scrollTreeToSelected();
         });
       }
     },
@@ -196,7 +198,7 @@ export default {
             behavior: 'smooth',
           });
         }
-      }, 0);
+      }, 500);
     },
   },
 
