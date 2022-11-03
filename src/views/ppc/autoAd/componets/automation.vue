@@ -89,7 +89,7 @@
       >
         <template slot-scope="scope">
 
-          <div v-if="automatedOperation === '创建广告活动'">ASIN+MSKU+关键词+匹配方式+日期时间
+          <div v-if="automatedOperation === '创建广告活动'">ASIN+MSKU+关键词+匹配方式+日期时间+
             <el-input v-model="scope.row.customText" placeholder="请输入自定义文本；"/>
           </div>
 
