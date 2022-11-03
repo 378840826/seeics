@@ -648,7 +648,8 @@ export default {
             rule: result.rule,
             adjustTheValue: result.adjustTheValue,
             bidLimitValue: result.bidLimitValue,
-            createAdvertisingCampaignDTO: result.createAdvertisingCampaignDTO
+            createAdvertisingCampaignDTO: result.createAdvertisingCampaignDTO,
+            customText: result.customText
           };
           this.formInline = {
             ...this.formInline,

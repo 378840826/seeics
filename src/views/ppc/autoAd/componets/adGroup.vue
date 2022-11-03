@@ -1,27 +1,7 @@
 <template>
   <div class="sa">
-    <div class="tabel">
-      <span>自动化操作：</span>
-      <el-select 
-        v-model="automatedOperation"
-        @change="hanlderAuto"
-      >
-        <el-option
-          v-for="item in (launch ? launchOption : searchOption)"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-          :disabled="item.disable"
-        />
-      </el-select>
-    </div>
-
-    <div v-show="automatedOperation === '创建广告活动'" style="marginTop: 10px">
-      <adCampaign ref="adCampaign" :form="form" :currency="'站点货币'"/>
-    </div>
 
     <el-table
-      v-if="isAutoShow"
       :data="tableData"
       :header-cell-style="{'text-align':'center'}"
       max-height="300"
@@ -36,44 +16,36 @@
           <div>{{scope.row.campaign}}</div>
         </template>
       </el-table-column>
+
       <el-table-column
-        v-if="automatedOperation === '添加到投放' || automatedOperation === '创建广告活动' || automatedOperation === '创建广告组'"
         label="广告组"
         prop="adGroup"
         align="center"
       >
         <template slot-scope="scope">
-          <div v-if="automatedOperation === '创建广告活动' || automatedOperation === '创建广告组'">ASIN+MSKU+关键词+匹配方式+日期时间
-            <el-input v-model="scope.row.customText" placeholder="请输入自定义文本；"/>
-          </div>
-          <div v-else>{{scope.row.adGroup}}</div>
+          <div>{{scope.row.adGroup}}</div>
+          <el-input v-model="scope.row.customText" placeholder="请输入自定义文本；"/>
         </template>
       </el-table-column>
+
       <el-table-column
-        v-if="!launch"
+        v-if="type === 1"
         label="匹配类型"
         prop="matchType"
         align="center"
       >
         <template slot-scope="scope">
-          <el-select 
-            v-model="scope.row.matchType" 
-            placeholder="请选择"
-            @change="matchTypeSelect"
-            :multiple="automatedOperation === '创建广告活动' ? true : false"
-            collapse-tag
-          >
-            <el-option
-              v-for="item in matchType"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-            </el-option>
-        </el-select>
+          <el-checkbox-group 
+            v-model="scope.row.matchType">
+            <el-checkbox label="精准匹配">精准匹配</el-checkbox>
+            <el-checkbox label="词组匹配">词组匹配</el-checkbox>
+            <el-checkbox label="广泛匹配">广泛匹配</el-checkbox>
+          </el-checkbox-group>
         </template>
       </el-table-column>
+
       <el-table-column
-        :label="`竞价${automatedOperation === '添加到投放' ? '参考' : '调整'}`"
+        :label="`竞价${'调整'}`"
         prop="bidType"
         align="center"
       >
@@ -139,12 +111,12 @@
                 :ref="'input_bid' + scope.$index"
                 v-model="scope.row.bid" 
                 placeholder="固定竞价"
-                @blur="numberChange($event, 'bid')"
+                @blur="numberChange($event, 'bid', scope.$index)"
               >
                 <div
                   slot="prefix"
                   @click="focus('input_bid' + scope.$index)"
-                  style="lineHeight: 30px;">站点货币</div>
+                  style="lineHeight: 30px;">{{rowData.currency}}</div>
               </el-input>
             <!-- <div v-if="msg" class="msg">支持两位小数</div> -->
           </div>
@@ -153,7 +125,7 @@
             <el-input
                 :ref="'input_adjustTheValue' + scope.$index"
                 v-model="scope.row.adjustTheValue"
-                @blur="numberChange($event, 'adjustTheValue')"
+                @blur="numberChange($event, 'adjustTheValue', scope.$index)"
                 placeholder="调整数值"
               >
                 <div
@@ -164,7 +136,7 @@
                   v-else
                   slot="prefix"
                   @click="focus('input_adjustTheValue' + scope.$index)"
-                  style="lineHeight: 30px;">站点货币</div>
+                  style="lineHeight: 30px;">{{rowData.currency}}</div>
               </el-input>
               <!-- <div v-if="scope.row.valueMsg" class="msg">支持两位小数</div> -->
           </div>
@@ -187,20 +159,39 @@
           <el-input
             :ref="'input_bidLimitValue' + scope.$index"
             v-model="scope.row.bidLimitValue"
-            @blur="numberChange($event, 'bidLimitValue')"
+            @blur="numberChange($event, 'bidLimitValue', scope.$index)"
             :placeholder="minValue(scope.row.rule)"
           >
             <div 
               @click="focus('input_bidLimitValue' + scope.$index)"
               slot="prefix"
-              style="lineHeight: 30px;">站点货币</div>
+              style="lineHeight: 30px;">{{rowData.currency}}</div>
           </el-input>
           <!-- <div v-if="scope.row.mostMsg" class="msg">支持两位小数</div> -->
         </template>
       </el-table-column>
+
+      <el-table-column
+        label=""
+        width="100"
+      >
+        <template slot-scope="scope">
+         <el-button 
+           @click="delet(scope.$index)" 
+           type="text"
+           class="el-icon-delete"
+           :disabled="tableData.length === 1"
+         />
+         <el-button 
+           type="text"
+           @click="add"
+           :disabled="!scope.row.add || scope.row.addDisabled"
+        >+添加</el-button>
+        </template>
+      </el-table-column>
     </el-table>
 
-    <div v-show="automatedOperation === '创建广告活动' || automatedOperation === '创建广告组'" class="explain">
+    <div v-show="type === 1" class="explain">
       <span style="fontWeight: 900">匹配方式去重： </span> <el-switch v-model="form.deduplication">
       </el-switch>
       <p>匹配方式去重规则：</p>
@@ -212,12 +203,12 @@
 </template>
 
 <script>
-import adCampaign from '../../autoAd/componets/adCampaign.vue';
+
 import dayjs from 'dayjs';
 
 export default {
   name: 'automatic',
-  components: { adCampaign },
+
   props: {
     echo: {
       type: Object,
@@ -228,21 +219,45 @@ export default {
     },
     deduplication: {
       type: Boolean
-    }
+    },
+    automatedOperation: {
+      type: String
+    },
+    campaign: {
+      type: String
+    },
+    rowData: {
+      type: Object,
+      default: new Object
+    },
+    type: {
+      type: Number,
+      require: true
+    },
   },
   data() {
+    const format = (val) => {
+      if (val === 1) {
+        return '关键词';
+      } else if (val === 2) {
+        return '搜索词';
+      }
+    };
+
     return {
       tableData: [
         {
-          campaign: '自动化标签所在广告活动',
-          adGroup: '自动化标签所在广告组',
-          matchType: '精准匹配',
+          campaign: this.campaign,
+          adGroup: `ASIN+MSKU+${format(this.type)}+匹配方式+日期时间`,
+          matchType: ['精准匹配'],
           bidType: '广告组默认竞价',
           bid: '',
           rule: '',
           adjustTheValue: '',
           bidLimitValue: '',
           customText: '',
+          add: true,
+          addDisabled: false
         },
       ],
       matchType: [{
@@ -317,7 +332,7 @@ export default {
           value: '下调(绝对值)'
         },
       ],
-      automatedOperation: '添加到投放',
+      //   automatedOperation: '添加到投放',
       launchOption: [
         {
           label: '无',
@@ -389,23 +404,44 @@ export default {
       },
     };
   },
+
   mounted() {
-    Object.keys(this.echo).length && this.echoFiled();
+    this.echo && Object.keys(this.echo).length && this.echoFiled();
     this.templateType === '投放' ? this.launch = true : this.launch = false;
   },
+
   watch: {
     tableData: {
       handler(val) {
         const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
-        if (reg.test(Number(val[0].bid))) {
-          this.msg = false;
-        } else {
-          this.msg = true;
-        }
+        val.forEach(item => {
+          if (item.bidType === '固定竞价' && !item.bid
+              || item.rule === '上浮(%)' && (!item.bidLimitValue || !item.adjustTheValue)
+              || item.rule === '下调(%)' && (!item.bidLimitValue || !item.adjustTheValue)
+              || item.rule === '下调(绝对值)' && (!item.bidLimitValue || !item.adjustTheValue)
+              || item.rule === '上浮(绝对值)' && (!item.bidLimitValue || !item.adjustTheValue)
+          ) {
+            item.addDisabled = true;
+          } else {
+            // item.addDisabled = false;
+            if (!reg.test(Number(item.bid))
+              || !reg.test(Number(item.bidLimitValue))
+              || !reg.test(Number(item.adjustTheValue))) {
+
+              item.addDisabled = true;
+            
+            } else {
+              
+              item.addDisabled = false;
+            }
+          }
+        });
+
       },
       deep: true
     },
   },
+  
   methods: {
 
     budgetMsg() {
@@ -432,78 +468,86 @@ export default {
         this.launch = true;
       }
     },
-    numberChange (val, name) {
+    numberChange (val, name, idx) {
       const reg = /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/;
       val.target.style.borderColor = '';
       if (isNaN(val.target.value)) { 
         val.target.value = parseFloat(val.target.value) ;
       } 
+
       if (val.target.value.indexOf('.') > 0){
         val.target.value = val.target.value.slice(0, val.target.value.indexOf('.') + 3);
-        this.tableData[0][name] = val.target.value;
+        this.tableData[idx][name] = val.target.value;
       }
-      if (val.target.value > 1000) {
-        val.target.style.borderColor = 'red';
-        this.$message({
-          type: 'error',
-          message: '值不能超过1000'
-        });
-        val.target.value = '';
-        // this.$emit('change', true);
-      } else if (val.target.value < 0.02) {
-        val.target.style.borderColor = 'red';
-        this.$message({
-          type: 'error',
-          message: '值不能低于0.02'
-        });
-        val.target.value = '';
+
+      if (this.rowData.marketplace === 'JP') { //日本站
+        if (val.target.value > 100000) {
+          val.target.style.borderColor = 'red';
+          this.$message({
+            type: 'error',
+            message: '值不能超过100000'
+          });
+          val.target.value = '';
+          // this.$emit('change', true);
+        } else if (val.target.value < 2) {
+          val.target.style.borderColor = 'red';
+          this.$message({
+            type: 'error',
+            message: '值不能低于2'
+          });
+          val.target.value = '';
+        }
+      } else {
+        if (val.target.value > 1000) {
+          val.target.style.borderColor = 'red';
+          this.$message({
+            type: 'error',
+            message: '值不能超过1000'
+          });
+          val.target.value = '';
+          // this.$emit('change', true);
+        } else if (val.target.value < 0.02) {
+          val.target.style.borderColor = 'red';
+          this.$message({
+            type: 'error',
+            message: '值不能低于0.02'
+          });
+          val.target.value = '';
+        }
       }
       if (!reg.test(val.target.value)) {
         val.target.value = '';
-        this.tableData[0][name] = '';
+        this.tableData[idx][name] = '';
       }
     },
+    
     echoFiled() {
-      this.tableData[0].matchType = this.echo.automatedOperation === '创建广告活动'
-        ? this.echo.matchType && this.echo.matchType.split(',') || ['精准匹配']
-        : this.echo.matchType || '精准匹配';
-      this.tableData[0].bid = this.echo.bid;
-      this.tableData[0].bidType = this.echo.bidType || '广告组默认竞价';
-      this.tableData[0].rule = this.echo.rule;
-      this.tableData[0].adjustTheValue = this.echo.adjustTheValue;
-      this.tableData[0].bidLimitValue = this.echo.bidLimitValue;
-      this.automatedOperation = this.echo.automatedOperation;
-      this.tableData[0].customText = this.echo.customText;
-      
-      if (this.echo.automatedOperation === '创建广告活动') {
-        this.form = Object.assign(this.form, this.echo.createAdvertisingCampaignDTO);
-      }
-      this.form.deduplication = this.deduplication ? true : false;
-      if (!this.echo.automatedOperation) {
-        this.isAutoShow = false;
-      }
+      this.tableData = this.echo.map(item => {
+        return {
+          ...item,
+          campaign: this.campaign,
+          adGroup: `ASIN+MSKU+${this.type === 1 ? '关键词' : '搜索词'}+匹配方式+日期时间`,
+          matchType: item.matchType && item.matchType.split(',') || ['精准匹配']
+        };
+      });
+      this.tableData[this.tableData.length - 1].add = true;
+      this.form.deduplication = this.deduplication;
     },
     getFiled() {
-      let obj = {
-        matchType: this.automatedOperation ? this.automatedOperation === '创建广告活动' && this.tableData[0].matchType.join(',') || this.tableData[0].matchType : null,
-        bidType: this.automatedOperation ? this.tableData[0].bidType : null,
-        bid: this.automatedOperation ? this.tableData[0].bid : null,
-        automatedOperation: this.automatedOperation,
-        rule: this.automatedOperation ? this.tableData[0].rule : null,
-        adjustTheValue: this.automatedOperation ? this.tableData[0].adjustTheValue || '' : null,
-        bidLimitValue: this.automatedOperation ? this.tableData[0].bidLimitValue || '' : null,
-        groupIdList: [],
-        customText: (this.automatedOperation === '创建广告活动' || this.automatedOperation === '创建广告组') && this.tableData[0].customText || ''
-      };
-
-      obj = this.automatedOperation === '创建广告活动' ? Object.assign(obj, { createAdvertisingCampaignDTO: {
-        ...this.form,
-        endTime: this.form.endTime && dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || null,
-        startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || null,
-        deduplication: this.form.deduplication ? 1 : 0,
-        campaignName: 'ASIN+MSKU+关键词+匹配方式+日期时间',
-      } }) : obj;
-
+      const obj = this.tableData.map(item => {
+        return {
+          bidType: item.bidType,
+          matchType: item.matchType.join(','),
+          bid: item.bid,
+          campaignId: this.rowData.campaignId,
+          currency: this.rowData.currency,
+          rule: item.rule,
+          adjustTheValue: item.adjustTheValue,
+          bidLimitValue: item.bidLimitValue,
+          customText: item.customText,
+          type: this.type  
+        };
+      });
       return obj;
     },
     bidTypeSelect(index) {
@@ -526,38 +570,36 @@ export default {
       this.tableData[0].bidLimitValue = '';
       this.tableData[0].adjustTheValue = '';
     },
-    hanlderAuto(val) {
-      if (this.launch) {
-        this.tableData[0].bidType = '广告组默认竞价';
-        this.tableData[0].matchType = null;
-        if (val === '自动归档' || val === '自动暂停') {
-          this.tableData[0].bid = null;
-          this.tableData[0].bidType = null;
-        }
-        if (val === '添加到投放' || val === '添加到否定投放') {
-          this.tableData[0].matchType = '精准匹配';
-        }
-        this.tableData[0].rule = '';
-        this.tableData[0].bidLimitValue = '';
-        this.tableData[0].adjustTheValue = '';
-        this.tableData[0].bid = '';
-      }
-      if (!val) {
-        this.isAutoShow = false;
-      } else {
-        this.isAutoShow = true;
-        this.isAutoShow = this.isAutoShow ? false : true;
-        this.$nextTick(() => {
-          this.isAutoShow = this.isAutoShow ? false : true;
+    
+    add() {
+      if (this.tableData.length >= 20) {
+        this.$message({
+          type: 'warning',
+          message: '创建广告组最多可以添加20条'
         });
+        return;
       }
-      
-      if (val === '创建广告活动') {
-        this.tableData[0].matchType = ['精准匹配'];
-      } else {
-        this.tableData[0].matchType = '精准匹配';
-      }
+
+      this.tableData.push({
+        campaign: this.campaign,
+        adGroup: `ASIN+MSKU+${this.type === 1 ? '关键词' : '搜索词'}+匹配方式+日期时间`,
+        matchType: ['精准匹配'],
+        bidType: '广告组默认竞价',
+        bid: '',
+        rule: '',
+        adjustTheValue: '',
+        bidLimitValue: '',
+        customText: '',
+        add: true,
+        addDisabled: false,
+      });
+      this.tableData[this.tableData.length - 2].add = false;
     },
+
+    delet(idx) {
+      this.tableData.splice(idx, 1);
+      this.tableData[this.tableData.length - 1].add = true;
+    }
   }
 };
 </script>
@@ -596,10 +638,10 @@ export default {
     font-size: 12px;
     text-align: center;
   }
-  ::v-deep .el-input--prefix .el-input__inner {
-    padding-left: 55px;
-    font-size: 12px;
-  }
+//   ::v-deep .el-input--prefix .el-input__inner {
+//     padding-left: 15px;
+//     font-size: 12px;
+//   }
   ::v-deep .el-input--suffix .el-input__inner {
     padding-right: 30px;
     font-size: 12px;
@@ -616,5 +658,9 @@ export default {
           font-size: 12px;
           margin: 0;
       }
+  }
+
+  ::v-deep .el-checkbox:last-of-type {
+    margin-right: 30px;
   }
 </style>
