@@ -155,7 +155,7 @@
     </el-table-column>
 
      <el-table-column
-      v-if="customCols.includes('广告活动')" 
+      v-if="customCols.includes('广告活动') && !treeSelectedInfo.campaignId" 
       prop="campaignName" 
       label="广告活动" 
       width="200" 
@@ -163,17 +163,33 @@
     >
       <div slot-scope="{row}">
         <i :class="`${stateIconDict[row.campaignState]} ${row.campaignState}`" />
-        {{ row.campaignName }}
+        <template v-if="row.campaignState !== 'archived'">
+          <span class="link_name" @click="handleClickName(row, 'campaign')">{{ row.campaignName }}</span>
+          <i class="el-icon-edit table-edit-icon"></i>
+        </template>
+        <template v-else>
+          {{ row.campaignName }}
+        </template>
       </div>
     </el-table-column>
   
     <el-table-column
-      v-if="customCols.includes('广告组')" 
+      v-if="customCols.includes('广告组') && !treeSelectedInfo.groupId" 
       prop="groupName" 
       label="广告组" 
       width="200" 
       sortable="custom"
-    />
+    >
+      <div slot-scope="{row}">
+        <i :class="`${stateIconDict[row.groupState]} ${row.groupState}`" />
+        <template v-if="row.campaignState !== 'archived' && row.groupState !== 'archived'">
+          <span class="link_name" @click="handleClickName(row, 'group')">{{ row.groupName }}</span>
+        </template>
+        <template v-else>
+          {{ row.groupName }}
+        </template>
+      </div>
+    </el-table-column>
 
     <el-table-column 
       v-if="customCols.includes('建议竞价')" 
@@ -725,6 +741,30 @@ export default {
         }
         this.updateTableData([row.keywordId], { bid });
       });
+    },
+
+    // 点击广告活动/广告组名称
+    handleClickName(row, type) {
+      const { campaignId, campaignName, campaignState, groupId, groupName, campaignTargetType, groupType } = row;
+      let data = {
+        key: `${campaignState}-${campaignId}-${campaignTargetType}`,
+        campaignId,
+        campaignName,
+        targetingType: campaignTargetType,
+        campaignState,
+        isLeaf: false,
+      };
+      if (type === 'group') {
+        data.key = `${campaignState}-${campaignId}-${campaignTargetType}-${groupId}-${groupType}`;
+        data = {
+          ...data,
+          groupId,
+          groupName,
+          groupType,
+          isLeaf: true,
+        };
+      }
+      this.$emit('changeTreeSelected', data);
     },
 
     // 点击分析

@@ -17,12 +17,32 @@
 
 // 左边栏
 .left-aside {
+  position: relative;
   width: 300px;
   box-shadow: 1px 0px 0px 0px #ccc;
 
   // 出现面包屑导航时，因为容器去掉了 paddingTop 所以侧边栏单独加上
   &.has-path_crumbs {
     padding-top: 20px;
+
+    .btn-home {
+      top: 62px;
+    }
+  }
+}
+
+.btn-home {
+  position: absolute;
+  padding: 2px 8px;
+  top: 42px;
+  right: 16px;
+  cursor: pointer;
+  font-size: 20px;
+  color: $textColor;
+  z-index: 9;
+
+  &:hover {
+    color: $linkColor;
   }
 }
 
