@@ -248,7 +248,7 @@ export default {
       tableData: [
         {
           campaign: this.campaign,
-          adGroup: `ASIN+MSKU+${format(this.type)}+匹配方式+日期时间`,
+          adGroup: `ASIN+MSKU+${format(this.type)}+匹配方式+日期时间+`,
           matchType: ['精准匹配'],
           bidType: '广告组默认竞价',
           bid: '',
