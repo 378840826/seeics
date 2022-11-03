@@ -2,7 +2,9 @@
   <div>
     <div style="display: flex;">
         <span style="width: 130px">广告活动名称：</span>
-        <span>ASIN+MSKU+关键词+匹配方式+日期时间</span>
+        <span>ASIN+MSKU+关键词+匹配方式+日期时间+
+          <el-input v-model="form.campaignName" placeholder="请输入自定义文本；" style="width: 200px"/>
+        </span>
       </div>
       <el-form :model="form" ref="form" :rules="rule" label-width="130px">
         <el-form-item prop="dailyBudget">

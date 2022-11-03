@@ -448,7 +448,6 @@
               placeholder="请选择广告组"
               @focus="groupVisible = true; $refs.selectIt.blur()"
               @change="handleChangeGroup"
-              :disabled="radio === 1 ? true : false"
             >
               <el-option
                 v-for="item in adGroupOption"
@@ -463,8 +462,8 @@
           <div>搜索词筛选结果处理：</div>
           <span>
              <el-radio-group v-model="searchWord" style="marginTop: 5px">
-                <el-radio :label="1" :disabled="isRadio">排除ASIN</el-radio>
-                <el-radio :label="2" :disabled="isRadio">只含ASIN</el-radio>
+                <el-radio :label="1" :disabled="isRadio">关键词</el-radio>
+                <el-radio :label="2" :disabled="isRadio">商品</el-radio>
                 <el-radio :label="3" :disabled="isRadio">不限</el-radio>
               </el-radio-group>
           </span>
