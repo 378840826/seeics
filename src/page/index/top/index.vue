@@ -2,9 +2,8 @@
   <div class="avue-top">
     <div class="top-bar__left">
       <div class="avue-breadcrumb"
-           :class="[{ 'avue-breadcrumb--active': isCollapse }]"
            v-if="showCollapse">
-        <i class="icon-navicon"
+        <i class="i-navicon" :class="isCollapse ? 'el-icon-s-unfold' : 'el-icon-s-fold'"
            @click="setCollapse"></i>
       </div>
     </div>
@@ -179,4 +178,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.i-navicon {
+  cursor: pointer;
+}
 </style>

@@ -27,8 +27,49 @@
             }
         }
     }
-    
+
+    // 三级菜单样式 bug 修复
+    .menu-wrapper {
+        background-color: #20222a;
+
+        i,
+        span {
+            color: hsla(0, 0%, 100%, .7);
+        }
+
+        &:hover .el-submenu__title {
+
+            i,
+            span {
+                color: #fff;
+            }
+        }
+
+        &.is-active {
+            background-color: rgba(0, 0, 0, .8);
+
+            &:before {
+                content: '';
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 4px;
+                background: #409eff;
+                position: absolute;
+            }
+
+            i,
+            span {
+                color: #fff;
+            }
+        }
+
+        .el-submenu__title:hover {
+            background-color: transparent;
+        }
+    }
 }
+
 .avue-sidebar {
     user-select: none; 
     position: relative;

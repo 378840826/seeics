@@ -393,7 +393,15 @@ export default {
                 hide: true,
                 editDisplay: false,
                 viewDisplay: false,
-                rules: [{ required: true, validator: validatePass, trigger: 'blur' }]
+                rules: [
+                  { required: true, validator: validatePass, trigger: 'blur' },
+                  { 
+                    // eslint-disable-next-line
+                    pattern: /(?!^[0-9]+$)(?!^[A-Za-z]+$)(?!^[^A-Za-z0-9]+$)^[`~!@#$%\^&*\(\)\-=_+\[\]\\\{\}:";'',./<>?|A-z0-9]{6,16}$/, 
+                    message: '长度6~16，至少包含字母、数字和英文符号中的两种', 
+                    trigger: 'blur',
+                  },
+                ],
               },
               {
                 label: '确认密码',
