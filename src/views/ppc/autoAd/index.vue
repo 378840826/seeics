@@ -448,7 +448,6 @@
               placeholder="请选择广告组"
               @focus="groupVisible = true; $refs.selectIt.blur()"
               @change="handleChangeGroup"
-              :disabled="radio === 1 ? true : false"
             >
               <el-option
                 v-for="item in adGroupOption"
@@ -463,8 +462,8 @@
           <div>搜索词筛选结果处理：</div>
           <span>
              <el-radio-group v-model="searchWord" style="marginTop: 5px">
-                <el-radio :label="1" :disabled="isRadio">排除ASIN</el-radio>
-                <el-radio :label="2" :disabled="isRadio">只含ASIN</el-radio>
+                <el-radio :label="1" :disabled="isRadio">关键词</el-radio>
+                <el-radio :label="2" :disabled="isRadio">商品</el-radio>
                 <el-radio :label="3" :disabled="isRadio">不限</el-radio>
               </el-radio-group>
           </span>
@@ -1084,7 +1083,6 @@ export default {
       let minCpcMost = true;
       let maxCpcMost = true;
 
-      console.log(params)
       if (params.automatedOperation === '创建广告活动') {
         if (this.$refs.autoMation.budgetMsg()) {
           return true;
@@ -1222,7 +1220,7 @@ export default {
       //   });
       //   return true;
       // }
-      if (this.radio === 2 && !this.adGroupOption.length) {
+      if ((this.$refs.autoMation.getFiled().automatedOperation === '创建广告组' || this.$refs.autoMation.getFiled().automatedOperation === '创建广告活动') && this.radio === 2 && !this.adGroupOption.length) {
         this.$message({
           type: 'error',
           message: '请选择广告组'
