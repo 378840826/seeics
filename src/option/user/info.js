@@ -94,13 +94,31 @@ export default function (isPay) {
           span: 12,
           row: true,
           type: 'password',
-          prop: 'newPassword'
+          prop: 'newPassword',
+          rules: [
+            { required: true, message: '请输入新密码', trigger: ['blur', 'change'] },
+            { 
+              // eslint-disable-next-line
+              pattern: /(?!^[0-9]+$)(?!^[A-Za-z]+$)(?!^[^A-Za-z0-9]+$)^[`~!@#$%\^&*\(\)\-=_+\[\]\\\{\}:";'',./<>?|A-z0-9]{6,16}$/, 
+              message: '长度6~16，至少包含字母、数字和英文符号中的两种', 
+              trigger: 'blur',
+            },
+          ],
         }, {
           label: '确认密码',
           span: 12,
           row: true,
           type: 'password',
-          prop: 'newPassword1'
+          prop: 'newPassword1',
+          rules: [
+            { required: true, message: '请输入新密码', trigger: ['blur', 'change'] },
+            {
+              // eslint-disable-next-line
+              pattern: /(?!^[0-9]+$)(?!^[A-Za-z]+$)(?!^[^A-Za-z0-9]+$)^[`~!@#$%\^&*\(\)\-=_+\[\]\\\{\}:";'',./<>?|A-z0-9]{6,16}$/,
+              message: '长度6~16，至少包含字母、数字和英文符号中的两种',
+              trigger: 'blur',
+            },
+          ],
         }]
       }
     ],
