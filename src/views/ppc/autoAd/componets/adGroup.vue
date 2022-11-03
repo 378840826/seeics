@@ -45,7 +45,7 @@
       </el-table-column>
 
       <el-table-column
-        :label="`竞价${automatedOperation === '添加到投放' ? '参考' : '调整'}`"
+        :label="`竞价${'调整'}`"
         prop="bidType"
         align="center"
       >
@@ -406,8 +406,7 @@ export default {
   },
 
   mounted() {
-    console.log(this.echo)
-    Object.keys(this.echo).length && this.echoFiled();
+    this.echo && Object.keys(this.echo).length && this.echoFiled();
     this.templateType === '投放' ? this.launch = true : this.launch = false;
   },
 

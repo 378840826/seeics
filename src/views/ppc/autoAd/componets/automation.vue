@@ -37,7 +37,7 @@
     </div>
 
     <el-table
-      v-if="automatedOperation !== '创建广告组'"
+      v-if="automatedOperation && automatedOperation !== '创建广告组' ? true : false || false"
       :data="tableData"
       :header-cell-style="{'text-align':'center'}"
       max-height="300"

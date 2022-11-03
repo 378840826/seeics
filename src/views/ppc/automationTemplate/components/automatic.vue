@@ -37,13 +37,16 @@
         </template>
       </el-table-column>
       <el-table-column
-        v-if="automatedOperation === '添加到投放' || automatedOperation === '创建广告活动'"
+        v-if="automatedOperation === '添加到投放' || automatedOperation === '创建广告活动' || automatedOperation === '创建广告组'"
         label="广告组"
         prop="adGroup"
         align="center"
       >
         <template slot-scope="scope">
-          <div>{{automatedOperation === '创建广告活动' ? 'ASIN+MSKU+关键词+匹配方式+日期时间' : scope.row.adGroup}}</div>
+          <div v-if="automatedOperation === '创建广告活动' || automatedOperation === '创建广告组'">ASIN+MSKU+关键词+匹配方式+日期时间
+            <el-input v-model="scope.row.customText" placeholder="请输入自定义文本；"/>
+          </div>
+          <div v-else>{{scope.row.adGroup}}</div>
         </template>
       </el-table-column>
       <el-table-column
@@ -239,6 +242,7 @@ export default {
           rule: '',
           adjustTheValue: '',
           bidLimitValue: '',
+          customText: '',
         },
       ],
       matchType: [{
@@ -469,6 +473,7 @@ export default {
       this.tableData[0].adjustTheValue = this.echo.adjustTheValue;
       this.tableData[0].bidLimitValue = this.echo.bidLimitValue;
       this.automatedOperation = this.echo.automatedOperation;
+      this.tableData[0].customText = this.echo.customText;
       
       if (this.echo.automatedOperation === '创建广告活动') {
         this.form = Object.assign(this.form, this.echo.createAdvertisingCampaignDTO);
@@ -488,6 +493,7 @@ export default {
         adjustTheValue: this.automatedOperation ? this.tableData[0].adjustTheValue || '' : null,
         bidLimitValue: this.automatedOperation ? this.tableData[0].bidLimitValue || '' : null,
         groupIdList: [],
+        customText: (this.automatedOperation === '创建广告活动' || this.automatedOperation === '创建广告组') && this.tableData[0].customText || ''
       };
 
       obj = this.automatedOperation === '创建广告活动' ? Object.assign(obj, { createAdvertisingCampaignDTO: {
