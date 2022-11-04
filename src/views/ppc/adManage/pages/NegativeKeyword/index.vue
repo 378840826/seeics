@@ -53,6 +53,7 @@
 <div class="toolbar">
   <div>
     <el-button
+      :disabled="treeSelectedInfo.campaignState === 'archived'"
       type="primary"
       @click="createDialogVisible = true"
       :size="size"

@@ -80,12 +80,48 @@
 
 // 右侧
 .right-main {
-  margin-left: 20px;
+  // margin-left: 20px;
+  position: relative;
+  padding-left: 20px !important;
 
   // 标签页数量
   .tabs-cell-count {
     color: $secondaryTextColor;
     font-weight: 400;
+  }
+
+  .btn-collapse {
+    position: absolute;
+    padding: 3px 1px;
+    top: 50%;
+    left: 0;
+    width: 16px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+    color: $secondaryTextColor;
+
+    &.collapse {
+      border-left: 1px solid #ccc;
+      border-right: none;
+      border-radius: 4px 0 0 4px;
+      transform: translateX(1px);
+    }
+
+    i {
+      font-size: 15px;
+    }
+
+    div {
+      font-size: 12px;
+      padding-left: 1px;
+      line-height: 16px;
+    }
+
+    &:hover {
+      color: $primaryColor;
+    }
   }
 
   ::v-deep {
