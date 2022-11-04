@@ -24,7 +24,7 @@
             <span v-if="data.disabled"> (<el-button type="text" @click="handleToAuthorize">去授权</el-button>)</span>
           </template>
           </el-cascader>
-          <div class="marketplace-time">{{ currentStore.time }}</div>
+          <div class="marketplace-time">{{ currentStore.timezone && getMarketplaceTime(currentStore.timezone) }}</div>
         </div>
         <!-- 广告活动和 portfolio 标签页切换 -->
         <el-tabs type="border-card" class="left-tabs" v-model="activeTreeTabsName">
@@ -179,6 +179,7 @@ export default{
       tabsStateDict,
       stateIconDict,
       size: 'small',
+      getMarketplaceTime,
       pageLoading: false,
       // 左侧菜单收起
       isLeftMenuCollapse: false,
@@ -188,7 +189,7 @@ export default{
         adStoreId: '',
         mwsStoreId: '',
         currency: '',
-        time: '',
+        timezone: '',
         storeName: '',
       },
       activeTreeTabsName: 'stateTree',
@@ -265,6 +266,12 @@ export default{
         const localStorageCurrentShop = getStore({ name: currentShopKey });
         if (localStorageCurrentShop) {
           this.currentStore = { ...localStorageCurrentShop };
+          // 由于前期失误直接保存了 time 导致页面直接使用了上次保存的旧时间，需要增加 timezone 字段用于重新计算时间
+          if (!localStorageCurrentShop.timezone) {
+            const storeList = this.$store.state.shop.storeNameObj[localStorageCurrentShop.storeName];
+            const store = storeList.find(item => item.adStoreId === localStorageCurrentShop.adStoreId);
+            this.currentStore.timezone = store.timezone;
+          }
         } else {
           // 如果 localStorage 没有数据，找到第一个有授权广告的店铺作为默认店铺
           let defaultStore;
@@ -288,7 +295,7 @@ export default{
             adStoreId: defaultStore.adStoreId,
             mwsStoreId: defaultStore.id,
             currency: defaultStore.currency,
-            time: getMarketplaceTime(defaultStore.timezone),
+            timezone: defaultStore.timezone,
             storeName: defaultStore.storeName,
           };
           this.currentStore = { ...currentStore };
@@ -332,7 +339,7 @@ export default{
         adStoreId: storeInfo.adStoreId,
         mwsStoreId: storeInfo.id,
         currency: storeInfo.currency,
-        time: getMarketplaceTime(storeInfo.timezone),
+        timezone: storeInfo.timezone,
         storeName: storeInfo.storeName,
       };
       this.currentStore = { ...currentStore };
