@@ -3,7 +3,11 @@
   <basic-container :class="treeSelectedInfo.campaignId && 'has-path_crumbs'">
     <el-container v-loading="pageLoading">
       <!-- 左侧菜单 -->
-      <el-aside class="left-aside" :class="{ 'has-path_crumbs': treeSelectedInfo.campaignId }">
+      <el-aside 
+        v-show="!isLeftMenuCollapse" 
+        class="left-aside" 
+        :class="{ 'has-path_crumbs': treeSelectedInfo.campaignId }"
+      >
         <div class="store_time-container">
           <!-- 店铺和时间 -->
           <el-cascader
@@ -111,6 +115,17 @@
             />
           </el-tab-pane>
         </el-tabs>
+        <!-- 展开/收起左侧菜单按钮 -->
+        <div
+          class="btn-collapse"
+          :class="{ collapse: isLeftMenuCollapse }"
+          @click="isLeftMenuCollapse = !isLeftMenuCollapse"
+          title="收起/展开左侧菜单"
+        >
+          <i :class="isLeftMenuCollapse ? 'el-icon-s-unfold' : 'el-icon-s-fold'"></i>
+          <div v-if="isLeftMenuCollapse">展开</div>
+          <div v-else>收起</div>
+        </div>
       </el-main>
     </el-container>
     
@@ -165,6 +180,8 @@ export default{
       stateIconDict,
       size: 'small',
       pageLoading: false,
+      // 左侧菜单收起
+      isLeftMenuCollapse: false,
       // 当前店铺
       currentStore: {
         marketplace: '',

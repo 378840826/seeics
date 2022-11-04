@@ -2,7 +2,7 @@
 <template>
   <el-input
     :placeholder="placeholder"
-    v-model="value"
+    v-model.trim="value"
     :maxlength="maxlength"
     class="input"
     size="mini"
