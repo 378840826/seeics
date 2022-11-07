@@ -77,6 +77,10 @@ export default {
     echoGroupList: {
       type: Array,
       default: new Array()
+    },
+    adGroupVal: {
+      type: Array,
+      default: new Array()
     }
   },
   data() {
@@ -196,11 +200,13 @@ export default {
     //     this.getMarketplaceList(this.fromInline.shopName);
     //   }
     // });
+
     this.datas = this.echoGroupList.length && this.echoGroupList.map(item => {
       return {
         ...item,
         adGroupId: item.groupId,
-        name: item.groupName
+        name: item.groupName,
+        num: 1,
       };
     }) || [];
   },
@@ -249,10 +255,12 @@ export default {
       return groupIdList;
     },
     getList() {
+
       const groupList = this.datas.map(item => {
         return {
           groupId: item.adGroupId,
-          groupName: item.name
+          groupName: item.name,
+          num: item.num ? item.num + 1 : 1,
         };
       });
       return groupList;
@@ -273,7 +281,7 @@ export default {
           this.$refs.table1.toggleRowSelection(item, false);
         }
       });
-      
+
       this.datas = this.echoGroupList.length && this.echoGroupList.map(item => {
         return {
           ...item,
@@ -281,6 +289,26 @@ export default {
           name: item.groupName
         };
       }) || [];
+
+    },
+
+    verifyClose() {
+      const arr = [];
+      const arr2 = this.datas.map(item => item.num);
+      const min = Math.min(...arr2);
+
+      this.datas.map(item => {
+        if (item.num === min) {
+          arr.push(item.groupId);
+        }
+      });
+      this.data.forEach(item => {
+        if (arr.includes(item.adGroupId)) {
+          item.selected = false;
+          this.$refs.table1.toggleRowSelection(item, false);
+        }
+      });
+      this.datas = this.datas.filter(item => item.num !== min );
     },
 
     // getMarketplaceList(shopName) {
@@ -332,10 +360,12 @@ export default {
     selectionChange(list) {
       this.listData = list;
       const arr = this.datas.length && this.datas.map(item => item.adGroupId) || [];
+      // const num = this.datas.length && this.datas[0].num || 0;
       const leftDataId = list.map(item => item.adGroupId);
       list.map(item => {
         // item.name = this.automationRow.templateName;
         if (!arr.includes(item.adGroupId)) {
+          // item.num = num;
           this.datas.unshift(item);
         }
       });
