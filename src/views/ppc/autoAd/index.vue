@@ -509,6 +509,7 @@
         :templateId.sync="templateId"
         :deduplication.sync="deduplication"
         :searchWord.sync="searchWord"
+        @verifyClose="verifyClose"
       />
       <span slot="footer" class="dialog-footer">
         <el-button 
@@ -970,6 +971,16 @@ export default {
       this.adGroupOption = this.$refs.adGroup.getList();
       this.adGroupVal = this.$refs.adGroup.getFiled();
       this.groupVisible = false;
+    },
+
+    verifyClose() {
+      this.$refs.adGroup.verifyClose();
+      this.adGroupVal = this.$refs.adGroup.getFiled();
+      this.adGroupOption = this.$refs.adGroup.getList();
+    },
+
+    hanldeCosle() {
+      this.$refs.adGroup.close();
     },
 
     handleChangeGroup(value) {
