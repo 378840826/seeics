@@ -1277,7 +1277,7 @@ export default {
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState,
         ruleType: this.radio,
-        excludeTerms: this.launchFlag || this.isRadio ? 3 : this.searchWord,
+        excludeTerms: this.$refs.autoMation.automatedOperation === '创建广告活动' ? 1 : this.searchWord,
         groupIdList: this.radio === 2 ? this.adGroupOption : [],
         deduplication: (this.$refs.autoMation.automatedOperation === '创建广告活动' || this.$refs.autoMation.automatedOperation === '创建广告组') && this.searchWord !== 2 && this.$refs.autoMation.form.deduplication ? 1 : 0 || 0
       };
@@ -1320,7 +1320,7 @@ export default {
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState,
         ruleType: this.radio,
-        excludeTerms: this.launchFlag || this.isRadio ? 3 : this.searchWord,
+        excludeTerms: this.$refs.autoMation.automatedOperation === '创建广告活动' ? 1 : this.searchWord,
         groupIdList: this.radio === 2 ? this.adGroupOption : [],
         deduplication: (this.$refs.autoMation.automatedOperation === '创建广告活动' || this.$refs.autoMation.automatedOperation === '创建广告组') && this.searchWord !== 2 && this.$refs.autoMation.form.deduplication ? 1 : 0 || 0
       };
