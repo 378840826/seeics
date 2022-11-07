@@ -243,9 +243,9 @@ export default {
   data() {
     const format = (val) => {
       if (val === 1) {
-        return '关键词';
+        return '关键词+匹配方式';
       } else if (val === 2) {
-        return '搜索词';
+        return '搜索词（ASIN）';
       }
     };
 
@@ -253,7 +253,7 @@ export default {
       tableData: [
         {
           campaign: this.campaign,
-          adGroup: `ASIN+MSKU+${format(this.type)}+匹配方式+日期时间+`,
+          adGroup: `ASIN+MSKU+${format(this.type)}+日期时间+`,
           matchType: '精准匹配',
           bidType: '广告组默认竞价',
           bid: '',
