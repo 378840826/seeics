@@ -334,7 +334,7 @@
         <el-button size="mini" type="primary" @click="hanldeAdGroup">确 定</el-button>
         <el-button size="mini" 
           @click="msgVisible = false;
-          automatedOperation = '添加到投放';
+          $emit('verifyClose');
         ">取 消</el-button>
       </span>
     </el-dialog>
@@ -401,7 +401,7 @@ export default {
     },
     searchWord: {
       type: Number,
-    }
+    },
   },
   model: {
     prop: 'value',
@@ -1048,6 +1048,7 @@ export default {
       this.msgVisible = false;
       this.$emit('update:groupVisible', true);
       this.$emit('update:isGroupTabel', true);
+      this.$emit('verifyClose');
     },
 
     handleAuto() {
