@@ -31,6 +31,9 @@
 // 非 Min-Max 值的 key
 const notRangeKeys = ['search', 'targetingType', 'state', 'qualification', 'matchType', 'deliveryMethod'];
 export { notRangeKeys };
+// 可多选的值可能很长的 key
+const multipleLongValueKeys = ['portfolios'];
+export { multipleLongValueKeys };
 
 export default {
   name: 'FilterCrumbs',
@@ -64,6 +67,11 @@ export default {
             title: { title: this.titleDict[key].title },
             value,
           };
+        } else if (this.multipleLongValueKeys.includes(key)) {
+          obj[key] = {
+            title: { title: this.titleDict[key].title },
+            value: `${value[0]} ${value.length > 1 ? ` +${value.length - 1}项` : ''}`,
+          };
         } else {
           const k = key.slice(0, -3);
           if (!obj[k]) {
@@ -87,6 +95,7 @@ export default {
   data() {
     return {
       notRangeKeys,
+      multipleLongValueKeys,
       titleDict: {
         search: { title: '查询' },
         state: { title: '状态' },
@@ -94,6 +103,7 @@ export default {
         qualification: { title: '投放资格' },
         matchType: { title: '匹配方式' },
         deliveryMethod: { title: 'Targeting类型' },
+        portfolios: { title: '广告组合' },
         // 以下为 min-max 值的
         sales: { title: '销售额', suffix: this.currency },
         spend: { title: 'Spend', suffix: this.currency },

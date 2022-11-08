@@ -446,7 +446,7 @@ export default{
     // 树-切换选中的状态节点
     changeTreeCampaignState(state) {
       // 广告活动的状态筛选为多选，需要判断，单选时正常赋值，多选时清空
-      if (state && state.length > 1) {
+      if (!state || state.length > 1) {
         this.treeSelectedKey = null;
       } else {
         this.treeSelectedKey = state[0];

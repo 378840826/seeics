@@ -9,6 +9,15 @@
     @search="handleSearch"
   />
 
+  <!-- 广告组合筛选 -->
+  <MultipleSelect
+    v-if="!treeSelectedInfo.portfolioId"
+    ref="refPortfolioMultipleSelect"
+    :list="portfolioList"
+    placeholder="广告组合"
+    @change="handlePortfolioFilterChange"
+  />
+
   <el-select
     v-model="filter.targetingType"
     clearable
@@ -408,8 +417,9 @@ import Search from '../../components/Search';
 import DatePicker from '../../components/DatePicker';
 import CustomCols from '../../components/CustomCols';
 import FilterMore from '../../components/FilterMore';
+import MultipleSelect from '../../components/MultipleSelect';
 import EditDialog from './EditDialog';
-import FilterCrumbs, { notRangeKeys } from '../../components/FilterCrumbs';
+import FilterCrumbs, { notRangeKeys, multipleLongValueKeys } from '../../components/FilterCrumbs';
 import CreateCampaignDialog from '../../create/createCampaignDialog';
 
 export default {
@@ -420,6 +430,7 @@ export default {
     DatePicker,
     CustomCols,
     FilterMore,
+    MultipleSelect,
     FilterCrumbs,
     EditDialog,
     CreateCampaignDialog,
@@ -460,11 +471,13 @@ export default {
       targetingTypeDict,
       biddingStrategyDict,
       summaryMethod,
+      portfolioCheckedAll: false,
       filter: {
         search: '',
         state: [],
         targetingType: '',
         dateRange: defaultDateRange,
+        portfolioIds: [],
         more: {},
       },
       // 高级筛选 Visible
@@ -501,6 +514,7 @@ export default {
       this.filter.search && (obj.search = this.filter.search);
       this.filter.targetingType && (obj.targetingType = targetingTypeDict[this.filter.targetingType]);
       this.filter.state.length && (obj.state = this.filter.state.map(s => stateNameDict[s]).toString());
+      this.filter.portfolioIds.length && (obj.portfolios = this.filter.portfolioList.map(item => item.name));
       return obj;
     },
 
@@ -537,6 +551,7 @@ export default {
         marketplace: this.marketplace,
         adType: 'sp',
         portfolioId: this.treeSelectedInfo.portfolioId,
+        portfolioIds: this.filter.portfolioIds,
         state: this.filter.state,
         search: this.filter.search,
         targetingType: this.filter.targetingType,
@@ -561,6 +576,7 @@ export default {
     handleSearch(val) {
       this.filter.search = val;
       this.filter.targetingType = '';
+      this.filter.portfolioIds = [];
       // 清空并收起高级筛选
       this.filter.more = {};
       this.filterMoreVisible = false;
@@ -578,6 +594,13 @@ export default {
     // 投放方式筛选
     handleTargetingTypeChange(val) {
       this.filter.targetingType = val;
+      this.getList({ current: 1 });
+    },
+
+    //  广告组合筛选
+    handlePortfolioFilterChange(ids, list) {
+      this.filter.portfolioIds = ids;
+      this.filter.portfolioList = list;
       this.getList({ current: 1 });
     },
 
@@ -601,11 +624,15 @@ export default {
 
     // 面包屑关闭
     handleCloseCrumbs(key) {
-      if (notRangeKeys.includes(key)) {
+      if ([...notRangeKeys, ...multipleLongValueKeys].includes(key)) {
         this.filter[key] = '';
         if (key === 'state') {
           this.$emit('changeTreeCampaignState', null);
           this.filter.state = [];
+        } else if (key === 'portfolios') {
+          this.filter.portfolioIds = [];
+          // 清除广告组合筛选组件的勾选
+          this.$refs.refPortfolioMultipleSelect.emptyChecked();
         }
       } else {
         this.filter.more[`${key}Min`] = '';
@@ -621,9 +648,12 @@ export default {
         search: '',
         state: [],
         targetingType: '',
+        portfolioIds: [],
         dateRange: [...this.filter.dateRange],
         more: {},
       };
+      // 清除广告组合筛选组件的勾选
+      this.$refs.refPortfolioMultipleSelect.emptyChecked();
       this.getList({ current: 1 });
     },
 
@@ -822,6 +852,8 @@ export default {
       if (val) {
         // 更新 filter.state
         this.filter.state = this.treeSelectedInfo.campaignState ? [this.treeSelectedInfo.campaignState] : [];
+        // 清空筛选栏的广告组合筛选，避免和组合树冲突
+        this.treeSelectedInfo.portfolioId && (this.filter.portfolioIds = []);
         this.getList({ current: 1 });
       }
     },
