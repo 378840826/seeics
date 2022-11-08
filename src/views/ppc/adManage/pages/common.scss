@@ -107,6 +107,8 @@
 
 // 筛选栏
 .filter-bar {
+  display: flex;
+
   &>*:not(:last-child) {
     margin-right: 20px;
   }
