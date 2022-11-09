@@ -70,6 +70,7 @@
 <!-- 表格 -->
 <div class="table-container">
   <el-table
+    ref="refTable"
     :data="tableData"
     v-loading="tableLoading"
     tooltip-effect="dark"
@@ -244,6 +245,10 @@ export default {
 
   created() {
     this.getList();
+  },
+
+  updated () {
+    this.$refs.refTable.doLayout();
   },
 
   methods: {

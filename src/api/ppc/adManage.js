@@ -195,7 +195,7 @@ export const modifyTargeting = (data) => {
 // 否定关键词-列表
 export const queryNeKeywordList = (params, data) => {
   return request({
-    url: '/api/seeics-ad/nekeyword/group/page',
+    url: '/api/seeics-ad/nekeyword/page',
     method: 'post',
     params,
     data,
