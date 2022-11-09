@@ -49,7 +49,7 @@
         </el-dropdown-item>
       </el-checkbox-group>
       <!-- footer -->
-      <div class="footer">
+      <div class="footer-btns">
         <el-button type="primary" size="mini" @click="handleOk">确定</el-button>
         <el-button size="mini" @click="handleCancel">取消</el-button>
       </div>
@@ -253,7 +253,7 @@ export default {
   }
 }
 
-.footer {
+.footer-btns {
   padding: 10px 0 0 20px;
   border-top: 1px solid #DCDFE6;
 }
