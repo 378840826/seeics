@@ -156,6 +156,10 @@
         <el-table-column prop="targetingType" label="投放方式" width="120">
           <template slot-scope="scope">{{ targetingTypeDict[scope.row.targetingType] }}</template>
         </el-table-column>
+
+        <el-table-column prop="adjustmentTemplateVoList" label="分时调价" width="120">
+          <template slot-scope="scope">6</template>
+        </el-table-column>
         
         <el-table-column prop="automationTemplateVoList" label="搜索词">
           <template slot-scope="scope">
@@ -626,6 +630,10 @@
         ">取 消</el-button>
       </span>
     </el-dialog>
+
+    <adjustment-dialog
+      :dialogVisible="true"
+    />
   </basic-container>
 </template>
 
@@ -654,6 +662,7 @@ import autoMation from './componets/automation.vue';
 import globalFilter from '@/components/globalFilter/globalFilter.vue';
 import dialogStatu from './componets/dialog.vue';
 import tableDialog from './componets/tableDialog.vue';
+import adjustmentDialog from './componets/adjustmentDialog.vue';
 
 // 用于 localStorage 中保存选中店铺的 key
 const currentShopNameKey = 'app-autoAd-currentShopName';
@@ -666,7 +675,8 @@ export default {
     autoMation,
     globalFilter,
     dialogStatu,
-    tableDialog
+    tableDialog,
+    adjustmentDialog,
   },
 
   data() {
