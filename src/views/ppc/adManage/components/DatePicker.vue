@@ -98,6 +98,12 @@ export default {
 
 <style scoped lang="scss">
 .date_picker {
-  width: 240px;
+  width: 220px;
+
+  ::v-deep {
+    .el-input__icon.el-range__close-icon {
+      display: none;
+    }
+  }
 }
 </style>

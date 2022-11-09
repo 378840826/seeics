@@ -70,6 +70,7 @@
 <!-- 表格 -->
 <div class="table-container">
   <el-table
+    ref="refTable"
     :data="tableData"
     v-loading="tableLoading"
     tooltip-effect="dark"
@@ -82,18 +83,51 @@
   >
     <el-table-column type="selection" width="55" :selectable="selectableInit" />
 
-    <el-table-column prop="state" label="状态" width="94">
+    <el-table-column prop="state" label="状态" width="94" fixed>
       <span slot-scope="{row}" :class="row.state">{{ stateNameDict[row.state]}}</span>
     </el-table-column>
 
-    <el-table-column prop="keywordText" label="关键词" sortable="custom">
-    </el-table-column>
-
-    <el-table-column v-if="filter.dataSource === 'group'" prop="groupName" label="广告组">
+    <el-table-column prop="keywordText" label="关键词" sortable="custom" width="200" fixed>
     </el-table-column>
 
     <el-table-column prop="matchType" label="匹配方式">
       <span slot-scope="{row}">{{ NegativeKeywordMatchTypeNameDict[row.matchType]}}</span>
+    </el-table-column>
+
+    <el-table-column
+      v-if="!treeSelectedInfo.campaignId" 
+      prop="campaignName" 
+      label="广告活动" 
+      min-width="200"
+      sortable="custom"
+    >
+      <div slot-scope="{row}">
+        <i :class="`${stateIconDict[row.campaignState]} ${row.campaignState}`" />
+        <template v-if="row.campaignState !== 'archived'">
+          <span class="link_name" @click="handleClickName(row, 'campaign')">{{ row.campaignName }}</span>
+        </template>
+        <template v-else>
+          {{ row.campaignName }}
+        </template>
+      </div>
+    </el-table-column>
+
+    <el-table-column
+      v-if="filter.dataSource === 'group' && !treeSelectedInfo.groupId" 
+      prop="groupName" 
+      label="广告组" 
+      min-width="200"
+      sortable="custom"
+    >
+      <div slot-scope="{row}">
+        <i :class="`${stateIconDict[row.groupState]} ${row.groupState}`" />
+        <template v-if="row.campaignState !== 'archived' && row.groupState !== 'archived'">
+          <span class="link_name" @click="handleClickName(row, 'group')">{{ row.groupName }}</span>
+        </template>
+        <template v-else>
+          {{ row.groupName }}
+        </template>
+      </div>
     </el-table-column>
 
     <el-table-column prop="addTime" label="添加时间" width="120" sortable="custom">
@@ -143,7 +177,7 @@ import {
   queryNeKeywordList,
   archiveNeKeyword,
 } from '@/api/ppc/adManage';
-import { stateNameDict, NegativeKeywordMatchTypeNameDict } from '../../utils/dict';
+import { stateNameDict, stateIconDict, NegativeKeywordMatchTypeNameDict } from '../../utils/dict';
 import { tablePageOption } from '../../utils/options';
 // import { log } from '@/util/util';
 import Search from '../../components/Search';
@@ -183,6 +217,7 @@ export default {
     return {
       size: 'mini',
       stateNameDict,
+      stateIconDict,
       NegativeKeywordMatchTypeNameDict,
       filter: {
         search: '',
@@ -212,6 +247,10 @@ export default {
     this.getList();
   },
 
+  updated () {
+    this.$refs.refTable.doLayout();
+  },
+
   methods: {
     formatTableSortParams,
     // 获取列表
@@ -234,6 +273,8 @@ export default {
         matchType: this.filter.matchType,
         search: this.filter.search,
         dataSource: this.filter.dataSource,
+        // 应后端要求，增加 type
+        type: this.filter.dataSource === 'campaign' ? '1' : '2',
         ...body,
       };
       queryNeKeywordList(queryParams, bodyParams).then(res => {
@@ -378,6 +419,30 @@ export default {
         const successIds = success.map(item => item.id);
         this.updateTableData(successIds, { state: 'archived' });
       });  
+    },
+
+    // 点击广告活动/广告组名称
+    handleClickName(row, type) {
+      const { campaignId, campaignName, campaignState, groupId, groupName, campaignTargetType, groupType } = row;
+      let data = {
+        key: `${campaignState}-${campaignId}-${campaignTargetType}`,
+        campaignId,
+        campaignName,
+        targetingType: campaignTargetType,
+        campaignState,
+        isLeaf: false,
+      };
+      if (type === 'group') {
+        data.key = `${campaignState}-${campaignId}-${campaignTargetType}-${groupId}-${groupType}`;
+        data = {
+          ...data,
+          groupId,
+          groupName,
+          groupType,
+          isLeaf: true,
+        };
+      }
+      this.$emit('changeTreeSelected', data);
     },
 
     // 批量归档
