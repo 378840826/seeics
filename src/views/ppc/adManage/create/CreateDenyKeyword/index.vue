@@ -31,7 +31,7 @@
           @focus="searchCampaign = '';
             searchCampaignList = [];"
           placeholder="请选择广告活动"
-          disabled
+          :disabled="this.treeSelectedKey.campaignId"
           size="small"
           class="autocomplete"
           style="width: 400px">
@@ -265,6 +265,7 @@ export default {
   },
 
   mounted() {
+    // console.log(this.treeSelectedKey)
     queryGroupList({
       size: 20,
       current: 1
