@@ -363,7 +363,7 @@ export default {
           this.groupTotal = res.data.data.total;
           if (!flag) { //非预加载赋值
             this.groupList = data;
-            this.form.groupId = id || this.groupList.length && this.groupList[0].id || !this.treeSelectedInfo.campaignId && this.groupList[0].id || '';
+            this.form.groupId = id || this.groupList.length && this.groupList[0].id || !this.treeSelectedInfo.campaignId && this.groupList.length && this.groupList[0].id || '';
           } else {
             this.groupList = this.groupList.concat(data);
             this.groupList = this.repetit(this.groupList);
