@@ -462,7 +462,7 @@ export default {
         deliveryMethod: this.filter.deliveryMethod,
         search: this.filter.search,
         startTime: this.filter.dateRange[0],
-        entTime: this.filter.dateRange[1],
+        endTime: this.filter.dateRange[1],
         ...this.filter.more,
         ...body,
       };
