@@ -556,7 +556,7 @@ export default {
         search: this.filter.search,
         targetingType: this.filter.targetingType,
         startTime: this.filter.dateRange[0],
-        entTime: this.filter.dateRange[1],
+        endTime: this.filter.dateRange[1],
         ...this.filter.more,
         ...body,
       };

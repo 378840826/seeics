@@ -330,7 +330,7 @@ export default {
         groupId: this.treeSelectedInfo.groupId,
         state: this.filter.state,
         startTime: this.filter.dateRange[0],
-        entTime: this.filter.dateRange[1],
+        endTime: this.filter.dateRange[1],
         ...body,
       };
       queryTargetingGroupsList(queryParams, bodyParams).then(res => {
