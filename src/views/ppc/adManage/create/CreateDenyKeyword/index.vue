@@ -21,7 +21,7 @@
         </template>
         <el-select
           v-model="groupType"
-          @change="queryCampaignList()"
+          @change="queryCampaignList(false, '', '', true)"
           size="small">
           <el-option :value="''" label="自动投放" />
           <el-option :value="'keyword'" label="商品投放"/>
@@ -337,7 +337,7 @@ export default {
       this.$emit('update:dialogVisible', false);
     },
 
-    queryCampaignList(flag, name, id) {
+    queryCampaignList(flag, name, id, type) {
       getDenyCampaignList({
         current: !this.searchCampaign ? this.page.current : this.searchPage.current,
         size: !this.searchCampaign ? this.page.size : this.searchPage.size,
@@ -368,6 +368,15 @@ export default {
           }
           this.total = res.data.data.total;
           this.data = this.data.concat(res.data.data.records);
+          if (type) {
+            this.campaignList = this.data.map(item => {
+              return {
+                value: item.campaignId,
+                id: item.campaignId,
+                label: item.name
+              };
+            });
+          }
           this.data = this.repetit(this.data);
           this.campaignList = this.data.map(item => {
             return {
