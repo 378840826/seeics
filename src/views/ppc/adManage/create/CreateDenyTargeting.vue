@@ -311,7 +311,13 @@ export default {
           this.campaignList = this.repetit(this.campaignList);
 
           if (type) {
-            this.campaignList = data;
+            this.campaignList = res.data.data.records.map(item => {
+              return {
+                value: item.campaignId,
+                id: item.campaignId,
+                label: item.name
+              };
+            });
           }
 
           if (!flag) { //非预加载赋值
