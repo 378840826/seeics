@@ -33,7 +33,12 @@
     </div>
 
     <div v-show="automatedOperation === '创建广告活动'" style="marginTop: 10px">
-      <adCampaign ref="adCampaign" :form.sync="form" :currency="rowData.currency"/>
+      <adCampaign 
+        ref="adCampaign"
+        :form.sync="form"
+        :currency="rowData.currency"
+        :adStoreId="rowData.adStoreId"
+        :echoPortfolioId="echoPortfolioId"/>
     </div>
 
     <el-table
@@ -532,10 +537,10 @@ export default {
         },
       ],
       shang: [
-        // {
-        //   label: '--',
-        //   value: ''
-        // },
+        {
+          label: '--',
+          value: ''
+        },
         {
           label: '上浮(%)',
           value: '上浮(%)'
@@ -583,7 +588,9 @@ export default {
         frontPage: '20', //商品页面 百分比
         productPage: '0', //搜索结果顶部 百分比
         deduplication: true, //去重
+        portfolioId: '',
       },
+      echoPortfolioId: Object.keys(this.echo).length && this.echo.createAdvertisingCampaignDTO.portfolioId || '',
     };
   },
   mounted() {
@@ -906,7 +913,7 @@ export default {
       if (this.tableData[index].bidType === '广告组默认竞价' || this.tableData[index].bidType === '固定竞价') {
         this.tableData[index].rule = '';
       } else {
-        this.tableData[index].rule = '上浮(%)';
+        this.tableData[index].rule = '';
       }
       this.tableData[index].bidLimitValue = '';
       this.tableData[index].adjustTheValue = '';
@@ -962,11 +969,11 @@ export default {
           });
           val.target.value = '';
           // this.$emit('change', true);
-        } else if (val.target.value < 0.02) {
+        } else if (name === 'adjustTheValue' && val.target.value < 0 || val.target.value < 0.02) {
           val.target.style.borderColor = 'red';
           this.$message({
             type: 'error',
-            message: '值不能低于0.02'
+            message: `值不能低于${name === 'adjustTheValue' ? 0 : 0.02}`
           });
           val.target.value = '';
         }

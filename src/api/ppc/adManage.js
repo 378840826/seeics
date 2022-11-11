@@ -429,3 +429,13 @@ export const createDenyTargeting = data => {
     data,
   });
 };
+
+// 广告组合下拉框数据
+export const getAdConciseList = (params, data) => {
+  return request({
+    url: '/api/seeics-ad/campaign/portfolio/conciseList',
+    method: 'post',
+    params,
+    data,
+  });
+};

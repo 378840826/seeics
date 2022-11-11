@@ -17,7 +17,7 @@
     </div>
 
     <div v-show="automatedOperation === '创建广告活动'" style="marginTop: 10px">
-      <adCampaign ref="adCampaign" :form="form" :currency="'站点货币'"/>
+      <adCampaign ref="adCampaign" :form="form" :currency="'站点货币'" :portfolio="true"/>
     </div>
 
     <el-table
@@ -296,10 +296,10 @@ export default {
         }
       ],
       shang: [
-        // {
-        //   label: '--',
-        //   value: ''
-        // },
+        {
+          label: '--',
+          value: ''
+        },
         {
           label: '上浮(%)',
           value: '上浮(%)'
@@ -450,11 +450,17 @@ export default {
         });
         val.target.value = '';
         // this.$emit('change', true);
-      } else if (val.target.value < 0.02) {
+      } else if (name === 'adjustTheValue' && val.target.value < 0) {
         val.target.style.borderColor = 'red';
         this.$message({
           type: 'error',
-          message: '值不能低于0.02'
+          message: '值不能超过0'
+        });
+      } else if (name === 'adjustTheValue' && val.target.value < 0 || val.target.value < 0.02) {
+        val.target.style.borderColor = 'red';
+        this.$message({
+          type: 'error',
+          message: `值不能低于${name === 'adjustTheValue' ? 0 : 0.02}`
         });
         val.target.value = '';
       }
@@ -510,7 +516,7 @@ export default {
       if (this.tableData[index].bidType === '广告组默认竞价' || this.tableData[index].bidType === '固定竞价') {
         this.tableData[index].rule = '';
       } else {
-        this.tableData[index].rule = '上浮(%)';
+        this.tableData[index].rule = '';
       }
       this.tableData[index].bidLimitValue = '';
       this.tableData[index].adjustTheValue = '';
