@@ -10,7 +10,23 @@
     top="1vh"
     width="80%">
 
-    <el-form label-width="130px" :model="form" ref="form" :rules="rules" hide-required-asterisk>
+    <el-form label-width="160px" :model="form" ref="form" :rules="rules" hide-required-asterisk>
+
+      <el-form-item v-if="!treeSelectedKey.campaignId">
+        <template slot="label">
+          <div style="display: flex;">
+            <span>广告活动投放类型:</span>
+            <span class="msg">*</span>
+          </div>
+        </template>
+        <el-select
+          v-model="groupType"
+          @change="queryCampaignList()"
+          size="small">
+          <el-option :value="''" label="自动投放" />
+          <el-option :value="'keyword'" label="关键词投放"/>
+        </el-select>
+      </el-form-item>
       
       <el-form-item prop="campaignId">
         <template slot="label">
@@ -31,7 +47,7 @@
           @focus="searchCampaign = '';
             searchCampaignList = [];"
           placeholder="请选择广告活动"
-          :disabled="this.treeSelectedKey.campaignId"
+          :disabled="treeSelectedKey.campaignId"
           size="small"
           class="autocomplete"
           style="width: 400px">
@@ -151,8 +167,9 @@ import denyKeywordTable from './conponent/table.vue';
 import {
   queryGroupList,
   getGroupList,
-  queryCampaignSelectList,
+  getDenyCampaignList,
   createNegativeKeyword,
+  getDenyGroupList
 } from '@/api/ppc/adManage';
 import { NegativeKeywordMatchTypeNameDict } from '../../utils/dict';
 
@@ -237,7 +254,8 @@ export default {
       textareaArr: [],
       repetition: [],
       ntMatchType: 'negativePhrase',
-      textareaDialogVisible: false
+      textareaDialogVisible: false,
+      groupType: '',
     };
   },
 
@@ -265,7 +283,6 @@ export default {
   },
 
   mounted() {
-    // console.log(this.treeSelectedKey)
     queryGroupList({
       size: 20,
       current: 1
@@ -275,8 +292,10 @@ export default {
       marketplace: this.marketplace
     }).then(res => {
       const data = res.data.data.page.records;
-      this.queryCampaignList(false, data.filter(item => item.campaignState !== 'archived').length && data.filter(item => item.campaignState !== 'archived')[0].campaignName || '',
-        data.filter(item => item.campaignState !== 'archived').length && data.filter(item => item.campaignState !== 'archived')[0].campaignId || '');
+      this.queryCampaignList(false, data.filter(item => item.campaignState !== 'archived' && item.campaignTargetType !== 'manual').length
+        && data.filter(item => item.campaignState !== 'archived' && item.campaignTargetType !== 'manual')[0].campaignName || '',
+      data.filter(item => item.campaignState !== 'archived' && item.campaignTargetType !== 'manual').length
+      && data.filter(item => item.campaignState !== 'archived' && item.campaignTargetType !== 'manual')[0].campaignId || '');
     });
   },
 
@@ -319,15 +338,15 @@ export default {
     },
 
     queryCampaignList(flag, name, id) {
-      queryCampaignSelectList({
+      getDenyCampaignList({
         current: !this.searchCampaign ? this.page.current : this.searchPage.current,
         size: !this.searchCampaign ? this.page.size : this.searchPage.size,
       }, {
-        marketplace: this.marketplace,
         adStoreId: this.storeId,
         name: this.searchCampaign || name,
-        states: ['enabled', 'paused'],
+        groupType: this.treeSelectedKey.campaignId ? '' : this.groupType,
       }).then(res => {
+
         if (res.data.code === 200) {
           this.campaignLoading = false;
           const data = res.data.data.records.map(item => {
@@ -372,16 +391,24 @@ export default {
     },
 
     getGroupList(flag, name, id) {
-      getGroupList({
-        current: !this.searchGroup ? this.groupPage.current : this.groupSearchPage.curren,
-        size: !this.searchGroup ? this.groupPage.size : this.groupSearchPage.size,
-      },
-      {
-        name: this.searchGroup || name,
-        campaignIds: [this.form.campaignId].filter(Boolean),
-        groupIds: id && [Number(id)] || [],
-        targetingMode: this.treeSelectedKey.targetingType === 'auto' ? '' : 'keyword',
-        states: ['enabled', 'paused'] }).then(res => {
+      getDenyGroupList(
+        {
+          name: this.searchGroup || name,
+          campaignId: this.form.campaignId,
+          groupType: 'keyword',
+          size: 20,
+          current: 1
+        }).then(res => {
+      // getGroupList({
+      //   current: !this.searchGroup ? this.groupPage.current : this.groupSearchPage.curren,
+      //   size: !this.searchGroup ? this.groupPage.size : this.groupSearchPage.size,
+      // },
+      // {
+      //   name: this.searchGroup || name,
+      //   campaignIds: [this.form.campaignId].filter(Boolean),
+      //   groupIds: id && [Number(id)] || [],
+      //   targetingMode: this.treeSelectedKey.targetingType === 'auto' ? '' : 'keyword',
+      //   states: ['enabled', 'paused'] }).then(res => {
         if (res.data.code === 200) {
           this.groupLoading = false;
 
@@ -394,8 +421,8 @@ export default {
 
           const data = res.data.data.records.map(item => {
             return {
-              value: item.groupId,
-              id: item.groupId,
+              value: item.id,
+              id: item.id,
               label: item.name
             };
           });
