@@ -387,6 +387,7 @@
   :mwsStoreId="mwsStoreId"
   :marketplace="marketplace"
   :currency="currency"
+  :storeId="storeId"
 />
 
 </div>

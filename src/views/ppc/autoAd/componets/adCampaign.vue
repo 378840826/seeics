@@ -7,6 +7,37 @@
         </span>
       </div>
       <el-form :model="form" ref="form" :rules="rule" label-width="130px">
+
+        <el-form-item v-if="!this.portfolio"  prop="portfolioId">
+        <template slot="label">
+          <div style="display: flex;">
+            <span>广告组合：</span>
+          </div>
+        </template>
+
+        <el-select
+          v-model="form.portfolioId"
+          v-loadmore="loadmore"
+          @change="handleConise"
+          clearable
+          filterable
+          remote
+          :remote-method="remoteMethod"
+          :loading="conciseLoading"
+          @focus="searchConise = '';
+            searchConciseList = [];"
+          size="small"
+        >
+          <el-option
+            v-for="item in !searchConise ? conciseList : searchConciseList"
+            :key="item.portfolioId"
+            :value="item.portfolioId"
+            :label="item.name"
+          />
+        </el-select>
+      </el-form-item>
+
+
         <el-form-item prop="dailyBudget">
         <template slot="label">
           <div style="display: flex;">
@@ -122,6 +153,8 @@
 
 <script>
 
+import { getAdConciseList } from '@/api/ppc/adManage';
+
 export default {
   props: {
     form: {
@@ -131,6 +164,16 @@ export default {
     currency: {
       type: String,
       require: true
+    },
+    adStoreId: {
+      type: String,
+      require: true
+    },
+    echoPortfolioId: {
+      type: String,
+    },
+    portfolio: {
+      type: Boolean,
     }
   },
 
@@ -178,7 +221,36 @@ export default {
           return date.getTime() <= day.getTime() + 24 * 60 * 60 * 1000 - 8.64e7;
         }
       },
+      //广告组合
+      concisePage: {
+        current: 1,
+        size: 20
+      },
+      searchConcisePage: {
+        current: 1,
+        size: 20
+      },
+      conciseList: [],
+      searchConciseList: [],
+      conciseTotal: 0,
+      searchConise: '',
+      searchConciseTotal: 0
     };
+  },
+
+  directives: {
+    'loadmore': {
+      bind(el, binding) {
+        // 获取element-ui定义好的scroll盒子
+        const SELECTWRAP_DOM = el.querySelector('.el-select-dropdown .el-select-dropdown__wrap');
+        SELECTWRAP_DOM.addEventListener('scroll', function () {
+          const condition = this.scrollHeight - this.scrollTop <= this.clientHeight;
+          if (condition) {
+            binding.value();
+          }
+        }, true);
+      }
+    }
   },
 
   watch: {
@@ -191,6 +263,14 @@ export default {
         }
       },
       deep: true,
+    }
+  },
+
+  mounted() {
+    if (!this.portfolio && this.echoPortfolioId) {
+      this.getAdConciseList(false, '', this.echoPortfolioId);
+    } else {
+      !this.portfolio && this.getAdConciseList();
     }
   },
 
@@ -212,7 +292,85 @@ export default {
       } else {
         return false;
       }
-    }
+    },
+
+    repetit(arr) {
+      let res = [];
+      const hasObj = {};
+      res = arr.reduce((total, next) => {
+        const filterKey = next.portfolioId;
+        hasObj[filterKey] ? '' : hasObj[filterKey] = true && total.push(next);
+        return total;
+      }, []);
+      return res;
+    },
+
+    loadmore() {
+      const result = !this.searchConise ?
+        this.concisePage.size * this.concisePage.current : this.searchConcisePage.size * this.searchConcisePage.current;
+      const total = !this.searchConise ? this.conciseTotal : this.searchConciseTotal;
+      if (result < total) { //加载全部出来 停止请求
+        !this.searchConise ? this.concisePage.current ++ : this.searchConcisePage.current ++;
+        this.getAdConciseList(true);
+      }  
+    },
+
+    getAdConciseList(flag, name, id) {
+      this.conciseLoading = true;
+      getAdConciseList({
+        current: !this.searchConise ? this.concisePage.current : this.searchConcisePage.current,
+        size: !this.searchConise ? this.concisePage.size : this.searchConcisePage.size,
+      }, {
+        adStoreId: this.adStoreId,
+        states: ['enabled', 'paused'],
+        name: this.searchConise || name,
+        portfolioIds: [id].filter(Boolean)
+      }).then(res => {
+        this.conciseLoading = false;
+        if (this.searchConise) {
+          const data = res.data.data.records;
+          this.searchConciseTotal = res.data.data.total;
+          if (this.searchConciseTotal > this.searchConcisePage.current * this.searchConcisePage.size) {
+            this.searchConciseList = this.searchConciseList.concat(data);
+            this.searchConciseList = this.repetit(this.searchConciseList);
+          } else {
+            this.searchConciseList = data;
+          }
+          return;
+        }
+
+        this.conciseTotal = res.data.data.total;
+        if (flag) {
+          this.conciseList = [...this.conciseList, ...res.data.data.records];
+          this.conciseList = this.repetit(this.conciseList);
+          return;
+        }
+
+        if (id) {
+          this.getAdConciseList(true);
+        }
+
+        this.conciseList = res.data.data.records;
+        this.conciseList = this.repetit(this.conciseList);
+      });
+    },
+
+    remoteMethod(val) {
+      this.searchConise = val;
+      this.conciseLoading = true;
+      this.searchConciseList = [];
+      this.searchConcisePage.current = 1;
+      this.getAdConciseList(false, val);
+    },
+
+    handleConise(val) {
+      if (this.searchConise) {
+        const arr = this.searchConciseList.filter(item => item.portfolioId === val);
+        if (this.conciseList.length && !this.conciseList.filter(item => item.portfolioId === val).length) {
+          this.conciseList = [...arr, ...this.conciseList];
+        }
+      }
+    },
   }
 };
 </script>
