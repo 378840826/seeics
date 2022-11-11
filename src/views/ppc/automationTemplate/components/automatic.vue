@@ -56,11 +56,20 @@
         align="center"
       >
         <template slot-scope="scope">
-          <el-select 
+
+          <el-checkbox-group 
+            v-if="automatedOperation === '创建广告活动' || automatedOperation === '创建广告组'"
+            v-model="scope.row.matchType">
+            <el-checkbox label="精准匹配">精准匹配</el-checkbox>
+            <el-checkbox label="词组匹配">词组匹配</el-checkbox>
+            <el-checkbox label="广泛匹配">广泛匹配</el-checkbox>
+          </el-checkbox-group>
+
+          <el-select
+            v-else
             v-model="scope.row.matchType" 
             placeholder="请选择"
             @change="matchTypeSelect"
-            :multiple="automatedOperation === '创建广告活动' ? true : false"
             collapse-tag
           >
             <el-option
@@ -464,7 +473,7 @@ export default {
       }
     },
     echoFiled() {
-      this.tableData[0].matchType = this.echo.automatedOperation === '创建广告活动'
+      this.tableData[0].matchType = (this.echo.automatedOperation === '创建广告活动' || this.echo.automatedOperation === '创建广告组')
         ? this.echo.matchType && this.echo.matchType.split(',') || ['精准匹配']
         : this.echo.matchType || '精准匹配';
       this.tableData[0].bid = this.echo.bid;
@@ -485,7 +494,7 @@ export default {
     },
     getFiled() {
       let obj = {
-        matchType: this.automatedOperation ? this.automatedOperation === '创建广告活动' && this.tableData[0].matchType.join(',') || this.tableData[0].matchType : null,
+        matchType: this.automatedOperation ? (this.automatedOperation === '创建广告活动' || this.echo.automatedOperation === '创建广告组') && this.tableData[0].matchType.join(',') || this.tableData[0].matchType : null,
         bidType: this.automatedOperation ? this.tableData[0].bidType : null,
         bid: this.automatedOperation ? this.tableData[0].bid : null,
         automatedOperation: this.automatedOperation,
@@ -551,7 +560,7 @@ export default {
         });
       }
       
-      if (val === '创建广告活动') {
+      if (val === '创建广告活动' || val === '创建广告组') {
         this.tableData[0].matchType = ['精准匹配'];
       } else {
         this.tableData[0].matchType = '精准匹配';
@@ -616,4 +625,9 @@ export default {
           margin: 0;
       }
   }
+
+  ::v-deep .el-checkbox:last-of-type {
+    margin-right: 30px;
+  }
+
 </style>

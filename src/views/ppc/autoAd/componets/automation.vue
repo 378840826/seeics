@@ -119,10 +119,19 @@
         align="center"
       >
         <template slot-scope="scope">
-          <el-select 
+
+          <el-checkbox-group
+            v-if="automatedOperation === '创建广告活动'"
+            v-model="scope.row.matchType">
+            <el-checkbox label="精准匹配">精准匹配</el-checkbox>
+            <el-checkbox label="词组匹配">词组匹配</el-checkbox>
+            <el-checkbox label="广泛匹配">广泛匹配</el-checkbox>
+          </el-checkbox-group>
+
+          <el-select
+            v-else
             v-model="scope.row.matchType" 
             placeholder="请选择"
-            :multiple="automatedOperation === '创建广告活动' ? true : false"
             collapse-tag
           >
             <el-option
@@ -1188,6 +1197,10 @@ export default {
         font-size: 12px;
         margin: 0;
     }
+  }
+
+  ::v-deep .el-checkbox:last-of-type {
+    margin-right: 30px;
   }
 
 </style>
