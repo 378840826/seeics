@@ -35,17 +35,17 @@
         align="center"
       >
         <template slot-scope="scope">
-          <!-- <el-checkbox-group 
+          <el-checkbox-group 
             v-model="scope.row.matchType">
             <el-checkbox label="精准匹配">精准匹配</el-checkbox>
             <el-checkbox label="词组匹配">词组匹配</el-checkbox>
             <el-checkbox label="广泛匹配">广泛匹配</el-checkbox>
-          </el-checkbox-group> -->
-          <el-radio-group v-model="scope.row.matchType">
+          </el-checkbox-group>
+          <!-- <el-radio-group v-model="scope.row.matchType">
             <el-radio label="精准匹配">精准匹配</el-radio>
             <el-radio label="词组匹配">词组匹配</el-radio>
             <el-radio label="广泛匹配">广泛匹配</el-radio>
-        </el-radio-group>
+        </el-radio-group> -->
         </template>
       </el-table-column>
 
@@ -254,7 +254,7 @@ export default {
         {
           campaign: this.campaign,
           adGroup: `ASIN+MSKU+${format(this.type)}+日期时间+`,
-          matchType: '精准匹配',
+          matchType: ['精准匹配'],
           bidType: '广告组默认竞价',
           bid: '',
           rule: '',
@@ -532,7 +532,7 @@ export default {
           ...item,
           campaign: this.campaign,
           adGroup: `ASIN+MSKU+${this.type === 1 ? '关键词' : '搜索词'}+匹配方式+日期时间`,
-        //   matchType: item.matchType && item.matchType.split(',') || ['精准匹配']
+          matchType: item.matchType && item.matchType.split(',') || ['精准匹配']
         };
       });
       this.tableData[this.tableData.length - 1].add = true;
@@ -542,8 +542,8 @@ export default {
       const obj = this.tableData.map(item => {
         return {
           bidType: item.bidType,
-          //   matchType: item.matchType.join(','),
-          matchType: item.matchType,
+          matchType: item.matchType.join(','),
+          // matchType: item.matchType,
           bid: item.bid,
           campaignId: this.rowData.campaignId,
           currency: this.rowData.currency,
@@ -589,7 +589,7 @@ export default {
       this.tableData.push({
         campaign: this.campaign,
         adGroup: `ASIN+MSKU+${this.type === 1 ? '关键词' : '搜索词'}+匹配方式+日期时间`,
-        matchType: '精准匹配',
+        matchType: ['精准匹配'],
         bidType: '广告组默认竞价',
         bid: '',
         rule: '',
