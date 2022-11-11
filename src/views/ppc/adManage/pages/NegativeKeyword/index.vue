@@ -216,7 +216,8 @@ export default {
   data: function() {
     return {
       size: 'mini',
-      stateNameDict,
+      // 广告活动的否定关键词归档状态是 deleted
+      stateNameDict: { ...stateNameDict, deleted: '归档' },
       stateIconDict,
       NegativeKeywordMatchTypeNameDict,
       filter: {
@@ -264,12 +265,17 @@ export default {
         ...sortParams,
         ...query,
       };
+      // 广告活动的否定关键词的归档是 deleted
+      let state = this.filter.state;
+      if (state && state === 'archived' && this.filter.dataSource === 'campaign') {
+        state = 'deleted';
+      }
       const bodyParams = {
         adStoreId: this.storeId,
         adType: 'sp',
         campaignId: this.treeSelectedInfo.campaignId,
         groupId: this.treeSelectedInfo.groupId,
-        state: this.filter.state ? [this.filter.state] : [],
+        state: state ? [state] : [],
         matchType: this.filter.matchType,
         search: this.filter.search,
         dataSource: this.filter.dataSource,
@@ -360,23 +366,24 @@ export default {
           neKeywordIds: ids,
         };
       } else {
-        // 树选中广告活动时
+        // 树选中广告活动时，或树未选中时
         if (this.filter.dataSource === 'campaign') {
           // 广告活动下的
           params = {
             storeId: this.storeId,
-            campaignId: this.treeSelectedInfo.campaignId,
-            neKeywordIds: ids,
             dataSource: this.filter.dataSource,
+            archiveIds: list.map(item => ({
+              campaignId: item.campaignId,
+              neKeywordId: item.neKeywordId,
+            }))
           };
         } else {
           // 广告组下的
           params = {
             storeId: this.storeId,
-            campaignId: this.treeSelectedInfo.campaignId,
-            archiveIds: list.map(item => (
-              { groupId: item.groupId, neKeywordId: item.neKeywordId, }
-            )),
+            archiveIds: list.map(item => ({
+              groupId: item.groupId, neKeywordId: item.neKeywordId, campaignId: item.campaignId,
+            })),
             dataSource: this.filter.dataSource,
           };
         }
