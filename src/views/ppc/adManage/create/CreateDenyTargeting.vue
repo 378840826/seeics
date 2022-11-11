@@ -10,7 +10,7 @@
     width="700px">
     <el-form label-width="160px" :model="form" ref="form" :rules="rules" hide-required-asterisk>
 
-      <!-- <el-form-item v-if="!this.treeSelectedInfo.campaignId">
+      <el-form-item v-if="this.treeSelectedInfo.campaignId">
         <template slot="label">
           <div style="display: flex;">
             <span>广告活动投放类型：</span>
@@ -21,9 +21,9 @@
           <el-option label="自动投放" />
           <el-option label="商品投放"/>
         </el-select>
-      </el-form-item> -->
+      </el-form-item>
 
-      <el-form-item v-if="!this.treeSelectedInfo.campaignId" prop="campaignId">
+      <el-form-item v-if="this.treeSelectedInfo.campaignId" prop="campaignId">
         <template slot="label">
           <div style="display: flex;">
             <span>选择广告活动：</span>
@@ -222,8 +222,8 @@ export default {
 
   mounted() {
     // console.log(this.treeSelectedInfo)
-    !this.treeSelectedInfo.campaignId && this.queryCampaignList(false, '', '');
-    !this.treeSelectedInfo.groupId && this.getGroupList();
+    this.treeSelectedInfo.campaignId && this.queryCampaignList(false, '', '');
+    !this.treeSelectedInfo.campaignId && !this.treeSelectedInfo.groupId && this.getGroupList();
   },
 
   watch: {
