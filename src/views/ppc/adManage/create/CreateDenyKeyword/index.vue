@@ -368,15 +368,7 @@ export default {
           }
           this.total = res.data.data.total;
           this.data = this.data.concat(res.data.data.records);
-          if (type) {
-            this.campaignList = this.data.map(item => {
-              return {
-                value: item.campaignId,
-                id: item.campaignId,
-                label: item.name
-              };
-            });
-          }
+          
           this.data = this.repetit(this.data);
           this.campaignList = this.data.map(item => {
             return {
@@ -385,6 +377,16 @@ export default {
               label: item.name
             };
           });
+
+          if (type) {
+            this.campaignList = res.data.data.records.map(item => {
+              return {
+                value: item.campaignId,
+                id: item.campaignId,
+                label: item.name
+              };
+            });
+          }
           
           if (!flag) { //非预加载赋值
             this.form.campaignId = id || this.campaignList.length && this.campaignList[0].id || '';
