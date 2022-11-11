@@ -276,6 +276,7 @@ export default {
     },
 
     queryCampaignList(flag, name, id, type) {
+      
       getDenyCampaignList({
         current: !this.searchCampaign ? this.page.current : this.searchPage.current,
         size: !this.searchCampaign ? this.page.size : this.searchPage.size,
