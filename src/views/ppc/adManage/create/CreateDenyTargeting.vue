@@ -19,7 +19,7 @@
         </template>
         <el-select
           v-model="groupType"
-          @change="queryCampaignList()"
+          @change="queryCampaignList(false, '', '', true)"
           size="small">
           <el-option :value="''" label="自动投放" />
           <el-option :value="'targeting'" label="商品投放"/>
@@ -275,7 +275,7 @@ export default {
       this.$emit('update:dialogVisible', false);
     },
 
-    queryCampaignList(flag, name, id) {
+    queryCampaignList(flag, name, id, type) {
       getDenyCampaignList({
         current: !this.searchCampaign ? this.page.current : this.searchPage.current,
         size: !this.searchCampaign ? this.page.size : this.searchPage.size,
@@ -309,6 +309,10 @@ export default {
           this.total = res.data.data.total;
           this.campaignList = this.campaignList.concat(data);
           this.campaignList = this.repetit(this.campaignList);
+
+          if (type) {
+            this.campaignList = data;
+          }
 
           if (!flag) { //非预加载赋值
             this.form.campaignId = id || this.campaignList.length && this.campaignList[0].id || this.treeSelectedInfo.campaignId && this.campaignList[0].id || '';
@@ -374,7 +378,6 @@ export default {
           this.groupTotal = res.data.data.total;
           if (!flag) { //非预加载赋值
             this.groupList = data;
-            console.log(this.groupList)
             this.form.groupId = id || this.groupList.length && this.groupList[0].id || this.treeSelectedInfo.campaignId && this.groupList.length && this.groupList[0].id || '';
           } else {
             this.groupList = this.groupList.concat(data);
