@@ -305,7 +305,7 @@ export default {
           storeId: this.storeId,
           campaignId: this.treeSelectedInfo.campaignId,
           archiveIds: list.map(item => (
-            { groupId: item.groupId, neTargetId: item.targetId, }
+            { groupId: item.groupId, neTargetId: item.targetId, campaignId: item.campaignId }
           )),
         };
       }
