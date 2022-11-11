@@ -10,20 +10,23 @@
     width="700px">
     <el-form label-width="160px" :model="form" ref="form" :rules="rules" hide-required-asterisk>
 
-      <el-form-item v-if="this.treeSelectedInfo.campaignId">
+      <el-form-item v-if="!this.treeSelectedInfo.campaignId">
         <template slot="label">
           <div style="display: flex;">
-            <span>广告活动投放类型：</span>
+            <span>广告活动投放类型:</span>
             <span class="msg">*</span>
           </div>
         </template>
-        <el-select size="small">
-          <el-option label="自动投放" />
-          <el-option label="商品投放"/>
+        <el-select
+          v-model="groupType"
+          @change="queryCampaignList()"
+          size="small">
+          <el-option :value="''" label="自动投放" />
+          <el-option :value="'targeting'" label="商品投放"/>
         </el-select>
       </el-form-item>
 
-      <el-form-item v-if="this.treeSelectedInfo.campaignId" prop="campaignId">
+      <el-form-item v-if="!this.treeSelectedInfo.campaignId" prop="campaignId">
         <template slot="label">
           <div style="display: flex;">
             <span>选择广告活动：</span>
@@ -139,7 +142,7 @@
 
 <script>
 
-import { createDenyTargeting, getGroupList, queryCampaignSelectList } from '@/api/ppc/adManage';
+import { createDenyTargeting, getGroupList, getDenyCampaignList, getDenyGroupList } from '@/api/ppc/adManage';
 
 export default {
 
@@ -202,6 +205,7 @@ export default {
         size: 20,
         current: 1,
       },
+      groupType: '',
     };
   },
 
@@ -222,8 +226,8 @@ export default {
 
   mounted() {
     // console.log(this.treeSelectedInfo)
-    this.treeSelectedInfo.campaignId && this.queryCampaignList(false, '', '');
-    !this.treeSelectedInfo.campaignId && !this.treeSelectedInfo.groupId && this.getGroupList();
+    !this.treeSelectedInfo.campaignId && this.queryCampaignList(false, '', '');
+    this.treeSelectedInfo.campaignId && !this.treeSelectedInfo.groupId && this.getGroupList();
   },
 
   watch: {
@@ -272,16 +276,15 @@ export default {
     },
 
     queryCampaignList(flag, name, id) {
-      queryCampaignSelectList({
+      getDenyCampaignList({
         current: !this.searchCampaign ? this.page.current : this.searchPage.current,
         size: !this.searchCampaign ? this.page.size : this.searchPage.size,
       }, {
-        marketplace: this.marketplace,
         adStoreId: this.storeId,
+        groupType: this.groupType,
         name: this.searchCampaign || name,
-        states: ['enabled', 'paused'],
       }).then(res => {
-        
+
         if (res.data.code === 200) {
           this.campaignLoading = false;
           const data = res.data.data.records.map(item => {
@@ -321,15 +324,23 @@ export default {
     },
 
     getGroupList(flag, name, id) {
-      getGroupList({
-        current: !this.searchGroup ? this.groupPage.current : this.groupSearchPage.curren,
-        size: !this.searchGroup ? this.groupPage.size : this.groupSearchPage.size,
-      },
-      { name: this.searchGroup || name,
-        campaignIds: [this.treeSelectedInfo.campaignId ?
-          this.treeSelectedInfo.campaignId : this.form.campaignId].filter(Boolean),
-        targetingMode: this.treeSelectedInfo.targetingType === 'auto' ? '' : 'targeting',
-        states: ['enabled', 'paused'] }).then(res => {
+      getDenyGroupList(
+        {
+          name: this.searchGroup || name,
+          campaignId: this.treeSelectedInfo.campaignId ? this.treeSelectedInfo.campaignId : this.form.campaignId,
+          groupType: 'targeting',
+          size: 20,
+          current: 1
+        }).then(res => {
+      // getGroupList({
+      //   current: !this.searchGroup ? this.groupPage.current : this.groupSearchPage.curren,
+      //   size: !this.searchGroup ? this.groupPage.size : this.groupSearchPage.size,
+      // },
+      // { name: this.searchGroup || name,
+      //   campaignIds: [this.treeSelectedInfo.campaignId ?
+      //     this.treeSelectedInfo.campaignId : this.form.campaignId].filter(Boolean),
+      //   targetingMode: this.treeSelectedInfo.targetingType === 'auto' ? '' : 'targeting',
+      //   states: ['enabled', 'paused'] }).then(res => {
 
         if (res.data.code === 200) {
           this.groupLoading = false;
@@ -343,8 +354,8 @@ export default {
 
           const data = res.data.data.records.map(item => {
             return {
-              value: item.groupId,
-              id: item.groupId,
+              value: item.id,
+              id: item.id,
               label: item.name
             };
           });
@@ -363,7 +374,8 @@ export default {
           this.groupTotal = res.data.data.total;
           if (!flag) { //非预加载赋值
             this.groupList = data;
-            this.form.groupId = id || this.groupList.length && this.groupList[0].id || !this.treeSelectedInfo.campaignId && this.groupList.length && this.groupList[0].id || '';
+            console.log(this.groupList)
+            this.form.groupId = id || this.groupList.length && this.groupList[0].id || this.treeSelectedInfo.campaignId && this.groupList.length && this.groupList[0].id || '';
           } else {
             this.groupList = this.groupList.concat(data);
             this.groupList = this.repetit(this.groupList);
