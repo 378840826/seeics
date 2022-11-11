@@ -978,7 +978,14 @@ export default {
           });
           val.target.value = '';
           // this.$emit('change', true);
-        } else if (name === 'adjustTheValue' && val.target.value < 0 || val.target.value < 0.02) {
+        } else if (name === 'adjustTheValue' && Number(val.target.value) <= 0) {
+          val.target.style.borderColor = 'red';
+          this.$message({
+            type: 'error',
+            message: `值不能低于${name === 'adjustTheValue' ? 0 : 0.02}`
+          });
+          val.target.value = '';
+        } else if (name !== 'adjustTheValue' && val.target.value < 0.02) {
           val.target.style.borderColor = 'red';
           this.$message({
             type: 'error',
