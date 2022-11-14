@@ -42,7 +42,7 @@
     </div>
 
     <el-table
-      v-if="automatedOperation && automatedOperation !== '创建广告组' ? true : false || false"
+      v-if="automatedOperation && (automatedOperation !== '创建广告组' && automatedOperation !== '创建广告活动') ? true : false || false"
       :data="tableData"
       :header-cell-style="{'text-align':'center'}"
       max-height="300"
@@ -312,7 +312,31 @@
       />
     </div>
 
-    <div
+    <div v-else-if="automatedOperation === '创建广告活动'">
+      <div v-if="searchWord !== 2">
+        <adGroup
+          ref="adCampaign1"
+          :automatedOperation.sync="automatedOperation"
+          :echo="echoAdGroup1"
+          :campaign="campaign"
+          :rowData="rowData"
+          :type="1"
+          :deduplication="echoDeduplication"
+        />
+      </div>
+
+      <adGroup
+        v-if="searchWord !== 1"
+        ref="adCampaign2"
+        :automatedOperation.sync="automatedOperation"
+        :echo="echoAdGroup2"
+        :campaign="campaign"
+        :rowData="rowData"
+        :type="2"
+      />
+    </div>
+
+    <!-- <div
       v-show="automatedOperation === '创建广告活动'" class="explain">
       <span style="fontWeight: 900">匹配方式去重： </span> <el-switch v-model="form.deduplication">
       </el-switch>
@@ -320,7 +344,7 @@
       <p>若该店铺的广告组下已有相同的asin，相同的关键词和相同的匹配方式且广告活动状态、广告组状态，ASIN广告状态，关键词状态，均为开启，则跳过该</p>
       <p>匹配方式继续为其他匹配方式创建广告活动；</p>
       <p>默认开启，规则生效，用户可以关闭，规则失效，不校验关键词匹配方式，直接跟进用户选择的匹配方式创建广告活动；</p>
-    </div>
+    </div> -->
 
     <div class="explain">
       <p>操作要点</p>
@@ -599,7 +623,7 @@ export default {
         deduplication: true, //去重
         portfolioId: '',
       },
-      echoPortfolioId: Object.keys(this.echo).length && this.echo.createAdvertisingCampaignDTO.portfolioId || '',
+      echoPortfolioId: Object.keys(this.echo).length && this.echo.createAdvertisingCampaignDTO && this.echo.createAdvertisingCampaignDTO.portfolioId || '',
     };
   },
   mounted() {
@@ -832,7 +856,28 @@ export default {
           marketplace: this.rowData.marketplace,
           id: this.echo.id || null,
           campaignId: this.rowData.campaignId,
-          deduplication: (this.searchWord === 1 || this.searchWord === 3) && this.$refs.adGroup1.form.deduplication ? 1 : 0 || 0,
+        };
+      } else if (this.automatedOperation === '创建广告活动') {
+        const adCampaign1 = this.searchWord === 1 && this.$refs.adCampaign1.getFiled() || [];
+        const adCampaign2 = this.searchWord === 2 && this.$refs.adCampaign2.getFiled() || [];
+        obj = {
+          adCampaignInfos: this.searchWord !== 3 
+            ? [...adCampaign1, ...adCampaign2]
+            : [...this.$refs.adCampaign1.getFiled(), ...this.$refs.adCampaign2.getFiled()],
+          automatedOperation: this.automatedOperation,
+          adStoreId: this.rowData.adStoreId,
+          currency: this.rowData.currency,
+          marketplace: this.rowData.marketplace,
+          id: this.echo.id || null,
+          campaignId: this.rowData.campaignId,
+          createAdvertisingCampaignDTO: {
+            ...this.form,
+            campaignId: this.rowData.campaignId,
+            templateId: this.templateId,
+            endTime: this.form.endTime && dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || null,
+            startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || null,
+          },
+          deduplication: 0
         };
       } else {
         const data = this.tableData.map(item => {
@@ -853,7 +898,7 @@ export default {
           currency: this.rowData.currency,
           marketplace: this.rowData.marketplace,
           id: this.echo.id || null,
-          campaignId: this.rowData.campaignId
+          campaignId: this.rowData.campaignId,
         };
         obj = this.automatedOperation === '创建广告活动' ? Object.assign(obj, { createAdvertisingCampaignDTO: {
           ...this.form,

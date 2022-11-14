@@ -463,9 +463,9 @@
           <div>搜索词筛选结果处理：</div>
           <span>
              <el-radio-group v-model="searchWord" style="marginTop: 5px">
-                <el-radio :label="1" :disabled="isRadio">关键词</el-radio>
-                <el-radio :label="2" :disabled="isRadio">商品</el-radio>
-                <el-radio :label="3" :disabled="isRadio">不限</el-radio>
+                <el-radio :label="1">关键词</el-radio>
+                <el-radio :label="2">商品</el-radio>
+                <el-radio :label="3">不限</el-radio>
               </el-radio-group>
           </span>
         </div>
@@ -1104,6 +1104,7 @@ export default {
       let minCpcMost = true;
       let maxCpcMost = true;
 
+
       if (params.automatedOperation === '创建广告活动') {
         if (this.$refs.autoMation.budgetMsg()) {
           return true;
@@ -1168,7 +1169,7 @@ export default {
           maxCpcMost = false;
         }
       });
-      if (!this.launchFlag && params.automatedOperation !== '创建广告组' && !ad) {
+      if (!this.launchFlag && params.automatedOperation !== '创建广告组' && params.automatedOperation !== '创建广告活动' && !ad) {
         this.$message({
           type: 'error',
           message: '请选择广告组'
@@ -1296,7 +1297,7 @@ export default {
         ruleType: this.radio,
         excludeTerms: this.$refs.autoMation.automatedOperation === '创建广告活动' ? 1 : this.searchWord,
         groupIdList: this.radio === 2 ? this.adGroupOption : [],
-        deduplication: (this.$refs.autoMation.automatedOperation === '创建广告活动' || this.$refs.autoMation.automatedOperation === '创建广告组') && this.searchWord !== 2 && this.$refs.autoMation.form.deduplication ? 1 : 0 || 0
+        // deduplication: (this.$refs.autoMation.automatedOperation === '创建广告活动' || this.$refs.autoMation.automatedOperation === '创建广告组') && this.searchWord !== 2 && this.$refs.autoMation.form.deduplication ? 1 : 0 || 0
       };
 
       if (this.ruleMsg()) {
@@ -1343,7 +1344,7 @@ export default {
         ruleType: this.radio,
         excludeTerms: this.$refs.autoMation.automatedOperation === '创建广告活动' ? 1 : this.searchWord,
         groupIdList: this.radio === 2 ? this.adGroupOption : [],
-        deduplication: (this.$refs.autoMation.automatedOperation === '创建广告活动' || this.$refs.autoMation.automatedOperation === '创建广告组') && this.searchWord !== 2 && this.$refs.autoMation.form.deduplication ? 1 : 0 || 0
+        // deduplication: (this.$refs.autoMation.automatedOperation === '创建广告活动' || this.$refs.autoMation.automatedOperation === '创建广告组') && this.searchWord !== 2 && this.$refs.autoMation.form.deduplication ? 1 : 0 || 0
       };
 
       if (this.ruleMsg()) {

@@ -197,7 +197,16 @@
     </el-table>
 
     <div v-show="type === 1" class="explain">
-      <span style="fontWeight: 900">匹配方式去重： </span> <el-switch v-model="form.deduplication">
+      <span style="fontWeight: 900">匹配方式去重： </span> <el-switch v-model="deduplication">
+      </el-switch>
+      <p>匹配方式去重规则：</p>
+      <p>若该店铺的广告组下已有相同的asin，相同的关键词和相同的匹配方式且广告活动状态、广告组状态，ASIN广告状态，关键词状态，均为开启，则跳过该</p>
+      <p>匹配方式继续为其他匹配方式创建广告活动；</p>
+      <p>默认开启，规则生效，用户可以关闭，规则失效，不校验关键词匹配方式，直接跟进用户选择的匹配方式创建广告活动；</p>
+    </div>
+
+    <div v-show="type === 2" class="explain">
+      <span style="fontWeight: 900">商品投放去重： </span> <el-switch v-model="deduplication">
       </el-switch>
       <p>匹配方式去重规则：</p>
       <p>若该店铺的广告组下已有相同的asin，相同的关键词和相同的匹配方式且广告活动状态、广告组状态，ASIN广告状态，关键词状态，均为开启，则跳过该</p>
@@ -209,8 +218,6 @@
 
 <script>
 
-import dayjs from 'dayjs';
-
 export default {
   name: 'automatic',
 
@@ -221,9 +228,6 @@ export default {
     },
     templateType: {
       type: String
-    },
-    deduplication: {
-      type: Boolean
     },
     automatedOperation: {
       type: String
@@ -407,6 +411,7 @@ export default {
         productPage: '0', //搜索结果顶部 百分比
         deduplication: true,
       },
+      deduplication: true,
     };
   },
 
@@ -542,8 +547,8 @@ export default {
           matchType: item.matchType && item.matchType.split(',') || ['精准匹配']
         };
       });
+      this.deduplication = this.tableData[0].deduplication ? true : false;
       this.tableData[this.tableData.length - 1].add = true;
-      this.form.deduplication = this.deduplication;
     },
     getFiled() {
       const obj = this.tableData.map(item => {
@@ -558,7 +563,8 @@ export default {
           adjustTheValue: item.adjustTheValue,
           bidLimitValue: item.bidLimitValue,
           customText: item.customText,
-          type: this.type  
+          type: this.type,
+          deduplication: this.deduplication ? 1 : 0,
         };
       });
       return obj;
