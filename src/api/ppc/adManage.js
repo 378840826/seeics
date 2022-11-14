@@ -443,3 +443,19 @@ export const getAdConciseList = (params, data) => {
     data,
   });
 };
+export const getDenyCampaignList = (params, data) => {
+  return request({
+    url: '/api/seeics-ad/campaign/create_list',
+    method: 'post',
+    params,
+    data,
+  });
+};
+
+export const getDenyGroupList = data => {
+  return request({
+    url: '/api/seeics-ad/group/create_list',
+    method: 'get',
+    params: data,
+  });
+};

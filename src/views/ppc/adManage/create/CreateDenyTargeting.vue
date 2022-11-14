@@ -8,7 +8,56 @@
     @close="cancel"
     v-loading="loading"
     width="700px">
-    <el-form label-width="130px" :model="form" ref="form" :rules="rules" hide-required-asterisk>
+    <el-form label-width="160px" :model="form" ref="form" :rules="rules" hide-required-asterisk>
+
+      <el-form-item v-if="!this.treeSelectedInfo.campaignId">
+        <template slot="label">
+          <div style="display: flex;">
+            <span>广告活动投放类型:</span>
+            <span class="msg">*</span>
+          </div>
+        </template>
+        <el-select
+          v-model="groupType"
+          @change="queryCampaignList(false, '', '', true)"
+          size="small">
+          <el-option :value="''" label="自动投放" />
+          <el-option :value="'targeting'" label="商品投放"/>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item v-if="!this.treeSelectedInfo.campaignId" prop="campaignId">
+        <template slot="label">
+          <div style="display: flex;">
+            <span>选择广告活动：</span>
+            <span class="msg">*</span>
+          </div>
+        </template>
+        <el-select
+          v-model="form.campaignId"
+          @change="handleGroup"
+          filterable
+          reserve-keyword
+          remote
+          :remote-method="remoteMethod"
+          :loading="campaignLoading"
+          v-loadmore="loadmore"
+          @focus="searchCampaign = '';
+            searchCampaignList = [];"
+          placeholder="请选择广告活动"
+          size="small"
+          class="autocomplete"
+          style="width: 400px">
+          <el-option
+            v-for="item in !searchCampaign ? campaignList : searchCampaignList"
+            :key="item.id"
+            :value="item.id"
+            :label="item.label"
+            class="box2"
+          />
+        </el-select>
+      </el-form-item>
+
     <el-form-item v-if="!treeSelectedInfo.groupId" prop="groupId">
         <template slot="label">
           <div style="display: flex;">
@@ -93,7 +142,7 @@
 
 <script>
 
-import { createDenyTargeting, getGroupList } from '@/api/ppc/adManage';
+import { createDenyTargeting, getGroupList, getDenyCampaignList, getDenyGroupList } from '@/api/ppc/adManage';
 
 export default {
 
@@ -122,10 +171,11 @@ export default {
   data() {
     return {
       groupLoading: false,
+      campaignLoading: false,
       searchGroup: '',
       groupList: [],
       searchGroupList: [],
-      form: { groupId: '' },
+      form: { groupId: '', campaignId: '', targetingType: 'manua' },
       activeName: 'asin',
       textarea: '',
       textareaArr: [],
@@ -133,6 +183,20 @@ export default {
       repetition: [],
       fail: [],
       msg: [],
+      data: [],
+      campaignList: [],
+      searchCampaignList: [],
+      searchCampaign: '',
+      total: 0,
+      searchTotal: 0,
+      page: {
+        size: 20,
+        current: 1,
+      },
+      searchPage: {
+        size: 20,
+        current: 1,
+      },
       groupPage: {
         size: 20,
         current: 1,
@@ -141,6 +205,7 @@ export default {
         size: 20,
         current: 1,
       },
+      groupType: '',
     };
   },
 
@@ -160,10 +225,41 @@ export default {
   },
 
   mounted() {
-    !this.treeSelectedInfo.groupId && this.getGroupList();
+    // console.log(this.treeSelectedInfo)
+    !this.treeSelectedInfo.campaignId && this.queryCampaignList(false, '', '');
+    this.treeSelectedInfo.campaignId && !this.treeSelectedInfo.groupId && this.getGroupList();
+  },
+
+  watch: {
+    'form.campaignId': {
+      handler() {
+        this.getGroupList(false, '', '');
+      }
+    }
   },
 
   methods: {
+
+    repetit(arr) {
+      let res = [];
+      const hasObj = {};
+      res = arr.reduce((total, next) => {
+        const filterKey = next.id;
+        hasObj[filterKey] ? '' : hasObj[filterKey] = true && total.push(next);
+        return total;
+      }, []);
+      return res;
+    },
+
+    loadmore() {
+      const result = !this.searchCampaign ?
+        this.page.size * this.page.current : this.searchPage.size * this.searchPage.current;
+      const total = !this.searchCampaign ? this.total : this.searchTotal;
+      if (result < total) { //加载全部出来 停止请求
+        !this.searchCampaign ? this.page.current ++ : this.searchPage.current ++;
+        this.queryCampaignList(true);
+      }  
+    },
 
     loadmoreGroup() {
       const result = !this.searchGroup ?
@@ -179,15 +275,84 @@ export default {
       this.$emit('update:dialogVisible', false);
     },
 
+    queryCampaignList(flag, name, id, type) {
+      
+      getDenyCampaignList({
+        current: !this.searchCampaign ? this.page.current : this.searchPage.current,
+        size: !this.searchCampaign ? this.page.size : this.searchPage.size,
+      }, {
+        adStoreId: this.storeId,
+        groupType: this.treeSelectedInfo.campaignId ? '' : this.groupType,
+        name: this.searchCampaign || name,
+      }).then(res => {
+
+        if (res.data.code === 200) {
+          this.campaignLoading = false;
+          const data = res.data.data.records.map(item => {
+            return {
+              value: item.campaignId,
+              id: item.campaignId,
+              label: item.name
+            };
+          });
+
+          if (this.searchCampaign) {
+            this.searchTotal = res.data.data.total;
+            if (this.searchTotal > this.searchPage.current * this.searchPage.size) {
+              this.searchCampaignList = this.searchCampaignList.concat(data);
+              this.searchCampaignList = this.repetit(this.searchCampaignList);
+            } else {
+              this.searchCampaignList = data;
+            }
+            return;
+          }
+
+          this.total = res.data.data.total;
+          this.campaignList = this.campaignList.concat(data);
+          this.campaignList = this.repetit(this.campaignList);
+
+          if (type) {
+            this.campaignList = res.data.data.records.map(item => {
+              return {
+                value: item.campaignId,
+                id: item.campaignId,
+                label: item.name
+              };
+            });
+          }
+
+          if (!flag) { //非预加载赋值
+            this.form.campaignId = id || this.campaignList.length && this.campaignList[0].id || this.treeSelectedInfo.campaignId && this.campaignList[0].id || '';
+          }
+
+          if (name) {
+            this.queryCampaignList(true);
+          }
+        }
+      }).catch(() => {
+        this.campaignLoading = false;
+      });
+    },
+
     getGroupList(flag, name, id) {
-      getGroupList({
-        current: !this.searchGroup ? this.groupPage.current : this.groupSearchPage.curren,
-        size: !this.searchGroup ? this.groupPage.size : this.groupSearchPage.size,
-      },
-      { name: this.searchGroup || name,
-        campaignIds: [this.treeSelectedInfo.campaignId].filter(Boolean),
-        targetingMode: this.treeSelectedInfo.targetingType === 'auto' ? '' : 'targeting',
-        states: ['enabled', 'paused'] }).then(res => {
+      getDenyGroupList(
+        {
+          name: this.searchGroup || name,
+          campaignId: this.treeSelectedInfo.campaignId ? this.treeSelectedInfo.campaignId : this.form.campaignId,
+          groupType: this.treeSelectedInfo.targetingType === 'auto' ? '' : this.groupType,
+          size: 20,
+          current: 1
+        }).then(res => {
+      // getGroupList({
+      //   current: !this.searchGroup ? this.groupPage.current : this.groupSearchPage.curren,
+      //   size: !this.searchGroup ? this.groupPage.size : this.groupSearchPage.size,
+      // },
+      // { name: this.searchGroup || name,
+      //   campaignIds: [this.treeSelectedInfo.campaignId ?
+      //     this.treeSelectedInfo.campaignId : this.form.campaignId].filter(Boolean),
+      //   targetingMode: this.treeSelectedInfo.targetingType === 'auto' ? '' : 'targeting',
+      //   states: ['enabled', 'paused'] }).then(res => {
+
         if (res.data.code === 200) {
           this.groupLoading = false;
 
@@ -200,8 +365,8 @@ export default {
 
           const data = res.data.data.records.map(item => {
             return {
-              value: item.groupId,
-              id: item.groupId,
+              value: item.adGroupId,
+              id: item.adGroupId,
               label: item.name
             };
           });
@@ -220,7 +385,7 @@ export default {
           this.groupTotal = res.data.data.total;
           if (!flag) { //非预加载赋值
             this.groupList = data;
-            this.form.groupId = id || this.groupList.length && this.groupList[0].id || '';
+            this.form.groupId = id || this.groupList.length && this.groupList[0].id || this.treeSelectedInfo.campaignId && this.groupList.length && this.groupList[0].id || '';
           } else {
             this.groupList = this.groupList.concat(data);
             this.groupList = this.repetit(this.groupList);
@@ -231,6 +396,14 @@ export default {
           }
         }
       });
+    },
+
+    remoteMethod(val) {
+      this.searchCampaign = val;
+      this.campaignLoading = true;
+      this.searchCampaignList = [];
+      this.searchPage.current = 1;
+      this.queryCampaignList();
     },
 
     remoteMethodGroup(val) {
@@ -320,7 +493,7 @@ export default {
 
         createDenyTargeting({
           storeId: this.storeId,
-          campaignId: this.treeSelectedInfo.campaignId,
+          campaignId: this.treeSelectedInfo.campaignId || this.form.campaignId,
           groupId: this.treeSelectedInfo.groupId || this.form.groupId,
           negativeTargetingAsinList: param,
         }).then(res => {
@@ -369,7 +542,7 @@ export default {
 
       createDenyTargeting({
         storeId: this.storeId,
-        campaignId: this.treeSelectedInfo.campaignId,
+        campaignId: this.treeSelectedInfo.campaignId || this.form.campaignId,
         groupId: this.treeSelectedInfo.groupId || this.form.groupId,
         negativeTargetingAsinList: param,
       }).then(res => {
