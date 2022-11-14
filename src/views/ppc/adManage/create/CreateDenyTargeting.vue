@@ -282,7 +282,7 @@ export default {
         size: !this.searchCampaign ? this.page.size : this.searchPage.size,
       }, {
         adStoreId: this.storeId,
-        groupType: this.groupType,
+        groupType: this.treeSelectedInfo.campaignId ? '' : this.groupType,
         name: this.searchCampaign || name,
       }).then(res => {
 
@@ -339,7 +339,7 @@ export default {
         {
           name: this.searchGroup || name,
           campaignId: this.treeSelectedInfo.campaignId ? this.treeSelectedInfo.campaignId : this.form.campaignId,
-          groupType: 'targeting',
+          groupType: this.treeSelectedInfo.targetingType === 'auto' ? '' : this.groupType,
           size: 20,
           current: 1
         }).then(res => {
