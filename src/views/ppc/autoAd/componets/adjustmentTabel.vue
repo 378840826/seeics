@@ -59,6 +59,33 @@
       <el-table-column
         label="竞价调整"
       >
+        <template slot-scope="scope">
+          <el-select
+            v-model="scope.row.adjustTheValue"
+            style="width: 140px"
+            size="mini"
+          >
+            <el-option
+              v-for="item in bidAdjustList"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
+          </el-select>
+
+          <el-select
+            v-model="scope.row.rule"
+            style="width: 140px"
+            size="mini"
+          >
+            <el-option
+              v-for="item in flaotList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </template>
       </el-table-column>
 
       <el-table-column
@@ -77,13 +104,14 @@
 
 <script>
 
-import { timeList, timeScopeList, bidAdjustList } from '../dict';
+import { timeList, timeScopeList, bidAdjustList, flaotList } from '../dict';
 export default {
   
   data() {
     return {
       timeList,
       bidAdjustList,
+      flaotList,
       timeScopeList: ['自定义时间范围', ...timeScopeList],
       headerStyle: {
         color: '#232f3f',
