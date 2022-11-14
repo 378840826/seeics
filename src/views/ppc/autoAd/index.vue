@@ -356,11 +356,12 @@
         <span style="width: 50%">
           <el-input
             v-model="formInline.templateName"
+            @blur="templateNameBlur"
             placeholder="请输入模板名称"
           />
           <span 
-            v-if="formInline.templateName.length > 50" 
-            class="msg">请输入不超过50个字符的名称</span>
+            v-if="formInline.templateName.length > 50 || repeatName" 
+            class="msg">{{templateNameFormat(formInline.templateName.length > 50, repeatName)}}</span>
         </span>
       </div>
       <div class="tabel">
@@ -525,7 +526,9 @@
             templateId = '';
             autoMationTemplate = '';
             echoAtuomation = {};
-            isRadio = false;"
+            isRadio = false;
+            templateName = '';
+            repeatName = false"
           >取 消</el-button>
         <el-button 
           size="mini" 
@@ -642,6 +645,7 @@ import {
   templateDetail,
   templateUpdate,
   templateStatus,
+  repeatName,
 } from '@/api/ppc/autoAd';
 import {
   stateExtendDict,
@@ -792,6 +796,11 @@ export default {
       isRadio: false,
       // 模板去重
       deduplication: true,
+
+      //模板名称重复
+      campaignId: '',
+      repeatName: false,
+      templateName: '',
     };
   },
 
@@ -1013,6 +1022,7 @@ export default {
 
     // 添加模板按钮
     handleTemplate(row, launch) {
+      this.campaignId = row.campaignId;
       if (launch) {
         this.launchFlag = true;
         this.formInline.templateType = '投放';
@@ -1210,6 +1220,13 @@ export default {
         });
         return true;
       }
+      if (this.repeatName) {
+        this.$message({
+          type: 'error',
+          message: '该模板名称已存在'
+        });
+        return true;
+      }
       if (this.formInline.templateName.length > 50) {
         this.$message({
           type: 'error',
@@ -1307,8 +1324,12 @@ export default {
           this.getTableData();
         }
       });
+
+      this.templateName = '';
+      this.repeatName = false;
     },
     createTemplate() {
+      
       // return
       const params = {
         templateName: this.formInline.templateName,
@@ -1371,6 +1392,9 @@ export default {
           this.getTableData();
         }
       });
+
+      this.templateName = '';
+      this.repeatName = false;
     },
 
     status(name, row, id) {
@@ -1395,6 +1419,7 @@ export default {
 
     // 模板详情
     templateDetail(id, row, launch) {
+      this.campaignId = row.campaignId;
       if (launch) {
         this.launchFlag = true;
         this.dialogName = '编辑投放';
@@ -1402,6 +1427,7 @@ export default {
         this.launchFlag = false;
         this.dialogName = '编辑搜索词';
       }
+      
       this.dialogCreateVisible = true; 
       this.rowData = row;
       this.ruleIs = true;
@@ -1410,6 +1436,7 @@ export default {
       this.updateBtn = true;
       this.adGroupPage.storeId = row.adStoreId;
       this.templateId = id;
+
       templateDetail({ id, campaignId: row.campaignId }).then(res => {
         if (res.data.code === 200) {
           const data = res.data.data;
@@ -1442,9 +1469,38 @@ export default {
           this.$nextTick(() => {
             this.automationIs = this.automationIs ? false : true;
           });
+          this.templateName = data.templateName;
         }
       });
     },
+
+    //模板名称校验
+    templateNameBlur(val) {
+      if (this.templateName === val.target.value) {
+        return;
+      }
+
+      repeatName({
+        name: val.target.value,
+        campaignId: this.campaignId,
+        templateType: this.launchFlag ? 2 : 1,
+      }).then(res => {
+        if (res.data.code === 500) {
+          this.repeatName = true;
+        } else {
+          this.repeatName = false;
+        }
+      });
+    },
+
+    // 模板名称校验提示处理
+    templateNameFormat(length, repeat) {
+      if (length) {
+        return '请输入不超过50个字符的名称';
+      } else if (repeat) {
+        return '该模板名称已存在';
+      }
+    }
 
   }
 };

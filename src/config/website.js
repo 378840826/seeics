@@ -31,6 +31,8 @@ export default {
     '/api/seeics-analysis/keyword-analyze/batch-analyze',
     // 智能广告-创建广告组校验
     '/api/seeics-analysis/automation-template/repeat-group',
+    // 智能广告-模板名称检验
+    '/api/seeics-analysis/automation-template/advertising-repeat-name',
   ],
   //配置首页不可关闭
   isFirstPage: false,
