@@ -406,7 +406,7 @@ export default {
         {
           name: this.searchGroup || name,
           campaignId: this.form.campaignId,
-          groupType: 'keyword',
+          groupType: this.treeSelectedKey.targetingType === 'auto' ? '' : this.groupType,
           size: 20,
           current: 1
         }).then(res => {
@@ -432,8 +432,8 @@ export default {
 
           const data = res.data.data.records.map(item => {
             return {
-              value: item.id,
-              id: item.id,
+              value: item.adGroupId,
+              id: item.adGroupId,
               label: item.name
             };
           });
