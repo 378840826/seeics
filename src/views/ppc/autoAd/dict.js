@@ -17,3 +17,26 @@ export const bidAdjustList = [
   '原始竞价', '过去7天CPC', '过去14天CPC', '过去21天CPC', '过去30天CPC',
   '固定竞价', '广告组默认竞价'
 ];
+
+export const flaotList = [
+    {
+      label: '--',
+      value: ''
+    },
+    {
+      label: '上浮(%)',
+      value: '上浮(%)'
+    },
+    {
+      label: '上浮(绝对值)',
+      value: '上浮(绝对值)'
+    },
+    {
+      label: '下调(%)',
+      value: '下调(%)'
+    },
+    {
+      label: '下调(绝对值)',
+      value: '下调(绝对值)'
+    },
+  ];
