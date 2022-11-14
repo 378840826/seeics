@@ -365,8 +365,8 @@ export default {
 
           const data = res.data.data.records.map(item => {
             return {
-              value: item.id,
-              id: item.id,
+              value: item.adGroupId,
+              id: item.adGroupId,
               label: item.name
             };
           });
@@ -493,7 +493,7 @@ export default {
 
         createDenyTargeting({
           storeId: this.storeId,
-          campaignId: this.treeSelectedInfo.campaignId,
+          campaignId: this.treeSelectedInfo.campaignId || this.form.campaignId,
           groupId: this.treeSelectedInfo.groupId || this.form.groupId,
           negativeTargetingAsinList: param,
         }).then(res => {
@@ -542,7 +542,7 @@ export default {
 
       createDenyTargeting({
         storeId: this.storeId,
-        campaignId: this.treeSelectedInfo.campaignId,
+        campaignId: this.treeSelectedInfo.campaignId || this.form.campaignId,
         groupId: this.treeSelectedInfo.groupId || this.form.groupId,
         negativeTargetingAsinList: param,
       }).then(res => {
