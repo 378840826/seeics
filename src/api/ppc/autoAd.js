@@ -160,3 +160,12 @@ export const createGroup = data => {
     data,
   });
 };
+
+// 模板名称检验
+export const repeatName = params => {
+  return request({
+    url: '/api/seeics-analysis/automation-template/advertising-repeat-name',
+    method: 'get',
+    params,
+  });
+};
