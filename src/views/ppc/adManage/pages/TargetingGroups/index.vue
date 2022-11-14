@@ -88,12 +88,40 @@
     <el-table-column prop="target" label="投放组" width="90" fixed />
 
     <el-table-column
-      v-if="customCols.includes('所属广告组')" 
+      v-if="customCols.includes('所属广告组') && !treeSelectedInfo.groupId" 
       prop="groupName" 
       label="所属广告组" 
-      width="200" 
+      min-width="200"
       sortable="custom"
-    />
+    >
+      <div slot-scope="{row}">
+        <i :class="`${stateIconDict[row.groupState]} ${row.groupState}`" />
+        <template v-if="row.campaignState !== 'archived' && row.groupState !== 'archived'">
+          <span class="link_name" @click="handleClickName(row, 'group')">{{ row.groupName }}</span>
+        </template>
+        <template v-else>
+          {{ row.groupName }}
+        </template>
+      </div>
+    </el-table-column>
+
+    <el-table-column
+      v-if="!treeSelectedInfo.campaignId" 
+      prop="campaignName" 
+      label="广告活动" 
+      min-width="200"
+      sortable="custom"
+    >
+      <div slot-scope="{row}">
+        <i :class="`${stateIconDict[row.campaignState]} ${row.campaignState}`" />
+        <template v-if="row.campaignState !== 'archived'">
+          <span class="link_name" @click="handleClickName(row, 'campaign')">{{ row.campaignName }}</span>
+        </template>
+        <template v-else>
+          {{ row.campaignName }}
+        </template>
+      </div>
+    </el-table-column>
 
     <el-table-column 
       v-if="customCols.includes('建议竞价')" 
@@ -142,6 +170,20 @@
       </el-table-column>
     </template>
   </el-table>
+
+  <!-- 分页器 -->
+  <el-pagination
+    :disabled="tableLoading"
+    @current-change="getList()"
+    @size-change="getList({ current: 1 })"
+    :current-page.sync="tablePageOption.currentPage"
+    :page-size.sync="tablePageOption.pageSize"
+    :total="tablePageOption.total"
+    :page-sizes="tablePageOption.pageSizes"
+    background
+    layout="total, sizes, prev, pager, next, jumper"
+    class="pagination"
+  />
 </div>
 
 <!-- 编辑弹窗 -->
@@ -175,8 +217,9 @@ import {
   defaultDateRange, 
   summaryMethod, 
   targetingGroupsCustomColsOptions as customColsOptions,
+  tablePageOption,
 } from '../../utils/options';
-import { stateNameDict } from '../../utils/dict';
+import { stateNameDict, stateIconDict } from '../../utils/dict';
 import DatePicker from '../../components/DatePicker';
 import CustomCols from '../../components/CustomCols';
 import EditDialog from './EditDialog';
@@ -221,6 +264,7 @@ export default {
     return {
       size: 'mini',
       stateNameDict,
+      stateIconDict,
       customColsOptions,
       summaryMethod,
       filter: {
@@ -229,11 +273,12 @@ export default {
       },
       // 自定义列显示
       customCols: [],
-      tableHeight: 'calc(100vh - 264px)',
+      tableHeight: 'calc(100vh - 294px)',
       tableData: [],
       tableTotalData: {},
       tableSelected: [],
       tableLoading: false,
+      tablePageOption: { ...tablePageOption },
       tableSort: { prop: '', order: '' },
       editDialogVisible: false,
       editData: {},
@@ -273,6 +318,8 @@ export default {
       // 排序参数格式化
       const sortParams = this.formatTableSortParams(this.tableSort);
       const queryParams = {
+        current: this.tablePageOption.currentPage,
+        size: this.tablePageOption.pageSize,
         ...sortParams,
         ...query,
       };
@@ -287,9 +334,12 @@ export default {
         ...body,
       };
       queryTargetingGroupsList(queryParams, bodyParams).then(res => {
-        this.tableData = res.data.data.page;
+        this.tableData = res.data.data.page.records;
+        this.tablePageOption.total = res.data.data.page.total;
+        this.tablePageOption.currentPage = res.data.data.page.current;
+        this.tablePageOption.pageSize = res.data.data.page.size;
         // 合计数据格式化
-        this.tableTotalData = getFormatTotal(res.data.data.total, this.currency);
+        this.tableTotalData = getFormatTotal(res.data.data.page.total, this.currency);
       }).finally(() => {
         this.tableLoading = false;
       });
@@ -311,6 +361,7 @@ export default {
     handleSortChange(val) {
       this.tableSort = { prop: val.prop, order: val.order };
       // 排序后回到第一页
+      this.tablePageOption.currentPage = 1;
       this.getList();
     },
 
@@ -464,6 +515,31 @@ export default {
         }
         this.updateTableData([row.id], { bid });
       });
+    },
+
+    // 点击广告活动/广告组名称
+    handleClickName(row, type) {
+      this.$log('handleClickName', row, type);
+      const { campaignId, campaignName, campaignState, groupId, groupName, campaignTargetType, groupType } = row;
+      let data = {
+        key: `${campaignState}-${campaignId}-${campaignTargetType}`,
+        campaignId,
+        campaignName,
+        targetingType: campaignTargetType,
+        campaignState,
+        isLeaf: false,
+      };
+      if (type === 'group') {
+        data.key = `${campaignState}-${campaignId}-${campaignTargetType}-${groupId}-${groupType}`;
+        data = {
+          ...data,
+          groupId,
+          groupName,
+          groupType,
+          isLeaf: true,
+        };
+      }
+      this.$emit('changeTreeSelected', data);
     },
 
     // 批量调整竞价保存

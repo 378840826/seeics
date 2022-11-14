@@ -55,15 +55,47 @@
   >
     <el-table-column type="selection" width="55" :selectable="selectableInit" />
 
-    <el-table-column prop="state" label="状态" width="94">
+    <el-table-column prop="state" label="状态" width="94" fixed>
       <span slot-scope="{row}" :class="row.state">{{ stateNameDict[row.state]}}</span>
     </el-table-column>
 
-    <el-table-column prop="targeting" label="商品" sortable="custom">
+    <el-table-column prop="targeting" label="商品" sortable="custom" width="200" fixed>
     </el-table-column>
 
-    <!-- 树选中广告活动时，显示广告组列 -->
-    <el-table-column v-if="!treeSelectedInfo.groupId" prop="groupName" label="广告组">
+    <el-table-column
+      v-if="!treeSelectedInfo.campaignId" 
+      prop="campaignName" 
+      label="广告活动" 
+      min-width="200"
+      sortable="custom"
+    >
+      <div slot-scope="{row}">
+        <i :class="`${stateIconDict[row.campaignState]} ${row.campaignState}`" />
+        <template v-if="row.campaignState !== 'archived'">
+          <span class="link_name" @click="handleClickName(row, 'campaign')">{{ row.campaignName }}</span>
+        </template>
+        <template v-else>
+          {{ row.campaignName }}
+        </template>
+      </div>
+    </el-table-column>
+
+    <el-table-column
+      v-if="!treeSelectedInfo.groupId" 
+      prop="groupName" 
+      label="广告组" 
+      min-width="200"
+      sortable="custom"
+    >
+      <div slot-scope="{row}">
+        <i :class="`${stateIconDict[row.groupState]} ${row.groupState}`" />
+        <template v-if="row.campaignState !== 'archived' && row.groupState !== 'archived'">
+          <span class="link_name" @click="handleClickName(row, 'group')">{{ row.groupName }}</span>
+        </template>
+        <template v-else>
+          {{ row.groupName }}
+        </template>
+      </div>
     </el-table-column>
 
     <el-table-column prop="addTime" label="添加时间" width="120" sortable="custom">
@@ -113,7 +145,7 @@ import {
   queryNeTargetingList,
   archiveNeTargeting,
 } from '@/api/ppc/adManage';
-import { stateNameDict } from '../../utils/dict';
+import { stateNameDict, stateIconDict } from '../../utils/dict';
 import { tablePageOption } from '../../utils/options';
 // import { log } from '@/util/util';
 import Search from '../../components/Search';
@@ -149,6 +181,7 @@ export default {
     return {
       size: 'mini',
       stateNameDict,
+      stateIconDict,
       filter: {
         search: '',
         state: '',
@@ -272,7 +305,7 @@ export default {
           storeId: this.storeId,
           campaignId: this.treeSelectedInfo.campaignId,
           archiveIds: list.map(item => (
-            { groupId: item.groupId, neTargetId: item.targetId, }
+            { groupId: item.groupId, neTargetId: item.targetId, campaignId: item.campaignId }
           )),
         };
       }

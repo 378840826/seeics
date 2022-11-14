@@ -47,7 +47,8 @@
 }
 
 // 归档
-.archived {
+.archived,
+.deleted {
   color: $disabledColor;
 
   &.el-select::v-deep {

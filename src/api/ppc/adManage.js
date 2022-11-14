@@ -194,12 +194,8 @@ export const modifyTargeting = (data) => {
 // 否定关键词
 // 否定关键词-列表
 export const queryNeKeywordList = (params, data) => {
-  // 区分广告活动和广告组
-  const campaign = '/api/seeics-ad/nekeyword/page';
-  const group = '/api/seeics-ad/nekeyword/group/page';
-  const url = data.dataSource === 'group' ? group : campaign;
   return request({
-    url,
+    url: '/api/seeics-ad/nekeyword/page',
     method: 'post',
     params,
     data,

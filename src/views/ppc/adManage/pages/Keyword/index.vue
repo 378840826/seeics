@@ -166,7 +166,6 @@
         <i :class="`${stateIconDict[row.campaignState]} ${row.campaignState}`" />
         <template v-if="row.campaignState !== 'archived'">
           <span class="link_name" @click="handleClickName(row, 'campaign')">{{ row.campaignName }}</span>
-          <i class="el-icon-edit table-edit-icon"></i>
         </template>
         <template v-else>
           {{ row.campaignName }}
