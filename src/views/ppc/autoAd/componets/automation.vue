@@ -32,14 +32,14 @@
         </el-popover>
     </div>
 
-    <div v-show="automatedOperation === '创建广告活动'" style="marginTop: 10px">
+    <!-- <div v-show="automatedOperation === '创建广告活动'" style="marginTop: 10px">
       <adCampaign 
         ref="adCampaign"
         :form.sync="form"
         :currency="rowData.currency"
         :adStoreId="rowData.adStoreId"
         :echoPortfolioId="echoPortfolioId"/>
-    </div>
+    </div> -->
 
     <el-table
       v-if="automatedOperation && (automatedOperation !== '创建广告组' && automatedOperation !== '创建广告活动') ? true : false || false"
@@ -317,11 +317,14 @@
         <adGroup
           ref="adCampaign1"
           :automatedOperation.sync="automatedOperation"
-          :echo="echoAdGroup1"
+          :echo="echoAdCampaign1"
           :campaign="campaign"
           :rowData="rowData"
           :type="1"
           :deduplication="echoDeduplication"
+          :campaignType="'关键词'"
+          :templateId="templateId"
+          :echoCampaign="echoCampaignInfo1"
         />
       </div>
 
@@ -329,22 +332,15 @@
         v-if="searchWord !== 1"
         ref="adCampaign2"
         :automatedOperation.sync="automatedOperation"
-        :echo="echoAdGroup2"
+        :echo="echoAdCampaign2"
         :campaign="campaign"
         :rowData="rowData"
         :type="2"
+        :campaignType="'商品'"
+        :templateId="templateId"
+        :echoCampaign="echoCampaignInfo2"
       />
     </div>
-
-    <!-- <div
-      v-show="automatedOperation === '创建广告活动'" class="explain">
-      <span style="fontWeight: 900">匹配方式去重： </span> <el-switch v-model="form.deduplication">
-      </el-switch>
-      <p>匹配方式去重规则：</p>
-      <p>若该店铺的广告组下已有相同的asin，相同的关键词和相同的匹配方式且广告活动状态、广告组状态，ASIN广告状态，关键词状态，均为开启，则跳过该</p>
-      <p>匹配方式继续为其他匹配方式创建广告活动；</p>
-      <p>默认开启，规则生效，用户可以关闭，规则失效，不校验关键词匹配方式，直接跟进用户选择的匹配方式创建广告活动；</p>
-    </div> -->
 
     <div class="explain">
       <p>操作要点</p>
@@ -432,10 +428,6 @@ export default {
     templateId: {
       type: String,
       require: true
-    },
-    deduplication: {
-      type: Boolean,
-      require: true,
     },
     searchWord: {
       type: Number,
@@ -620,10 +612,10 @@ export default {
         biddingStrategy: 'legacyForSales',
         frontPage: '20', //商品页面 百分比
         productPage: '0', //搜索结果顶部 百分比
-        deduplication: true, //去重
+        deduplication: 0, //去重
         portfolioId: '',
       },
-      echoPortfolioId: Object.keys(this.echo).length && this.echo.createAdvertisingCampaignDTO && this.echo.createAdvertisingCampaignDTO.portfolioId || '',
+      echoPortfolioId: this.echo && Object.keys(this.echo).length && this.echo.createAdvertisingCampaignDTO && this.echo.createAdvertisingCampaignDTO.portfolioId || '',
     };
   },
   mounted() {
@@ -753,7 +745,13 @@ export default {
     },
 
     budgetMsg() {
-      return this.$refs.adCampaign.msg();
+      if (this.searchWord === 1) {
+        return [this.$refs.adCampaign1.$refs.adCampaign.msg()];
+      } else if (this.searchWord === 2) {
+        return [this.$refs.adCampaign2.$refs.adCampaign.msg()];
+      } else if (this.searchWord === 3) {
+        return [this.$refs.adCampaign1.$refs.adCampaign.msg(), this.$refs.adCampaign2.$refs.adCampaign.msg()];
+      }
     },
 
     minValue(rule) {
@@ -813,8 +811,15 @@ export default {
       if (this.echo.automatedOperation === '创建广告组') {
 
         this.echoAdGroup1 = this.echo.adCampaignInfos.filter(item => item.type === 1);
-        this.echoDeduplication = this.deduplication;
+        // this.echoDeduplication = this.deduplication;
         this.echoAdGroup2 = this.echo.adCampaignInfos.filter(item => item.type === 2);
+
+      } else if (this.echo.automatedOperation === '创建广告活动') {
+
+        this.echoAdCampaign1 = this.echo.adCampaignInfos.filter(item => item.type === 1);
+        this.echoAdCampaign2 = this.echo.adCampaignInfos.filter(item => item.type === 2);
+        this.echoCampaignInfo1 = this.echo.createAdvertisingCampaignDTOList.filter(item => item.type === 1);
+        this.echoCampaignInfo2 = this.echo.createAdvertisingCampaignDTOList.filter(item => item.type === 2);
 
       } else {
 
@@ -835,7 +840,7 @@ export default {
         }
       }
       this.form = this.echo.createAdvertisingCampaignDTO;
-      this.form.deduplication = this.deduplication;
+      // this.form.deduplication = this.deduplication;
       this.automatedOperation = this.echo.automatedOperation;
       // console.log(this.echo.automatedOperation)
       this.tableData[this.tableData.length - 1].add = true;
@@ -870,14 +875,14 @@ export default {
           marketplace: this.rowData.marketplace,
           id: this.echo.id || null,
           campaignId: this.rowData.campaignId,
-          createAdvertisingCampaignDTO: {
-            ...this.form,
-            campaignId: this.rowData.campaignId,
-            templateId: this.templateId,
-            endTime: this.form.endTime && dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || null,
-            startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || null,
-          },
-          deduplication: 0
+          // createAdvertisingCampaignDTO: {
+          //   ...this.form,
+          //   campaignId: this.rowData.campaignId,
+          //   templateId: this.templateId,
+          //   endTime: this.form.endTime && dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || null,
+          //   startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || null,
+          // },
+          createAdvertisingCampaignDTOList: this.adCampaignFormat(this.searchWord),
         };
       } else {
         const data = this.tableData.map(item => {
@@ -912,6 +917,17 @@ export default {
       return obj;
       // console.log(this.$refs.adGroup1.getFiled(), this.$refs.adGroup2.getFiled())
     },
+
+    adCampaignFormat(val) {
+      if (val === 1) {
+        return [this.$refs.adCampaign1.getCampaignField()];
+      } else if (val === 2) {
+        return [this.$refs.adCampaign2.getCampaignField()];
+      } else if (val === 3) {
+        return [this.$refs.adCampaign1.getCampaignField(), this.$refs.adCampaign2.getCampaignField()];
+      }
+    },
+
     // 获取广告组
     getGroupList(value, index, flag) {
       getGroupList([value]).then(res => {

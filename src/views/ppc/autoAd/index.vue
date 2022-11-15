@@ -508,7 +508,6 @@
         :isGroupTabel.sync="isGroupTabel"
         :isRadio.sync="isRadio"
         :templateId.sync="templateId"
-        :deduplication.sync="deduplication"
         :searchWord.sync="searchWord"
         @verifyClose="verifyClose"
       />
@@ -794,8 +793,6 @@ export default {
       noShopDialog: false, // 没绑定店铺弹窗
       launchFlag: false, //投放弹窗判断
       isRadio: false,
-      // 模板去重
-      deduplication: true,
 
       //模板名称重复
       campaignId: '',
@@ -1103,36 +1100,54 @@ export default {
       let cpcValue = true;
       let minCpcMost = true;
       let maxCpcMost = true;
-
+      let startTime = true;
+      let frontPage = true;
+      let frontPageMax = true;
+      let productPage = true;
+      let productPageMax = true;
 
       if (params.automatedOperation === '创建广告活动') {
-        if (this.$refs.autoMation.budgetMsg()) {
+        params.createAdvertisingCampaignDTOList.map(item => {
+          if (!item.startTime) {
+            startTime = false;
+          } else if (!item.frontPage) {
+            frontPage = false;
+          } else if (item.frontPage > 900) {
+            frontPageMax = false;
+          } else if (!item.productPage) {
+            productPage = false;
+          } else if (item.productPage > 900) {
+            productPageMax = false;
+          }
+        });
+
+        if (this.$refs.autoMation.budgetMsg().filter(Boolean).length) {
           return true;
-        } else if (!params.createAdvertisingCampaignDTO.startTime) {
+        } else if (!startTime) {
           this.$message({
             type: 'error',
             message: '请选择日期范围开始时间'
           });
           return true;
-        } else if (!params.createAdvertisingCampaignDTO.frontPage) {
+        } else if (!frontPage) {
           this.$message({
             type: 'error',
             message: '搜索结果顶部不能为空'
           });
           return true;
-        } else if (params.createAdvertisingCampaignDTO.frontPage > 900) {
+        } else if (!frontPageMax) {
           this.$message({
             type: 'error',
             message: '搜索结果顶部大于900%'
           });
           return true;
-        } else if (!params.createAdvertisingCampaignDTO.productPage) {
+        } else if (!productPage) {
           this.$message({
             type: 'error',
             message: '商品页面不能为空'
           });
           return true;
-        } else if (params.createAdvertisingCampaignDTO.productPage > 900) {
+        } else if (!productPageMax) {
           this.$message({
             type: 'error',
             message: '商品页面大于900%'
@@ -1295,9 +1310,8 @@ export default {
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState,
         ruleType: this.radio,
-        excludeTerms: this.$refs.autoMation.automatedOperation === '创建广告活动' ? 1 : this.searchWord,
+        excludeTerms: this.searchWord,
         groupIdList: this.radio === 2 ? this.adGroupOption : [],
-        // deduplication: (this.$refs.autoMation.automatedOperation === '创建广告活动' || this.$refs.autoMation.automatedOperation === '创建广告组') && this.searchWord !== 2 && this.$refs.autoMation.form.deduplication ? 1 : 0 || 0
       };
 
       if (this.ruleMsg()) {
@@ -1342,9 +1356,8 @@ export default {
         automationTemplateId: this.autoMationTemplate,
         status: this.formInline.templateState,
         ruleType: this.radio,
-        excludeTerms: this.$refs.autoMation.automatedOperation === '创建广告活动' ? 1 : this.searchWord,
+        excludeTerms: this.searchWord,
         groupIdList: this.radio === 2 ? this.adGroupOption : [],
-        // deduplication: (this.$refs.autoMation.automatedOperation === '创建广告活动' || this.$refs.autoMation.automatedOperation === '创建广告组') && this.searchWord !== 2 && this.$refs.autoMation.form.deduplication ? 1 : 0 || 0
       };
 
       if (this.ruleMsg()) {
@@ -1451,12 +1464,11 @@ export default {
           this.echoAtuomation = data;
           this.adGroupOption = data.groupIdList;
           this.formInline.templateType = data.templateType;
-          this.deduplication = data.deduplication ? true : false;
           this.getAutomationList(this.formInline.templateType);
           data.groupIdList && data.groupIdList.map(item => {
             this.adGroupVal.push(item.groupId);
           });
-          this.searchWord = this.isRadio ? 3 : data.excludeTerms;
+          this.searchWord = data.excludeTerms;
           this.radio = 2;
           this.isGroupTabel = this.isGroupTabel ? false : true;
           this.$nextTick(() => {

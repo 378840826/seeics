@@ -1,6 +1,18 @@
 <template>
   <div class="sa">
 
+    <div v-show="automatedOperation === '创建广告活动'" style="marginTop: 10px">
+      <adCampaign 
+        ref="adCampaign"
+        :rowData="rowData"
+        :currency="rowData.currency"
+        :adStoreId="rowData.adStoreId"
+        :echoPortfolioId="echoPortfolioId"
+        :type="campaignType"
+        :templateId="templateId"
+        :echoCampaign="echoCampaign"/>
+    </div>
+
     <el-table
       :data="tableData"
       :header-cell-style="{'text-align':'center'}"
@@ -218,8 +230,12 @@
 
 <script>
 
+import adCampaign from './adCampaign.vue';
+
 export default {
   name: 'automatic',
+
+  components: { adCampaign },
 
   props: {
     echo: {
@@ -243,6 +259,15 @@ export default {
       type: Number,
       require: true
     },
+    campaignType: {
+      type: String
+    },
+    templateId: {
+      type: String,
+    },
+    echoCampaign: {
+      type: Array,
+    }
   },
   data() {
     const format = (val) => {
@@ -396,22 +421,24 @@ export default {
       msg: false,
       isAutoShow: true,
       launch: false,
+      deduplication: true,
 
+      // 创建广告活动
       form: {
         id: '',
-        campaignName: '',
+        campaignName: this.rowData.name,
         dailyBudget: '',
-        campaignId: '',
-        templateId: '',
+        campaignId: this.rowData.campaignId,
+        templateId: this.templateId,
         endTime: '',
         startTime: Date.now(),
         deliveryType: 'manual',
         biddingStrategy: 'legacyForSales',
         frontPage: '20', //商品页面 百分比
         productPage: '0', //搜索结果顶部 百分比
-        deduplication: true,
+        deduplication: 0, //去重
+        portfolioId: '',
       },
-      deduplication: true,
     };
   },
 
@@ -569,6 +596,12 @@ export default {
       });
       return obj;
     },
+
+    getCampaignField() {
+      return this.$refs.adCampaign.getField();
+    },
+
+
     bidTypeSelect(index) {
       this.tableData[index].bid = '';
       if (this.tableData[index].bidType === '广告组默认竞价' || this.tableData[index].bidType === '固定竞价') {
