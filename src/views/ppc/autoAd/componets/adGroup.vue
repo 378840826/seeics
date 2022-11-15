@@ -1,6 +1,18 @@
 <template>
   <div class="sa">
 
+    <div v-show="automatedOperation === '创建广告活动'" style="marginTop: 10px">
+      <adCampaign 
+        ref="adCampaign"
+        :rowData="rowData"
+        :currency="rowData.currency"
+        :adStoreId="rowData.adStoreId"
+        :echoPortfolioId="echoPortfolioId"
+        :type="campaignType"
+        :templateId="templateId"
+        :echoCampaign="echoCampaign"/>
+    </div>
+
     <el-table
       :data="tableData"
       :header-cell-style="{'text-align':'center'}"
@@ -197,7 +209,16 @@
     </el-table>
 
     <div v-show="type === 1" class="explain">
-      <span style="fontWeight: 900">匹配方式去重： </span> <el-switch v-model="form.deduplication">
+      <span style="fontWeight: 900">匹配方式去重： </span> <el-switch v-model="deduplication">
+      </el-switch>
+      <p>匹配方式去重规则：</p>
+      <p>若该店铺的广告组下已有相同的asin，相同的关键词和相同的匹配方式且广告活动状态、广告组状态，ASIN广告状态，关键词状态，均为开启，则跳过该</p>
+      <p>匹配方式继续为其他匹配方式创建广告活动；</p>
+      <p>默认开启，规则生效，用户可以关闭，规则失效，不校验关键词匹配方式，直接跟进用户选择的匹配方式创建广告活动；</p>
+    </div>
+
+    <div v-show="type === 2" class="explain">
+      <span style="fontWeight: 900">商品投放去重： </span> <el-switch v-model="deduplication">
       </el-switch>
       <p>匹配方式去重规则：</p>
       <p>若该店铺的广告组下已有相同的asin，相同的关键词和相同的匹配方式且广告活动状态、广告组状态，ASIN广告状态，关键词状态，均为开启，则跳过该</p>
@@ -209,10 +230,12 @@
 
 <script>
 
-import dayjs from 'dayjs';
+import adCampaign from './adCampaign.vue';
 
 export default {
   name: 'automatic',
+
+  components: { adCampaign },
 
   props: {
     echo: {
@@ -221,9 +244,6 @@ export default {
     },
     templateType: {
       type: String
-    },
-    deduplication: {
-      type: Boolean
     },
     automatedOperation: {
       type: String
@@ -239,6 +259,15 @@ export default {
       type: Number,
       require: true
     },
+    campaignType: {
+      type: String
+    },
+    templateId: {
+      type: String,
+    },
+    echoCampaign: {
+      type: Array,
+    }
   },
   data() {
     const format = (val) => {
@@ -392,20 +421,23 @@ export default {
       msg: false,
       isAutoShow: true,
       launch: false,
+      deduplication: true,
 
+      // 创建广告活动
       form: {
         id: '',
-        campaignName: '',
+        campaignName: this.rowData.name,
         dailyBudget: '',
-        campaignId: '',
-        templateId: '',
+        campaignId: this.rowData.campaignId,
+        templateId: this.templateId,
         endTime: '',
         startTime: Date.now(),
         deliveryType: 'manual',
         biddingStrategy: 'legacyForSales',
         frontPage: '20', //商品页面 百分比
         productPage: '0', //搜索结果顶部 百分比
-        deduplication: true,
+        deduplication: 0, //去重
+        portfolioId: '',
       },
     };
   },
@@ -542,8 +574,8 @@ export default {
           matchType: item.matchType && item.matchType.split(',') || ['精准匹配']
         };
       });
+      this.deduplication = this.tableData[0].deduplication ? true : false;
       this.tableData[this.tableData.length - 1].add = true;
-      this.form.deduplication = this.deduplication;
     },
     getFiled() {
       const obj = this.tableData.map(item => {
@@ -558,11 +590,18 @@ export default {
           adjustTheValue: item.adjustTheValue,
           bidLimitValue: item.bidLimitValue,
           customText: item.customText,
-          type: this.type  
+          type: this.type,
+          deduplication: this.deduplication ? 1 : 0,
         };
       });
       return obj;
     },
+
+    getCampaignField() {
+      return this.$refs.adCampaign.getField();
+    },
+
+
     bidTypeSelect(index) {
       this.tableData[index].bid = '';
       if (this.tableData[index].bidType === '广告组默认竞价' || this.tableData[index].bidType === '固定竞价') {
