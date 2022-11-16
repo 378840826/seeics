@@ -184,6 +184,9 @@ export default {
       type: Object,
       default: new Object
     },
+    echoField: {
+      type: Array,
+    },
   },
   
   data() {
@@ -352,12 +355,22 @@ export default {
           }
         );
         this.data[this.data.length - 2].add = false;
+        console.log(this.data)
       }
     },
 
     handleDelete(idx) {
       this.data.splice(idx, 1);
       this.data[this.data.length - 1].add = true;
+    },
+
+    getField() {
+      console.log(this.data)
+      return this.data;
+    },
+
+    echoField() {
+
     }
   }
 };

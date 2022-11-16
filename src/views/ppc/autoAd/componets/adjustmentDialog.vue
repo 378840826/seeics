@@ -89,8 +89,14 @@
             :name="item.week"
             class="ditto"
           >
-            <el-button v-if="index" size="mini" type="primary" class="is-ditto">同上</el-button>
+            <el-button
+              v-if="index"
+              @click="handleDitto(item.week, index)"
+              size="mini"
+              type="primary"
+              class="is-ditto">同上</el-button>
             <adjustemnt-tabel
+              :ref="'table_' + index"
               :rowData="rowData"
             />
          </el-collapse-item>
@@ -130,7 +136,14 @@ export default {
     return {
       weekList,
       activeNames: [],
-      executionFrequency: '每天'
+      executionFrequency: '每天',
+      echoTabel: [],
+      echoTabe2: [],
+      echoTabe3: [],
+      echoTabe4: [],
+      echoTabe5: [],
+      echoTabe6: [],
+      echoTabe7: [],
     };
   },
 
@@ -144,6 +157,11 @@ export default {
         console.log(weekList.filter(item => item.type === 'weekend'))
         return weekList.filter(item => item.type === 'weekend');
       }
+    },
+
+    handleDitto(val, idx) {
+      
+      console.log(this.$refs['table_' + (idx - 1)][0].getField(), idx)
     }
   }
 };
