@@ -131,7 +131,7 @@ export function getCommonColOption(currency) {
       label: '订单量',
       prop: 'orderNum',
       formatter: (value) => getValueLocaleString({ value }),
-      width: 100,
+      width: 90,
     }, {
       label: 'CPC',
       prop: 'cpc',

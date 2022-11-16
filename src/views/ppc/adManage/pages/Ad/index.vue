@@ -233,7 +233,6 @@
       <template slot-scope="{row}">
         <el-button
           @click="handleCharts(row)"
-          style="color: #C0C4CC"
           type="text"
           :size="size"
         >分析</el-button>
@@ -255,6 +254,16 @@
     class="pagination"
   />
 </div>
+
+<!-- 数据分析弹窗 -->
+<DataCharts
+  v-if="dataChartsVisible"
+  :visible.sync="dataChartsVisible"
+  :currency="currency"
+  :rowData="dataChartsRow"
+  :namePath="dataChartsNamePath"
+  :pageType="pageType"
+/>
 
 <!-- 创建广告弹窗 -->
 <create-ad
@@ -280,12 +289,12 @@ import {
   summaryMethod, 
   adCustomColsOptions as customColsOptions,
 } from '../../utils/options';
-import { log } from '@/util/util';
 import Goods from './Goods';
 import Search from '../../components/Search';
 import DatePicker from '../../components/DatePicker';
 import CustomCols from '../../components/CustomCols';
 import FilterMore from '../../components/FilterMore';
+import DataCharts from '../../components/DataCharts';
 import FilterCrumbs, { notRangeKeys } from '../../components/FilterCrumbs';
 import {
   getValueLocaleString,
@@ -306,6 +315,7 @@ export default {
     CustomCols,
     FilterMore,
     FilterCrumbs,
+    DataCharts,
     CreateAd,
   },
 
@@ -356,6 +366,11 @@ export default {
       tableLoading: false,
       tablePageOption: { ...tablePageOption },
       tableSort: { prop: 'addTime', order: 'descending' },
+      // 数据分析
+      dataChartsVisible: false,
+      pageType: 'ad',
+      dataChartsRow: {},
+      dataChartsNamePath: [],
       createDialogVisible: false,
     };
   },
@@ -637,7 +652,9 @@ export default {
 
     // 点击分析
     handleCharts(row) {
-      log('分析', row);
+      this.dataChartsNamePath = [row.campaignName, row.groupName, row.asin];
+      this.dataChartsVisible = true;
+      this.dataChartsRow = { ...row, entityId: row.id };
     },
   },
 

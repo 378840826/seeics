@@ -53,6 +53,58 @@ export const updatePortfolio = params => {
   });
 };
 
+
+// 数据分析
+// 数据分析-统计数据
+export const queryAnalyseStatistic = (pageType, data) => {
+  const urls = {
+    campaign: '/api/seeics-ad/campaign/analyse/summary',
+    group: '/api/seeics-ad/group/analyse/summary',
+    ad: '/api/seeics-ad/product/analyse/summary',
+    keyword: '/api/seeics-ad/keyword/analyse/summary',
+    targeting: '/api/seeics-ad/targeting/analyse/summary',
+  };
+  return request({
+    url: urls[pageType],
+    method: 'post',
+    data,
+  });
+};
+
+// 数据分析-列表
+export const queryAnalyseList = (pageType, data) => {
+  const urls = {
+    campaign: '/api/seeics-ad/campaign/analyse/list',
+    group: '/api/seeics-ad/group/analyse/list',
+    ad: '/api/seeics-ad/product/analyse/list',
+    keyword: '/api/seeics-ad/keyword/analyse/list',
+    targeting: '/api/seeics-ad/targeting/analyse/list',
+  };
+  return request({
+    url: urls[pageType],
+    method: 'post',
+    data,
+  });
+};
+
+// 数据分析-下载
+export const downloadAnalysisTable = (pageType, data) => {
+  const urls = {
+    campaign: '/api/seeics-ad/campaign/analyse/download',
+    group: '/api/seeics-ad/group/analyse/download',
+    ad: '/api/seeics-ad/product/analyse/download',
+    keyword: '/api/seeics-ad/keyword/analyse/download',
+    targeting: '/api/seeics-ad/targeting/analyse/download',
+  };
+  return request({
+    url: urls[pageType],
+    method: 'post',
+    data,
+    responseType: 'blob',
+  });
+};
+
+
 // 广告活动
 // 广告活动-列表
 export const queryCampaignList = (params, data) => {
@@ -81,7 +133,6 @@ export const modifyCampaign = (data) => {
     data,
   });
 };
-
 
 // 广告组
 // 广告组-列表
