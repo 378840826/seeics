@@ -262,7 +262,6 @@
       <template slot-scope="{row}">
         <el-button
           @click="handleCharts(row)"
-          style="color: #C0C4CC"
           type="text"
           :size="size"
         >分析</el-button>
@@ -295,6 +294,16 @@
   @save="handleEditSave"
 />
 
+<!-- 数据分析弹窗 -->
+<DataCharts
+  v-if="dataChartsVisible"
+  :visible.sync="dataChartsVisible"
+  :currency="currency"
+  :rowData="dataChartsRow"
+  :namePath="dataChartsNamePath"
+  :pageType="pageType"
+/>
+
 <!-- 添加关键词 -->
 <create-keword
   v-if="createDialogVisible"
@@ -322,11 +331,11 @@ import {
   summaryMethod, 
   keywordCustomColsOptions as customColsOptions,
 } from '../../utils/options';
-import { log } from '@/util/util';
 import Search from '../../components/Search';
 import DatePicker from '../../components/DatePicker';
 import CustomCols from '../../components/CustomCols';
 import FilterMore from '../../components/FilterMore';
+import DataCharts from '../../components/DataCharts';
 import EditDialog from './EditDialog';
 import FilterCrumbs, { notRangeKeys } from '../../components/FilterCrumbs';
 import {
@@ -348,6 +357,7 @@ export default {
     FilterMore,
     FilterCrumbs,
     EditDialog,
+    DataCharts,
     CreateKeword,
   },
 
@@ -403,6 +413,11 @@ export default {
       editData: {},
       // 点击哪个编辑图标激活的弹窗
       editKey: '',
+      // 数据分析
+      dataChartsVisible: false,
+      pageType: 'keyword',
+      dataChartsRow: {},
+      dataChartsNamePath: [],
       suggestedBidLoading: false,
       createDialogVisible: false,
     };
@@ -769,7 +784,9 @@ export default {
 
     // 点击分析
     handleCharts(row) {
-      log('分析', row);
+      this.dataChartsNamePath = [row.campaignName, row.groupName, row.keywordText];
+      this.dataChartsVisible = true;
+      this.dataChartsRow = { ...row, entityId: row.keywordId };
     },
   },
 
