@@ -3,7 +3,13 @@
     <h3 v-if="type">▌广告活动（{{type === '商品' ? '商品' : '关键词'}}）</h3>
     <div style="display: flex;">
         <span style="width: 130px">广告活动名称：</span>
-        <span>ASIN+MSKU+关键词+匹配方式+日期时间+
+        <span>{{type === '商品' ? 'ASIN+MSKU+搜索词（ASIN）+ ' : 'ASIN+MSKU+关键词+匹配方式+'}}
+          <span style="position: relative">日期时间
+            <el-tooltip class="item" effect="dark" content="日期时间为站点时间；" placement="bottom">
+              <i style="position: absolute;top: -3px;left: 50px;" class="el-icon-question"></i>
+            </el-tooltip>
+          </span>
+           +
           <el-input v-model="form.campaignName" placeholder="请输入自定义文本；" style="width: 200px"/>
         </span>
       </div>
