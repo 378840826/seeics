@@ -810,16 +810,17 @@ export default {
       }
       if (this.echo.automatedOperation === '创建广告组') {
 
-        this.echoAdGroup1 = this.echo.adCampaignInfos.filter(item => item.type === 1);
+        this.echoAdGroup1 = this.echo.adCampaignInfos.filter(item => item.type === 1) || [];
         // this.echoDeduplication = this.deduplication;
-        this.echoAdGroup2 = this.echo.adCampaignInfos.filter(item => item.type === 2);
+        this.echoAdGroup2 = this.echo.adCampaignInfos.filter(item => item.type === 2) || [];
 
       } else if (this.echo.automatedOperation === '创建广告活动') {
 
-        this.echoAdCampaign1 = this.echo.adCampaignInfos.filter(item => item.type === 1);
-        this.echoAdCampaign2 = this.echo.adCampaignInfos.filter(item => item.type === 2);
-        this.echoCampaignInfo1 = this.echo.createAdvertisingCampaignDTOList.filter(item => item.type === 1);
-        this.echoCampaignInfo2 = this.echo.createAdvertisingCampaignDTOList.filter(item => item.type === 2);
+        this.echoAdCampaign1 = this.echo.adCampaignInfos.filter(item => item.type === 1) || [];
+        this.echoAdCampaign2 = this.echo.adCampaignInfos.filter(item => item.type === 2) || [];
+        this.echoCampaignInfo1 = this.echo.createAdvertisingCampaignDTOList.filter(item => item.type === 1) || [];
+        
+        this.echoCampaignInfo2 = this.echo.createAdvertisingCampaignDTOList.filter(item => item.type === 2) || [];
 
       } else {
 

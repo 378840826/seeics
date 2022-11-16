@@ -224,9 +224,9 @@ export default {
 
     const format = (val) => {
       if (val === '商品') {
-        return 1;
-      } else if (val === '关键词') {
         return 2;
+      } else if (val === '关键词') {
+        return 1;
       }
     };
 
@@ -424,7 +424,8 @@ export default {
     },
 
     echo() {
-      this.form = this.echoCampaign[0];
+      this.form = this.echoCampaign.length && this.echoCampaign[0] || this.form;
+      console.log(this.echoCampaign)
     }
   }
 };
