@@ -39,6 +39,22 @@
   </el-select>
 
   <el-select
+    v-model="filter.groupType"
+    clearable
+    placeholder="投放类型"
+    :size="size"
+    class="filter-select"
+    @change="handleGroupTypeChange"
+  >
+    <el-option
+      v-for="(val,key) in groupTypeDict"
+      :key="key"
+      :label="val"
+      :value="key"
+    />
+  </el-select>
+
+  <el-select
     v-model="filter.state"
     clearable
     multiple
@@ -399,7 +415,7 @@ import {
   modifyCampaignState,
   modifyCampaign,
 } from '@/api/ppc/adManage';
-import { stateNameDict, targetingTypeDict, biddingStrategyDict } from '../../utils/dict';
+import { stateNameDict, targetingTypeDict, groupTypeDict, biddingStrategyDict } from '../../utils/dict';
 import {
   tablePageOption, 
   defaultDateRange, 
@@ -470,6 +486,7 @@ export default {
       customColsOptions,
       stateNameDict,
       targetingTypeDict,
+      groupTypeDict,
       biddingStrategyDict,
       summaryMethod,
       portfolioCheckedAll: false,
@@ -477,6 +494,7 @@ export default {
         search: '',
         state: [],
         targetingType: '',
+        groupType: '',
         dateRange: defaultDateRange,
         portfolioIds: [],
         more: {},
@@ -514,6 +532,7 @@ export default {
       };
       this.filter.search && (obj.search = this.filter.search);
       this.filter.targetingType && (obj.targetingType = targetingTypeDict[this.filter.targetingType]);
+      this.filter.groupType && (obj.groupType = groupTypeDict[this.filter.groupType]);
       this.filter.state.length && (obj.state = this.filter.state.map(s => stateNameDict[s]).toString());
       this.filter.portfolioIds.length && (obj.portfolios = this.filter.portfolioList.map(item => item.name));
       return obj;
@@ -556,6 +575,7 @@ export default {
         state: this.filter.state,
         search: this.filter.search,
         targetingType: this.filter.targetingType,
+        groupType: this.filter.groupType,
         startTime: this.filter.dateRange[0],
         endTime: this.filter.dateRange[1],
         ...this.filter.more,
@@ -577,6 +597,7 @@ export default {
     handleSearch(val) {
       this.filter.search = val;
       this.filter.targetingType = '';
+      this.filter.groupType = '';
       this.filter.portfolioIds = [];
       // 清空并收起高级筛选
       this.filter.more = {};
@@ -595,6 +616,12 @@ export default {
     // 投放方式筛选
     handleTargetingTypeChange(val) {
       this.filter.targetingType = val;
+      this.getList({ current: 1 });
+    },
+
+    // 投放类型筛选
+    handleGroupTypeChange(val) {
+      this.filter.groupType = val;
       this.getList({ current: 1 });
     },
 
@@ -649,6 +676,7 @@ export default {
         search: '',
         state: [],
         targetingType: '',
+        groupType: '',
         portfolioIds: [],
         dateRange: [...this.filter.dateRange],
         more: {},
@@ -864,8 +892,7 @@ export default {
       let h = 326;
       this.$nextTick(function() {
         if (Object.keys(this.filterCrumbsConditions).length) {
-          const margin = 10;
-          h = h + this.$refs.refFilterCrumbs.$el.offsetHeight + margin;
+          h = h + this.$refs.refFilterCrumbs.$el.offsetHeight;
         }
         this.tableHeight = `calc(100vh - ${h}px)`;
       });

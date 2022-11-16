@@ -776,8 +776,7 @@ export default {
       let h = 326;
       this.$nextTick(function() {
         if (Object.keys(this.filterCrumbsConditions).length) {
-          const margin = 10;
-          h = h + this.$refs.refFilterCrumbs.$el.offsetHeight + margin;
+          h = h + this.$refs.refFilterCrumbs.$el.offsetHeight;
         }
         this.tableHeight = `calc(100vh - ${h}px)`;
       });

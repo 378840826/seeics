@@ -27,6 +27,22 @@
     />
   </el-select>
 
+  <el-select
+    v-model="filter.groupType"
+    clearable
+    placeholder="投放类型"
+    :size="size"
+    class="filter-select"
+    @change="handleGroupTypeChange"
+  >
+    <el-option
+      v-for="(val,key) in groupTypeDict"
+      :key="key"
+      :label="val"
+      :value="key"
+    />
+  </el-select>
+
   <el-button
     :type="filterMoreVisible ? 'primary' : ''"
     class="filter_more-btn"
@@ -320,7 +336,7 @@ import {
   modifyGroupState,
   modifyGroup,
 } from '@/api/ppc/adManage';
-import { stateNameDict, stateIconDict } from '../../utils/dict';
+import { stateNameDict, groupTypeDict, stateIconDict } from '../../utils/dict';
 import {
   tablePageOption, 
   defaultDateRange, 
@@ -384,9 +400,11 @@ export default {
       customColsOptions,
       stateIconDict,
       stateNameDict,
+      groupTypeDict,
       summaryMethod,
       filter: {
         search: '',
+        groupType: '',
         state: [],
         dateRange: defaultDateRange,
         more: {},
@@ -427,6 +445,7 @@ export default {
         ...this.filter.more,
       };
       this.filter.search && (obj.search = this.filter.search);
+      this.filter.groupType && (obj.groupType = groupTypeDict[this.filter.groupType]);
       this.filter.state.length && (obj.state = this.filter.state.map(s => stateNameDict[s]).toString());
       return obj;
     },
@@ -462,6 +481,7 @@ export default {
         portfolioId: this.treeSelectedInfo.portfolioId,
         campaignId: this.treeSelectedInfo.campaignId,
         state: this.filter.state,
+        groupType: this.filter.groupType,
         search: this.filter.search,
         startTime: this.filter.dateRange[0],
         endTime: this.filter.dateRange[1],
@@ -484,6 +504,7 @@ export default {
     handleSearch(val) {
       this.filter.search = val;
       this.filter.state = [];
+      this.filter.groupType = '';
       // 清空并收起高级筛选
       this.filter.more = {};
       this.filterMoreVisible = false;
@@ -494,6 +515,12 @@ export default {
     // 状态筛选
     handleStateChange(val) {
       this.filter.state = val;
+      this.getList({ current: 1 });
+    },
+
+    // 投放类型筛选
+    handleGroupTypeChange(val) {
+      this.filter.groupType = val;
       this.getList({ current: 1 });
     },
 
@@ -531,6 +558,7 @@ export default {
     handleEmptyCrumbs() {
       this.filter = {
         search: '',
+        groupType: '',
         state: [],
         dateRange: [...this.filter.dateRange],
         more: {},
@@ -727,8 +755,7 @@ export default {
       let h = 326;
       this.$nextTick(function() {
         if (Object.keys(this.filterCrumbsConditions).length) {
-          const margin = 10;
-          h = h + this.$refs.refFilterCrumbs.$el.offsetHeight + margin;
+          h = h + this.$refs.refFilterCrumbs.$el.offsetHeight;
         }
         this.tableHeight = `calc(100vh - ${h}px)`;
       });
