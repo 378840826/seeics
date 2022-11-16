@@ -202,7 +202,7 @@
          <el-button 
            type="text"
            @click="add"
-           :disabled="!scope.row.add || scope.row.addDisabled"
+           :disabled="addDisabled(!scope.row.add, scope.row.addDisabled)"
         >+添加</el-button>
         </template>
       </el-table-column>
@@ -480,6 +480,15 @@ export default {
   },
   
   methods: {
+
+    addDisabled(add, addDisabled) {
+      if (this.automatedOperation === '创建广告活动') {
+        return true;
+      // eslint-disable-next-line no-else-return
+      } else {
+        return add || addDisabled;
+      }
+    },
 
     budgetMsg() {
       return this.$refs.adCampaign.msg();
