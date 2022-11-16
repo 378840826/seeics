@@ -83,12 +83,13 @@
         @change="handleChange"
         style="borderTop: none; borderBottom: none">
          <el-collapse-item
-            v-for="item in weekListFormat()"
+            v-for="(item, index) in weekListFormat()"
             :key="item.week"
             :title="item.week"
             :name="item.week"
+            class="ditto"
           >
-            <span slot="title">{{item.week}}</span>
+            <el-button v-if="index" size="mini" type="primary" class="is-ditto">同上</el-button>
             <adjustemnt-tabel
               :rowData="rowData"
             />
@@ -171,5 +172,15 @@ export default {
 
   ::v-deep .el-collapse-item__wrap {
     border: none;
+  }
+
+  .ditto {
+    position: relative;
+  }
+
+  .is-ditto {
+    position: absolute;
+    top: 0;
+    left: 270px;
   }
 </style>
