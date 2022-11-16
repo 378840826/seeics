@@ -64,20 +64,31 @@
           label="调价频率"
         >
           <el-select
+            v-model="executionFrequency"
             size="mini"
             class="label-width"
-          />
+          >
+            <el-option label="每天" value="每天"/>
+            <el-option label="每周" value="每周"/>
+            <el-option label="工作日" value="工作日"/>
+            <el-option label="周末" value="周末"/>
+          </el-select>
         </el-form-item>
 
       </el-form>
 
-      <el-collapse v-model="activeNames" @change="handleChange" style="borderTop: none; borderBottom: none">
+      <el-collapse
+        v-if="executionFrequency !== '每天'"
+        v-model="activeNames"
+        @change="handleChange"
+        style="borderTop: none; borderBottom: none">
          <el-collapse-item
-            v-for="item in weekList"
+            v-for="item in weekListFormat()"
             :key="item.week"
             :title="item.week"
             :name="item.week"
           >
+            <span slot="title">{{item.week}}</span>
             <adjustemnt-tabel
               :rowData="rowData"
             />
@@ -85,6 +96,7 @@
       </el-collapse>
 
       <adjustemnt-tabel
+        v-else
         :rowData="rowData"
       />
     </el-dialog>
@@ -116,8 +128,22 @@ export default {
   data() {
     return {
       weekList,
-      activeNames: []
+      activeNames: [],
+      executionFrequency: '每天'
     };
+  },
+
+  methods: {
+    weekListFormat() {
+      if (this.executionFrequency === '每周') {
+        return weekList;
+      } else if (this.executionFrequency === '工作日') {
+        return weekList.filter(item => item.type !== 'weekend');
+      } else {
+        console.log(weekList.filter(item => item.type === 'weekend'))
+        return weekList.filter(item => item.type === 'weekend');
+      }
+    }
   }
 };
 </script>
