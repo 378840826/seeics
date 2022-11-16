@@ -633,6 +633,7 @@
 
     <adjustment-dialog
       :dialogVisible="true"
+      :rowData="rowData"
     />
   </basic-container>
 </template>

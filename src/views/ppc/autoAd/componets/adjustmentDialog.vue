@@ -59,9 +59,34 @@
           </el-form-item>
         </el-col>
         </el-row>
+
+        <el-form-item
+          label="调价频率"
+        >
+          <el-select
+            size="mini"
+            class="label-width"
+          />
+        </el-form-item>
+
       </el-form>
 
-      <adjustemnt-tabel />
+      <el-collapse v-model="activeNames" @change="handleChange" style="borderTop: none; borderBottom: none">
+         <el-collapse-item
+            v-for="item in weekList"
+            :key="item.week"
+            :title="item.week"
+            :name="item.week"
+          >
+            <adjustemnt-tabel
+              :rowData="rowData"
+            />
+         </el-collapse-item>
+      </el-collapse>
+
+      <adjustemnt-tabel
+        :rowData="rowData"
+      />
     </el-dialog>
   </div>
 </template>
@@ -69,6 +94,7 @@
 <script>
 
 import adjustemntTabel from './adjustmentTabel.vue';
+import { weekList } from '../dict';
 
 export default {
 
@@ -81,6 +107,17 @@ export default {
       type: Boolean,
       require: true,
     },
+    rowData: {
+      type: Object,
+      default: new Object
+    },
+  },
+
+  data() {
+    return {
+      weekList,
+      activeNames: []
+    };
   }
 };
 </script>
@@ -88,5 +125,25 @@ export default {
 <style lang="scss" scoped>
   .label-width {
     width: 250px;
+  }
+
+  .collapse {
+    padding: 12px 0 0;
+    height: 26px;
+  }
+
+  ::v-deep .el-collapse-item__header {
+    width: 250px;
+    background: rgba(51,153,255,.6);
+    color: #fff;
+    border: none;
+    height: 26px;
+    border-radius: 2px;
+    margin-bottom: 10px;
+    padding: 0px 0px 0px 10px;
+  }
+
+  ::v-deep .el-collapse-item__wrap {
+    border: none;
   }
 </style>

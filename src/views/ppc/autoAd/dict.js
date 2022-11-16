@@ -19,24 +19,31 @@ export const bidAdjustList = [
 ];
 
 export const flaotList = [
-    {
-      label: '--',
-      value: ''
-    },
-    {
-      label: '上浮(%)',
-      value: '上浮(%)'
-    },
-    {
-      label: '上浮(绝对值)',
-      value: '上浮(绝对值)'
-    },
-    {
-      label: '下调(%)',
-      value: '下调(%)'
-    },
-    {
-      label: '下调(绝对值)',
-      value: '下调(绝对值)'
-    },
-  ];
+  {
+    label: '--',
+    value: ''
+  },
+  {
+    label: '上浮(%)',
+    value: '上浮(%)'
+  },
+  {
+    label: '上浮(绝对值)',
+    value: '上浮(绝对值)'
+  },
+  {
+    label: '下调(%)',
+    value: '下调(%)'
+  },
+  {
+    label: '下调(绝对值)',
+    value: '下调(绝对值)'
+  },
+];
+
+export const weekList = [
+  { week: '星期一', type: 'word' }, { week: '星期二', type: 'word' },
+  { week: '星期三', type: 'word' }, { week: '星期四', type: 'word' },
+  { week: '星期五', type: 'word' }, { week: '星期六', type: 'weekend' },
+  { week: '星期天', type: 'weekend' },
+];
