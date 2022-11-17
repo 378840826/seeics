@@ -265,8 +265,8 @@ export default {
         id: '',
         campaignName: '',
         dailyBudget: '',
-        campaignId: this.rowData.campaignId,
-        templateId: this.templateId,
+        campaignId: this.rowData && this.rowData.campaignId || '',
+        templateId: this.templateId || '',
         endTime: '',
         startTime: Date.now(),
         deliveryType: 'manual',
@@ -425,7 +425,6 @@ export default {
 
     echo() {
       this.form = this.echoCampaign.length && this.echoCampaign[0] || this.form;
-      console.log(this.echoCampaign)
     }
   }
 };

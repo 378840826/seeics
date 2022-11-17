@@ -439,6 +439,7 @@ export default {
         deduplication: 0, //去重
         portfolioId: '',
       },
+      echoPortfolioId: this.echoCampaign && this.echoCampaign.length && this.echoCampaign[0].portfolioId || ''
     };
   },
 
