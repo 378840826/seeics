@@ -1,8 +1,15 @@
 <template>
   <div>
+    <h3 v-if="type">▌广告活动（{{type === '商品' ? '商品' : '关键词'}}）</h3>
     <div style="display: flex;">
         <span style="width: 130px">广告活动名称：</span>
-        <span>ASIN+MSKU+关键词+匹配方式+日期时间+
+        <span>{{type === '商品' ? 'ASIN+MSKU+搜索词（ASIN）+ ' : 'ASIN+MSKU+关键词+匹配方式+'}}
+          <span style="position: relative">日期时间
+            <el-tooltip class="item" effect="dark" content="日期时间为站点时间；" placement="bottom">
+              <i style="position: absolute;top: -3px;left: 50px;" class="el-icon-question"></i>
+            </el-tooltip>
+          </span>
+           +
           <el-input v-model="form.campaignName" placeholder="请输入自定义文本；" style="width: 200px"/>
         </span>
       </div>
@@ -154,13 +161,9 @@
 <script>
 
 import { getAdConciseList } from '@/api/ppc/adManage';
-
+import dayjs from 'dayjs';
 export default {
   props: {
-    form: {
-      type: Object,
-      require: true
-    },
     currency: {
       type: String,
       require: true
@@ -174,7 +177,22 @@ export default {
     },
     portfolio: {
       type: Boolean,
+    },
+    rowData: {
+      type: String,
+      require: true
+    },
+    type: {
+      type: String
+    },
+    templateId: {
+      type: String,
+      require: true,
+    },
+    echoCampaign: {
+      type: Array,
     }
+    
   },
 
   data() {
@@ -201,6 +219,14 @@ export default {
         } else {
           callback();
         }
+      }
+    };
+
+    const format = (val) => {
+      if (val === '商品') {
+        return 2;
+      } else if (val === '关键词') {
+        return 1;
       }
     };
 
@@ -234,7 +260,23 @@ export default {
       searchConciseList: [],
       conciseTotal: 0,
       searchConise: '',
-      searchConciseTotal: 0
+      searchConciseTotal: 0,
+      form: {
+        id: '',
+        campaignName: '',
+        dailyBudget: '',
+        campaignId: this.rowData && this.rowData.campaignId || '',
+        templateId: this.templateId || '',
+        endTime: '',
+        startTime: Date.now(),
+        deliveryType: 'manual',
+        biddingStrategy: 'legacyForSales',
+        frontPage: '20', //商品页面 百分比
+        productPage: '0', //搜索结果顶部 百分比
+        deduplication: 0, //去重
+        portfolioId: '',
+        type: format(this.type)
+      },
     };
   },
 
@@ -267,6 +309,7 @@ export default {
   },
 
   mounted() {
+    this.echoCampaign && this.echo();
     if (!this.portfolio && this.echoPortfolioId) {
       this.getAdConciseList(false, '', this.echoPortfolioId);
     } else {
@@ -371,6 +414,18 @@ export default {
         }
       }
     },
+
+    getField() {
+      return {
+        ...this.form,
+        endTime: this.form.endTime && dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || null,
+        startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || null,
+      };
+    },
+
+    echo() {
+      this.form = this.echoCampaign.length && this.echoCampaign[0] || this.form;
+    }
   }
 };
 </script>

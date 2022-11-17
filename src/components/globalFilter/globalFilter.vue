@@ -341,6 +341,20 @@ export default {
     };
   },
   methods: {
+    conditionFormat(val) {
+      if (val === '≥且<') {
+        return '≥且<';
+      } else if (val === '>') {
+        return '&gt;';
+      } else if (val === '&gt;=') {
+        return '&gt;=';
+      } else if (val === '<') {
+        return '&lt;';
+      } else if (val === '&lt;=') {
+        return '&lt;=';
+      }
+    },
+
     echoFileld(echo) {
       this.dayVal = this.dateSelect && echo[0].days;
       this.dailyVal = this.dateSelect && echo[0].calculation;
@@ -349,7 +363,7 @@ export default {
         obj = {
           id: item.id,
           label: item.subruleName,
-          condition: item.symbol,
+          condition: this.conditionFormat(item.symbol),
           value: item.value,
           maxVal: item.maximum,
           minVal: item.minimum
@@ -371,7 +385,7 @@ export default {
               obj = {
                 id: s.id,
                 label: s.subruleName,
-                condition: s.symbol,
+                condition: this.conditionFormat(s.symbol),
                 value: s.value,
                 maxVal: s.maximum,
                 minVal: s.minimum
