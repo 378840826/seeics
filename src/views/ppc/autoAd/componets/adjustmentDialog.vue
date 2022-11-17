@@ -98,14 +98,21 @@
             <adjustemnt-tabel
               :ref="'table_' + index"
               :rowData="rowData"
+              :week="item.week"
             />
          </el-collapse-item>
       </el-collapse>
 
       <adjustemnt-tabel
         v-else
+        ref="table_everyday"
         :rowData="rowData"
       />
+
+      <div slot="footer" class="dialog-footer">
+        <el-button >取 消</el-button>
+        <el-button type="primary" @click="getField">打开内层 Dialog</el-button>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -154,14 +161,41 @@ export default {
       } else if (this.executionFrequency === '工作日') {
         return weekList.filter(item => item.type !== 'weekend');
       } else {
-        console.log(weekList.filter(item => item.type === 'weekend'))
         return weekList.filter(item => item.type === 'weekend');
       }
     },
 
     handleDitto(val, idx) {
-      
-      console.log(this.$refs['table_' + (idx - 1)][0].getField(), idx)
+
+      const ditto = this.$refs['table_' + (idx - 1)][0].getField().map(item => {
+        return {
+          ...item,
+        };
+      });
+      this.$refs['table_' + idx][0].ditto(ditto);
+    },
+
+    getField() {
+      let params = [];
+      if (this.executionFrequency === '每天') {
+        params = this.$refs['table_everyday'].getField();
+      } else if (this.executionFrequency === '每周') {
+        params = [];
+        for (let i = 0; i < 7; i ++) {
+          params = params.concat(this.$refs[`table_${i}`][0].getField());
+        }
+      } else if (this.executionFrequency === '工作日') {
+         params = [];
+        for (let i = 0; i < 5; i ++) {
+          params = params.concat(this.$refs[`table_${i}`][0].getField());
+        }
+      } else if (this.executionFrequency === '周末') {
+        params = [];
+        for (let i = 0; i < 2; i ++) {
+          params = params.concat(this.$refs[`table_${i}`][0].getField());
+        }
+      }
+      console.log(params)
     }
   }
 };

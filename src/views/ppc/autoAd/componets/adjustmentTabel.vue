@@ -48,7 +48,8 @@
                 :key="key"
                 :label="key"
                 :value="key"
-                :disabled="Number(scope.row.startTime.split(':').filter(Boolean).length && scope.row.startTime.split(':')[0] || 0)
+                :disabled="Number(scope.row.startTime.split(':').filter(Boolean).length 
+                  && scope.row.startTime.split(':')[0] || 0)
                   >= Number(key.split(':').filter(Boolean).length && key.split(':')[0] || 0)"
               />
             </el-select>
@@ -163,9 +164,10 @@
 
           <span
             v-if="scope.row.add"
-            @click="handleAdd(scope.$index)"
+            @click="handleAdd(scope.$index, scope.row.addDisabled)"
+            
             class="el-icon-circle-plus-outline"
-            style="color: #39f;"
+            :style="{color: scope.row.addDisabled ? '#C0C4CC' : '#39f', cursor: scope.row.addDisabled ? 'not-allowed' : 'default'}"
           />
 
         </template>
@@ -186,6 +188,10 @@ export default {
     },
     echoField: {
       type: Array,
+    },
+    week: {
+      type: String,
+      require: true
     },
   },
   
@@ -212,6 +218,8 @@ export default {
           bid: '',
           bidType: '',
           add: true,
+          week: this.week,
+          addDisabled: true,
         }
       ],
       value: ''
@@ -221,11 +229,39 @@ export default {
   watch: {
     data: {
       handler(val) {
-        // console.log(val)
-        // console.log(val[0].timeLimit.split('，')[1].split('-')[0].trim())
+        const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
+        val.forEach(item => {
+          if (item.bidType === '固定竞价' && !item.bid
+              || !item.bidType
+              || item.rule === '上浮(%)' && (!item.bidLimitValue || !item.adjustTheValue)
+              || item.rule === '下调(%)' && (!item.bidLimitValue || !item.adjustTheValue)
+              || item.rule === '下调(绝对值)' && (!item.bidLimitValue || !item.adjustTheValue)
+              || item.rule === '上浮(绝对值)' && (!item.bidLimitValue || !item.adjustTheValue)
+              || item.timeLimit === '自定义时间范围' && (!item.startTime || !item.endTime)
+          ) {
+            item.addDisabled = true;
+          } else {
+            // item.addDisabled = false;
+            if (!reg.test(Number(item.bid))
+              || !reg.test(Number(item.bidLimitValue))
+              || !reg.test(Number(item.adjustTheValue))) {
+
+              item.addDisabled = true;
+            
+            } else {
+              
+              item.addDisabled = false;
+            }
+          }
+        });
+        console.log(val)
       },
       deep: true
     }
+  },
+
+  mounted() {
+    console.log(this.data)
   },
 
   methods: {
@@ -338,7 +374,11 @@ export default {
       }
     },
 
-    handleAdd(idx) {
+    handleAdd(idx, flag) {
+      if (flag) {
+        console.log(666)
+        return;
+      }
       if (this.data.length <= 24) {
         this.data.push(
           {
@@ -351,7 +391,9 @@ export default {
             currency: '',
             bid: '',
             bidType: '',
+            week: this.week,
             add: true,
+            addDisabled: false,
           }
         );
         this.data[this.data.length - 2].add = false;
@@ -369,8 +411,13 @@ export default {
       return this.data;
     },
 
-    echoField() {
-
+    ditto(val) {
+      this.data = val.map(item => {
+        return {
+          ...item,
+          week: this.week,
+        }
+      });
     }
   }
 };

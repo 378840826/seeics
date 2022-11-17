@@ -42,8 +42,8 @@ export const flaotList = [
 ];
 
 export const weekList = [
-  { week: '星期一', type: 'word' }, { week: '星期二', type: 'word' },
-  { week: '星期三', type: 'word' }, { week: '星期四', type: 'word' },
-  { week: '星期五', type: 'word' }, { week: '星期六', type: 'weekend' },
-  { week: '星期天', type: 'weekend' },
+  { week: '星期一', type: 'word', }, { week: '星期二', type: 'word', },
+  { week: '星期三', type: 'word', }, { week: '星期四', type: 'word', },
+  { week: '星期五', type: 'word', }, { week: '星期六', type: 'weekend', },
+  { week: '星期天', type: 'weekend', },
 ];
