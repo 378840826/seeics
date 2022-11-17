@@ -345,7 +345,6 @@
       <template slot-scope="{row}">
         <el-button
           @click="handleCharts(row)"
-          style="color: #C0C4CC"
           type="text"
           :size="size"
         >分析</el-button>
@@ -377,6 +376,16 @@
   :editKey="editKey"
   :currency="currency"
   @save="handleEditSave"
+/>
+
+<!-- 数据分析弹窗 -->
+<DataCharts
+  v-if="dataChartsVisible"
+  :visible.sync="dataChartsVisible"
+  :currency="currency"
+  :rowData="dataChartsRow"
+  :namePath="dataChartsNamePath"
+  pageType="campaign"
 />
 
 <!-- 创建广告活动弹窗 -->
@@ -419,6 +428,7 @@ import DatePicker from '../../components/DatePicker';
 import CustomCols from '../../components/CustomCols';
 import FilterMore from '../../components/FilterMore';
 import MultipleSelect from '../../components/MultipleSelect';
+import DataCharts from '../../components/DataCharts';
 import EditDialog from './EditDialog';
 import FilterCrumbs, { notRangeKeys, multipleLongValueKeys } from '../../components/FilterCrumbs';
 import CreateCampaignDialog from '../../create/createCampaignDialog';
@@ -434,6 +444,7 @@ export default {
     MultipleSelect,
     FilterCrumbs,
     EditDialog,
+    DataCharts,
     CreateCampaignDialog,
   },
 
@@ -496,6 +507,11 @@ export default {
       editData: {},
       // 点击哪个编辑图标激活的弹窗
       editKey: '',
+      // 数据分析
+      dataChartsVisible: false,
+      pageType: 'campaign',
+      dataChartsRow: {},
+      dataChartsNamePath: [],
       createCampaignDialogVisible: false,
     };
   },
@@ -842,7 +858,9 @@ export default {
 
     // 点击分析
     handleCharts(row) {
-      log('分析', row);
+      this.dataChartsNamePath = [row.name];
+      this.dataChartsVisible = true;
+      this.dataChartsRow = { ...row, entityId: row.id };
     },
   },
 

@@ -84,10 +84,22 @@ export function getDateRangeForKey(key, format = 'YYYY-MM-DD') {
       myDayjs.subtract(1, 'day').format(format),
     ];
     break;
+  case 'thisWeek':
+    dates = [
+      myDayjs.startOf('week').add(1, 'days').format(format),
+      myDayjs.endOf('week').add(1, 'days').format(format),
+    ];
+    break;
   case 'lastWeek':
     dates = [
       myDayjs.subtract(1, 'weeks').startOf('week').add(1, 'days').format(format),
       myDayjs.subtract(1, 'weeks').endOf('week').add(1, 'days').format(format),
+    ];
+    break;
+  case 'thisMonth':
+    dates = [
+      myDayjs.startOf('month').format(format),
+      myDayjs.endOf('month').format(format),
     ];
     break;
   case 'lastMonth':
