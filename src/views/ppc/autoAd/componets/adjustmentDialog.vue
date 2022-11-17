@@ -154,7 +154,7 @@ export default {
       activeNames: [],
       executionFrequency: '每天',
       form: {
-        status: 'enabled'
+        status: ''
       }
     };
   },
