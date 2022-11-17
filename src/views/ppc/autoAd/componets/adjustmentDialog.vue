@@ -40,9 +40,17 @@
           label="规则状态"
         >
           <el-select
+            v-model="form.status"
             size="mini"
             class="label-width"
-          />
+          >
+            <el-option
+              v-for="item in stateDict"
+              :key="item"
+              :label="stateDict[item]"
+              :value="item"
+            />
+          </el-select>
         </el-form-item>
         </el-col>
 
@@ -120,7 +128,7 @@
 <script>
 
 import adjustemntTabel from './adjustmentTabel.vue';
-import { weekList } from '../dict';
+import { weekList, stateDict } from '../dict';
 
 export default {
 
@@ -142,15 +150,12 @@ export default {
   data() {
     return {
       weekList,
+      stateDict,
       activeNames: [],
       executionFrequency: '每天',
-      echoTabel: [],
-      echoTabe2: [],
-      echoTabe3: [],
-      echoTabe4: [],
-      echoTabe5: [],
-      echoTabe6: [],
-      echoTabe7: [],
+      form: {
+        status: 'enabled'
+      }
     };
   },
 
@@ -195,7 +200,28 @@ export default {
           params = params.concat(this.$refs[`table_${i}`][0].getField());
         }
       }
-      console.log(params)
+
+      const msg = [];
+      
+      params.map(item => {
+        if (!item.timeLimit) {
+          msg.push(true);
+        } else if (item.timeLimit === '自定义时间范围' && (!item.startTime || !item.endTime)) {
+          msg.push(true);
+        } else if (!item.bidType || item.bidType === '固定竞价' && !item.bid) {
+          msg.push(true);
+        } else if (item.rule && (!item.adjustTheValue || !item.bidLimitValue)) {
+          msg.push(true);
+        }
+      })
+
+      if (msg.length) {
+        return this.$message({
+          type: 'error',
+          message: '请将规则条件填写完整'
+        });
+      }
+      
     }
   }
 };

@@ -12,6 +12,7 @@
         <template slot-scope="scope">
           <el-select
             v-if="scope.row.timeLimit !== '自定义时间范围'"
+            :ref="'timeLimit_' + scope.$index"
             v-model="scope.row.timeLimit"
             @change="handleTimeScope($event, scope.$index)"
             size="mini">
@@ -25,6 +26,7 @@
 
           <div v-else-if="scope.row.timeLimit === '自定义时间范围'">
             <el-select
+              :ref="'startTime_' + scope.$index"
               v-model="scope.row.startTime"
               size="mini"
               class="selects"
@@ -39,6 +41,7 @@
             </el-select>
 
             <el-select
+              :ref="'endTime_' + scope.$index"
               v-model="scope.row.endTime"
               size="mini"
               class="selects right"
@@ -62,6 +65,7 @@
       >
         <template slot-scope="scope">
           <el-select
+            :ref="'bidType_' + scope.$index"
             v-model="scope.row.bidType"
             @change="handleAdjust($event, scope.$index)"
             class="selects"
@@ -101,6 +105,7 @@
 
           <div v-if="scope.row.rule">
             <el-input
+              :ref="'adjustTheValue_' + scope.$index"
               v-model="scope.row.adjustTheValue"
               @blur="numberChange($event, 'adjustTheValue', scope.$index)"
               placeholder="调整数值"
@@ -115,6 +120,7 @@
             </el-input>
 
             <el-input
+              :ref="'bidLimitValue_' + scope.$index"
               v-model="scope.row.bidLimitValue"
               @blur="numberChange($event, 'bidLimitValue', scope.$index)"
               :placeholder="placeholderFormat(scope.row.rule)"
@@ -132,6 +138,7 @@
           <el-input
             v-else-if="scope.row.bidType === '固定竞价'"
             v-model="scope.row.bid"
+            :ref="'bid_' + scope.$index"
             @blur="numberChange($event, 'bid', scope.$index)"
             placeholder="请输入固定竞价"
             class="selects"
@@ -230,7 +237,8 @@ export default {
     data: {
       handler(val) {
         const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
-        val.forEach(item => {
+        val.forEach((item, idx) => {
+          console.log(item)
           if (item.bidType === '固定竞价' && !item.bid
               || !item.bidType
               || item.rule === '上浮(%)' && (!item.bidLimitValue || !item.adjustTheValue)
@@ -253,8 +261,30 @@ export default {
               item.addDisabled = false;
             }
           }
+          // 空值高亮
+          if (item.timeLimit && item.timeLimit !== '自定义时间范围') {
+            this.$refs[`timeLimit_${idx}`].$children[0].$refs.input.style.borderColor = ''
+          } 
+          if (item.timeLimit === '自定义时间范围' && item.startTime) {
+            this.$refs[`startTime_${idx}`].$children[0].$refs.input.style.borderColor = ''
+          }
+          if (item.timeLimit === '自定义时间范围' && item.endTime) {
+            this.$refs[`endTime_${idx}`].$children[0].$refs.input.style.borderColor = ''
+          }
+          if (item.bidType) {
+            this.$refs[`bidType_${idx}`].$children[0].$refs.input.style.borderColor = ''
+          }
+          if (item.bidType === '固定竞价' && item.bid) {
+            console.log(this.$refs[`bid_${idx}`])
+            this.$refs[`bid_${idx}`].$refs.input.style.borderColor = ''
+          }
+          if (item.rule && item.adjustTheValue) {
+            this.$refs[`adjustTheValue_${idx}`].$refs.input.style.borderColor = ''
+          }
+          if (item.rule && item.bidLimitValue) {
+            this.$refs[`bidLimitValue_${idx}`].$refs.input.style.borderColor = ''
+          }
         });
-        console.log(val)
       },
       deep: true
     }
@@ -397,7 +427,7 @@ export default {
           }
         );
         this.data[this.data.length - 2].add = false;
-        console.log(this.data)
+
       }
     },
 
@@ -407,7 +437,32 @@ export default {
     },
 
     getField() {
-      console.log(this.data)
+      // 空值高亮
+      this.data.map((item, idx) => {
+        if (!item.timeLimit) {
+          this.$refs[`timeLimit_${idx}`].$children[0].$refs.input.style.borderColor = 'red'
+        } 
+        if (item.timeLimit === '自定义时间范围' && !item.startTime) {
+          this.$refs[`startTime_${idx}`].$children[0].$refs.input.style.borderColor = 'red'
+        }
+        if (item.timeLimit === '自定义时间范围' && !item.endTime) {
+          this.$refs[`endTime_${idx}`].$children[0].$refs.input.style.borderColor = 'red'
+        }
+        if (!item.bidType) {
+          this.$refs[`bidType_${idx}`].$children[0].$refs.input.style.borderColor = 'red'
+        }
+        if (item.bidType === '固定竞价' && !item.bid) {
+          console.log(this.$refs[`bid_${idx}`])
+          this.$refs[`bid_${idx}`].$refs.input.style.borderColor = 'red'
+        }
+        if (item.rule && !item.adjustTheValue) {
+          this.$refs[`adjustTheValue_${idx}`].$refs.input.style.borderColor = 'red'
+        }
+        if (item.rule && !item.bidLimitValue) {
+          this.$refs[`bidLimitValue_${idx}`].$refs.input.style.borderColor = 'red'
+        }
+      })
+      
       return this.data;
     },
 

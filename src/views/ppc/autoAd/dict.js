@@ -47,3 +47,8 @@ export const weekList = [
   { week: '星期五', type: 'word', }, { week: '星期六', type: 'weekend', },
   { week: '星期天', type: 'weekend', },
 ];
+
+export const stateDict = {
+  enabled: '运行中',
+  paused: '已暂停',
+};
