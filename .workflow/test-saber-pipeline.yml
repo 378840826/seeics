@@ -13,6 +13,7 @@ stages:
         nodeVersion: 14.16.0
         # 构建命令：安装依赖 -> 清除上次打包产物残留 -> 执行构建 【请根据项目实际产出进行填写】
         commands:
+          - npm config set registry https://registry.npmmirror.com
           - npm install
           - npm uninstall node-sass
           - npm install sass -i        
