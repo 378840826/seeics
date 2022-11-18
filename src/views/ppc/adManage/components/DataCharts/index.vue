@@ -99,6 +99,8 @@
             border
             max-height="602px"
             class="charts-table"
+            show-summary
+            :summary-method="({columns}) => summaryMethod(columns, tableTotalData, 0)"
             size="mini"
           >
             <el-table-column
@@ -112,7 +114,7 @@
                 :key="item.prop"
                 :prop="item.prop"
                 :label="item.label"
-                :width="item.width - 12"
+                :width="item.width - 11"
               >
                 <span slot-scope="{row}">{{ item.formatter(row[item.prop]) }}</span>
               </el-table-column>
@@ -131,7 +133,8 @@ import DatePicker from './DatePicker';
 import * as echarts from 'echarts';
 import { getDateRangeForKey } from '@/util/date';
 import { nameDict, pageNameDict, downloadATag } from './util';
-import { getValueLocaleString as format, getCommonColOption } from '../../utils/fun';
+import { getValueLocaleString as format, getCommonColOption, getFormatTotal } from '../../utils/fun';
+import { summaryMethod } from '../../utils/options';
 import {
   queryAnalyseStatistic,
   queryAnalyseList,
@@ -192,6 +195,8 @@ export default {
       dateRange: defaultDateRange,
       // 图表数据
       chartsData: [],
+      // 表合计行数据
+      tableTotalData: {},
       colors: ['#49B5FF', '#FFC175'],
       loading: {
         statistic: false,
@@ -385,7 +390,7 @@ export default {
               ringRatioNumber: Number(this.statisticData.clicksRingRatio),
             }, {
               name: 'CTR',
-              key: 'acos',
+              key: 'ctr',
               value: format({ value: this.statisticData.acos, suffix: '%', isFraction: true }),
               lastCycleValue: format(
                 { value: this.statisticData.stageIaAcos, suffix: '%', isFraction: true }
@@ -413,6 +418,8 @@ export default {
   },
 
   methods: {
+    summaryMethod,
+
     // 获取 tooltip 中显示的格式
     formatTooltipValue(name, value) {
       const suffix = ['ACoS', 'CTR', '转化率'].includes(name) ? '%' : '';
@@ -494,8 +501,6 @@ export default {
         statisticalMethod: this.statisticalMethod,
         startTime: this.dateRange[0],
         endTime: this.dateRange[1],
-        // adStoreId: '1525058887367471105',
-        // entityId: 170297908687341,
       };
       queryAnalyseStatistic(this.pageType, params).then(res => {
         this.statisticData = res.data.data;
@@ -514,11 +519,11 @@ export default {
         statisticalMethod: this.statisticalMethod,
         startTime: this.dateRange[0],
         endTime: this.dateRange[1],
-        // adStoreId: '1525058887367471105',
-        // entityId: 170297908687341,
       };
       queryAnalyseList(this.pageType, params).then(res => {
-        this.chartsData = res.data.data.records;
+        this.chartsData = res.data.data.page.records;
+        // 合计数据格式化
+        this.tableTotalData = getFormatTotal(res.data.data.total, this.currency);
       }).finally(() => {
         this.loading.charts = false;
       });
@@ -563,8 +568,6 @@ export default {
         statisticalMethod: this.statisticalMethod,
         startTime: this.dateRange[0],
         endTime: this.dateRange[1],
-        // adStoreId: '1525058887367471105',
-        // entityId: 170297908687341,
       };
       downloadAnalysisTable(this.pageType, params)
         .then(res => {

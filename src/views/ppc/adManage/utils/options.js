@@ -15,9 +15,10 @@ export const defaultDateRange = getDateRangeForKey(7);
 export const currentShopKey = 'app-adMamage-currentShop';
 
 // 生成合计行数据
-export function summaryMethod(columns, tableTotalData){
+export function summaryMethod(columns, tableTotalData, summaryTitleColIndex = 2){
   const keys = Object.keys(tableTotalData);
-  const sums = ['', '', '', '合计'];
+  const sums = ['', '', '', ''];
+  sums[summaryTitleColIndex] = '合计';
   columns.forEach((column, index) => {
     if (keys.includes(column.property)) {
       sums[index] = tableTotalData[column.property];
