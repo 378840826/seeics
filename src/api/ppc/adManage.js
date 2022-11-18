@@ -63,6 +63,7 @@ export const queryAnalyseStatistic = (pageType, data) => {
     ad: '/api/seeics-ad/product/analyse/summary',
     keyword: '/api/seeics-ad/keyword/analyse/summary',
     targeting: '/api/seeics-ad/targeting/analyse/summary',
+    targetingGroup: '/api/seeics-ad/targeting/analyse/summary',
   };
   return request({
     url: urls[pageType],
@@ -79,6 +80,7 @@ export const queryAnalyseList = (pageType, data) => {
     ad: '/api/seeics-ad/product/analyse/list',
     keyword: '/api/seeics-ad/keyword/analyse/list',
     targeting: '/api/seeics-ad/targeting/analyse/list',
+    targetingGroup: '/api/seeics-ad/targeting/analyse/list',
   };
   return request({
     url: urls[pageType],
@@ -95,6 +97,7 @@ export const downloadAnalysisTable = (pageType, data) => {
     ad: '/api/seeics-ad/product/analyse/download',
     keyword: '/api/seeics-ad/keyword/analyse/download',
     targeting: '/api/seeics-ad/targeting/analyse/download',
+    targetingGroup: '/api/seeics-ad/targeting/analyse/download',
   };
   return request({
     url: urls[pageType],

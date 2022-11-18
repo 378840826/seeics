@@ -169,6 +169,17 @@
         <span slot-scope="{row}">{{ item.formatter(row[item.prop]) }}</span>
       </el-table-column>
     </template>
+
+    <!-- 操作 -->
+    <el-table-column label="操作" fixed="right" width="60">
+      <template slot-scope="{row}">
+        <el-button
+          @click="handleCharts(row)"
+          type="text"
+          :size="size"
+        >分析</el-button>
+      </template>
+    </el-table-column>
   </el-table>
 
   <!-- 分页器 -->
@@ -194,6 +205,16 @@
   :editKey="editKey"
   :currency="currency"
   @save="handleEditSave"
+/>
+
+<!-- 数据分析弹窗 -->
+<DataCharts
+  v-if="dataChartsVisible"
+  :visible.sync="dataChartsVisible"
+  :currency="currency"
+  :rowData="dataChartsRow"
+  :namePath="dataChartsNamePath"
+  :pageType="pageType"
 />
 
 <!-- 批量调整竞价弹窗 -->
@@ -222,6 +243,7 @@ import {
 import { stateNameDict, stateIconDict } from '../../utils/dict';
 import DatePicker from '../../components/DatePicker';
 import CustomCols from '../../components/CustomCols';
+import DataCharts from '../../components/DataCharts';
 import EditDialog from './EditDialog';
 import BatchBidDialog from './BatchBidDialog';
 import {
@@ -239,6 +261,7 @@ export default {
     DatePicker,
     CustomCols,
     EditDialog,
+    DataCharts,
     BatchBidDialog,
   },
 
@@ -284,6 +307,11 @@ export default {
       editData: {},
       // 点击哪个编辑图标激活的弹窗
       editKey: '',
+      // 数据分析
+      dataChartsVisible: false,
+      pageType: 'targetingGroup',
+      dataChartsRow: {},
+      dataChartsNamePath: [],
       batchBidDialogVisible: false,
     };
   },
@@ -567,6 +595,13 @@ export default {
         }
         this.updateTableBid(success);
       });
+    },
+
+    // 点击分析
+    handleCharts(row) {
+      this.dataChartsNamePath = [row.campaignName, row.groupName, row.target];
+      this.dataChartsVisible = true;
+      this.dataChartsRow = { ...row, entityId: row.id };
     },
   },
 
