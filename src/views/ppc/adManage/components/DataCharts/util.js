@@ -18,6 +18,7 @@ export const pageNameDict = {
   ad: '广告',
   keyword: '关键词',
   targeting: 'Targeting',
+  targetingGroup: '广告组合',
 };
 
 // 模拟 a 标签下载
