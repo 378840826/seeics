@@ -70,6 +70,8 @@
           <el-button
             v-show="chartsType === 'table'" 
             @click="handleDownload"
+            :loading="loading.download"
+            :disabled="!chartsData.length"
             class="btn-download" 
             size="mini"
           >下载</el-button>
@@ -201,6 +203,7 @@ export default {
       loading: {
         statistic: false,
         charts: false,
+        download: false,
       },
     };
   },
@@ -391,12 +394,12 @@ export default {
             }, {
               name: 'CTR',
               key: 'ctr',
-              value: format({ value: this.statisticData.acos, suffix: '%', isFraction: true }),
+              value: format({ value: this.statisticData.ctr, suffix: '%', isFraction: true }),
               lastCycleValue: format(
-                { value: this.statisticData.stageIaAcos, suffix: '%', isFraction: true }
+                { value: this.statisticData.stageIaCtr, suffix: '%', isFraction: true }
               ),
-              ringRatio: format({ value: this.statisticData.acosRingRatio, suffix: '%', isFraction: true }),
-              ringRatioNumber: Number(this.statisticData.acosRingRatio),
+              ringRatio: format({ value: this.statisticData.ctrRingRatio, suffix: '%', isFraction: true }),
+              ringRatioNumber: Number(this.statisticData.ctrRingRatio),
             }, {
               name: '转化率',
               key: 'conversionsRate',
@@ -524,6 +527,9 @@ export default {
         this.chartsData = res.data.data.page.records;
         // 合计数据格式化
         this.tableTotalData = getFormatTotal(res.data.data.total, this.currency);
+        if (!this.chartsData.length) {
+          this.$message.warning('所选周期没有数据！');
+        }
       }).finally(() => {
         this.loading.charts = false;
       });
@@ -561,6 +567,7 @@ export default {
 
     // 下载表格
     handleDownload() {
+      this.loading.download = true;
       const params = {
         adStoreId: this.rowData.adStoreId,
         campaignType: 'sp',
@@ -583,6 +590,8 @@ export default {
         })
         .catch(err => {
           console.error('导出发生错误:', err);
+        }).finally(() => {
+          this.loading.download = false;
         });
     },
 
