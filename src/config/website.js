@@ -21,6 +21,14 @@ export default {
   urlWhiteList: [
     // st报表导出
     '/api/seeics-analysis/searchTerm/download',
+    // 广告管理相关下载
+    '/api/seeics-ad/campaign/analyse/download',
+    '/api/seeics-ad/group/analyse/download',
+    '/api/seeics-ad/product/analyse/download',
+    '/api/seeics-ad/keyword/analyse/download',
+    '/api/seeics-ad/targeting/analyse/download',
+    '/api/seeics-ad/targeting/analyse/download',
+    '/api/seeics-ad/searchTerm/list/download',
     // 机构用户导入
     '/api/blade-user/import-dept-user',
     // 自动化模板名称校验
