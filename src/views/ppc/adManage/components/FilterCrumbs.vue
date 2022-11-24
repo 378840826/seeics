@@ -99,7 +99,7 @@ export default {
       titleDict: {
         search: { title: '查询' },
         state: { title: '状态' },
-        targetingType: { title: '投放方式' },
+        targetingType: { title: '广告类型' },
         groupType: { title: '投放类型' },
         qualification: { title: '投放资格' },
         matchType: { title: '匹配方式' },
