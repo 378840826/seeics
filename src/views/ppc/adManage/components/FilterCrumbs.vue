@@ -29,7 +29,7 @@
 
 <script>
 // 非 Min-Max 值的 key
-const notRangeKeys = ['search', 'targetingType', 'state', 'qualification', 'matchType', 'deliveryMethod'];
+const notRangeKeys = ['search', 'targetingType', 'groupType', 'state', 'qualification', 'matchType', 'deliveryMethod'];
 export { notRangeKeys };
 // 可多选的值可能很长的 key
 const multipleLongValueKeys = ['portfolios'];
@@ -99,7 +99,8 @@ export default {
       titleDict: {
         search: { title: '查询' },
         state: { title: '状态' },
-        targetingType: { title: '投放方式' },
+        targetingType: { title: '广告类型' },
+        groupType: { title: '投放类型' },
         qualification: { title: '投放资格' },
         matchType: { title: '匹配方式' },
         deliveryMethod: { title: 'Targeting类型' },
