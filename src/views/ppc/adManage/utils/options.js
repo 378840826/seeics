@@ -9,7 +9,8 @@ export const tablePageOption = {
 };
 
 // 默认日期范围
-export const defaultDateRange = getDateRangeForKey(7);
+// export const defaultDateRange = getDateRangeForKey(7);
+export const defaultDateRange = getDateRangeForKey(60);
 
 // 店铺选中本地存储的 key
 export const currentShopKey = 'app-adMamage-currentShop';
@@ -68,3 +69,10 @@ export const targetingGroupsCustomColsOptions = [
   '所属广告组', '建议竞价', '竞价',
   ...commonCustomColsOptions,
 ];
+
+// SearchTerm 页的可自定义列
+export const searchTermCustomColsOptions = [
+  '投放', '匹配类型', '广告活动', '广告组', 'ABA排名',
+  ...commonCustomColsOptions,
+];
+

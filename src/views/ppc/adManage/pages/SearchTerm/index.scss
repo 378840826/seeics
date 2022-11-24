@@ -1,0 +1,36 @@
+.link {
+  color: $linkColor;
+}
+
+.filter-bar {
+  flex-wrap: wrap;
+
+  ::v-deep {
+    .el-radio-button__inner {
+      padding: 7px 14px;
+    }
+  }
+}
+
+.search-input_with_select {
+  width: 240px;
+
+  ::v-deep {
+    .el-input-group__prepend {
+      background-color: #fff;
+      color: $textColor;
+
+      input {
+        width: 72px;
+        padding: 0 26px 0 8px;
+        text-align: center;
+      }
+    }
+
+    .el-input-group__append {
+      padding: 0 12px;
+      background-color: $primaryColor;
+      color: #fff;
+    }
+  }
+}

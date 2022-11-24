@@ -505,6 +505,16 @@ export default {
         startTime: this.dateRange[0],
         endTime: this.dateRange[1],
       };
+      // searchTerm 需要的特殊参数
+      if (this.pageType === 'searchTerm') {
+        Object.assign(params, {
+          queryText: this.rowData.queryText,
+          isKeyword: this.rowData.isKeyword,
+          targetEntityId: this.rowData.targetEntityId,
+          campaignId: this.rowData.campaignId,
+          adGroupId: this.rowData.groupId,
+        });
+      }
       queryAnalyseStatistic(this.pageType, params).then(res => {
         this.statisticData = res.data.data;
       }).finally(() => {
@@ -523,6 +533,16 @@ export default {
         startTime: this.dateRange[0],
         endTime: this.dateRange[1],
       };
+      // searchTerm 需要的特殊参数
+      if (this.pageType === 'searchTerm') {
+        Object.assign(params, {
+          queryText: this.rowData.queryText,
+          isKeyword: this.rowData.isKeyword,
+          targetEntityId: this.rowData.targetEntityId,
+          campaignId: this.rowData.campaignId,
+          adGroupId: this.rowData.groupId,
+        });
+      }
       queryAnalyseList(this.pageType, params).then(res => {
         this.chartsData = res.data.data.page.records;
         // 合计数据格式化
@@ -576,6 +596,16 @@ export default {
         startTime: this.dateRange[0],
         endTime: this.dateRange[1],
       };
+      // searchTerm 需要的特殊参数
+      if (this.pageType === 'searchTerm') {
+        Object.assign(params, {
+          queryText: this.rowData.queryText,
+          isKeyword: this.rowData.isKeyword,
+          targetEntityId: this.rowData.targetEntityId,
+          campaignId: this.rowData.campaignId,
+          adGroupId: this.rowData.groupId,
+        });
+      }
       downloadAnalysisTable(this.pageType, params)
         .then(res => {
           // 如果没有返回文件

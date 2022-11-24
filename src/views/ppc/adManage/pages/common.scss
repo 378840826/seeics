@@ -77,7 +77,7 @@
 
 // 工具栏
 .toolbar {
-  margin: 10px 0;
+  margin-bottom: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -112,6 +112,10 @@
 
   &>*:not(:last-child) {
     margin-right: 20px;
+  }
+
+  &>* {
+    margin-bottom: 10px;
   }
 }
 

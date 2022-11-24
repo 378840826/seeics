@@ -386,6 +386,34 @@ export const downloadFileBase64 = (path, name) => {
 };
 
 /**
+ * 导出报表
+ * @param {Response} res -下载接口的 Response
+ * @param {String} fileName - 可选的文件名，默认为 Response 中的 filename
+ */
+export const downloadExcel = (res, fileName) => {
+  return new Promise((resolve, reject) => {
+    // 如果没有返回文件
+    if (res.headers['content-type'].includes('application/json')) {
+      const blob = new Blob([res.data], { type: 'application/json' });
+      const reader = new FileReader();
+      reader.readAsText(blob, 'application/json');
+      reader.onload = () => {
+        reject(JSON.parse(reader.result));
+      };
+      return;
+    }
+    const blob = new Blob([res.data], { type: 'application/vnd.ms-excel' });
+    const blobUrl = window.URL.createObjectURL(blob);
+    const name = fileName || res.headers['content-disposition'].split(';')[1].split('filename=')[1];
+    const a = document.createElement('a');
+    a.download = `${window.decodeURIComponent(name)}`;
+    a.href = blobUrl;
+    a.click();
+    resolve();
+  });
+};
+
+/**
  * 导出
  * @param {Blob} blob - blob文件
  * @param {String} fileName -文件名(带后缀名 默认xls)
