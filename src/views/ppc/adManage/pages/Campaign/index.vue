@@ -21,7 +21,7 @@
   <el-select
     v-model="filter.targetingType"
     clearable
-    placeholder="投放方式"
+    placeholder="广告类型"
     :size="size"
     class="filter-select"
     @change="handleTargetingTypeChange"
@@ -47,7 +47,7 @@
     @change="handleGroupTypeChange"
   >
     <el-option
-      v-for="(val,key) in groupTypeDict"
+      v-for="(val,key) in campaignGroupTypeDict"
       :key="key"
       :label="val"
       :value="key"
@@ -196,9 +196,9 @@
     </el-table-column>
 
     <el-table-column
-      v-if="customCols.includes('投放方式')" 
+      v-if="customCols.includes('广告类型')" 
       prop="targetingType" 
-      label="投放方式" 
+      label="广告类型" 
       width="80"
     >
       <template slot-scope="{row}">
@@ -419,12 +419,13 @@
 </template>
 
 <script>
+import { setStore, getStore } from '@/util/store';
 import {
   queryCampaignList,
   modifyCampaignState,
   modifyCampaign,
 } from '@/api/ppc/adManage';
-import { stateNameDict, targetingTypeDict, groupTypeDict, biddingStrategyDict } from '../../utils/dict';
+import { stateNameDict, targetingTypeDict, campaignGroupTypeDict, biddingStrategyDict } from '../../utils/dict';
 import {
   tablePageOption, 
   defaultDateRange, 
@@ -497,7 +498,7 @@ export default {
       customColsOptions,
       stateNameDict,
       targetingTypeDict,
-      groupTypeDict,
+      campaignGroupTypeDict,
       biddingStrategyDict,
       summaryMethod,
       portfolioCheckedAll: false,
@@ -548,7 +549,7 @@ export default {
       };
       this.filter.search && (obj.search = this.filter.search);
       this.filter.targetingType && (obj.targetingType = targetingTypeDict[this.filter.targetingType]);
-      this.filter.groupType && (obj.groupType = groupTypeDict[this.filter.groupType]);
+      this.filter.groupType && (obj.groupType = campaignGroupTypeDict[this.filter.groupType]);
       this.filter.state.length && (obj.state = this.filter.state.map(s => stateNameDict[s]).toString());
       this.filter.portfolioIds.length && (obj.portfolios = this.filter.portfolioList.map(item => item.name));
       return obj;
@@ -560,6 +561,15 @@ export default {
   },
 
   created() {
+    // 由于表格的”投放方式“ 改名为 ”广告类型“，导致保存在用户本地的自定义列项不一致，先打补丁， 后期删除
+    const localStorageCustomCols = getStore({ name: 'app-adMamage-campaign-customCol' });
+    this.$log('localStorageCustomCols', localStorageCustomCols);
+    const index = localStorageCustomCols.findIndex(item => item === '投放方式');
+    if (index !== -1) {
+      localStorageCustomCols[index] = '广告类型';
+      setStore({ name: 'app-adMamage-campaign-customCol', content: localStorageCustomCols });
+    }
+
     this.getList();
   },
 
@@ -629,7 +639,7 @@ export default {
       this.getList({ current: 1 });
     },
 
-    // 投放方式筛选
+    // 广告类型筛选
     handleTargetingTypeChange(val) {
       this.filter.targetingType = val;
       this.getList({ current: 1 });

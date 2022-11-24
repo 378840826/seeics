@@ -266,7 +266,7 @@ export default{
         const localStorageCurrentShop = getStore({ name: currentShopKey });
         if (localStorageCurrentShop) {
           this.currentStore = { ...localStorageCurrentShop };
-          // 由于前期失误直接保存了 time 导致页面直接使用了上次保存的旧时间，需要增加 timezone 字段用于重新计算时间
+          // 由于前期失误直接保存了 time 导致页面直接使用了上次保存的旧时间，需要增加 timezone 字段用于重新计算时间, 后期删除
           if (!localStorageCurrentShop.timezone) {
             const storeList = this.$store.state.shop.storeNameObj[localStorageCurrentShop.storeName];
             const store = storeList.find(item => item.adStoreId === localStorageCurrentShop.adStoreId);

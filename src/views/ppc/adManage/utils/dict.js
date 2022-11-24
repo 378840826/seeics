@@ -60,6 +60,13 @@ export const groupTypeDict = {
   auto: '自动投放',
 };
 
+// 广告活动的投放类型字典
+export const campaignGroupTypeDict = {
+  keyword: '关键词投放',
+  targeting: '商品投放',
+  all: '两者都有',
+};
+
 // 竞价策略下拉选择
 export const biddingStrategyDict = {
   legacyForSales: 'Down Only',

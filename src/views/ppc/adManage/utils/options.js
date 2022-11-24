@@ -34,7 +34,7 @@ const commonCustomColsOptions = [
 
 // 广告活动页的可自定义列
 export const campaignCustomColsOptions = [
-  '广告组合', '投放方式', '创建时间', '广告组数量', '竞价策略', '搜索结果顶部',
+  '广告组合', '广告类型', '创建时间', '广告组数量', '竞价策略', '搜索结果顶部',
   '商品页面', '日预算', '否定关键词', '否定商品', '开始时间', '结束时间',
   ...commonCustomColsOptions,
 ];
