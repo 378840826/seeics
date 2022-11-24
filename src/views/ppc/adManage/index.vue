@@ -206,8 +206,7 @@ export default{
       portfolioList: [],
       portfolioAddName: '',
       // 右侧标签页
-      // tabsActive: 'campaign',
-      tabsActive: 'searchTerm',
+      tabsActive: 'campaign',
       tabsCellCount: {},
       tabsCellCountLoading: false,
     };
