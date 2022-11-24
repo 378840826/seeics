@@ -157,8 +157,48 @@
           <template slot-scope="scope">{{ targetingTypeDict[scope.row.targetingType] }}</template>
         </el-table-column>
 
-        <el-table-column prop="adjustmentTemplateVoList" label="分时调价" width="120">
-          <template slot-scope="scope">6</template>
+        <el-table-column prop="adjustmentTemplateVoList" label="分时调价">
+          <template slot-scope="scope">
+            <div 
+              v-for="(item, index) in scope.row.adjustmentTemplateVoList.length && scope.row.adjustmentTemplateVoList" 
+              :key="item"
+              style=""
+            >
+              <el-dropdown @command="templateStutes">
+              <span
+                :class="item.campaignStatus !== 'stop' ? 'el-icon-video-play' : 'el-icon-video-pause'"
+                :style="{color: item.campaignStatus !== 'stop' ? '#58bc58' : 'red'}"
+              />
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item 
+                    v-for="i in templateStateList" 
+                    @click="statu"
+                    :key="i.value" 
+                    :command="status(i.value, scope.row, item.id)"
+                    :value="i.value"
+                    :class="{'selected':item.campaignStatus === i.value}">{{i.label}}</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+              <el-button 
+                type="text" 
+                @click="adjustmentDialogVisible =  true; echoJustment = scope.row" 
+                size="mini" 
+                style="margin: 5px 5px; padding: 0">
+                  {{ item.templateName }}
+                  <span 
+                    style="margin: 5px 5px; padding: 0">
+                    {{ item.automatedOperation ? item.automatedOperation : '无' }}
+                  </span>
+                </el-button>
+            </div>
+            <span
+              v-if="!scope.row.adjustmentTemplateVoList.length"
+              @click="adjustmentDialogVisible =  true; echoJustment = scope.row" 
+              class="el-icon-edit"
+              style="fontSize: 14px"
+              type="text"
+            />
+          </template>
         </el-table-column>
         
         <el-table-column prop="automationTemplateVoList" label="搜索词">
@@ -632,8 +672,10 @@
     </el-dialog>
 
     <adjustment-dialog
-      :dialogVisible="true"
-      :rowData="rowData"
+      v-if="adjustmentDialogVisible"
+      :rowData="echoJustment"
+      :dialogVisible.sync="adjustmentDialogVisible"
+      @succes="getTableData"
     />
   </basic-container>
 </template>
@@ -803,6 +845,7 @@ export default {
       isRadio: false,
       // 模板去重
       deduplication: true,
+      adjustmentDialogVisible: false,
     };
   },
 
@@ -1409,11 +1452,13 @@ export default {
       if (launch) {
         this.launchFlag = true;
         this.dialogName = '编辑投放';
+        this.dialogCreateVisible = true; 
       } else {
         this.launchFlag = false;
         this.dialogName = '编辑搜索词';
+        this.dialogCreateVisible = true; 
       }
-      this.dialogCreateVisible = true; 
+      
       this.rowData = row;
       this.ruleIs = true;
       this.automationIs = true;
@@ -1453,6 +1498,7 @@ export default {
           this.$nextTick(() => {
             this.automationIs = this.automationIs ? false : true;
           });
+
         }
       });
     },

@@ -77,13 +77,6 @@
       </div>
       <div class="tabel">
         <span>模板类型：</span>
-        <!-- <avue-select
-            v-model="formInline.templateType"
-            :dic="templateTypeList"
-            :clearable="false"
-            placeholder="请选择"
-            @change="handleType"
-          /> -->
           <el-select v-model="formInline.templateType" @change="handleType" :disabled="flag === 'update'">
             <el-option
               v-for="item in templateTypeList"
@@ -94,53 +87,54 @@
           </el-select>
       </div>
       <h4>规则范围：</h4>
-      <div >
+      <div v-if="formInline.templateType === '搜索词' || formInline.templateType === '投放'">
           执行频率：
           <el-select v-model="formInline.executionFrequency">
             <el-option
-              v-for="item in frequencyOption"
+              v-for="item in frequency(formInline.templateType)"
               :key="item.value"
               :value="item.value"
               :label="item.label"
             />
           </el-select>
-        <!-- <el-popover
-          width="200"
-          trigger="click"
-          v-if="!launch"
-        >
-        <el-button
-          slot="reference"
-          size="mini"
-          style="marginLeft: 30px">ASIN批量查询</el-button>
-          <div>
-            <el-input
-              class="asin-textarea"
-              v-model="asinMskuKeyword"
-              placeholder="支持ASIN批量查询，搜索ASIN，找到ASIN相关的关键词；最多20个ASIN，换行间隔；"
-              type="textarea"
-              :rows="10"
-              @input="handleTextAreaInput"
-            />
-          </div>
-        </el-popover> -->
       </div>
-      <global-filter 
-        v-if="ruleIs"
-        ref="filters" 
-        :fields="launch ? 'launchFileds' : 'tatolFileds'" 
-        :filterecho="ruleFiled"
-        v-model="saveDisabled"
-        dateSelect 
-        style="marginTop: 10px"
-      />
-      <h4>自动化操作：</h4>
-      <automatic 
-        v-if="automaticIs"
-        ref="automatic"
-        :echo="tableFiled"
-        :templateType="formInline.templateType"
-        :deduplication="deduplication"
+
+      <div v-else>
+          调价频率：
+          <el-select v-model="formInline.adjustmentFrequency">
+            <el-option
+              v-for="item in frequency(formInline.templateType)"
+              :key="item.value"
+              :value="item.value"
+              :label="item.label"
+            />
+          </el-select>
+      </div>
+
+      <div v-if="formInline.templateType === '搜索词' || formInline.templateType === '投放'">
+        <global-filter 
+          v-if="ruleIs"
+          ref="filters" 
+          :fields="launch ? 'launchFileds' : 'tatolFileds'" 
+          :filterecho="ruleFiled"
+          v-model="saveDisabled"
+          dateSelect 
+          style="marginTop: 10px"
+        />
+        <h4>自动化操作：</h4>
+        <automatic 
+          v-if="automaticIs"
+          ref="automatic"
+          :echo="tableFiled"
+          :templateType="formInline.templateType"
+          :deduplication="deduplication"
+        />
+      </div>
+      <justment
+        v-else
+        ref="justment"
+        :form="formInline"
+        :echo="justmentField"
       />
       <div class="explain">
         <p>操作要点</p>
@@ -251,6 +245,8 @@ import {
   repeatName
 } from '@/api/ppc/automation';
 import campaignDialog from './components/campaign.vue';
+import { frequency } from './util';
+import justment from './components/justment.vue';
 
 export default {
   name: 'automaticTeplate',
@@ -258,7 +254,8 @@ export default {
     globalFilter,
     Automatic,
     tableDialog,
-    campaignDialog
+    campaignDialog,
+    justment
   },
   data() {
     return {
@@ -350,9 +347,10 @@ export default {
       formInline: {
         templateName: '', //规则名称
         templateIllustrate: '', // 模板说明
-        executionFrequency: '30', //执行频率
         asinList: [], //ASIN集合
         templateType: '搜索词',
+        executionFrequency: '30', //执行频率
+        adjustmentFrequency: '每天', // 调价频率
       },
       templateName: '',
       asinMskuKeyword: '',
@@ -365,30 +363,16 @@ export default {
       automationTemplateId: '',
       tableDialog: false,
       saveDisabled: true,
-      frequencyOption: [
-        {
-          label: '每7天',
-          value: '7'
-        },
-        {
-          label: '每14天',
-          value: '14'
-        },
-        {
-          label: '每21天',
-          value: '21'
-        },
-        {
-          label: '每30天',
-          value: '30'
-        },
-      ],
+      
       templateTypeList: [{
         label: '搜索词',
         value: '搜索词'
       }, {
         label: '投放',
         value: '投放'
+      }, {
+        label: '分时调价',
+        value: '分时调价'
       }],
       templateNameMsg: false, //模板名称校验
       launch: false, //监听是否投放
@@ -397,7 +381,20 @@ export default {
       deduplication: true,
     };
   },
+
+  watch: {
+    formInline: {
+      handler(value) {
+        if (value.templateType === '分时调价') {
+          this.saveDisabled = false; 
+        }
+      },
+      deep: true,
+    }
+  },
+
   methods: {
+    frequency,
     isLaunch(val) {
       if (val === '投放') {
         this.launch = true;
@@ -406,6 +403,12 @@ export default {
       }
     },
     handleType(val) { //监听模板变化
+      // if (val === '搜索词' || val === '投放') {
+      //   this.formInline.executionFrequency = '30';
+      // } else if (val === '分时调价') {
+      //   this.formInline.executionFrequency = '每天';
+      // }
+
       this.$refs.automatic.wathcType(val);
       this.isLaunch(val);
       this.ruleIs = this.ruleIs ? false : true;
@@ -562,25 +565,32 @@ export default {
     },
     // 创建模板
     save() {
-      if (this.templateMsg()) {
+      if ((this.formInline.templateType === '搜索词' || this.formInline.templateType === '投放') && this.templateMsg()) {
         return;
       }
-      if (this.deliveryMsg()) {
+      if ((this.formInline.templateType === '搜索词' || this.formInline.templateType === '投放') && this.deliveryMsg()) {
+        return;
+      }
+      if (this.formInline.templateType === '分时调价' && !this.$refs.justment.getField().length) {
         return;
       }
 
-      const automatic = this.$refs.automatic.getFiled();
+      const automatic = (this.formInline.templateType === '搜索词' || this.formInline.templateType === '投放') && this.$refs.automatic.getFiled() || [];
       const params = {
         ...this.formInline,
         asinList: automatic.automatedOperation === '创建广告组' ? [] : this.formInline.asinList.filter(Boolean),
+        automatedOperation: '分时调价', 
+        adCampaignInfos: this.formInline.templateType === '分时调价' && this.$refs.justment.getField() || [],
+        executionFrequency: this.formInline.templateType === '分时调价' && '' || this.formInline.executionFrequency,
         ...automatic,
         ruleType: 1,
         excludeTerms: 0,
-        roleList: this.$refs.filters.getFiled(),
-        deduplication: (this.$refs.automatic.automatedOperation === '创建广告活动' || this.$refs.automatic.automatedOperation === '创建广告组') && this.$refs.automatic.form.deduplication ? 1 : 0 || 0
+        roleList: (this.formInline.templateType === '搜索词' || this.formInline.templateType === '投放') && this.$refs.filters.getFiled() || [],
+        deduplication: (this.formInline.templateType === '搜索词' || this.formInline.templateType === '投放')
+          && (this.$refs.automatic.automatedOperation === '创建广告活动' || this.$refs.automatic.automatedOperation === '创建广告组') && this.$refs.automatic.form.deduplication ? 1 : 0 || 0
       };
 
-      if (!params.roleList[0].item.length) {
+      if ((this.formInline.templateType === '搜索词' || this.formInline.templateType === '投放') && !params.roleList[0].item.length) {
         this.$message({
           type: 'error',
           message: '请输入子规则中对应的数值'
@@ -610,6 +620,7 @@ export default {
             this.getAutomationList();
             this.ruleFiled = [];
             this.tableFiled = {};
+            this.justmentField = [];
             this.centerDialogVisible = false;
           }
         });
@@ -620,6 +631,7 @@ export default {
       if (this.flag === 'update') {
         this.ruleFiled = [];
         this.tableFiled = {};
+        this.justmentField = [];
         this.empty();
       }
       this.formInline.templateType = '搜索词';
@@ -657,8 +669,10 @@ export default {
             templateIllustrate: result.templateIllustrate,
             templateName: result.templateName,
             templateType: result.templateType,
-            asinList: result.asinList
+            asinList: result.asinList,
+            adjustmentFrequency: result.adjustmentFrequency,
           };
+          this.justmentField = result.adCampaignInfos;
           this.deduplication = result.deduplication ? true : false;
           this.asinMskuKeyword = result.asinList.join('\n');
           this.isLaunch(this.formInline.templateType);
@@ -771,6 +785,9 @@ export default {
   }
   ::v-deep .el-dialog__body{
     padding: 0px 25px 30px;
+    max-height: 80vh;
+    overflow: hidden;
+    overflow-y: auto;
   }
   ::v-deep .dialog-footer {
     text-align: center;

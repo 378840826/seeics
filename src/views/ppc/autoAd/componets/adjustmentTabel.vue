@@ -4,6 +4,7 @@
       :data="data"
       border
       :header-cell-style="headerStyle"
+      max-height="300px"
     >
       <el-table-column
         prop="timeScope"
@@ -15,6 +16,7 @@
             :ref="'timeLimit_' + scope.$index"
             v-model="scope.row.timeLimit"
             @change="handleTimeScope($event, scope.$index)"
+            @visible-change="visibleChange($event, 'timeLimit_' + scope.$index, scope.row.timeLimit)"
             size="mini">
             <el-option
               v-for="(key, idx) in timeScopeList"
@@ -28,6 +30,7 @@
             <el-select
               :ref="'startTime_' + scope.$index"
               v-model="scope.row.startTime"
+              @visible-change="visibleChange($event, 'startTime_' + scope.$index, scope.row.startTime)"
               size="mini"
               class="selects"
             >
@@ -43,6 +46,7 @@
             <el-select
               :ref="'endTime_' + scope.$index"
               v-model="scope.row.endTime"
+              @visible-change="visibleChange($event, 'endTime_' + scope.$index, scope.row.endTime)"
               size="mini"
               class="selects right"
             >
@@ -68,6 +72,7 @@
             :ref="'bidType_' + scope.$index"
             v-model="scope.row.bidType"
             @change="handleAdjust($event, scope.$index)"
+            @visible-change="visibleChange($event, 'bidType_' + scope.$index, scope.row.bidType)"
             class="selects"
             size="mini"
           >
@@ -186,6 +191,7 @@
 <script>
 
 import { timeList, timeScopeList, bidAdjustList, flaotList } from '../dict';
+
 export default {
 
   props: {
@@ -193,9 +199,9 @@ export default {
       type: Object,
       default: new Object
     },
-    echoField: {
-      type: Array,
-    },
+    // echoField: {
+    //   type: Array,
+    // },
     week: {
       type: String,
       require: true
@@ -215,6 +221,7 @@ export default {
       },
       data: [
         {
+          id: '',
           startTime: '',
           endTime: '',
           timeLimit: '',
@@ -238,7 +245,6 @@ export default {
       handler(val) {
         const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
         val.forEach((item, idx) => {
-          console.log(item)
           if (item.bidType === '固定竞价' && !item.bid
               || !item.bidType
               || item.rule === '上浮(%)' && (!item.bidLimitValue || !item.adjustTheValue)
@@ -261,37 +267,11 @@ export default {
               item.addDisabled = false;
             }
           }
-          // 空值高亮
-          if (item.timeLimit && item.timeLimit !== '自定义时间范围') {
-            this.$refs[`timeLimit_${idx}`].$children[0].$refs.input.style.borderColor = ''
-          } 
-          if (item.timeLimit === '自定义时间范围' && item.startTime) {
-            this.$refs[`startTime_${idx}`].$children[0].$refs.input.style.borderColor = ''
-          }
-          if (item.timeLimit === '自定义时间范围' && item.endTime) {
-            this.$refs[`endTime_${idx}`].$children[0].$refs.input.style.borderColor = ''
-          }
-          if (item.bidType) {
-            this.$refs[`bidType_${idx}`].$children[0].$refs.input.style.borderColor = ''
-          }
-          if (item.bidType === '固定竞价' && item.bid) {
-            console.log(this.$refs[`bid_${idx}`])
-            this.$refs[`bid_${idx}`].$refs.input.style.borderColor = ''
-          }
-          if (item.rule && item.adjustTheValue) {
-            this.$refs[`adjustTheValue_${idx}`].$refs.input.style.borderColor = ''
-          }
-          if (item.rule && item.bidLimitValue) {
-            this.$refs[`bidLimitValue_${idx}`].$refs.input.style.borderColor = ''
-          }
+
         });
       },
       deep: true
     }
-  },
-
-  mounted() {
-    console.log(this.data)
   },
 
   methods: {
@@ -323,7 +303,7 @@ export default {
       this.data[idx].rule = '';
       this.data[idx].bid = '';
       this.data[idx].adjustTheValue = '';
-      this.data[idx].bidLimitValue = '';
+      this.data[idx].bidLimitValue = '';   
     },
 
     handleRule(idx) {
@@ -412,6 +392,7 @@ export default {
       if (this.data.length <= 24) {
         this.data.push(
           {
+            // id: this.data[0].id || '',
             startTime: '',
             endTime: '',
             timeLimit: '',
@@ -466,13 +447,46 @@ export default {
       return this.data;
     },
 
+    handleBlur(val, field, idx) {
+      if (val.target.value) {
+        val.target.style.borderColor = '';
+      }
+    },
+
+    visibleChange(e, field, value) {
+      if (value) {
+        this.$refs[field].$children[0].$refs.input.style.borderColor = '';
+      }
+    },
+
     ditto(val) {
+      console.log(val)
       this.data = val.map(item => {
         return {
           ...item,
           week: this.week,
         }
       });
+    },
+
+    echoField(val) {
+      this.data = val.map(item => {
+        return {
+          id: item.id || '',
+          startTime: item.startTime || '',
+          endTime: item.endTime || '',
+          timeLimit: item.timeLimit || '',
+          rule: item.rule || '',
+          adjustTheValue: item.adjustTheValue || '',
+          bidLimitValue: item.bidLimitValue || '',
+          currency: item.currency || '',
+          bid: item.bid || '',
+          bidType: item.bidType || '',
+          week: item.week || this.week || '',
+          addDisabled: false,
+        }
+      })
+      this.data[this.data.length - 1].add = true;
     }
   }
 };
