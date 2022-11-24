@@ -9,8 +9,19 @@
     trigger="click"
     @visible-change="handleVisibleChange"
     class="dropdown"
+    :class="{ 'dropdown-disabled': loading }"
   >
-    <div class="content-btn">
+    <!-- loading 状态 -->
+    <div v-if="loading" class="content-btn">
+      <el-input
+        readonly 
+        class="dropdown-btn-input" 
+        :placeholder="!showTags && placeholder" 
+        suffix-icon="el-icon-loading"
+        size="mini"
+      />
+    </div>
+    <div v-else class="content-btn">
       <el-input
         readonly 
         class="dropdown-btn-input" 
@@ -32,27 +43,32 @@
       <div class="filter-input-container">
         <el-input ref="refFilterInput" v-model="filterText" placeholder="过滤选项" size="mini" />
       </div>
-      <el-checkbox
-        :indeterminate="isIndeterminate" 
-        v-model="checkAll" 
-        @change="handleCheckAllChange"
-        class="check_all"
-      >全选</el-checkbox>
-      <!-- 复选框 -->
-      <el-checkbox-group
-        v-model="selectedIds" 
-        @change="handleCheckedChange"
-        class="checkbox-group"
-      >
-        <el-dropdown-item v-for="item in filteredList" :key="item.id">
-          <el-checkbox :label="item.id">{{item.name}}</el-checkbox>
-        </el-dropdown-item>
-      </el-checkbox-group>
-      <!-- footer -->
-      <div class="footer-btns">
-        <el-button type="primary" size="mini" @click="handleOk">确定</el-button>
-        <el-button size="mini" @click="handleCancel">取消</el-button>
+      <div v-if="!filteredList.length" class="no_data">
+        没有数据
       </div>
+      <template v-else>
+        <el-checkbox
+          :indeterminate="isIndeterminate" 
+          v-model="checkAll" 
+          @change="handleCheckAllChange"
+          class="check_all"
+        >全选</el-checkbox>
+        <!-- 复选框 -->
+        <el-checkbox-group
+          v-model="selectedIds" 
+          @change="handleCheckedChange"
+          class="checkbox-group"
+        >
+          <el-dropdown-item v-for="item in filteredList" :key="item.id">
+            <el-checkbox :label="item.id">{{item.name}}</el-checkbox>
+          </el-dropdown-item>
+        </el-checkbox-group>
+        <!-- footer -->
+        <div class="footer-btns">
+          <el-button type="primary" size="mini" @click="handleOk">确定</el-button>
+          <el-button size="mini" @click="handleCancel">取消</el-button>
+        </div>
+      </template>
     </el-dropdown-menu>
   </el-dropdown>
 </div>
@@ -72,6 +88,9 @@ export default {
     },
     noDataText: {
       type: String,
+    },
+    loading: {
+      type: Boolean,
     },
   },
 
@@ -160,6 +179,10 @@ export default {
 
 .dropdown {
   width: 184px;
+
+  &.dropdown-disabled {
+    pointer-events: none;
+  }
 }
 
 .filter-input-container {
@@ -256,5 +279,12 @@ export default {
 .footer-btns {
   padding: 10px 0 0 20px;
   border-top: 1px solid #DCDFE6;
+}
+
+.no_data {
+  margin: 20px;
+  text-align: center;
+  color: $disabledColor;
+  font-size: $textSize;
 }
 </style>

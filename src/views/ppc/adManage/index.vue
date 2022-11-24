@@ -89,7 +89,10 @@
             <span slot="label">
               {{ allTabs[item].label }}
               <span class="tabs-cell-count">
-                <template v-if="tabsCellCount[allTabs[item].countKey] === undefined || tabsCellCountLoading">
+                <!-- searchTerm 不显示数量 -->
+                <template v-if="item === 'searchTerm'">
+                </template>
+                <template v-else-if="tabsCellCount[allTabs[item].countKey] === undefined || tabsCellCountLoading">
                   (...)
                 </template>
                 <template v-else>
@@ -155,6 +158,7 @@ import Targeting from './pages/Targeting';
 import TargetingGroups from './pages/TargetingGroups';
 import NegativeKeyword from './pages/NegativeKeyword';
 import NegativeTargeting from './pages/NegativeTargeting';
+import SearchTerm from './pages/SearchTerm';
 
 export default{
   name: 'adManage',
@@ -171,6 +175,7 @@ export default{
     TargetingGroups,
     NegativeKeyword,
     NegativeTargeting,
+    SearchTerm,
   },
 
   data() {
@@ -201,7 +206,8 @@ export default{
       portfolioList: [],
       portfolioAddName: '',
       // 右侧标签页
-      tabsActive: 'campaign',
+      // tabsActive: 'campaign',
+      tabsActive: 'searchTerm',
       tabsCellCount: {},
       tabsCellCountLoading: false,
     };

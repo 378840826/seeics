@@ -64,6 +64,7 @@ export const queryAnalyseStatistic = (pageType, data) => {
     keyword: '/api/seeics-ad/keyword/analyse/summary',
     targeting: '/api/seeics-ad/targeting/analyse/summary',
     targetingGroup: '/api/seeics-ad/targeting/analyse/summary',
+    searchTerm: '/api/seeics-ad/searchTerm/analyse/summary',
   };
   return request({
     url: urls[pageType],
@@ -81,6 +82,7 @@ export const queryAnalyseList = (pageType, data) => {
     keyword: '/api/seeics-ad/keyword/analyse/list',
     targeting: '/api/seeics-ad/targeting/analyse/list',
     targetingGroup: '/api/seeics-ad/targeting/analyse/list',
+    searchTerm: '/api/seeics-ad/searchTerm/analyse/list',
   };
   return request({
     url: urls[pageType],
@@ -98,6 +100,7 @@ export const downloadAnalysisTable = (pageType, data) => {
     keyword: '/api/seeics-ad/keyword/analyse/download',
     targeting: '/api/seeics-ad/targeting/analyse/download',
     targetingGroup: '/api/seeics-ad/targeting/analyse/download',
+    searchTerm: '/api/seeics-ad/searchTerm/analyse/download',
   };
   return request({
     url: urls[pageType],
@@ -137,6 +140,15 @@ export const modifyCampaign = (data) => {
   });
 };
 
+// 广告活动-简单结构列表
+export const queryConciseCampaignList = (data) => {
+  return request({
+    url: '/api/seeics-ad/campaign/conciseList',
+    method: 'post',
+    data,
+  });
+};
+
 // 广告组
 // 广告组-列表
 export const queryGroupList = (params, data) => {
@@ -161,6 +173,15 @@ export const modifyGroupState = (data) => {
 export const modifyGroup = (data) => {
   return request({
     url: '/api/seeics-ad/group/update',
+    method: 'post',
+    data,
+  });
+};
+
+// 广告组-简单结构列表
+export const queryConciseGroupList = (data) => {
+  return request({
+    url: '/api/seeics-ad/group/list',
     method: 'post',
     data,
   });
@@ -323,6 +344,27 @@ export const modifyTargetingGroupsBitchBid = (data) => {
     url: '/api/seeics-ad/targeting/update/bid',
     method: 'post',
     data,
+  });
+};
+
+
+// SearchTerm
+// SearchTerm-列表
+export const querySearchTermList = (data) => {
+  return request({
+    url: '/api/seeics-ad/searchTerm/list',
+    method: 'post',
+    data,
+  });
+};
+
+// SearchTerm-下载
+export const downloadSearchTermTable = (data) => {
+  return request({
+    url: '/api/seeics-ad/searchTerm/list/download',
+    method: 'post',
+    data,
+    responseType: 'blob',
   });
 };
 

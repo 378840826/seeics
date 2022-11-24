@@ -56,14 +56,24 @@ const options = {
         picker.$emit('pick', getDateRangeForKey(7));
       }
     }, {
+      text: '最近14天',
+      onClick(picker) {
+        picker.$emit('pick', getDateRangeForKey(14));
+      }
+    }, {
       text: '最近30天',
       onClick(picker) {
         picker.$emit('pick', getDateRangeForKey(30));
       }
     }, {
-      text: '最近60天',
+      text: '最近90天',
       onClick(picker) {
-        picker.$emit('pick', getDateRangeForKey(60));
+        picker.$emit('pick', getDateRangeForKey(90));
+      }
+    }, {
+      text: '最近180天',
+      onClick(picker) {
+        picker.$emit('pick', getDateRangeForKey(180));
       }
     },
   ],
@@ -89,7 +99,6 @@ export default {
   methods: {
     // 点击搜索
     handleChange() {
-      console.log('日期change', this.value );
       this.$emit('change', this.value);
     },
   },

@@ -29,10 +29,10 @@
 
 <script>
 // 非 Min-Max 值的 key
-const notRangeKeys = ['search', 'targetingType', 'groupType', 'state', 'qualification', 'matchType', 'deliveryMethod'];
+const notRangeKeys = ['search', 'targetingType', 'groupType', 'state', 'qualification', 'matchType', 'deliveryMethod', 'queryText', 'targetText'];
 export { notRangeKeys };
 // 可多选的值可能很长的 key
-const multipleLongValueKeys = ['portfolios'];
+const multipleLongValueKeys = ['portfolios', 'campaigns', 'groups'];
 export { multipleLongValueKeys };
 
 export default {
@@ -98,6 +98,8 @@ export default {
       multipleLongValueKeys,
       titleDict: {
         search: { title: '查询' },
+        queryText: { title: '搜索词' },
+        targetText: { title: '投放' },
         state: { title: '状态' },
         targetingType: { title: '广告类型' },
         groupType: { title: '投放类型' },
@@ -105,6 +107,8 @@ export default {
         matchType: { title: '匹配方式' },
         deliveryMethod: { title: 'Targeting类型' },
         portfolios: { title: '广告组合' },
+        campaigns: { title: '广告活动' },
+        groups: { title: '广告组' },
         // 以下为 min-max 值的
         sales: { title: '销售额', suffix: this.currency },
         spend: { title: 'Spend', suffix: this.currency },
