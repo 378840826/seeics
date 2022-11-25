@@ -562,12 +562,14 @@ export default {
 
   created() {
     // 由于表格的”投放方式“ 改名为 ”广告类型“，导致保存在用户本地的自定义列项不一致，先打补丁， 后期删除
-    const localStorageCustomCols = getStore({ name: 'app-adMamage-campaign-customCol' });
-    const index = localStorageCustomCols.findIndex(item => item === '投放方式');
-    if (index !== -1) {
-      localStorageCustomCols[index] = '广告类型';
-      setStore({ name: 'app-adMamage-campaign-customCol', content: localStorageCustomCols });
-    }
+    (function patch (colKey) {
+      const flagKey = `flag-${colKey}`;
+      const flag = getStore({ name: flagKey });
+      if (!flag) {
+        setStore({ name: colKey, content: null });
+        setStore({ name: flagKey, content: true });
+      }
+    })('app-adMamage-campaign-customCol');
 
     this.getList();
   },
