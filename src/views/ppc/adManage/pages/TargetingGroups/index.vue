@@ -157,6 +157,12 @@
       </div>
     </el-table-column>
 
+    <el-table-column v-if="customCols.includes('智能竞价')" prop="intelligenceBid" label="智能竞价" width="100">
+      <div slot-scope="{row}">
+        {{ getValueLocaleString({ value: row.intelligenceBid, isFraction: true, prefix: currency }) }}
+      </div>
+    </el-table-column>
+
     <template v-for="item in commonColOption">
       <el-table-column
         v-if="customCols.includes(item.label)"
@@ -229,6 +235,7 @@
 </template>
 
 <script>
+import { setStore, getStore } from '@/util/store';
 import {
   queryTargetingGroupsList,
   modifyTargeting,
@@ -329,6 +336,16 @@ export default {
   },
 
   created() {
+    // 由于表格增加 智能竞价，导致保存在用户本地的自定义列项不一致， 先打补丁， 后期删除
+    (function patch (colKey) {
+      const flagKey = `flag-${colKey}`;
+      const flag = getStore({ name: flagKey });
+      if (!flag) {
+        setStore({ name: colKey, content: null });
+        setStore({ name: flagKey, content: true });
+      }
+    })('app-adMamage-targetingGroups-customCol');
+    
     this.getList();
   },
 
@@ -409,6 +426,10 @@ export default {
 
     // 批量修改页面表格数据
     updateTableData(ids, newData) {
+      // 如果修改了竞价，同时修改智能竞价为竞价
+      if (newData.bid) {
+        newData.intelligenceBid = newData.bid;
+      }
       ids.forEach(id => {
         const index = this.tableData.findIndex(data => data.id === id);
         this.tableData.splice(index, 1, {
