@@ -495,7 +495,7 @@ export default {
         campaignType: 'sp',
       };
       queryConciseCampaignList(bodyParams).then(res => {
-        this.campaignList = res.data.data.records;
+        this.campaignList = res.data.data.records.map(item => ({ ...item, id: item.campaignId }));
         this.allCampaignList = [...this.campaignList];
       }).finally(() => {
         this.loading.campaign = false;
