@@ -53,18 +53,18 @@ export const adCustomColsOptions = [
 
 // 关键词页的可自定义列
 export const keywordCustomColsOptions = [
-  '匹配方式', '广告活动', '广告组', '建议竞价', '竞价', '添加时间',
+  '匹配方式', '广告活动', '广告组', '建议竞价', '竞价', '智能竞价', '添加时间',
   ...commonCustomColsOptions,
 ];
 
 // targeting页的可自定义列
 export const targetingCustomColsOptions = [
-  '匹配方式', '广告活动', '广告组', '建议竞价', '竞价', '添加时间',
+  '匹配方式', '广告活动', '广告组', '建议竞价', '竞价', '智能竞价', '添加时间',
   ...commonCustomColsOptions,
 ];
 
 // 投放组页的可自定义列
 export const targetingGroupsCustomColsOptions = [
-  '所属广告组', '建议竞价', '竞价',
+  '所属广告组', '建议竞价', '竞价', '智能竞价', 
   ...commonCustomColsOptions,
 ];
