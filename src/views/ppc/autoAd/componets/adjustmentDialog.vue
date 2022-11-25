@@ -23,7 +23,8 @@
               <el-input
                 v-model="form.campaignName"
                 size="mini"
-                class="label-width"/>
+                class="label-width"
+                disabled/>
             </el-form-item>
 
             <el-form-item
@@ -523,5 +524,9 @@ export default {
     p {
       margin: 0;
     }
+  }
+
+  ::v-deep .el-form-item__label {
+    text-align: start;
   }
 </style>
