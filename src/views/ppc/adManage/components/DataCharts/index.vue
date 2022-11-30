@@ -515,6 +515,12 @@ export default {
           adGroupId: this.rowData.groupId,
         });
       }
+      // 广告位需要的特殊参数
+      if (this.pageType === 'placement') {
+        Object.assign(params, {
+          placement: this.rowData.campaignPlacement,
+        });
+      }
       queryAnalyseStatistic(this.pageType, params).then(res => {
         this.statisticData = res.data.data;
       }).finally(() => {
@@ -541,6 +547,12 @@ export default {
           targetEntityId: this.rowData.targetEntityId,
           campaignId: this.rowData.campaignId,
           adGroupId: this.rowData.groupId,
+        });
+      }
+      // 广告位需要的特殊参数
+      if (this.pageType === 'placement') {
+        Object.assign(params, {
+          placement: this.rowData.campaignPlacement,
         });
       }
       queryAnalyseList(this.pageType, params).then(res => {
@@ -604,6 +616,12 @@ export default {
           targetEntityId: this.rowData.targetEntityId,
           campaignId: this.rowData.campaignId,
           adGroupId: this.rowData.groupId,
+        });
+      }
+      // 广告位需要的特殊参数
+      if (this.pageType === 'placement') {
+        Object.assign(params, {
+          placement: this.rowData.campaignPlacement,
         });
       }
       downloadAnalysisTable(this.pageType, params)

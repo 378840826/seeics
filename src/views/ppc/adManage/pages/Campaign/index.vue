@@ -528,7 +528,6 @@ export default {
       editKey: '',
       // 数据分析
       dataChartsVisible: false,
-      pageType: 'campaign',
       dataChartsRow: {},
       dataChartsNamePath: [],
       createCampaignDialogVisible: false,

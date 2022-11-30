@@ -22,12 +22,9 @@
 import { getDateRangeForKey } from '@/util/date';
 
 const options = {
-  // 限制可选日期为最近 60 天
+  // 未来日期不可选
   disabledDate: (time) => {
-    const nowDate = (new Date()).getTime();
-    const durationTime = 60 * 24 * 3600 * 1000;
-    const twoMonths = nowDate - durationTime;
-    return time.getTime() > Date.now() || time.getTime() < twoMonths;
+    return time.getTime() > Date.now();
   },
   // 快捷选项
   shortcuts: [

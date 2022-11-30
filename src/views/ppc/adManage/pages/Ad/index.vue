@@ -279,7 +279,7 @@
   :currency="currency"
   :rowData="dataChartsRow"
   :namePath="dataChartsNamePath"
-  :pageType="pageType"
+  pageType="ad"
 />
 
 <!-- 创建广告弹窗 -->
@@ -387,7 +387,6 @@ export default {
       tableSort: { prop: 'addTime', order: 'descending' },
       // 数据分析
       dataChartsVisible: false,
-      pageType: 'ad',
       dataChartsRow: {},
       dataChartsNamePath: [],
       createDialogVisible: false,

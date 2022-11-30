@@ -324,7 +324,7 @@
   :currency="currency"
   :rowData="dataChartsRow"
   :namePath="dataChartsNamePath"
-  :pageType="pageType"
+  pageType="group"
 />
 
 <create-group
@@ -437,7 +437,6 @@ export default {
       editKey: '',
       // 数据分析
       dataChartsVisible: false,
-      pageType: 'group',
       dataChartsRow: {},
       dataChartsNamePath: [],
       createDialogVisible: false,
