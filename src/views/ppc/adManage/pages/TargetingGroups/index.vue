@@ -220,7 +220,7 @@
   :currency="currency"
   :rowData="dataChartsRow"
   :namePath="dataChartsNamePath"
-  :pageType="pageType"
+  pageType="targetingGroup"
 />
 
 <!-- 批量调整竞价弹窗 -->
@@ -316,7 +316,6 @@ export default {
       editKey: '',
       // 数据分析
       dataChartsVisible: false,
-      pageType: 'targetingGroup',
       dataChartsRow: {},
       dataChartsNamePath: [],
       batchBidDialogVisible: false,

@@ -392,7 +392,6 @@ export default {
       tableSort: { prop: 'impressions', order: 'descending' },
       // 数据分析
       dataChartsVisible: false,
-      pageType: 'campaign',
       dataChartsRow: {},
       dataChartsNamePath: [],
     };

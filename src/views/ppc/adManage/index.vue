@@ -89,8 +89,8 @@
             <span slot="label">
               {{ allTabs[item].label }}
               <span class="tabs-cell-count">
-                <!-- searchTerm 不显示数量 -->
-                <template v-if="item === 'searchTerm'">
+                <!-- 不显示数量的页面 -->
+                <template v-if="['searchTerm', 'placement'].includes(item)">
                 </template>
                 <template v-else-if="tabsCellCount[allTabs[item].countKey] === undefined || tabsCellCountLoading">
                   (...)
@@ -152,6 +152,7 @@ import { stateIconDict, tabsStateDict, allTabs } from './utils/dict';
 import { currentShopKey } from './utils/options';
 import Campaign from './pages/Campaign';
 import Group from './pages/Group';
+import Placement from './pages/Placement';
 import Ad from './pages/Ad';
 import Keyword from './pages/Keyword';
 import Targeting from './pages/Targeting';
@@ -169,6 +170,7 @@ export default{
     PortfolioCampaignTree,
     Campaign,
     Group,
+    Placement,
     Ad,
     Keyword,
     Targeting,

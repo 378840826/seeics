@@ -59,6 +59,7 @@ export const updatePortfolio = params => {
 export const queryAnalyseStatistic = (pageType, data) => {
   const urls = {
     campaign: '/api/seeics-ad/campaign/analyse/summary',
+    placement: '/api/seeics-ad/campaign/placement/analyse/summary',
     group: '/api/seeics-ad/group/analyse/summary',
     ad: '/api/seeics-ad/product/analyse/summary',
     keyword: '/api/seeics-ad/keyword/analyse/summary',
@@ -77,6 +78,7 @@ export const queryAnalyseStatistic = (pageType, data) => {
 export const queryAnalyseList = (pageType, data) => {
   const urls = {
     campaign: '/api/seeics-ad/campaign/analyse/list',
+    placement: '/api/seeics-ad/campaign/placement/analyse/list',
     group: '/api/seeics-ad/group/analyse/list',
     ad: '/api/seeics-ad/product/analyse/list',
     keyword: '/api/seeics-ad/keyword/analyse/list',
@@ -95,6 +97,7 @@ export const queryAnalyseList = (pageType, data) => {
 export const downloadAnalysisTable = (pageType, data) => {
   const urls = {
     campaign: '/api/seeics-ad/campaign/analyse/download',
+    placement: '/api/seeics-ad/campaign/placement/analyse/download',
     group: '/api/seeics-ad/group/analyse/download',
     ad: '/api/seeics-ad/product/analyse/download',
     keyword: '/api/seeics-ad/keyword/analyse/download',
@@ -148,6 +151,19 @@ export const queryConciseCampaignList = (data) => {
     data,
   });
 };
+
+
+// 广告位
+// 广告位-列表
+export const queryPlacementList = (params, data) => {
+  return request({
+    url: '/api/seeics-ad/campaign/placement/list',
+    method: 'post',
+    params,
+    data,
+  });
+};
+
 
 // 广告组
 // 广告组-列表

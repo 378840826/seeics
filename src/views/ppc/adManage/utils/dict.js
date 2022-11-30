@@ -33,14 +33,17 @@ export const allTabs = {
   searchTerm: {
     label: 'Search Term', name: 'searchTerm', countKey: '', tabPane: 'SearchTerm',
   },
+  placement: {
+    label: '广告位', name: 'placement', countKey: '', tabPane: 'Placement',
+  },
 };
 
 // 右侧标签页的三个状态，根据当前选中的广告树节点来区分
 export const tabsStateDict = {
   default: ['campaign', 'group', 'ad', 'keyword', 'negativeKeyword', 'targeting', 'negativeTargeting', 'targetingGroups', 'searchTerm'],
-  campaign: ['group', 'ad', 'keyword', 'negativeKeyword', 'targeting', 'negativeTargeting', 'searchTerm'],
+  campaign: ['group', 'placement', 'ad', 'keyword', 'negativeKeyword', 'targeting', 'negativeTargeting', 'searchTerm'],
   // 自动广告活动，不显示 关键词和分类/商品投放， 显示投放组
-  autoCampaign: ['group', 'ad', 'targetingGroups', 'negativeKeyword', 'negativeTargeting', 'searchTerm'],
+  autoCampaign: ['group', 'placement', 'ad', 'targetingGroups', 'negativeKeyword', 'negativeTargeting', 'searchTerm'],
   keywordGroup: ['ad', 'keyword', 'negativeKeyword', 'searchTerm'],
   targetingGroup: ['ad', 'targeting', 'negativeTargeting', 'searchTerm'],
   // 自动广告组，不显示 关键词和分类/商品投放，但显示否定关键词和否定targeting，显示投放组
@@ -104,4 +107,11 @@ export const NegativeKeywordMatchTypeNameDict = {
 export const deliveryMethodNameDict = {
   category: '分类',
   product: '商品',
+};
+
+// 广告位名称
+export const placementNameDict = {
+  'Top of Search on-Amazon': '搜索结果顶部（首页）',
+  'Detail Page on-Amazon': '商品页面',
+  'Other on-Amazon': '搜索结果的其余位置',
 };

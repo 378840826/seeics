@@ -14,6 +14,7 @@ export const nameDict = {
 
 export const pageNameDict = {
   campaign: '广告活动',
+  placement: '广告位',
   group: '广告组',
   ad: '广告',
   keyword: '关键词',
