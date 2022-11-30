@@ -132,8 +132,9 @@
                 class="is-ditto">同上</el-button>
               <adjustemnt-tabel
                 :ref="'table_' + index"
-                :rowData="[]"
+                :rowData="rowData"
                 :week="item.week"
+                :timeSelect.sync="timeObj[item.week]"
               />
           </el-collapse-item>
         </el-collapse>
@@ -141,11 +142,37 @@
         <adjustemnt-tabel
           v-else
           ref="table_everyday"
-          :rowData="[]"
+          :rowData="rowData"
+          :timeSelect.sync="timeObj['每天']"
         />
-      </div>    
+      </div> 
 
-      <!-- <timeSelection/> -->
+      <div style="padding: 10px 0">
+        <span>日期范围：</span>
+        <el-date-picker
+          v-model="form.startTime"
+          style="width: 150px"
+          type="date"
+          placeholder="选择日期"
+          :picker-options="pickerOptions"
+          size="mini">
+        </el-date-picker>
+        <span style="margin: 0 6px;color: #d9d9d9;width: 12px;">—</span>
+        <el-date-picker
+          v-model="form.endTime"
+          style="width: 150px"
+          type="date"
+          placeholder="选择日期"
+          :picker-options="pickerOptions2"
+          size="mini">
+        </el-date-picker>
+      </div>   
+
+      <timeSelection
+        :timeSelect.sync="timeObj"
+        :echoTimeSelect.sync="echoTimeSelect"
+        :executionFrequency.sync="form.executionFrequency"
+      />
       <div class="explain">
         <p>操作要点</p>
         <p>1. 每个自动化标签最多支持一种自动化操作。</p>
@@ -167,8 +194,8 @@
       </div>
 
       <div slot="footer" class="dialog-footer">
-        <el-button @click="$emit('update:dialogVisible', false)">取 消</el-button>
-        <el-button type="primary" @click="getField">确 认</el-button>
+        <el-button size="mini" @click="$emit('update:dialogVisible', false)">取 消</el-button>
+        <el-button size="mini" type="primary" @click="save">确 认</el-button>
       </div>
     </el-dialog>
   </div>
@@ -185,6 +212,8 @@ import {
 import adjustemntTabel from './adjustmentTabel.vue';
 import { weekList, stateDict } from '../dict';
 import timeSelection from './timeSelection';
+import { weekNumberToChinese, formatS } from './timeSelection/ulit';
+import dayjs from 'dayjs';
 
 export default {
 
@@ -218,6 +247,8 @@ export default {
         templateName: '',
         executionFrequency: '每天',
         campaignName: this.rowData.name,
+        startTime: '',
+        endTime: '',
       },
       activeNames: [],
       autoTempalteList: [],
@@ -230,6 +261,29 @@ export default {
       },
       echoData: {},
       isJustment: true,
+      timeObj: {
+        星期一: [],
+        星期二: [],
+        星期三: [],
+        星期四: [],
+        星期五: [],
+        星期六: [],
+        星期天: [],
+        每天: [],
+      },
+      timeSelect: [],
+      echoTimeSelect: [],
+      pickerOptions: {
+        disabledDate: (date) => {
+          return date.getTime() < Date.now() - 8.64e7;
+        }
+      },
+      pickerOptions2: {
+        disabledDate: (date) => {
+          const day = new Date(this.form.startTime);    
+          return date.getTime() <= day.getTime() + 24 * 60 * 60 * 1000 - 8.64e7;
+        }
+      },
     };
   },
 
@@ -261,10 +315,72 @@ export default {
         this.activeNames = [this.activeNamesFormat(val)];
       },
       deep: true,
-    }
+    },
+    timeObj: {
+      handler(val) {
+        // console.log(val)
+      },
+      deep: true
+    },
+    // echoTimeSelect: {
+    //   handler(val) {
+    //     console.log(val);
+    //     // console.log(this.getField())
+    //     const arr = [];
+    //     val.map(item => {
+    //       // console.log(item.week)
+          
+    //       this.getField().map(s => {
+            
+    //         if (weekNumberToChinese(Number(item.week) - 1) === s.week) {
+
+    //           if (!s.startTime || !s.endTime) {
+    //             arr.push({
+    //               ...s,
+    //               endTime: item.endTime,
+    //               startTime: item.startTime,
+    //               timeLimit: '自定义时间范围',
+    //             })
+
+    //           } else {
+    //             console.log(s.startTime === item.startTime && s.endTime === item.endTime, )
+    //             if (s.startTime === item.startTime && s.endTime === item.endTime) {
+    //               console.log(s, item)
+    //               arr.push(s);
+    //             } else if (s.startTime === item.startTime && s.endTime !== item.endTime) {
+    //               // console.log(item, s)
+    //               arr.push({
+    //                 ...s,
+    //                 endTime: item.endTime,
+    //                 startTime: item.startTime,
+    //                 timeLimit: '自定义时间范围',
+    //               });
+    //               // console.log(arr)
+    //             } else if (s.startTime !== item.startTime && s.endTime === item.endTime) {
+    //               arr.push({
+    //                 ...s,
+    //                 endTime: item.endTime,
+    //                 startTime: item.startTime,
+    //                 timeLimit: '自定义时间范围',
+    //               });
+
+    //             }
+    //           }
+              
+    //         }
+            
+    //       });
+    //     });
+    //     this.echoField({adCampaignInfos: arr});
+
+    //   },
+    //   deep: true,
+    // }
   },
 
   methods: {
+    weekNumberToChinese,
+    formatS,
     weekListFormat() {
       if (this.form.executionFrequency === '每周') {
         return weekList;
@@ -313,6 +429,10 @@ export default {
           this.echoField(this.echoData);
         }, 10)
       }
+
+      Object.keys(this.timeObj).forEach(item => {
+        this.timeObj[item] = [];
+      })
     },
 
     getField() {
@@ -335,10 +455,17 @@ export default {
           params = params.concat(this.$refs[`table_${i}`][0].getField());
         }
       }
+      return params;
+    },
 
+    save() {
       const msg = [];
-      
-      params.map(item => {
+      const map = new Map();
+      const repetition = {
+
+      };
+      const repetitionMsg = new Map();
+      this.getField().map((item, index) => {
         if (!item.timeLimit) {
           msg.push(true);
         } else if (item.timeLimit === '自定义时间范围' && (!item.startTime || !item.endTime)) {
@@ -348,12 +475,81 @@ export default {
         } else if (item.rule && (!item.adjustTheValue || !item.bidLimitValue)) {
           msg.push(true);
         }
-      })
+
+        if (item.week) {
+          map.set(item, item.week);
+        } else {
+          map.set(item, '每天');
+        }
+      });
+
+      for (const [key, val] of map) {
+
+        if (val === '星期一') {
+          const arr = formatS(key.startTime, key.endTime);
+          arr.splice(arr.length - 1, arr[arr.length -1] === '23:00' ? 0 : 1);
+          repetition[val] = [...repetition[val] || '', ...arr];
+        } else if (val === '星期二') {
+          const arr = formatS(key.startTime, key.endTime);
+          arr.splice(arr.length - 1, arr[arr.length -1] === '23:00' ? 0 : 1);
+          repetition[val] = [...repetition[val] || '', ...arr];
+        } else if (val === '星期三') {
+          const arr = formatS(key.startTime, key.endTime);
+          arr.splice(arr.length - 1, arr[arr.length -1] === '23:00' ? 0 : 1);
+          repetition[val] = [...repetition[val] || '', ...arr];
+        } else if (val === '星期四') {
+          const arr = formatS(key.startTime, key.endTime);
+          arr.splice(arr.length - 1, arr[arr.length -1] === '23:00' ? 0 : 1);
+          repetition[val] = [...repetition[val] || '', ...arr];
+        } else if (val === '星期五') {
+          const arr = formatS(key.startTime, key.endTime);
+          arr.splice(arr.length - 1, arr[arr.length -1] === '23:00' ? 0 : 1);
+          repetition[val] = [...repetition[val] || '', ...arr];
+        } else if (val === '星期六') {
+          const arr = formatS(key.startTime, key.endTime);
+          arr.splice(arr.length - 1, arr[arr.length -1] === '23:00' ? 0 : 1);
+          repetition[val] = [...repetition[val] || '', ...arr];
+        } else if (val === '星期天') {
+          const arr = formatS(key.startTime, key.endTime);
+          arr.splice(arr.length - 1, arr[arr.length -1] === '23:00' ? 0 : 1);
+          repetition[val] = [...repetition[val] || '', ...arr];
+        } else if (val === '每天') {
+          const arr = formatS(key.startTime, key.endTime);
+          arr.splice(arr.length - 1, arr[arr.length -1] === '23:00' ? 0 : 1);
+          repetition[val] = [...repetition[val] || '', ...arr];
+        }
+      }
+      
+      for (const key in repetition) {
+        repetition[key].map(item => {
+          if (repetitionMsg.has(`${item}${key}`)) {
+            repetitionMsg.set(`${item}${key}`, repetitionMsg.get(`${item}${key}`) + 1);
+          } else {
+            repetitionMsg.set(`${item}${key}`, 1);
+          }
+
+        })
+      }
+      
+      const res = [];
+      for (const [key, val] of repetitionMsg) {
+        if (val > 1) {
+          res.push(key);
+        }
+      }
 
       let flag;
       this.$refs.form.validate(s => {
         flag = s;
       });
+
+      if (res.length) {
+        this.$message({
+          type: 'error',
+          message: '调价规则时间范围不能重叠'
+        });
+        return;
+      }
 
       if (!flag) {
         return;
@@ -374,8 +570,10 @@ export default {
           templateType: '分时调价',
           marketplace: this.rowData.marketplace,
           status: this.form.status,
-          adCampaignInfos: params,
-          id: this.rowData.adjustmentTemplateVoList.length && this.rowData.adjustmentTemplateVoList[0].id || ''
+          adCampaignInfos: this.getField(),
+          id: this.rowData.adjustmentTemplateVoList.length && this.rowData.adjustmentTemplateVoList[0].id || '',
+          startTime: dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || '',
+          endTime: dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || '',
         }
 
       if (this.rowData.adjustmentTemplateVoList.length) {
@@ -401,6 +599,8 @@ export default {
         this.form.executionFrequency = res.data.data.adjustmentFrequency;
         this.form.templateName = res.data.data.templateName;
         this.form.status = res.data.data.status;
+        this.form.endTime = res.data.data.endTime;
+        this.form.startTime = res.data.data.startTime;
         this.echoData = res.data.data;
         setTimeout(() => {
           this.echoField(res.data.data);
@@ -418,7 +618,11 @@ export default {
       const week6 = [];
       const week7 = [];
       const everyDay = [];
-      
+
+      if (!echo.adCampaignInfos.length) {
+        return;
+      }
+
       echo.adCampaignInfos.map(item => {
         if (item.week === '星期一') {
           week1.push(item);

@@ -4,45 +4,53 @@
     <thead>
       
       <tr>
-        <th :rowSpan="2">时间</th>
+        <th :rowSpan="2" class="th">时间</th>
       <template v-for="item in times" @contextmenu="handleContexMenu">
         <th
           v-if="item === '06:00'"
           :colspan="6"
-          :key="item">00:00 - 06:00</th>
+          :key="item"
+          class="th">00:00 - 06:00</th>
         <th
           v-if="item === '12:00'"
           :colspan="6"
-          :key="item">06:00 - 12:00</th>
+          :key="item"
+          class="th">06:00 - 12:00</th>
           <th
           v-if="item === '18:00'"
           :colspan="6"
-          :key="item">12:00 - 18:00</th>
+          :key="item"
+          class="th">12:00 - 18:00</th>
           <th
           v-if="item === '23:00'"
           :colspan="6"
-          :key="item">18:00 - 24:00</th>
+          :key="item"
+          class="th">18:00 - 24:00</th>
       </template>
        
       </tr>
-      <tr><th v-for="(item, idx) in times" :key="item" style="width: 37px">{{idx}}</th></tr>
+      <tr>
+        <th
+          v-for="(item, idx) in times"
+          :key="item"
+          class="th"
+          style="width: 37px">{{idx}}</th></tr>
     </thead>
 
-    <tbody ref="tableRef" @mouseup="mouseup" class="tbody">
+    <tbody ref="tableRef" class="tbody">
       
       <!-- <td v-for="item in times" :key="item">{{item}}</td> -->
       <tr
-        v-for="item in tabels"
+        v-for="item in (executionFrequency !== '每天' ? tabels : 1)"
         :key="item.week"
       >
-        <td style="textAlign: center;">{{item.week}}</td>
+        <td style="textAlign: center;borderColor: #e6e6e6;backgroundColor: #fafafa;">{{executionFrequency !== '每天' ? item.week : '每天'}}</td>
         <td
-          v-for="item in item.select"
+          v-for="item in (executionFrequency !== '每天' ? item.select : times)"
           :key="item"
-          :aria-checked="times[item]"
-          style="height: 40px"
+          :aria-checked="executionFrequency !== '每天' ? times[item] : item"
+          style="height: 40px; borderColor: #fff; background: rgb(231 231 231 / 50%)"
         >
-          <!-- {{item}} -->
         </td>
       </tr>
     </tbody>
@@ -52,10 +60,23 @@
 <script>
 
 import { times } from '../../dict';
-import { format, timeData, weekTransition, weekNumberToChinese, timeFormat, selectData } from './ulit';
+import { format, timeData, weekTransition, weekNumberToChinese, timeFormat, selectData, weekIndex, formatS } from './ulit';
 
 export default {
 //   components: { table },
+
+  props: {
+    timeSelect: {
+      type: Object
+    },
+    echoTimeSelect: {
+      type: Array
+    },
+    executionFrequency: {
+      type: String
+    }
+  },
+
   data() {
     return {
       times,
@@ -74,20 +95,45 @@ export default {
 
   mounted() {
     const ref = this.$refs.tableRef;
-    // ref.removeEventListener('mousedown', mouseDown);
-    // ref.removeEventListener('mouseup', mouseUp);
-    // ref.addEventListener('mousedown', mouseDown);
-    // ref.addEventListener('mouseup', mouseUp);
-
-    //rowIndex cellIndex
-
     this.tdDom = document.querySelectorAll('#table td:not(:first-child');
     this.$refs.tableRef.addEventListener('selectstart', function(e){
       e.preventDefault();
     });
+    // this.$refs.ref.addEventListener('selectstart', function(e){
+    //   e.preventDefault();
+    // });
     
-    ref.addEventListener('mousedown', this.mousedown);
+    // ref.addEventListener('mousedown', this.mousedown);
 
+  },
+
+  watch: {
+    timeSelect: {
+      handler(val) {
+        // console.log(val)
+        const tdDom = document.querySelectorAll('#table td:not(:first-child');
+        tdDom.forEach(t => {
+          t.style.background = 'rgb(231 231 231 / 50%)';
+        });
+        Object.keys(val).map((item) => {
+          tdDom.forEach(t => {
+            // t.style.background = 'rgb(231 231 231 / 50%)';
+            if (this.executionFrequency === '每天') {
+              
+              if (val[item].includes(t.ariaChecked)) {
+                t.style.background = 'rgb(175 216 255 / 50%)';
+              }
+            } else {
+              if (t.parentNode.rowIndex === weekIndex(item) + 2 && val[item].includes(t.ariaChecked)) {
+                t.style.background = 'rgb(175 216 255 / 50%)';
+              } 
+            } 
+          });
+        });
+
+      },
+      deep: true
+    },
   },
 
   methods: {
@@ -97,6 +143,8 @@ export default {
     weekNumberToChinese,
     timeFormat,
     selectData,
+    weekIndex,
+    formatS,
     handleContexMenu(val) {
     //   console.log(val)
     },
@@ -106,7 +154,7 @@ export default {
       this.startRowIndex = e.target.parentNode.rowIndex;
       this.isShow = true;
       const div = document.querySelector('.divs');
-      console.log(e.layerY + 44, e.layerX)
+    
       div.style.top = `${e.layerY + 45}px`;
       div.style.left = `${e.layerX - 2}px`;
       div.style.background = 'rgba(0,0,0,.2)';
@@ -134,7 +182,7 @@ export default {
           && (item.cellIndex <= end && item.parentNode.rowIndex <= endRow)) {
           if (item.style.background === 'rgba(175, 216, 255, 0.5)') {
 
-            item.style.background = '';
+            item.style.background = 'rgb(231 231 231 / 50%)';
           } else {
             item.style.background = 'rgb(175 216 255 / 50%)';
           }
@@ -150,6 +198,7 @@ export default {
       });
 
       this.data = selectData(data);
+      this.$emit('update:echoTimeSelect', selectData(data));
     },
 
     mousemove(e) {
@@ -166,28 +215,28 @@ export default {
    
 
       if (this.py > e.layerY && this.px > e.layerX) {
-        
+        // 左上 - 右下
         div.style.height = `${this.py - endY}px`;
         div.style.width = `${this.px - endX}px`;
         div.style.top = `${endY + 44}px`;
         div.style.left = `${endX + 2}px`;
 
       } else if (this.py < endY && this.px < endX) {
-        
+        // 右下 - 左上
         div.style.height = `${endY - this.py}px`;
         div.style.width = `${endX - this.px}px`;
         div.style.top = `${this.py + 42}px`;
         div.style.left = `${this.px}px`;
 
       } else if (this.py > endY && this.px < endX) {
-
+        // 右上 - 左下
         div.style.top = `${endY + 44}px`;
         div.style.left = `${this.px - 2}px`;
         div.style.height = `${this.py - endY}px`;
         div.style.width = `${endX - this.px}px`;
 
       } else if (this.py < endY && this.px > endX) {
-
+        // 左下 - 右上
         div.style.top = `${this.py + 42}px`;
         div.style.left = `${endX}px`;
         div.style.height = `${endY - this.py}px`;
@@ -210,5 +259,10 @@ export default {
     top: 44;
     left: 0;
     border: 1px solid #2f99fd;
+  }
+
+  .th {
+    border-color: #e6e6e6;
+    background-color: #fafafa;
   }
 </style>

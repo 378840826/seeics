@@ -455,7 +455,7 @@ export default {
           msg: false,
           add: true,
           adGroupList: [],
-          customText: ''
+          customText: '',
         },
       ],
       matchType: [{
@@ -1166,7 +1166,7 @@ export default {
         msg: false,
         add: true,
         adGroupList: [],
-        customText: ''
+        customText: '',
       });
       delete this.tableData[this.tableData.length - 2].add;
     },

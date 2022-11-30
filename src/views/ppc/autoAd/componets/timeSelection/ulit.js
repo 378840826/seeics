@@ -1,5 +1,5 @@
 
-import {} from '../../dict';
+import { times } from '../../dict';
 export const format = () => {
   const arr = [];
   for (let i = 0; i < 24; i ++) {
@@ -34,11 +34,33 @@ export function weekNumberToChinese(val) {
   case 5: 
     return '星期六';
   case 6: 
-    return '星期日';
+    return '星期天';
   default:
     return '';
   }
 }
+
+export function weekIndex(val) {
+  switch (val) {
+  case '星期一': 
+    return 0;
+  case '星期二': 
+    return 1;
+  case '星期三': 
+    return 2;
+  case '星期四': 
+    return 3;
+  case '星期五': 
+    return 4;
+  case '星期六': 
+    return 5;
+  case '星期天': 
+    return 6;
+  default:
+    return -1;
+  }
+}
+  
 
 export function weekTransition(val) {
   switch (val) {
@@ -146,4 +168,9 @@ export function coherent (arr) {
   });
   return newArr;
 //   console.log(ars)
+}
+
+export function formatS (start, end) {
+  const arr = times.filter(item => item >= start && item <= end);
+  return arr;
 }
