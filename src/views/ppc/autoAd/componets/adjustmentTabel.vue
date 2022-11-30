@@ -31,6 +31,7 @@
               :ref="'startTime_' + scope.$index"
               v-model="scope.row.startTime"
               @visible-change="visibleChange($event, 'startTime_' + scope.$index, scope.row.startTime)"
+              @change="handStartTime($event, scope.$index)"
               size="mini"
               class="selects"
             >
@@ -120,7 +121,7 @@
               <div
                 slot="prefix"
                 @click="focus('input_adjustTheValue' + scope.$index)"
-                style="lineHeight: 30px;">{{'$'}}
+                style="lineHeight: 30px;">{{rowData.currency}}
               </div>
             </el-input>
 
@@ -135,7 +136,7 @@
               <div
                 slot="prefix"
                 @click="focus('input_bidLimitValue' + scope.$index)"
-                style="lineHeight: 30px;">{{'$'}}
+                style="lineHeight: 30px;">{{rowData.currency}}
               </div>
             </el-input>
           </div>
@@ -152,7 +153,7 @@
             <div
               slot="prefix"
               @click="focus('input_bid' + scope.$index)"
-              style="lineHeight: 30px;">{{'$'}}
+              style="lineHeight: 30px;">{{rowData.currency}}
             </div>
           </el-input>
 
@@ -190,7 +191,8 @@
 
 <script>
 
-import { timeList, timeScopeList, bidAdjustList, flaotList } from '../dict';
+import { timeList, timeScopeList, bidAdjustList, flaotList, times } from '../dict';
+import { formatS } from './timeSelection/ulit';
 
 export default {
 
@@ -206,6 +208,9 @@ export default {
       type: String,
       require: true
     },
+    timeSelect: {
+      type: Object
+    },
   },
   
   data() {
@@ -213,6 +218,7 @@ export default {
       timeList,
       bidAdjustList,
       flaotList,
+      times,
       timeScopeList: ['自定义时间范围', ...timeScopeList],
       headerStyle: {
         color: '#232f3f',
@@ -234,15 +240,23 @@ export default {
           add: true,
           week: this.week,
           addDisabled: true,
+          ranking: 1,
         }
       ],
-      value: ''
+      value: '',
     };
   },
 
   watch: {
     data: {
       handler(val) {
+        const timeSelect = [];
+        val.map(item => {
+          timeSelect.push(...formatS(item.startTime, item.endTime))
+        })
+  
+        this.$emit('update:timeSelect', timeSelect);
+        
         const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/;
         val.forEach((item, idx) => {
           if (item.bidType === '固定竞价' && !item.bid
@@ -275,6 +289,7 @@ export default {
   },
 
   methods: {
+    formatS,
     timeScope() {
       return <div><span style="padding: 1px 3px;font-weight: 600;background: rgba(51,153,255,.2);border-radius: 1px;">站点当地时间</span>范围</div>;
     },
@@ -384,9 +399,14 @@ export default {
       }
     },
 
+    handStartTime(val, idx) {
+      if (val >= this.data[idx].endTime) {
+        this.data[idx].endTime = '';
+      }
+    },
+
     handleAdd(idx, flag) {
       if (flag) {
-        console.log(666)
         return;
       }
       if (this.data.length <= 24) {
@@ -405,6 +425,7 @@ export default {
             week: this.week,
             add: true,
             addDisabled: false,
+            ranking: this.data[this.data.length - 1].ranking ++
           }
         );
         this.data[this.data.length - 2].add = false;
@@ -460,7 +481,7 @@ export default {
     },
 
     ditto(val) {
-      console.log(val)
+
       this.data = val.map(item => {
         return {
           ...item,
@@ -470,6 +491,7 @@ export default {
     },
 
     echoField(val) {
+
       this.data = val.map(item => {
         return {
           id: item.id || '',

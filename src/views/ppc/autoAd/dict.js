@@ -22,7 +22,7 @@ export const timeScopeList = [
 
 export const bidAdjustList = [
   '原始竞价', '过去7天CPC', '过去14天CPC', '过去21天CPC', '过去30天CPC',
-  '固定竞价', '广告组默认竞价'
+  '广告组默认竞价', '固定竞价', '建议竞价最小值', '建议竞价最大值', '建议竞价'
 ];
 
 export const flaotList = [
