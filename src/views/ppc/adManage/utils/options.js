@@ -9,8 +9,8 @@ export const tablePageOption = {
 };
 
 // 默认日期范围
-// export const defaultDateRange = getDateRangeForKey(7);
-export const defaultDateRange = getDateRangeForKey(60);
+export const defaultDateRange = getDateRangeForKey(7);
+// export const defaultDateRange = getDateRangeForKey(60);
 
 // 店铺选中本地存储的 key
 export const currentShopKey = 'app-adMamage-currentShop';
