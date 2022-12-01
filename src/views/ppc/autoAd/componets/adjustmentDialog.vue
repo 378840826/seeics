@@ -572,8 +572,8 @@ export default {
           status: this.form.status,
           adCampaignInfos: this.getField(),
           id: this.rowData.adjustmentTemplateVoList.length && this.rowData.adjustmentTemplateVoList[0].id || '',
-          startTime: dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || '',
-          endTime: dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || '',
+          startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || '',
+          endTime: this.form.endTime && dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || '',
         }
 
       if (this.rowData.adjustmentTemplateVoList.length) {
