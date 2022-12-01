@@ -133,7 +133,7 @@
       <justment
         v-else
         ref="justment"
-        :form="formInline"
+        :form.sync="formInline"
         :echo="justmentField"
       />
       <div class="explain">
@@ -247,6 +247,7 @@ import {
 import campaignDialog from './components/campaign.vue';
 import { frequency } from './util';
 import justment from './components/justment.vue';
+import dayjs from 'dayjs';
 
 export default {
   name: 'automaticTeplate',
@@ -351,6 +352,8 @@ export default {
         templateType: '搜索词',
         executionFrequency: '30', //执行频率
         adjustmentFrequency: '每天', // 调价频率
+        startTime: '',
+        endTime: '',
       },
       templateName: '',
       asinMskuKeyword: '',
@@ -421,6 +424,8 @@ export default {
       this.formInline.templateIllustrate = '';
       this.asinMskuKeyword = '';
       this.formInline.templateType = '搜索词';
+      this.formInline.endTime = '';
+      this.formInline.startTime = '';
     },
     strSplit(str) {
       return str.split('n').filter(Boolean);
@@ -587,7 +592,9 @@ export default {
         excludeTerms: 0,
         roleList: (this.formInline.templateType === '搜索词' || this.formInline.templateType === '投放') && this.$refs.filters.getFiled() || [],
         deduplication: (this.formInline.templateType === '搜索词' || this.formInline.templateType === '投放')
-          && (this.$refs.automatic.automatedOperation === '创建广告活动' || this.$refs.automatic.automatedOperation === '创建广告组') && this.$refs.automatic.form.deduplication ? 1 : 0 || 0
+          && (this.$refs.automatic.automatedOperation === '创建广告活动' || this.$refs.automatic.automatedOperation === '创建广告组') && this.$refs.automatic.form.deduplication ? 1 : 0 || 0,
+        startTime: this.formInline.startTime && dayjs(this.formInline.startTime).format('YYYY-MM-DD') || '',
+        endTime: this.formInline.endTime && dayjs(this.formInline.endTime).format('YYYY-MM-DD') || '',
       };
 
       if ((this.formInline.templateType === '搜索词' || this.formInline.templateType === '投放') && !params.roleList[0].item.length) {
@@ -671,6 +678,8 @@ export default {
             templateType: result.templateType,
             asinList: result.asinList,
             adjustmentFrequency: result.adjustmentFrequency,
+            endTime: result.endTime || '',
+            startTime: result.startTime || '',
           };
           this.justmentField = result.adCampaignInfos;
           this.deduplication = result.deduplication ? true : false;

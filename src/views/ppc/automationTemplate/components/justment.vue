@@ -23,6 +23,7 @@
               :ref="'table_' + index"
               :rowData="[]"
               :week="item.week"
+              :timeSelect.sync="timeObj[item.week]"
             />
          </el-collapse-item>
       </el-collapse>
@@ -30,7 +31,35 @@
       <justment-tabel
         v-else
         ref="table_everyday"
+        :timeSelect.sync="timeObj['每天']"
         :rowData="[]"
+      />
+
+      <div style="padding: 10px 0">
+        <span>日期范围：</span>
+        <el-date-picker
+          v-model="form.startTime"
+          style="width: 150px"
+          type="date"
+          placeholder="选择日期"
+          :picker-options="pickerOptions"
+          size="mini">
+        </el-date-picker>
+        <span style="margin: 0 6px;color: #d9d9d9;width: 12px;">—</span>
+        <el-date-picker
+          v-model="form.endTime"
+          style="width: 150px"
+          type="date"
+          placeholder="选择日期"
+          :picker-options="pickerOptions2"
+          size="mini">
+        </el-date-picker>
+      </div>
+
+      <timeSelection
+        :timeSelect.sync="timeObj"
+        :echoTimeSelect.sync="echoTimeSelect"
+        :executionFrequency.sync="form.adjustmentFrequency"
       />
   </div>
 </template>
@@ -38,9 +67,11 @@
 <script>
 import justmentTabel from '../../autoAd/componets/adjustmentTabel.vue';
 import { weekList, stateDict } from '@/views/ppc/autoAd/dict';
+import { formatS } from '@/views/ppc/autoAd/componets/timeSelection/ulit';
+import timeSelection from '@/views/ppc/autoAd/componets/timeSelection/index.vue';
 
 export default {
-  components: { justmentTabel },
+  components: { justmentTabel, timeSelection },
   
   props: {
     rowData: {
@@ -55,14 +86,40 @@ export default {
       type: Object,
     }
   },
+  
+  data() {
+    return {
+      timeObj: {
+        星期一: [],
+        星期二: [],
+        星期三: [],
+        星期四: [],
+        星期五: [],
+        星期六: [],
+        星期天: [],
+        每天: [],
+      },
+    };
+  },
+
+  watch: {
+    'form.adjustmentFrequency': {
+      handler(val) {
+        Object.keys(this.timeObj).forEach(item => {
+          this.timeObj[item] = [];
+        });
+      },
+      deep: true,
+    }
+  },
 
   mounted() {
-    console.log(this.echo)
     this.echo && this.echo.length && this.echoField();
    
   },
 
   methods: {
+    formatS,
     weekListFormat() {
       if (this.form.adjustmentFrequency === '每周') {
         return weekList;
@@ -107,7 +164,10 @@ export default {
       }
 
       const msg = [];
-      
+      const map = new Map();
+      const repetition = {};
+      const repetitionMsg = new Map();
+
       params.map(item => {
         if (!item.timeLimit) {
           msg.push(true);
@@ -118,12 +178,104 @@ export default {
         } else if (item.rule && (!item.adjustTheValue || !item.bidLimitValue)) {
           msg.push(true);
         }
+
+        if (item.week) {
+          map.set(item, item.week);
+        } else {
+          map.set(item, '每天');
+        }
       });
 
-      if (msg.length) {
+      const extract = params.filter(item => { //列表其中没填完信息校验
+
+        if (item.timeLimit || item.bidType || item.rule) {
+          if (item.timeLimit === '自定义时间范围' && (!item.startTime || !item.endTime) || !item.bidType) {
+            return item;
+          } else if (item.bidType && (!item.startTime || !item.endTime)) {
+            return item;
+          } else if (item.bidType === '固定竞价' && !item.bid) {
+            return item;
+          } else if (item.rule && (!item.adjustTheValue || !item.bidLimitValue)) {
+            return item;
+          }
+        }
+      });
+
+      for (const [key, val] of map) {
+
+        if (val === '星期一') {
+          const arr = formatS(key.startTime, key.endTime);
+          arr.splice(arr.length - 1, arr[arr.length - 1] === '23:00' ? 0 : 1);
+          repetition[val] = [...repetition[val] || '', ...arr];
+        } else if (val === '星期二') {
+          const arr = formatS(key.startTime, key.endTime);
+          arr.splice(arr.length - 1, arr[arr.length - 1] === '23:00' ? 0 : 1);
+          repetition[val] = [...repetition[val] || '', ...arr];
+        } else if (val === '星期三') {
+          const arr = formatS(key.startTime, key.endTime);
+          arr.splice(arr.length - 1, arr[arr.length - 1] === '23:00' ? 0 : 1);
+          repetition[val] = [...repetition[val] || '', ...arr];
+        } else if (val === '星期四') {
+          const arr = formatS(key.startTime, key.endTime);
+          arr.splice(arr.length - 1, arr[arr.length - 1] === '23:00' ? 0 : 1);
+          repetition[val] = [...repetition[val] || '', ...arr];
+        } else if (val === '星期五') {
+          const arr = formatS(key.startTime, key.endTime);
+          arr.splice(arr.length - 1, arr[arr.length - 1] === '23:00' ? 0 : 1);
+          repetition[val] = [...repetition[val] || '', ...arr];
+        } else if (val === '星期六') {
+          const arr = formatS(key.startTime, key.endTime);
+          arr.splice(arr.length - 1, arr[arr.length - 1] === '23:00' ? 0 : 1);
+          repetition[val] = [...repetition[val] || '', ...arr];
+        } else if (val === '星期天') {
+          const arr = formatS(key.startTime, key.endTime);
+          arr.splice(arr.length - 1, arr[arr.length - 1] === '23:00' ? 0 : 1);
+          repetition[val] = [...repetition[val] || '', ...arr];
+        } else if (val === '每天') {
+          const arr = formatS(key.startTime, key.endTime);
+          arr.splice(arr.length - 1, arr[arr.length - 1] === '23:00' ? 0 : 1);
+          repetition[val] = [...repetition[val] || '', ...arr];
+        }
+      }
+      
+      for (const key in repetition) {
+        repetition[key].map(item => {
+          if (repetitionMsg.has(`${item}${key}`)) {
+            repetitionMsg.set(`${item}${key}`, repetitionMsg.get(`${item}${key}`) + 1);
+          } else {
+            repetitionMsg.set(`${item}${key}`, 1);
+          }
+
+        });
+      }
+      
+      const res = [];
+      for (const [key, val] of repetitionMsg) {
+        if (val > 1) {
+          res.push(key);
+        }
+      }
+
+      if (res.length) {
+        this.$message({
+          type: 'error',
+          message: '调价规则时间范围不能重叠'
+        });
+        return [];
+      }
+
+      if (extract.length) {
         this.$message({
           type: 'error',
           message: '请将规则条件填写完整'
+        });
+        return [];
+      }
+
+      if (msg.length === params.length) {
+        this.$message({
+          type: 'error',
+          message: '调价规则至少填入一条'
         });
         return [];
       }
