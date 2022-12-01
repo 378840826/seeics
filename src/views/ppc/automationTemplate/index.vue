@@ -581,6 +581,9 @@ export default {
     },
     // 创建模板
     save() {
+      if (this.templateMsg()) {
+        return;
+      }
       if ((this.formInline.templateType === '搜索词' || this.formInline.templateType === '投放') && this.templateMsg()) {
         return;
       }
