@@ -37,7 +37,7 @@
       v-if="customCols.includes('竞价策略')" 
       prop="biddingStrategy" 
       label="竞价策略" 
-      width="122"
+      width="158"
     >
       <div slot-scope="{row}">
         {{ biddingStrategyDict[row.biddingStrategy] }}
@@ -193,8 +193,7 @@ export default {
   },
 
   updated () {
-    // 解决表格合计行样式问题
-    // this.$refs.refTable.doLayout();
+    this.$refs.refTable.doLayout();
   },
 
   methods: {
@@ -276,6 +275,9 @@ export default {
 
   watch: {
     treeSelectedKey() {
+      // 要求清空排序
+      this.tableSort = { prop: '', order: '' };
+      this.$refs.refTable.clearSort();
       this.getList();
     },
   },

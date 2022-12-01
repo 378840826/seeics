@@ -75,9 +75,9 @@ export const campaignGroupTypeDict = {
 
 // 竞价策略下拉选择
 export const biddingStrategyDict = {
-  legacyForSales: 'Down Only',
-  autoForSales: 'Up and Down',
-  manual: 'Fixed Bid',
+  legacyForSales: '动态竞价-仅降低',
+  autoForSales: '动态竞价-提高和降低',
+  manual: '固定竞价',
 };
 
 // 关键词匹配方式名称

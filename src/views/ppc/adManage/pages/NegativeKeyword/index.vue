@@ -273,6 +273,7 @@ export default {
       const bodyParams = {
         adStoreId: this.storeId,
         adType: 'sp',
+        portfolioId: this.treeSelectedInfo.portfolioId,
         campaignId: this.treeSelectedInfo.campaignId,
         groupId: this.treeSelectedInfo.groupId,
         state: state ? [state] : [],
