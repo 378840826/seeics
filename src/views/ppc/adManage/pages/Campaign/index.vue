@@ -248,7 +248,7 @@
       v-if="customCols.includes('竞价策略')" 
       prop="biddingStrategy" 
       label="竞价策略" 
-      width="122"
+      width="136"
     >
       <div slot-scope="{row}">
         {{ biddingStrategyDict[row.biddingStrategy] }}
