@@ -208,6 +208,7 @@ import {
   templateDetail,
   createTemplate,
   templateUpdate,
+  getAutomationDetail,
 } from '@/api/ppc/autoAd';
 import adjustemntTabel from './adjustmentTabel.vue';
 import { weekList, stateDict } from '../dict';
@@ -404,6 +405,19 @@ export default {
     handleTemplate(val) {
       console.log(val)
       this.form.templateName = this.autoTempalteList.filter(item => item.value === val)[0].label;
+      getAutomationDetail(val).then(res => {
+        this.form.executionFrequency = res.data.data.adjustmentFrequency;
+        this.form.templateName = res.data.data.templateName;
+        this.form.status = res.data.data.status;
+        this.form.endTime = res.data.data.endTime;
+        this.form.startTime = res.data.data.startTime;
+        this.echoData = res.data.data;
+        // console.log(res)
+        setTimeout(() => {
+          this.echoField({ adCampaignInfos: res.data.data.adCampaignInfos });
+        }, 10)
+        
+      })
     },
 
     handleDitto(val, idx) {
@@ -466,6 +480,7 @@ export default {
       };
       const repetitionMsg = new Map();
       this.getField().map((item, index) => {
+        // console.log(item)
         if (!item.timeLimit) {
           msg.push(true);
         } else if (item.timeLimit === '自定义时间范围' && (!item.startTime || !item.endTime)) {
@@ -480,6 +495,21 @@ export default {
           map.set(item, item.week);
         } else {
           map.set(item, '每天');
+        }
+      });
+
+      const extract = this.getField().filter(item => { //列表其中没填完信息校验
+
+        if (item.timeLimit || item.bidType || item.rule) {
+          if (item.timeLimit === '自定义时间范围' && (!item.startTime || !item.endTime) || !item.bidType) {
+            return item;
+          } else if (item.bidType && (!item.startTime || !item.endTime)) {
+            return item;
+          } else if (item.bidType === '固定竞价' && !item.bid) {
+            return item;
+          } else if (item.rule && (!item.adjustTheValue || !item.bidLimitValue)) {
+            return item;
+          }
         }
       });
 
@@ -555,10 +585,17 @@ export default {
         return;
       }
 
-      if (msg.length) {
+      if (extract.length) {
         return this.$message({
           type: 'error',
           message: '请将规则条件填写完整'
+        });
+      }
+
+      if (msg.length === this.getField().length) {
+        return this.$message({
+          type: 'error',
+          message: '调价规则至少填入一条'
         });
       }
 
@@ -572,8 +609,8 @@ export default {
           status: this.form.status,
           adCampaignInfos: this.getField(),
           id: this.rowData.adjustmentTemplateVoList.length && this.rowData.adjustmentTemplateVoList[0].id || '',
-          startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD HH:mm:ss') || '',
-          endTime: this.form.endTime && dayjs(this.form.endTime).format('YYYY-MM-DD HH:mm:ss') || '',
+          startTime: this.form.startTime && dayjs(this.form.startTime).format('YYYY-MM-DD') || '',
+          endTime: this.form.endTime && dayjs(this.form.endTime).format('YYYY-MM-DD') || '',
         }
 
       if (this.rowData.adjustmentTemplateVoList.length) {
@@ -622,7 +659,7 @@ export default {
       if (!echo.adCampaignInfos.length) {
         return;
       }
-
+    console.log(echo)
       echo.adCampaignInfos.map(item => {
         if (item.week === '星期一') {
           week1.push(item);

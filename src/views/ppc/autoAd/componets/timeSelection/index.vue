@@ -110,10 +110,11 @@ export default {
   watch: {
     timeSelect: {
       handler(val) {
-        // console.log(val)
+        
         const tdDom = document.querySelectorAll('#table td:not(:first-child');
+        // console.log(this.executionFrequency)
         tdDom.forEach(t => {
-          t.style.background = 'rgb(231 231 231 / 50%)';
+          t.style.background = 'rgba(231 231 231 / 50%)';
         });
         Object.keys(val).map((item) => {
           tdDom.forEach(t => {
@@ -122,6 +123,8 @@ export default {
               
               if (val[item].includes(t.ariaChecked)) {
                 t.style.background = 'rgb(175 216 255 / 50%)';
+              } else {
+                t.style.background = 'rgba(231 231 231 / 50%)';
               }
             } else {
               if (t.parentNode.rowIndex === weekIndex(item) + 2 && val[item].includes(t.ariaChecked)) {

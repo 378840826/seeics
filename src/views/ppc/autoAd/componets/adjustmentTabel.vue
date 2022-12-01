@@ -441,27 +441,31 @@ export default {
     getField() {
       // 空值高亮
       this.data.map((item, idx) => {
-        if (!item.timeLimit) {
-          this.$refs[`timeLimit_${idx}`].$children[0].$refs.input.style.borderColor = 'red'
-        } 
-        if (item.timeLimit === '自定义时间范围' && !item.startTime) {
-          this.$refs[`startTime_${idx}`].$children[0].$refs.input.style.borderColor = 'red'
-        }
-        if (item.timeLimit === '自定义时间范围' && !item.endTime) {
-          this.$refs[`endTime_${idx}`].$children[0].$refs.input.style.borderColor = 'red'
-        }
-        if (!item.bidType) {
-          this.$refs[`bidType_${idx}`].$children[0].$refs.input.style.borderColor = 'red'
-        }
-        if (item.bidType === '固定竞价' && !item.bid) {
-          console.log(this.$refs[`bid_${idx}`])
-          this.$refs[`bid_${idx}`].$refs.input.style.borderColor = 'red'
-        }
-        if (item.rule && !item.adjustTheValue) {
-          this.$refs[`adjustTheValue_${idx}`].$refs.input.style.borderColor = 'red'
-        }
-        if (item.rule && !item.bidLimitValue) {
-          this.$refs[`bidLimitValue_${idx}`].$refs.input.style.borderColor = 'red'
+        // console.log(item)
+        if (item.timeLimit || item.bidType) {
+
+          if (!item.timeLimit) {
+            this.$refs[`timeLimit_${idx}`].$children[0].$refs.input.style.borderColor = 'red'
+          } 
+          if (item.timeLimit === '自定义时间范围' && !item.startTime) {
+            this.$refs[`startTime_${idx}`].$children[0].$refs.input.style.borderColor = 'red'
+          }
+          if (item.timeLimit === '自定义时间范围' && !item.endTime) {
+            this.$refs[`endTime_${idx}`].$children[0].$refs.input.style.borderColor = 'red'
+          }
+          if (!item.bidType) {
+            this.$refs[`bidType_${idx}`].$children[0].$refs.input.style.borderColor = 'red'
+          }
+          if (item.bidType === '固定竞价' && !item.bid) {
+            console.log(this.$refs[`bid_${idx}`])
+            this.$refs[`bid_${idx}`].$refs.input.style.borderColor = 'red'
+          }
+          if (item.rule && !item.adjustTheValue) {
+            this.$refs[`adjustTheValue_${idx}`].$refs.input.style.borderColor = 'red'
+          }
+          if (item.rule && !item.bidLimitValue) {
+            this.$refs[`bidLimitValue_${idx}`].$refs.input.style.borderColor = 'red'
+          }
         }
       })
       
