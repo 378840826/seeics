@@ -99,6 +99,18 @@ export default {
         星期天: [],
         每天: [],
       },
+      // 时间默认禁选
+      pickerOptions: {
+        disabledDate: (date) => {
+          return date.getTime() < Date.now() - 8.64e7;
+        }
+      },
+      pickerOptions2: {
+        disabledDate: (date) => {
+          const day = new Date(this.form.startTime);    
+          return date.getTime() <= day.getTime() + 24 * 60 * 60 * 1000 - 8.64e7;
+        }
+      },
     };
   },
 
