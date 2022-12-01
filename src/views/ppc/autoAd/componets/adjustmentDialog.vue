@@ -317,12 +317,18 @@ export default {
       },
       deep: true,
     },
-    timeObj: {
-      handler(val) {
-        // console.log(val)
+
+    'form.startTime': {
+      handler() {
+        const start = new Date(this.form.startTime).getTime();
+        const end = new Date(this.form.endTime).getTime();
+        if (start >= end) {
+          this.form.endTime = '';
+        }
       },
-      deep: true
+      deep: true,
     },
+    
     // echoTimeSelect: {
     //   handler(val) {
     //     console.log(val);
