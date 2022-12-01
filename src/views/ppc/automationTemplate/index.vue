@@ -393,7 +393,18 @@ export default {
         }
       },
       deep: true,
-    }
+    },
+
+    'formInline.startTime': {
+      handler() {
+        const start = new Date(this.formInline.startTime).getTime();
+        const end = new Date(this.formInline.endTime).getTime();
+        if (start >= end) {
+          this.formInline.endTime = '';
+        }
+      },
+      deep: true,
+    },
   },
 
   methods: {
