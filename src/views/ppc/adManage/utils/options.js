@@ -76,3 +76,9 @@ export const searchTermCustomColsOptions = [
   ...commonCustomColsOptions,
 ];
 
+// 广告位页的可自定义列
+export const placementCustomColsOptions = [
+  '竞价策略', '竞价调整', 
+  ...commonCustomColsOptions,
+];
+

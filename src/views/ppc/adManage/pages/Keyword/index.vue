@@ -307,7 +307,7 @@
   :currency="currency"
   :rowData="dataChartsRow"
   :namePath="dataChartsNamePath"
-  :pageType="pageType"
+  pageType="keyword"
 />
 
 <!-- 添加关键词 -->
@@ -422,7 +422,6 @@ export default {
       editKey: '',
       // 数据分析
       dataChartsVisible: false,
-      pageType: 'keyword',
       dataChartsRow: {},
       dataChartsNamePath: [],
       suggestedBidLoading: false,

@@ -220,7 +220,7 @@
   :currency="currency"
   :rowData="dataChartsRow"
   :namePath="dataChartsNamePath"
-  :pageType="pageType"
+  pageType="targetingGroup"
 />
 
 <!-- 批量调整竞价弹窗 -->
@@ -316,7 +316,6 @@ export default {
       editKey: '',
       // 数据分析
       dataChartsVisible: false,
-      pageType: 'targetingGroup',
       dataChartsRow: {},
       dataChartsNamePath: [],
       batchBidDialogVisible: false,
@@ -371,6 +370,7 @@ export default {
       const bodyParams = {
         adStoreId: this.storeId,
         adType: 'sp',
+        portfolioId: this.treeSelectedInfo.portfolioId,
         campaignId: this.treeSelectedInfo.campaignId,
         groupId: this.treeSelectedInfo.groupId,
         state: this.filter.state,
