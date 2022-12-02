@@ -295,6 +295,18 @@
       </div>
     </el-table-column>
 
+    <el-table-column
+      v-if="customCols.includes('智能预算')"
+      prop="intelligenceBudget"
+      label="智能预算" 
+      width="100"
+      sortable="custom"
+    >
+      <div slot-scope="{row}">
+        {{ getValueLocaleString({ value: row.intelligenceBudget, isFraction: true, prefix: currency }) }}
+      </div>
+    </el-table-column>
+
     <el-table-column 
       v-if="customCols.includes('否定关键词')" 
       prop="negativeKeywordNumber" 
@@ -561,14 +573,14 @@ export default {
 
   created() {
     // 由于表格的”投放方式“ 改名为 ”广告类型“，导致保存在用户本地的自定义列项不一致，先打补丁， 后期删除
-    (function patch (colKey) {
-      const flagKey = `flag-${colKey}`;
+    (function patch (colKey, flagNumber) {
+      const flagKey = `flag-${flagNumber}-${colKey}`;
       const flag = getStore({ name: flagKey });
       if (!flag) {
         setStore({ name: colKey, content: null });
         setStore({ name: flagKey, content: true });
       }
-    })('app-adMamage-campaign-customCol');
+    })('app-adMamage-campaign-customCol', 1);
 
     this.getList();
   },
@@ -865,6 +877,8 @@ export default {
         // 日预算 dailyBudget 的 key 返回的是 budget
         if (data.budget) {
           data.dailyBudget = data.budget;
+          // 修改日预算后需要同步到智能预算
+          data.intelligenceBudget = data.budget;
         }
         // 如果修改了广告组合，添加广告组合名称用于修改页面数据
         if (data.portfolioId !== undefined) {
