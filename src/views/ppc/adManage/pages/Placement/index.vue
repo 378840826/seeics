@@ -46,9 +46,12 @@
     </el-table-column>
 
     <el-table-column v-if="customCols.includes('竞价调整')" prop="bidAdjustment" label="竞价调整" width="100">
-      <div v-if="row.campaignPlacement !== 'Other on-Amazon'" slot-scope="{row}">
+      <div slot-scope="{row}">
         {{ getValueLocaleString({ value: row.bidAdjustment, isFraction: true, suffix: '%' }) }}
-        <i v-if="row.campaignState !== 'archived'" class="el-icon-edit table-edit-icon"></i>
+        <i 
+          v-if="row.campaignPlacement !== 'Other on-Amazon' && row.campaignState !== 'archived'" 
+          class="el-icon-edit table-edit-icon"
+        ></i>
       </div>
     </el-table-column>
 
